@@ -386,7 +386,7 @@ def print_galaxies_and_psfs(image,
                 else:
                     psf_icol, psf_irow = icol, irow
                 psf_xp = psf_stamp_size_pix // 2 + psf_icol * psf_stamp_size_pix
-                psf_yp = psf_stamp_size_pix // 2 + psf_icol * psf_stamp_size_pix
+                psf_yp = psf_stamp_size_pix // 2 + psf_irow * psf_stamp_size_pix
                 
 
             elif options['mode'] == 'stamps':
