@@ -25,7 +25,7 @@
 
 # Version info
 version_label = 'SS_VER'
-version_str = '1.0.3'
+version_str = '1.0.4'
 
 galsim_version_label = 'GS_VER'
 
