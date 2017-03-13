@@ -173,11 +173,12 @@ def get_bulge_galaxy_profile(sersic_index,
     return gal_profile
 
 def get_disk_galaxy_profile(half_light_radius,
-                          rotation=0.,
-                          tilt=0.,
-                          flux=1.,
-                          g_shear=0.,
-                          beta_deg_shear=0.,):
+                            rotation=0.,
+                            tilt=0.,
+                            flux=1.,
+                            g_shear=0.,
+                            beta_deg_shear=0.,
+                            height_ratio=0.1):
 
     # Use galsim's hardcoded half-light-radius factor to get scale radius
     # (where hlr is hlr for face-on profile specifically)
@@ -188,11 +189,13 @@ def get_disk_galaxy_profile(half_light_radius,
                                    inclination=tilt * galsim.degrees,
                                    half_light_radius=half_light_radius,
                                    trunc=mv.default_truncation_radius_factor*scale_radius,
-                                   flux=flux)
+                                   flux=flux,
+                                   scale_h_over_r=height_ratio)
     elif have_inclined_exponential:
         base_prof = InclinedExponential(inclination=tilt * galsim.degrees,
                                         scale_radius=scale_radius,
-                                        flux=flux)
+                                        flux=flux,
+                                        scale_h_over_r=height_ratio)
     else:
         raise Exception("get_disk_galaxy_profile requires a version of galsim with the " +
                         "InclinedExponential or InclinedSersic profile.")
@@ -217,9 +220,13 @@ def get_disk_galaxy_image(sersic_index,
                           beta_deg_shear=0.,
                           xp_sp_shift=0,
                           yp_sp_shift=0,
-                          subsampling_factor=1):
+                          subsampling_factor=1,
+                          height_ratio=0.1):
 
     gal_x, gal_y, gal_z, gal_I = load_galaxy_model(sersic_index, False, data_dir)
+    
+    # Adjust for the height ratio
+    gal_z *= height_ratio/0.1
 
     # Apply spin, tilt, and rotation
     gal_x, gal_y = rotate(gal_x, gal_y, spin)

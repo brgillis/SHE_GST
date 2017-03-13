@@ -468,6 +468,7 @@ def print_galaxies_and_psfs(image,
 
         bulge_size = galaxy.get_param_value('apparent_size_bulge')
         disk_size = galaxy.get_param_value('apparent_size_disk')
+        disk_height_ratio=galaxy.get_param_value('disk_height_ratio')
 
         if not options['details_only']:
             if is_target_gal:
@@ -493,7 +494,8 @@ def print_galaxies_and_psfs(image,
                                                                tilt=tilt,
                                                                flux=gal_I * (1 - bulge_fraction),
                                                                g_shear=g_shear,
-                                                               beta_deg_shear=beta_shear,)
+                                                               beta_deg_shear=beta_shear,
+                                                               height_ratio=disk_height_ratio)
 
                     final_disk = galsim.Convolve([disk_gal_profile, disk_psf_profile,
                                                   galsim.Pixel(scale=pixel_scale)],
@@ -513,7 +515,8 @@ def print_galaxies_and_psfs(image,
                                                     yp_sp_shift=yp_sp_shift,
                                                     image_scale=pixel_scale,
                                                     subsampling_factor=subsampling_factor,
-                                                    data_dir=options['data_dir'])
+                                                    data_dir=options['data_dir'],
+                                                    height_ratio=disk_height_ratio)
 
                     ss_disk_image = convolve(disk_psf_profile.image.array, disk_gal_image)
 
