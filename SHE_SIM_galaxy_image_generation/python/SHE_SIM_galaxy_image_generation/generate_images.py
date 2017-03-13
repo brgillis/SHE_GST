@@ -837,7 +837,7 @@ def generate_image(image, options):
             dither.addNoise(noise)
 
         # Add a header containing version info
-        add_image_header_info(dither,gain=options['gain'],stamp_size_pix)
+        add_image_header_info(dither,options['gain'],stamp_size_pix)
 
         galsim.fits.write(dither, dither_file_name)
 
@@ -874,7 +874,7 @@ def generate_image(image, options):
                                                           output_table=otable,
                                                           copy_otable=False)
 
-        add_image_header_info(combined_image,gain=options['gain'],stamp_size_pix)
+        add_image_header_info(combined_image,options['gain'],stamp_size_pix)
 
         # Output the new image
         combined_file_name = combined_file_name_base + '.fits'
@@ -892,7 +892,7 @@ def generate_image(image, options):
         for psf_image in p_psf_image:
             logger.info("Printing "+label+" psf image")
             
-            add_image_header_info(psf_image,gain=1.,options['psf_stamp_size'])
+            add_image_header_info(psf_image,1.,options['psf_stamp_size'])
         
             # Get the base name for this combined image
             psf_file_name = psf_file_name_base + label + '.fits'
