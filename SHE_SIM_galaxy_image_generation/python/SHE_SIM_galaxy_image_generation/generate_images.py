@@ -153,7 +153,11 @@ def print_galaxies_and_psfs(image,
 
     logger = getLogger(mv.logger_name)
     logger.info("Entering 'print_galaxies' function.")
+    
+    # Get some data out of the options
+    model_psf_offset = (options["model_psf_x_offset"],options["model_psf_y_offset"])
 
+    # Get the galaxies we'll be drawing
     galaxies = image.get_galaxy_descendants()
 
     background_galaxies = []
@@ -335,19 +339,28 @@ def print_galaxies_and_psfs(image,
             gal_z = galaxy.get_param_value('redshift')
 
         if not options['details_only']:
+            
+            use_background_psf = (not is_target_gal) or ((not options['euclid_psf']) and
+                                                         (options['model_psf_file_name'] is None))
 
             # Set up the profiles for the psf
             bulge_psf_profile = get_psf_profile(n=gal_n,
                                                 z=gal_z,
                                                 bulge=True,
-                                                use_background_psf=not (is_target_gal and options['euclid_psf']),
-                                                data_dir=options['data_dir'])
+                                                use_background_psf=use_background_psf,
+                                                data_dir=options['data_dir'],
+                                                model_psf_file_name=options['model_psf_file_name'],
+                                                model_psf_scale=options['model_psf_scale'],
+                                                model_psf_offset=model_psf_offset)
             if options['chromatic_psf']:
                 disk_psf_profile = get_psf_profile(n=gal_n,
                                                    z=gal_z,
                                                    bulge=False,
-                                                   use_background_psf=not (is_target_gal and options['euclid_psf']),
-                                                   data_dir=options['data_dir'])
+                                                   use_background_psf=use_background_psf,
+                                                   data_dir=options['data_dir'],
+                                                   model_psf_file_name=options['model_psf_file_name'],
+                                                   model_psf_scale=options['model_psf_scale'],
+                                                   model_psf_offset=model_psf_offset)
             else:
                     disk_psf_profile = bulge_psf_profile
 
