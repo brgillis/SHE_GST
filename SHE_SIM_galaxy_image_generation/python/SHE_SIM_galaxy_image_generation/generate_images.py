@@ -156,6 +156,8 @@ def print_galaxies_and_psfs(image,
     
     # Get some data out of the options
     model_psf_offset = (options["model_psf_x_offset"],options["model_psf_y_offset"])
+    single_output_psf = options['single_psf'] or (options['model_psf_file_name']
+                                                  is not None)
 
     # Get the galaxies we'll be drawing
     galaxies = image.get_galaxy_descendants()
@@ -280,7 +282,7 @@ def print_galaxies_and_psfs(image,
     # Set up bulge and disk psf images
     psf_stamp_size_pix = options['psf_stamp_size']
 
-    if options['single_psf']:
+    if single_output_psf:
         psf_stamp_image_npix_x = psf_stamp_size_pix
         psf_stamp_image_npix_y = psf_stamp_size_pix
     else:
@@ -394,7 +396,7 @@ def print_galaxies_and_psfs(image,
                     yp = galaxy.get_param_value("yp")
                 
                 # Get psf position regardless    
-                if options['single_psf']:
+                if single_output_psf:
                     psf_icol = psf_irow = 0
                 else:
                     psf_icol, psf_irow = icol, irow
@@ -540,7 +542,7 @@ def print_galaxies_and_psfs(image,
                 psf_yc = psf_bounds.center().y
         
                 # Draw the PSF image
-                if (not options['single_psf']) or (icol+irow==0):
+                if (not single_output_psf) or (icol+irow==0):
                     bulge_psf_profile.drawImage(p_bulge_psf_image[0][psf_bounds],
                                                 add_to_image=False,
                                                 method='no_pixel',
