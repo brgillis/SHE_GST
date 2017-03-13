@@ -47,13 +47,11 @@ seds = {4.0:'sbc',
         1.8:'sb3',
         }
 
-psf_center_offset = (-0.5,-2.5)
-
 allowed_ns = np.array((1.8, 2.0, 2.56, 2.71, 3.0, 3.5, 4.0))
 allowed_zs = np.array((0., 0.5, 1.0, 1.5, 2.0))
 
 @lru_cache()
-def load_psf_model_from_file(sed, z=0.0, data_dir=mv.default_data_dir):
+def load_psf_model_from_sed_z(sed, z=0.0, data_dir=mv.default_data_dir):
 
     z_str = "%0.2f" % z
 
@@ -62,7 +60,15 @@ def load_psf_model_from_file(sed, z=0.0, data_dir=mv.default_data_dir):
     model = galsim.fits.read(join(data_dir, mv.psf_model_path, model_filename))
 
     return galsim.InterpolatedImage(model, scale=mv.psf_model_scale,
-                                    offset=psf_center_offset)
+                                    offset=mv.default_psf_center_offset)
+
+@lru_cache()
+def load_psf_model_from_file(file_name, scale, offset):
+
+    model = galsim.fits.read(file_name)
+
+    return galsim.InterpolatedImage(model, scale=scale,
+                                    offset=offset)
 
 @lru_cache()
 def get_background_psf_profile():
@@ -76,10 +82,15 @@ def get_background_psf_profile():
 
     return prof
 
-def get_psf_profile(n, z, bulge, use_background_psf=False, data_dir=mv.default_data_dir):
+def get_psf_profile(n, z, bulge, use_background_psf=False, data_dir=mv.default_data_dir, 
+                    model_psf_file_name=None, model_psf_scale=mv.psf_model_scale,
+                    model_psf_offset=mv.default_psf_center_offset):
 
     if use_background_psf:
         return get_background_psf_profile()
+    
+    if model_psf_file_name is not None:
+        return load_psf_model_from_file(model_psf_file_name, model_psf_scale, model_psf_offset)
 
     diffs = np.abs(allowed_zs - z)
     zi_best = np.argmin(diffs)
@@ -91,4 +102,4 @@ def get_psf_profile(n, z, bulge, use_background_psf=False, data_dir=mv.default_d
         ni_best = np.argmin(diffs)
         sed = seds[allowed_ns[ni_best]]
 
-    return load_psf_model_from_file(sed, allowed_zs[zi_best], data_dir=data_dir)
+    return load_psf_model_from_sed_z(sed, allowed_zs[zi_best], data_dir=data_dir)
