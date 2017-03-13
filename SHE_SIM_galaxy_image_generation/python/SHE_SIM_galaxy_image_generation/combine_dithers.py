@@ -120,7 +120,7 @@ def combine_dithers(dithers,
         combined_data = combined_data[0:-1, 0:-1]
 
         # Make a Galsim image from this data
-        combined_image = galsim.Image(combined_data)
+        combined_image = galsim.Image(combined_data,scale=dithers[0].scale/2)
 
         # Now that we have the image, let's modify the output table
         if combined_otable is not None:

@@ -689,12 +689,14 @@ def print_galaxies_and_psfs(image,
     return galaxies
 
 
-def add_version_to_header(image):
+def add_image_header_info(image, gain):
     """
-        @brief Adds version info to the header of an image.
+        @brief Adds various information to the image's header.
 
         @param image
             <galsim.Image> Galsim image object.
+        @param gain
+            <float> Gain of the image
     """
 
     # Add a header attribute if needed
@@ -709,6 +711,9 @@ def add_version_to_header(image):
         image.header[mv.galsim_version_label] = galsim.__version__
     else:
         image.header[mv.galsim_version_label] = '<1.2'
+        
+    # Gain
+    image.header["CCDGAIN"] = gain
 
 def generate_image(image, options):
     """
@@ -823,7 +828,7 @@ def generate_image(image, options):
             dither.addNoise(noise)
 
         # Add a header containing version info
-        add_version_to_header(dither)
+        add_image_header_info(dither,gain=options['gain'],pixel_scale=dither.scale)
 
         galsim.fits.write(dither, dither_file_name)
 
@@ -860,7 +865,7 @@ def generate_image(image, options):
                                                           output_table=otable,
                                                           copy_otable=False)
 
-        add_version_to_header(combined_image)
+        add_image_header_info(combined_image,gain=options['gain'])
 
         # Output the new image
         combined_file_name = combined_file_name_base + '.fits'
@@ -877,6 +882,8 @@ def generate_image(image, options):
     for label, p_psf_image in (("bulge", p_bulge_psf_image), ("disk", p_disk_psf_image) ):
         for psf_image in p_psf_image:
             logger.info("Printing "+label+" psf image")
+            
+            add_image_header_info(psf_image,gain=1.)
         
             # Get the base name for this combined image
             psf_file_name = psf_file_name_base + label + '.fits'
