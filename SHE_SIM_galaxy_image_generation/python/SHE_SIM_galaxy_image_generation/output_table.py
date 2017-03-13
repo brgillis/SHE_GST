@@ -146,18 +146,18 @@ def output_as_fits(table, filename, header=None):
 
     return
 
-def output_details_tables(otable, otable_header, file_name_base, options):
+def output_details_tables(otable, file_name_base, options):
 
     if ((options['details_output_format'] == 'ascii') or (options['details_output_format'] == 'both')):
         text_file_name = file_name_base + mv.ascii_details_file_tail
-        otable.write(text_file_name, format='ascii.commented_header')
+        otable.write(text_file_name, format='ascii.ecsv')
         # Allow group access to it
         cmd = 'chmod g+rw ' + text_file_name
         subprocess.call(cmd, shell=True)
 
     if ((options['details_output_format'] == 'fits') or (options['details_output_format'] == 'both')):
         fits_file_name = file_name_base + mv.fits_details_file_tail
-        output_as_fits(otable, fits_file_name)
+        otable.write(fits_file_name, format='fits', overwrite=True)
         # Allow group access to it
         cmd = 'chmod g+rw ' + fits_file_name
         subprocess.call(cmd, shell=True)
