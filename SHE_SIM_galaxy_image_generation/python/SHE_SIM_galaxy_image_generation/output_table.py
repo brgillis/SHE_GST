@@ -46,10 +46,6 @@ names_and_dtypes = (('ID', 'i8', 'K'),
             ('tilt', 'f4', 'E'),
             ('shear_magnitude', 'f4', 'E'),
             ('shear_angle', 'f4', 'E'),
-            ('subtracted_sky_level', 'f4', 'E'),
-            ('unsubtracted_sky_level', 'f4', 'E'),
-            ('read_noise', 'f4', 'E'),
-            ('gain', 'f4', 'E'),
             ('is_target_galaxy', 'b1', 'L'))
 
 def get_names():

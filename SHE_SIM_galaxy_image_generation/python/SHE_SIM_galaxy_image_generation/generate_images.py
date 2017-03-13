@@ -671,10 +671,6 @@ def print_galaxies_and_psfs(image,
                              spin=spin,
                              shear_magnitude=g_shear,
                              shear_angle=beta_shear,
-                             subtracted_sky_level=galaxy.get_param_value('subtracted_background'),
-                             unsubtracted_sky_level=galaxy.get_param_value('unsubtracted_background'),
-                             read_noise=options['read_noise'],
-                             gain=options['gain'],
                              is_target_galaxy=is_target_gal)
 
         if is_target_gal and not options['details_only']:
