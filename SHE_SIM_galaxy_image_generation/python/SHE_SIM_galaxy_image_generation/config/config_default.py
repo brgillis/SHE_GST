@@ -125,6 +125,7 @@ allowed_survey_settings = (# Survey level
                             'bulge_fraction',
                             'bulge_axis_ratio',
                             'bulge_ellipticity',
+                            'disk_height_ratio',
                             'galaxy_type',
                             'physical_size_bulge',
                             'physical_size_disk',
