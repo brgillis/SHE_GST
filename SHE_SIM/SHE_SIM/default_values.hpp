@@ -116,6 +116,8 @@ constexpr const flt_t bulge_intrinsic_ellipticity_sigma = 0.25;
 constexpr const flt_t bulge_intrinsic_ellipticity_max = 0.9;
 constexpr const flt_t bulge_intrinsic_ellipticity_p = 4.;
 
+constexpr const flt_t disk_height_ratio = 0.1;
+
 constexpr const flt_t galaxy_type = 0.;
 
 constexpr const flt_t sersic_index_min = 0.3; // Limits coded into GalSim
