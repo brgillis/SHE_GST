@@ -685,7 +685,7 @@ def print_galaxies_and_psfs(image,
     return galaxies
 
 
-def add_image_header_info(image, gain):
+def add_image_header_info(image, gain, stamp_size_px):
     """
         @brief Adds various information to the image's header.
 
@@ -710,6 +710,9 @@ def add_image_header_info(image, gain):
         
     # Gain
     image.header["CCDGAIN"] = gain
+    
+    # Stamp size
+    image.header["STAMP_PX"] = stamp_size_px
 
 
 def generate_image(image, options):
@@ -756,6 +759,10 @@ def generate_image(image, options):
                 dithers.append(galsim.ImageD(full_x_size , full_y_size, scale=pixel_scale))
             else:
                 raise Exception("Bad image type slipped through somehow.")
+    if options['mode']=='field':
+        stamp_size_pix = 0
+    else:
+        stamp_size_pix = options['stamp_size']
 
     # Fill in the galaxies within the image
     image.autofill_children()
@@ -830,7 +837,7 @@ def generate_image(image, options):
             dither.addNoise(noise)
 
         # Add a header containing version info
-        add_image_header_info(dither,gain=options['gain'])
+        add_image_header_info(dither,gain=options['gain'],stamp_size_pix)
 
         galsim.fits.write(dither, dither_file_name)
 
@@ -867,7 +874,7 @@ def generate_image(image, options):
                                                           output_table=otable,
                                                           copy_otable=False)
 
-        add_image_header_info(combined_image,gain=options['gain'])
+        add_image_header_info(combined_image,gain=options['gain'],stamp_size_pix)
 
         # Output the new image
         combined_file_name = combined_file_name_base + '.fits'
@@ -885,7 +892,7 @@ def generate_image(image, options):
         for psf_image in p_psf_image:
             logger.info("Printing "+label+" psf image")
             
-            add_image_header_info(psf_image,gain=1.)
+            add_image_header_info(psf_image,gain=1.,options['psf_stamp_size'])
         
             # Get the base name for this combined image
             psf_file_name = psf_file_name_base + label + '.fits'
