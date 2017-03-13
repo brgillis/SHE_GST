@@ -715,6 +715,7 @@ def add_image_header_info(image, gain):
     # Gain
     image.header["CCDGAIN"] = gain
 
+
 def generate_image(image, options):
     """
         @brief Creates a single image of galaxies
@@ -786,6 +787,10 @@ def generate_image(image, options):
         init_cols.append([])
     otable = Table(init_cols, names=output_table.get_names(),
                    dtype=output_table.get_dtypes())
+    otable.meta["S_SKYLV"] = image.get_param_value('subtracted_background')
+    otable.meta["US_SKYLV"] = image.get_param_value('unsubtracted_background')
+    otable.meta["RD_NOISE"] = options['read_noise']
+    otable.meta["CCDGAIN"] = options['gain']
 
     # Print the galaxies and psfs
     p_bulge_psf_image = []
@@ -843,7 +848,7 @@ def generate_image(image, options):
         otable['x_center_pix'] += x_offset
         otable['y_center_pix'] += y_offset
 
-        output_table.output_details_tables(otable, dither_file_name_base, options)
+        output_table.output_details_tables(otable, otable_header, dither_file_name_base, options)
 
         # Undo dithering adjustment
         otable['x_center_pix'] -= x_offset

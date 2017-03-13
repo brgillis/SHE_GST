@@ -109,7 +109,19 @@ def add_row(table, **kwargs):
     table.add_row(vals=kwargs)
     return
 
-def output_as_fits(table, filename):
+def make_otable_header(subtracted_sky_level,
+                       unsubtracted_sky_level,
+                       read_noise,
+                       gain,):
+    header = {}
+    header["S_SKYLV"] = subtracted_sky_level
+    header["US_SKYLV"] = unsubtracted_sky_level
+    header["RD_NOISE"] = read_noise
+    header["CCDGAIN"] = gain
+    
+    return header
+
+def output_as_fits(table, filename, header=None):
     """ Output an astropy table as a fits binary table.
 
         Requires: table <astropy.tables.Table> (table to be output)
@@ -134,7 +146,7 @@ def output_as_fits(table, filename):
 
     return
 
-def output_details_tables(otable, file_name_base, options):
+def output_details_tables(otable, otable_header, file_name_base, options):
 
     if ((options['details_output_format'] == 'ascii') or (options['details_output_format'] == 'both')):
         text_file_name = file_name_base + mv.ascii_details_file_tail
