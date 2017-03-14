@@ -229,6 +229,13 @@ public:
 	 */
 	int_t num_children() const { return get_children().size(); }
 
+	/**
+	 * Tell whether or not this PHL is orphaned (has no parent).
+	 *
+	 * @return Whether or not this PHL is orphaned
+	 */
+	bool is_orphan() const { return _p_parent == nullptr; }
+
 #endif // Get details on this object
 
 	// Parent-related methods
@@ -247,6 +254,11 @@ public:
 	 * @return A pointer to this object's parent.
 	 */
 	parent_t const * get_parent() const { return _p_parent; }
+
+	/**
+	 * Make self an orphan, removing it from parent's list and clearing parent pointer.
+	 */
+	void emancipate();
 
 #endif
 
@@ -432,6 +444,26 @@ public:
 		_children.push_back(child_ptr_t( new T_child(this, args...) ));
 		return _children.back().get();
 	}
+
+    /**
+     * Orphan a child. Will throw an exception if no child with the given index exists. Returns
+     * a pointer to the child, which can then be readopted by another level (or not).
+     *
+     * @param i Index of the desired child to orphan
+     *
+     * @return A pointer to the orphaned child.
+     */
+    child_t * orphan_child(const int & i);
+
+    /**
+     * Orphan a child. Will throw an exception if this isn't the parent of that child. Returns
+     * a pointer to the child, which can then be readopted by another level (or not).
+     *
+     * @param child_t * Pointer to the desired child to orphan
+     *
+     * @return A pointer to the orphaned child.
+     */
+    child_t * orphan_child(child_t * const & i);
 
 	/**
 	 * Create multiple new children, each with the specified arguments pass to its constructor.

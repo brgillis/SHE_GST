@@ -54,13 +54,32 @@ void ParamHierarchyLevel::_update_parent(parent_ptr_t const & new_p_parent)
 }
 void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t * const & new_p_child)
 {
-	for( auto & child : _children )
+    // Find this child in the children list
+
+    // Start by trying to index by the local ID
+    int_t old_child_ID = old_p_child->get_local_ID();
+    if( old_child_ID < _children.size() )
+    {
+        auto test_child = _children.at(old_child_ID);
+        if( test_child.get() == old_p_child )
+        {
+            test_child.reset(new_p_child);
+            return;
+        }
+    }
+
+    // Can't find by local ID, so we'll have to search
+	for( auto & test_child : _children )
 	{
-		if(child.get()==old_p_child)
+		if(test_child.get()==old_p_child)
 		{
-			child.reset(new_p_child);
+		    test_child.reset(new_p_child);
+		    return;
 		}
 	}
+
+	// Not in children
+	throw std::runtime_error("Cannot update child - can't find it in children list.");
 }
 
 flt_t const & ParamHierarchyLevel::_request_param_value(name_t const & name, name_t const & requester_name)
@@ -325,6 +344,17 @@ ParamHierarchyLevel & ParamHierarchyLevel::operator=(ParamHierarchyLevel && othe
 
 // Public methods
 
+
+void ParamHierarchyLevel::emancipate()
+{
+    // Use the parent's method to orphan this
+
+    // If there is no parent, silently return
+    if(!_p_parent) return;
+
+    _p_parent->orphan_child(this);
+}
+
 std::vector<ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_children( name_t const & type_name )
 {
 	std::vector<ParamHierarchyLevel::child_t *> res;
@@ -399,8 +429,36 @@ ParamHierarchyLevel::child_t const * ParamHierarchyLevel::get_child(const int & 
 	return _children.at(i).get();
 }
 
+ParamHierarchyLevel::child_t * ParamHierarchyLevel::orphan_child(const int & i)
+{
+    child_t * p_child = _children.at(i).release();
+
+    p_child->_update_parent(nullptr);
+
+    return p_child;
+}
+
+ParamHierarchyLevel::child_t * ParamHierarchyLevel::orphan_child(child_t * const & p_child)
+{
+    _update_child(p_child,nullptr);
+
+    p_child->_update_parent(nullptr);
+
+    return p_child;
+}
+
 void ParamHierarchyLevel::adopt_child(child_t * const & p_child)
 {
+    // Check that the child is orphaned first
+    if( !p_child->is_orphan() )
+    {
+        throw std::runtime_error("Only orphaned children can be adopted.");
+    }
+    // Make sure the child is of a higher hierarchy level
+    if( p_child->get_hierarchy_level() <= get_hierarchy_level() )
+    {
+        throw std::runtime_error("Children must be of a deeper hierarchy level to be adopted.");
+    }
 	_children.push_back( child_ptr_t(p_child) );
 }
 
