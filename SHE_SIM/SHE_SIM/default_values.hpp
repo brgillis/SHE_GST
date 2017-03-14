@@ -92,7 +92,7 @@ constexpr const int_t field_level = 4;
 
 constexpr const int_t galaxy_group_level = 5;
 
-// GalaxyGroup-level
+// GalaxyPair-level
 
 constexpr const int_t galaxy_pair_level = 6;
 
