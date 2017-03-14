@@ -475,6 +475,7 @@ void ParamHierarchyLevel::abduct_child(child_t * const & p_child)
 
 void ParamHierarchyLevel::autofill_children()
 {
+  clear_children();
 	fill_children();
 	for( auto & child : _children )
 	{
