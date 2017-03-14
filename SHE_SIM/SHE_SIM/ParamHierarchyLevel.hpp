@@ -483,11 +483,18 @@ public:
 	}
 
 	/**
-	 * Take ownership of a pre-existing child.
+	 * Take ownership of a pre-existing child. Will throw an exception if the child isn't orphaned.
 	 *
 	 * @param p_child Pointer to the child to take ownership of.
 	 */
 	void adopt_child(child_t * const & p_child);
+
+    /**
+     * Take ownership of a pre-existing child, even if it isn't orphaned.
+     *
+     * @param p_child Pointer to the child to take ownership of.
+     */
+    void abduct_child(child_t * const & p_child);
 
 	/**
 	 * Automatically generate appropriate children for this object.

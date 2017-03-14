@@ -454,12 +454,23 @@ void ParamHierarchyLevel::adopt_child(child_t * const & p_child)
     {
         throw std::runtime_error("Only orphaned children can be adopted.");
     }
-    // Make sure the child is of a higher hierarchy level
+    // Make sure the child is of a deeper hierarchy level
     if( p_child->get_hierarchy_level() <= get_hierarchy_level() )
     {
         throw std::runtime_error("Children must be of a deeper hierarchy level to be adopted.");
     }
 	_children.push_back( child_ptr_t(p_child) );
+}
+
+void ParamHierarchyLevel::abduct_child(child_t * const & p_child)
+{
+    // Make sure the child is of a deeper hierarchy level
+    if( p_child->get_hierarchy_level() <= get_hierarchy_level() )
+    {
+        throw std::runtime_error("Children must be of a deeper hierarchy level to be abducted.");
+    }
+    p_child->emancipate();
+    _children.push_back( child_ptr_t(p_child) );
 }
 
 void ParamHierarchyLevel::autofill_children()
