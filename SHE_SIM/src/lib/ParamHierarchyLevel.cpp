@@ -37,6 +37,7 @@
 #include "SHE_SIM/levels/FieldGroup.hpp"
 #include "SHE_SIM/levels/Galaxy.hpp"
 #include "SHE_SIM/levels/GalaxyGroup.hpp"
+#include "SHE_SIM/levels/GalaxyPair.hpp"
 #include "SHE_SIM/levels/Image.hpp"
 #include "SHE_SIM/levels/ImageGroup.hpp"
 #include "SHE_SIM/levels/Survey.hpp"
@@ -527,6 +528,10 @@ std::vector<GalaxyGroup *> ParamHierarchyLevel::ParamHierarchyLevel::get_galaxy_
 {
 	return get_children<GalaxyGroup>();
 }
+std::vector<GalaxyPair *> ParamHierarchyLevel::ParamHierarchyLevel::get_galaxy_pairs()
+{
+    return get_children<GalaxyPair>();
+}
 std::vector<Galaxy *> ParamHierarchyLevel::get_galaxies()
 {
 	return get_children<Galaxy>();
@@ -642,7 +647,11 @@ std::vector<Field *> ParamHierarchyLevel::get_field_descendants()
 }
 std::vector<GalaxyGroup *> ParamHierarchyLevel::ParamHierarchyLevel::get_galaxy_group_descendants()
 {
-	return get_descendants<GalaxyGroup>();
+    return get_descendants<GalaxyGroup>();
+}
+std::vector<GalaxyPair *> ParamHierarchyLevel::ParamHierarchyLevel::get_galaxy_pair_descendants()
+{
+    return get_descendants<GalaxyPair>();
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_galaxy_descendants()
 {

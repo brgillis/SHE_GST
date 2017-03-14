@@ -61,6 +61,10 @@ public:
 
 	void add_galaxy_groups(int_t const & N);
 
+    GalaxyPair * add_galaxy_pair();
+
+    void add_galaxy_pairs(int_t const & N);
+
 	Galaxy * add_galaxy();
 
 	void add_galaxies(int_t const & N);

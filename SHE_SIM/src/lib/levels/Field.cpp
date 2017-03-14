@@ -62,6 +62,16 @@ void Field::add_galaxy_groups(int_t const & N)
 	return ParamHierarchyLevel::spawn_children<GalaxyGroup>(N);
 }
 
+GalaxyPair * GalaxyGroup::add_galaxy_pair()
+{
+    return static_cast<GalaxyPair *>(ParamHierarchyLevel::spawn_child<GalaxyPair>());
+}
+
+void GalaxyGroup::add_galaxy_pairs(int_t const & N)
+{
+    return ParamHierarchyLevel::spawn_children<GalaxyPair>(N);
+}
+
 Galaxy * Field::add_galaxy()
 {
 	Galaxy * gal = static_cast<Galaxy *>(ParamHierarchyLevel::spawn_child<Galaxy>());

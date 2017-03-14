@@ -55,6 +55,7 @@ class Cluster;
 class FieldGroup;
 class Field;
 class GalaxyGroup;
+class GalaxyPair;
 class Galaxy;
 
 /**
@@ -523,6 +524,7 @@ public:
 	std::vector<FieldGroup *> get_field_groups();
 	std::vector<Field *> get_fields();
 	std::vector<GalaxyGroup *> get_galaxy_groups();
+    std::vector<GalaxyPair *> get_galaxy_pairs();
 	std::vector<Galaxy *> get_galaxies();
 	std::vector<Galaxy *> get_background_galaxies();
 	std::vector<Galaxy *> get_foreground_galaxies();
@@ -541,7 +543,8 @@ public:
 	std::vector<Cluster *> get_cluster_descendants();
 	std::vector<FieldGroup *> get_field_group_descendants();
 	std::vector<Field *> get_field_descendants();
-	std::vector<GalaxyGroup *> get_galaxy_group_descendants();
+    std::vector<GalaxyGroup *> get_galaxy_group_descendants();
+    std::vector<GalaxyPair *> get_galaxy_pair_descendants();
 	std::vector<Galaxy *> get_galaxy_descendants();
 	std::vector<Galaxy *> get_background_galaxy_descendants();
 	std::vector<Galaxy *> get_foreground_galaxy_descendants();

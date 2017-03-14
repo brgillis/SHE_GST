@@ -1,5 +1,5 @@
 /**********************************************************************\
- @file GalaxyGroup.cpp
+ @file GalaxyPair.hpp
  ------------------
 
  TODO <Insert file description here>
@@ -23,49 +23,52 @@
 
  \**********************************************************************/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#ifndef SHE_SIM_GAL_PARAMS_LEVELS_GALAXYPAIR_HPP_
+#define SHE_SIM_GAL_PARAMS_LEVELS_GALAXYPAIR_HPP_
 
 #include <vector>
 
 #include "SHE_SIM/common.hpp"
-#include "SHE_SIM/params_list.hpp"
-#include "SHE_SIM/levels/Galaxy.hpp"
-#include "SHE_SIM/levels/GalaxyGroup.hpp"
-#include "SHE_SIM/levels/GalaxyPair.hpp"
+#include "SHE_SIM/default_values.hpp"
+#include "SHE_SIM/ParamHierarchyLevel.hpp"
 
 namespace SHE_SIM
 {
 
-GalaxyGroup::GalaxyGroup(ParamHierarchyLevel * const & p_parent)
-: ParamHierarchyLevel(p_parent)
-{
-}
+// Forward-declare children
+class Galaxy;
 
-// Methods to add children
+/**
+ * TODO Auto-generated comment stub
+ */
+class GalaxyPair: public ParamHierarchyLevel
+{
+
+public:
+	GalaxyPair(ParamHierarchyLevel * const & parent = nullptr);
+	virtual ~GalaxyPair() {}
+
+	/**
+	 * Get the hierarchy level for this class.
+	 * @return The hierachy level. 0 = highest, 1 = just below 0, etc.
+	 */
+	virtual int_t get_hierarchy_level() const override {return dv::galaxy_pair_level;}
+
+	virtual name_t get_name() const override {return galaxy_pair_name;}
+
+	// Methods to add children
 #if(1)
 
-GalaxyPair * GalaxyGroup::add_galaxy_pair()
-{
-    return static_cast<GalaxyPair *>(ParamHierarchyLevel::spawn_child<GalaxyPair>());
-}
+	Galaxy * add_galaxy();
 
-void GalaxyGroup::add_galaxy_pairs(int_t const & N)
-{
-    return ParamHierarchyLevel::spawn_children<GalaxyPair>(N);
-}
-
-Galaxy * GalaxyGroup::add_galaxy()
-{
-	return static_cast<Galaxy *>(ParamHierarchyLevel::spawn_child<Galaxy>());
-}
-
-void GalaxyGroup::add_galaxies(int_t const & N)
-{
-	return ParamHierarchyLevel::spawn_children<Galaxy>(N);
-}
+	void add_galaxies(int_t const & N);
 
 #endif
 
+	virtual ParamHierarchyLevel * clone() const override { return new GalaxyPair(*this); }
+
+};
+
 } // namespace SHE_SIM
+
+#endif // SHE_SIM_GAL_PARAMS_LEVELS_GALAXYPAIR_HPP_

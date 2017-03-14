@@ -239,6 +239,55 @@ def print_galaxies_and_psfs(image,
 
     else:
         num_ratio = 1
+        
+    # If shape noise cancellation is being applied, we'll need to arrange galaxy groups and pairs
+    # manually
+    if options['shape_noise_cancellation']:
+        
+        # Determine how many groups we need, creating just enough
+        galaxies_per_group = options['galaxies_per_group']
+        num_groups = (num_target_galaxies + galaxies_per_group - 1) // galaxies_per_group
+        num_pairs_per_group = (galaxies_per_group+1)//2
+        
+        # Set up galaxy groups and pairs    
+        for i in range(num_groups):
+            image.add_galaxy_group()
+        galaxy_groups = image.get_galaxy_group_desdendants()
+        
+        for galaxy_group in galaxy_groups:
+            for i in range(num_pairs_per_group):
+                galaxy_group.add_galaxy_pair()
+        
+        # Abduct galaxies into groups
+        for i in range(num_target_galaxies):
+            group_i = i // galaxies_per_group
+            pair_i = (i % galaxies_per_group) // num_pairs_per_group
+            
+            galaxy_groups[group_i].get_galaxy_pair_descendants()[pair_i].abduct_child(galaxies[i])
+
+        # For each group, set the rotations as uniformly distributed
+        for galaxy_group in galaxy_groups:
+
+            base_rotation = galaxy_group.get_param_value("rotation")
+
+            # Go for loose galaxies first, inc ase we do that in the future
+            galaxies_in_group = galaxy_group.get_galaxies()
+            num_galaxies_in_group = len(galaxies_in_group)
+
+            for i, galaxy in enumerate(galaxies_in_group):
+                new_rotation = base_rotation + i * 180. / num_galaxies_in_group
+                galaxy.set_param_param("rotation", "fixed", new_rotation)
+
+            # Now handle pairs
+            galaxy_pairs_in_group = galaxy_group.get_galaxy_pairs()
+            num_galaxy_pairs_in_group = len(galaxy_pairs_in_group)
+
+            for i, galaxy_pair in enumerate(galaxy_pairs_in_group):
+                new_rotation = base_rotation + i * 90. / num_galaxy_pairs_in_group
+                galaxy_pair.set_param_param("rotation", "fixed", new_rotation)
+                for galaxy in galaxy_pair.get_galaxies():
+                    galaxy.set_param_param("rotation", "fixed", new_rotation)
+                    new_rotation += 90.
 
     # Figure out how to set up the grid for galaxy/psf stamps, making it as square as possible
     ncols = int(np.ceil(np.sqrt(num_target_galaxies)))
@@ -763,26 +812,6 @@ def generate_image(image, options):
         stamp_size_pix = 0
     else:
         stamp_size_pix = options['stamp_size']
-
-    # Fill in the galaxies within the image
-    image.autofill_children()
-
-    # If shape noise cancellation is being applied, we'll use the angle for galaxy shape we generated
-    # as the initial angle. Also, set up parameters for the cancellation
-    if options['shape_noise_cancellation']:
-        galaxy_groups = image.get_galaxy_group_descendants()
-
-        # For each group, set the rotations as uniformly distributed
-        for galaxy_group in galaxy_groups:
-
-            galaxies_in_group = galaxy_group.get_galaxies()
-            num_in_group = len(galaxies_in_group)
-
-            base_rotation = galaxy_group.get_param_value("rotation")
-
-            for i, galaxy in enumerate(galaxies_in_group):
-                new_rotation = base_rotation + i * 180. / num_in_group
-                galaxy.set_param_param("rotation", "fixed", new_rotation)
 
     # Set up a table for output
     init_cols = []

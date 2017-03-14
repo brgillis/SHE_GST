@@ -1,8 +1,8 @@
 /**********************************************************************\
- @file level_names.hpp
+ @file GalaxyPair.cpp
  ------------------
 
- Names of the PHLs.
+ TODO <Insert file description here>
 
  **********************************************************************
 
@@ -21,24 +21,40 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-\**********************************************************************/
+ \**********************************************************************/
 
-#ifndef SHE_SIM_GAL_PARAMS_LEVEL_NAMES_HPP_
-#define SHE_SIM_GAL_PARAMS_LEVEL_NAMES_HPP_
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
-#define DEF_NAME(level) constexpr const char * level##_name = #level;
+#include <vector>
 
-DEF_NAME(survey)
-DEF_NAME(image_group)
-DEF_NAME(image)
-DEF_NAME(cluster_group)
-DEF_NAME(cluster)
-DEF_NAME(field_group)
-DEF_NAME(field)
-DEF_NAME(galaxy_group)
-DEF_NAME(galaxy_pair)
-DEF_NAME(galaxy)
+#include "SHE_SIM/common.hpp"
+#include "SHE_SIM/params_list.hpp"
+#include "SHE_SIM/levels/Galaxy.hpp"
+#include "SHE_SIM/levels/GalaxyPair.hpp"
 
-#undef DEF_NAME
+namespace SHE_SIM
+{
 
-#endif // SHE_SIM_GAL_PARAMS_LEVEL_NAMES_HPP_
+GalaxyPair::GalaxyPair(ParamHierarchyLevel * const & p_parent)
+: ParamHierarchyLevel(p_parent)
+{
+}
+
+// Methods to add children
+#if(1)
+
+Galaxy * GalaxyPair::add_galaxy()
+{
+	return static_cast<Galaxy *>(ParamHierarchyLevel::spawn_child<Galaxy>());
+}
+
+void GalaxyPair::add_galaxies(int_t const & N)
+{
+	return ParamHierarchyLevel::spawn_children<Galaxy>(N);
+}
+
+#endif
+
+} // namespace SHE_SIM
