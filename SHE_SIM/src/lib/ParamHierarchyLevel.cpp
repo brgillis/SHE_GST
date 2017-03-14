@@ -52,7 +52,8 @@ void ParamHierarchyLevel::_update_parent(parent_ptr_t const & new_p_parent)
 {
 	_p_parent = new_p_parent;
 }
-void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t * const & new_p_child)
+void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t * const & new_p_child,
+    bool release )
 {
     // Find this child in the children list
 
@@ -63,6 +64,7 @@ void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t *
         auto & test_child = _children.at(old_child_ID);
         if( test_child.get() == old_p_child )
         {
+            if(release) test_child.release();
             test_child.reset(new_p_child);
             return;
         }
@@ -73,6 +75,7 @@ void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t *
 	{
 		if(test_child.get()==old_p_child)
 		{
+		    if(release) test_child.release();
 		    test_child.reset(new_p_child);
 		    return;
 		}
@@ -373,7 +376,9 @@ std::vector<const ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_child
 
 	for( const auto & child : _children )
 	{
-		if( ( child->get_name()==type_name ) or ( type_name == "" ) ) res.push_back( child.get() );
+	  if( !child.get() ) continue;
+
+	  if( ( child->get_name()==type_name ) or ( type_name == "" ) ) res.push_back( child.get() );
 	}
 
 	return res;
@@ -385,6 +390,8 @@ std::vector<ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_descendants
 
 	for( auto & child : _children )
 	{
+    if( !child.get() ) continue;
+
 		if( ( child->get_name()==type_name ) or ( type_name == "" ) )
 			res.push_back( child.get() );
 
@@ -405,6 +412,8 @@ std::vector<const ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_desce
 
 	for( const auto & child : _children )
 	{
+    if( !child.get() ) continue;
+
 		if( ( child->get_name()==type_name ) or ( type_name == "" ) )
 			res.push_back( child.get() );
 
@@ -440,7 +449,7 @@ ParamHierarchyLevel::child_t * ParamHierarchyLevel::orphan_child(const int & i)
 
 ParamHierarchyLevel::child_t * ParamHierarchyLevel::orphan_child(child_t * const & p_child)
 {
-    _update_child(p_child,nullptr);
+    _update_child(p_child,nullptr,true);
 
     p_child->_update_parent(nullptr);
 
@@ -460,6 +469,7 @@ void ParamHierarchyLevel::adopt_child(child_t * const & p_child)
         throw std::runtime_error("Children must be of a deeper hierarchy level to be adopted.");
     }
 	_children.push_back( child_ptr_t(p_child) );
+	p_child->_update_parent(this);
 }
 
 void ParamHierarchyLevel::abduct_child(child_t * const & p_child)
@@ -471,6 +481,7 @@ void ParamHierarchyLevel::abduct_child(child_t * const & p_child)
     }
     p_child->emancipate();
     _children.push_back( child_ptr_t(p_child) );
+    p_child->_update_parent(this);
 }
 
 void ParamHierarchyLevel::autofill_children()
@@ -479,6 +490,8 @@ void ParamHierarchyLevel::autofill_children()
 	fill_children();
 	for( auto & child : _children )
 	{
+    if( !child.get() ) continue;
+
 		child->autofill_children();
 	}
 }

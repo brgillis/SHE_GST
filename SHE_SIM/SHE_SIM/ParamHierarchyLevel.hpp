@@ -91,7 +91,8 @@ private:
 	void _update_parent(parent_ptr_t const & new_p_parent);
 
 	// Private methods
-	void _update_child(child_t * const & old_p_child, child_t * const & new_p_child);
+	void _update_child(child_t * const & old_p_child, child_t * const & new_p_child,
+	    bool release = false);
 
 	/**
 	 * Get the value for a parameter with a given name. Will throw an exception if none
@@ -363,6 +364,8 @@ public:
 
 		for( auto & child : _children )
 		{
+	    if( !child.get() ) continue;
+
 			T_child * casted_child = dynamic_cast<T_child *>(child.get());
 			if( casted_child != nullptr )
 			{
@@ -394,6 +397,8 @@ public:
 
 		for( auto & child : _children )
 		{
+	    if( !child.get() ) continue;
+
 			T_child * casted_child = dynamic_cast<const T_child *>(child.get());
 			if( casted_child != nullptr )
 			{
@@ -489,12 +494,12 @@ public:
 	 */
 	void adopt_child(child_t * const & p_child);
 
-    /**
-     * Take ownership of a pre-existing child, even if it isn't orphaned.
-     *
-     * @param p_child Pointer to the child to take ownership of.
-     */
-    void abduct_child(child_t * const & p_child);
+  /**
+   * Take ownership of a pre-existing child, even if it isn't orphaned.
+   *
+   * @param p_child Pointer to the child to take ownership of.
+   */
+  void abduct_child(child_t * const & p_child);
 
 	/**
 	 * Automatically generate appropriate children for this object.
