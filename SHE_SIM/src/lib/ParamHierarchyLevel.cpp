@@ -58,9 +58,9 @@ void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t *
 
     // Start by trying to index by the local ID
     int_t old_child_ID = old_p_child->get_local_ID();
-    if( old_child_ID < _children.size() )
+    if( old_child_ID < int_t(_children.size()) )
     {
-        auto test_child = _children.at(old_child_ID);
+        auto & test_child = _children.at(old_child_ID);
         if( test_child.get() == old_p_child )
         {
             test_child.reset(new_p_child);
