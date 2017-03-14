@@ -164,7 +164,6 @@ def get_bulge_galaxy_profile(sersic_index,
                                 half_light_radius=half_light_radius,
                                 flux=flux)
 
-    g_ell = 0
     shear_ell = galsim.Shear(g=g_ell, beta=beta_deg_ell * galsim.degrees)
     shear_lensing = galsim.Shear(g=g_shear, beta=beta_deg_shear * galsim.degrees)
 
