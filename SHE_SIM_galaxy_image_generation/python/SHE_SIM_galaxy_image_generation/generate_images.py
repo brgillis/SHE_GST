@@ -152,7 +152,7 @@ def print_galaxies_and_psfs(image,
     """
 
     logger = getLogger(mv.logger_name)
-    logger.info("Entering 'print_galaxies' function.")
+    logger.debug("Entering 'print_galaxies' function.")
     
     # Get some data out of the options
     model_psf_offset = (options["model_psf_x_offset"],options["model_psf_y_offset"])
@@ -779,7 +779,7 @@ def generate_image(image, options):
 
     logger = getLogger(mv.logger_name)
 
-    logger.info("# Printing image " + str(image.get_local_ID()) + " #")
+    logger.debug("# Printing image " + str(image.get_local_ID()) + " #")
 
     # Magic numbers
 
@@ -842,7 +842,7 @@ def generate_image(image, options):
     # For each dither
     for di, (x_offset, y_offset) in zip(range(num_dithers), get_dither_scheme(options['dithering_scheme'])):
 
-        logger.info("Printing dither " + str(di) + ".")
+        logger.debug("Printing dither " + str(di) + ".")
 
         # If we're using cutouts, make the cutout image now
         if options['mode'] == 'cutouts':
@@ -894,7 +894,7 @@ def generate_image(image, options):
     # If we have more than one dither, output the combined image
     if num_dithers > 1:
 
-        logger.info("Printing combined image.")
+        logger.debug("Printing combined image.")
 
         # Get the base name for this combined image
         combined_file_name_base = file_name_base + str(i) + "_combined"
@@ -921,7 +921,7 @@ def generate_image(image, options):
     # Output the psf images
     for label, p_psf_image in (("bulge", p_bulge_psf_image), ("disk", p_disk_psf_image) ):
         for psf_image in p_psf_image:
-            logger.info("Printing "+label+" psf image")
+            logger.debug("Printing "+label+" psf image")
             
             add_image_header_info(psf_image,1.,options['psf_stamp_size'])
         
