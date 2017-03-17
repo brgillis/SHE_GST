@@ -29,7 +29,7 @@ from SHE_SIM_galaxy_image_generation import magic_values as mv
 from SHE_SIM_galaxy_image_generation.config.config_default import (allowed_options,
                                                             allowed_fixed_params,
                                                             allowed_survey_settings)
-from SHE_SIM_galaxy_image_generation.run_from_config import run_from_config_file_and_args
+from SHE_SIM_galaxy_image_generation.run_from_config import run_from_args
 from icebrgpy.logging import getLogger
 
 def defineSpecificProgramOptions():
@@ -43,9 +43,6 @@ def defineSpecificProgramOptions():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--config-file-name', type=str, default=None,
-                        help='Filename of the configuration file to use for values not specified ' +
-                        'in the options here.')
     parser.add_argument('--profile',action='store_true',
                         help='Store profiling data for execution.')
 
@@ -86,7 +83,7 @@ def mainMethod(args):
     logger.info('# Entering GenGalsimImages mainMethod()')
     logger.info('#')
 
-    config_file_name = args.config_file_name
+    config_file_name = args.config_file
 
     if(config_file_name is None):
         logger.info('Using default configurations.')
@@ -95,11 +92,11 @@ def mainMethod(args):
         
     if args.profile:
         import cProfile
-        cProfile.runctx("run_from_config_file_and_args(config_file_name, args)",{},
-                        {"run_from_config_file_and_args":run_from_config_file_and_args,
-                         "config_file_name":config_file_name,"args":args},filename="gen_galsim_images.prof")
+        cProfile.runctx("run_from_args( args)",{},
+                        {"run_from_args":run_from_args,
+                         "args":args},filename="gen_galsim_images.prof")
     else:
-        run_from_config_file_and_args(config_file_name, args)
+        run_from_args(args)
 
     logger.info('Exiting GenGalsimImages mainMethod()')
 

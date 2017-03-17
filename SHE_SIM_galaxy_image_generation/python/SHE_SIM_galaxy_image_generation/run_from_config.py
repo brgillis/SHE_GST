@@ -48,6 +48,7 @@ from SHE_SIM_galaxy_image_generation import magic_values as mv
 from SHE_SIM_galaxy_image_generation.config.config_default import (allowed_survey_settings,
                                                                    generation_levels_inverse,)
 from SHE_SIM_galaxy_image_generation.config.parse_config import (set_up_from_config_file,
+                                                                 load_default_configurations,
                                                                  apply_args)
 from SHE_SIM_galaxy_image_generation.generate_images import generate_images
 from icebrgpy.logging import getLogger
@@ -64,6 +65,17 @@ except ImportError as _e:
 def run_from_config_file(config_file_name):
 
     survey, options = set_up_from_config_file(config_file_name)
+
+    run_from_survey_and_options(survey, options)
+
+    return
+
+def run_from_args(cline_args):
+
+    survey, options = load_default_configurations()
+    
+    # Apply cline-args
+    apply_args(survey, options, cline_args)
 
     run_from_survey_and_options(survey, options)
 

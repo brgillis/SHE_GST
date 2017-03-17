@@ -789,6 +789,8 @@ def generate_image(image, options):
 
     file_name_base = join(options['output_folder'], options['output_file_name_base'] + '_')
     psf_file_name_base = join(options['output_folder'], options['psf_file_name_base'] + '_')
+    
+    image.autofill_children()
 
     # General setup from config
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
