@@ -176,8 +176,8 @@ def print_galaxies_and_psfs(image,
         else:
             background_galaxies.append(galaxy)
 
-        num_background_galaxies = len(background_galaxies)
-        num_target_galaxies = len(target_galaxies)
+    num_background_galaxies = len(background_galaxies)
+    num_target_galaxies = len(target_galaxies)
 
     # If we're aiming for a certain number of target galaxies, adjust as necessary
     if options['num_target_galaxies'] > 0:

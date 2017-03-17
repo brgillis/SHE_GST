@@ -43,7 +43,7 @@ def defineSpecificProgramOptions():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--config-file-name', type=str, default="",
+    parser.add_argument('--config-file-name', type=str, default=None,
                         help='Filename of the configuration file to use for values not specified ' +
                         'in the options here.')
     parser.add_argument('--profile',action='store_true',
@@ -88,7 +88,7 @@ def mainMethod(args):
 
     config_file_name = args.config_file_name
 
-    if(config_file_name == ""):
+    if(config_file_name is None):
         logger.info('Using default configurations.')
     else:
         logger.info('Using configurations from file ' + config_file_name + '.')

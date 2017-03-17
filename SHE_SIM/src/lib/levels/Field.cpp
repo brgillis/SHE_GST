@@ -38,6 +38,7 @@
 #include "SHE_SIM/levels/Field.hpp"
 #include "SHE_SIM/levels/Galaxy.hpp"
 #include "SHE_SIM/levels/GalaxyGroup.hpp"
+#include "SHE_SIM/levels/GalaxyPair.hpp"
 
 namespace SHE_SIM
 {
@@ -62,12 +63,12 @@ void Field::add_galaxy_groups(int_t const & N)
 	return ParamHierarchyLevel::spawn_children<GalaxyGroup>(N);
 }
 
-GalaxyPair * GalaxyGroup::add_galaxy_pair()
+GalaxyPair * Field::add_galaxy_pair()
 {
     return static_cast<GalaxyPair *>(ParamHierarchyLevel::spawn_child<GalaxyPair>());
 }
 
-void GalaxyGroup::add_galaxy_pairs(int_t const & N)
+void Field::add_galaxy_pairs(int_t const & N)
 {
     return ParamHierarchyLevel::spawn_children<GalaxyPair>(N);
 }

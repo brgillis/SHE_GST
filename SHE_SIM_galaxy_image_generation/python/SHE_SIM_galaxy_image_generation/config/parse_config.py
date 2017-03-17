@@ -50,9 +50,9 @@ def set_up_from_config_file(config_file_name):
 
     survey, options = load_default_configurations()
 
-    cfg_args = get_cfg_args(config_file_name)
-    
-    apply_args(survey, options, cfg_args)
+    if config_file_name is not None:
+        cfg_args = get_cfg_args(config_file_name)
+        apply_args(survey, options, cfg_args)
     
     return survey, options
 
