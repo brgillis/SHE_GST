@@ -59,9 +59,7 @@ static auto logger = ICEBRG_GET_LOGGER(logger_name);
 // Private methods
 void ParamHierarchyLevel::_update_parent(parent_ptr_t const & new_p_parent)
 {
-    DEBUG_LOG() << "Entering ParamHierarchyLevel::_update_parent method.";
 	_p_parent = new_p_parent;
-	DEBUG_LOG() << "Exiting ParamHierarchyLevel::_update_parent method.";
 }
 void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t * const & new_p_child,
     bool release )
@@ -102,13 +100,11 @@ void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t *
 
 flt_t const & ParamHierarchyLevel::_request_param_value(name_t const & name, name_t const & requester_name)
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::_request_param_value method.";
 	return _params.at(name)->request_value(requester_name);
 }
 
 ParamGenerator * ParamHierarchyLevel::_request_param(name_t const & name, name_t const & requester_name)
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::_request_param method.";
 	return _params.at(name)->request(requester_name);
 }
 
@@ -176,9 +172,7 @@ void ParamHierarchyLevel::_clear_param_cache(name_t const & name)
 
 void ParamHierarchyLevel::_clear_own_param_cache(name_t const & name)
 {
-    DEBUG_LOG() << "Entering ParamHierarchyLevel::_clear_own_param_cache method.";
 	_params.at(name)->_clear_cache();
-    DEBUG_LOG() << "Exiting ParamHierarchyLevel::_clear_own_param_cache method successfully.";
 }
 
 void ParamHierarchyLevel::_clear_param_cache()
@@ -197,12 +191,10 @@ void ParamHierarchyLevel::_clear_param_cache()
 
 void ParamHierarchyLevel::_clear_own_param_cache()
 {
-    DEBUG_LOG() << "Entering ParamHierarchyLevel::_clear_own_param_cache method.";
 	for( auto & param : _params )
 	{
 		param.second->_clear_cache();
 	}
-    DEBUG_LOG() << "Exiting ParamHierarchyLevel::_clear_own_param_cache method successfully.";
 }
 
 // Public methods
@@ -491,13 +483,11 @@ std::vector<const ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_desce
 
 ParamHierarchyLevel::child_t * ParamHierarchyLevel::get_child(const int & i)
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::get_child method.";
 	return _children.at(i).get();
 }
 
 ParamHierarchyLevel::child_t const * ParamHierarchyLevel::get_child(const int & i) const
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::get_child method.";
 	return _children.at(i).get();
 }
 
@@ -902,33 +892,28 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_satellite_galaxy_descendants()
 
 param_t * ParamHierarchyLevel::get_param( name_t const & name )
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::get_param method.";
 	return _params.at(name).get();
 }
 
 const param_t * ParamHierarchyLevel::get_param( name_t const & name) const
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::get_param method.";
 	return _params.at(name).get();
 }
 
 flt_t const & ParamHierarchyLevel::get_param_value( name_t name )
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::get_param_value method.";
 	boost::algorithm::to_lower(name);
 	return _params.at(name).get()->get();
 }
 
 level_t const & ParamHierarchyLevel::get_generation_level( name_t name ) const
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::get_generation_level method.";
 	boost::algorithm::to_lower(name);
 	return get_param(name)->get_generation_level();
 }
 
 level_t const * const & ParamHierarchyLevel::get_p_generation_level( name_t const & name ) const
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::get_p_generation_level method.";
 	return get_param(name)->get_p_generation_level();
 }
 
@@ -962,7 +947,6 @@ void ParamHierarchyLevel::set_generation_level( name_t name, level_t const & lev
 
 ParamParam const * const & ParamHierarchyLevel::get_p_param_params( name_t const & name ) const
 {
-    DEBUG_LOG() << "Entering/exiting ParamHierarchyLevel::get_p_param_params method.";
 	return get_param(name)->get_p_params();
 }
 
@@ -1069,9 +1053,7 @@ long_int_t ParamHierarchyLevel::get_full_seed() const
 
 void ParamHierarchyLevel::set_seed()
 {
-    DEBUG_LOG() << "Entering ParamHierarchyLevel::set_seed method.";
 	set_seed(time(nullptr));
-    DEBUG_LOG() << "Exiting ParamHierarchyLevel::set_seed method successfully.";
 }
 
 
