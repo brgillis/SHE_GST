@@ -155,7 +155,7 @@ def print_galaxies_and_psfs(image,
     """
 
     logger = getLogger(mv.logger_name)
-    logger.debug("Entering 'print_galaxies' function.")
+    logger.debug("Entering 'print_galaxies_and_psfs' function.")
     
     # Get some data out of the options
     model_psf_offset = (options["model_psf_x_offset"],options["model_psf_y_offset"])
@@ -170,6 +170,7 @@ def print_galaxies_and_psfs(image,
 
     # Generate parameters first (for consistent rng)
 
+    logger.debug("Generating galaxy parameters.")
     for galaxy in galaxies:
         galaxy.generate_parameters()
 
@@ -178,6 +179,7 @@ def print_galaxies_and_psfs(image,
             target_galaxies.append(galaxy)
         else:
             background_galaxies.append(galaxy)
+    logger.debug("Finished generating galaxy parameters.")
 
     num_background_galaxies = len(background_galaxies)
     num_target_galaxies = len(target_galaxies)
@@ -189,6 +191,7 @@ def print_galaxies_and_psfs(image,
         if num_ratio > 1:
 
             # Add new galaxies
+            logger.debug("Adjusting number of target galaxies upward.")
             num_extra_target_galaxies = options['num_target_galaxies'] - num_target_galaxies
             if options['mode'] != 'stamps':
                 num_extra_background_galaxies = 0
@@ -223,10 +226,13 @@ def print_galaxies_and_psfs(image,
                             background_galaxies.append(new_galaxy)
                             num_new_background_galaxies += 1
                             bad_type = False
+                            
+            logger.debug("Finished adjusting number of target galaxies upward.")
 
         elif num_ratio < 1:
 
             # Remove galaxies from the lists
+            logger.debug("Adjusting number of target galaxies downward.")
             num_extra_target_galaxies = num_target_galaxies - options['num_target_galaxies'] 
             num_extra_background_galaxies = int((1 - num_ratio) * num_background_galaxies)
 
@@ -234,6 +240,7 @@ def print_galaxies_and_psfs(image,
                 del target_galaxies[-1]
             for _ in range(num_extra_background_galaxies):
                 del background_galaxies[-1]
+            logger.debug("Finished adjusting number of target galaxies downward.")
 
         num_target_galaxies = len(target_galaxies)
 
@@ -247,6 +254,8 @@ def print_galaxies_and_psfs(image,
     # manually
     if options['shape_noise_cancellation']:
         
+        logger.debug("Implementing shape noise cancellation adjustments.")
+    
         # Determine how many groups we need, creating just enough
         galaxies_per_group = options['galaxies_per_group']
         num_groups = (num_target_galaxies + galaxies_per_group - 1) // galaxies_per_group
@@ -269,6 +278,7 @@ def print_galaxies_and_psfs(image,
             galaxy_groups[group_i].get_galaxy_pair_descendants()[pair_i].abduct_child(galaxies[i])
 
         # For each group, set the rotations as uniformly distributed
+        logger.debug("Rotating galaxies in each group uniformly")
         for galaxy_group in galaxy_groups:
 
             base_rotation = galaxy_group.get_param_value("rotation")
@@ -291,6 +301,8 @@ def print_galaxies_and_psfs(image,
                 for galaxy in galaxy_pair.get_galaxies():
                     galaxy.set_param_param("rotation", "fixed", new_rotation)
                     new_rotation += 90.
+        
+        logger.debug("Finished implementing shape noise cancellation")
 
     # Figure out how to set up the grid for galaxy/psf stamps, making it as square as possible
     ncols = int(np.ceil(np.sqrt(num_target_galaxies)))
