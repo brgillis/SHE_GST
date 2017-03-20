@@ -28,6 +28,8 @@
 #include <limits>
 #include <stdexcept>
 
+#include "IceBRG_main/logging.hpp"
+
 #include "SHE_SIM/common.hpp"
 #include "SHE_SIM/default_param_params.hpp"
 #include "SHE_SIM/ParamHierarchyLevel.hpp"
@@ -310,7 +312,7 @@ flt_t const & ParamGenerator::request_value(name_t const & requester_name)
     DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::request_value(\"" << requester_name << "\") method.";
 
 	_add_dependant(requester_name);
-	flt_t res = get();
+	flt_t const & res = get();
 
     DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::request_value(\"" << requester_name << "\") method.";
 	return res;
@@ -321,7 +323,7 @@ flt_t const & ParamGenerator::request_new_value(name_t const & requester_name)
     DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::request_new_value(\"" << requester_name << "\") method.";
 
 	_add_dependant(requester_name);
-	flt_t res =get_new();
+	flt_t const & res =get_new();
 
     DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::request_new_value(\"" << requester_name << "\") method.";
 	return res;
