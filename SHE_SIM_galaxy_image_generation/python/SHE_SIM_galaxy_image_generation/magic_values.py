@@ -92,4 +92,4 @@ psf_model_scale = 0.02 # arcsec/pixel
 
 fftw_wisdom_filename = ".fftw_wisdom"
 
-logger_name = "GenGalsimImages"
+logger_name = "SHE_SIM_galaxy_image_generation"

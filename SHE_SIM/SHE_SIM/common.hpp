@@ -66,6 +66,10 @@ typedef ParamParam param_param_t;
 typedef std::unique_ptr<param_param_t> param_param_ptr_t;
 typedef std::unordered_map<name_t,param_param_ptr_t> param_params_t;
 
+// Other info
+
+constexpr const char * const logger_name = "SHE_SIM";
+
 }
 
 #endif // SHE_SIM_GAL_PARAMS_COMMON_HPP_

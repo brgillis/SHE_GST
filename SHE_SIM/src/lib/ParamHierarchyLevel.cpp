@@ -23,12 +23,13 @@
 
  \**********************************************************************/
 
-#include "SHE_SIM/ParamHierarchyLevel.hpp"
 
 #include <ctime>
 #include <memory>
 #include <random>
 #include <utility>
+
+#include "IceBRG_main/logging.hpp"
 
 #include "SHE_SIM/common.hpp"
 #include "SHE_SIM/levels/Cluster.hpp"
@@ -43,6 +44,7 @@
 #include "SHE_SIM/levels/Survey.hpp"
 #include "SHE_SIM/params_list.hpp"
 #include "SHE_SIM/ParamGenerator.hpp"
+#include "SHE_SIM/ParamHierarchyLevel.hpp"
 #include "SHE_SIM/ParamParam.hpp"
 
 namespace SHE_SIM
@@ -51,7 +53,9 @@ namespace SHE_SIM
 // Private methods
 void ParamHierarchyLevel::_update_parent(parent_ptr_t const & new_p_parent)
 {
+    ICEBRG_LOG(debug,logger_name) << "Entering _update_parent method." << std::endl;
 	_p_parent = new_p_parent;
+    ICEBRG_LOG(debug,logger_name) << "Exiting _update_parent method." << std::endl;
 }
 void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t * const & new_p_child,
     bool release )
