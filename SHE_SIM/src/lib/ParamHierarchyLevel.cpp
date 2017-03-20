@@ -88,7 +88,7 @@ void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t *
 		{
 		    if(release) test_child.release();
 		    test_child.reset(new_p_child);
-            DEBUG_LOG() << "Exiting " << get_name()() << "<ParamHierarchyLevel>::_update_child method successfully.";
+            DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::_update_child method successfully.";
 		    return;
 		}
 	}
@@ -202,7 +202,7 @@ void ParamHierarchyLevel::_clear_own_param_cache()
 ParamHierarchyLevel::ParamHierarchyLevel(parent_ptr_t const & p_parent)
 : _p_parent(p_parent)
 {
-    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::ParamHierarchyLevel method.";
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::ParamHierarchyLevel method.";
 	// Inherit parameters and generation_levels from parent if it exists
 	if(p_parent)
 	{
@@ -232,7 +232,7 @@ ParamHierarchyLevel::ParamHierarchyLevel(parent_ptr_t const & p_parent)
 		_params = get_full_params_map(*this);
 	}
 
-    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::ParamHierarchyLevel method successfully.";
+    DEBUG_LOG() << "Exiting ParamHierarchyLevel::ParamHierarchyLevel method successfully.";
 }
 
 ParamHierarchyLevel::ParamHierarchyLevel(const ParamHierarchyLevel & other)
@@ -242,7 +242,7 @@ ParamHierarchyLevel::ParamHierarchyLevel(const ParamHierarchyLevel & other)
   _seed_seq(other._seed_seq),
   _rng(other._rng)
 {
-    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::ParamHierarchyLevel method.";
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::ParamHierarchyLevel method.";
 
 	// Deep-copy maps
 
@@ -269,7 +269,7 @@ ParamHierarchyLevel::ParamHierarchyLevel(const ParamHierarchyLevel & other)
 				level_ptr_t( new level_t( *(gen_level_name_and_ptr.second.get()) ) ) ) );
 	}
 
-    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::ParamHierarchyLevel method successfully.";
+    DEBUG_LOG() << "Exiting ParamHierarchyLevel::ParamHierarchyLevel method successfully.";
 }
 
 
@@ -289,7 +289,7 @@ ParamHierarchyLevel::ParamHierarchyLevel(ParamHierarchyLevel && other)
   _rng(std::move(other._rng)),
   _params(std::move(other._params))
 {
-    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::ParamHierarchyLevel method.";
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::ParamHierarchyLevel method.";
 
 	// Update parent's pointer to this
 	if(_p_parent)
@@ -302,7 +302,7 @@ ParamHierarchyLevel::ParamHierarchyLevel(ParamHierarchyLevel && other)
 	{
 		child->_update_parent(this);
 	}
-    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::ParamHierarchyLevel method successfully.";
+    DEBUG_LOG() << "Exiting ParamHierarchyLevel::ParamHierarchyLevel method successfully.";
 }
 
 ParamHierarchyLevel & ParamHierarchyLevel::operator=(const ParamHierarchyLevel & other)
