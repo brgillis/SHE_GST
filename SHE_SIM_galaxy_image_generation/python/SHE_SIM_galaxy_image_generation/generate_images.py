@@ -80,6 +80,8 @@ def generate_images(survey, options):
         @param options
             <dict> The options dictionary for this run
     """
+    logger = getLogger(mv.logger_name)
+    logger.debug("Entering generate_images method.")
 
     # Seed the survey
     if options['seed'] == 0:
@@ -94,7 +96,6 @@ def generate_images(survey, options):
     # Multiprocessing doesn't currently work, so print a warning if it's requested
 
     if options['num_parallel_threads'] != 1:
-        logger = getLogger(mv.logger_name)
         logger.warning("Multi-processing is not currently functional; it requires features that " +
                        "will be available in Python 3. Until then, if you wish to use multiple " +
                        "processes, please call this program multiple times with different seed " +
@@ -111,6 +112,8 @@ def generate_images(survey, options):
 
         pool = Pool(processes=cpu_count(), maxtasksperchild=1)
         pool.map(generate_image_with_options_caller(options), images, chunksize=1)
+        
+    logger.debug("Exiting generate_images method.")
 
     return
 
@@ -152,7 +155,7 @@ def print_galaxies_and_psfs(image,
     """
 
     logger = getLogger(mv.logger_name)
-    logger.info("Entering 'print_galaxies' function.")
+    logger.debug("Entering 'print_galaxies' function.")
     
     # Get some data out of the options
     model_psf_offset = (options["model_psf_x_offset"],options["model_psf_y_offset"])
@@ -743,6 +746,9 @@ def add_image_header_info(image, gain, stamp_size_px):
         @param gain
             <float> Gain of the image
     """
+    
+    logger = getLogger(mv.logger_name)
+    logger.debug("Entering add_image_header_info method.")
 
     # Add a header attribute if needed
     if not hasattr(image, "header"):
@@ -762,6 +768,10 @@ def add_image_header_info(image, gain, stamp_size_px):
     
     # Stamp size
     image.header["STAMP_PX"] = stamp_size_px
+    
+    logger.debug("Exiting add_image_header_info method.")
+    
+    return
 
 
 def generate_image(image, options):
@@ -778,6 +788,7 @@ def generate_image(image, options):
     """
 
     logger = getLogger(mv.logger_name)
+    logger.debug("Entering generate_image method.")
 
     logger.info("# Printing image " + str(image.get_local_ID()) + " #")
 
@@ -936,4 +947,5 @@ def generate_image(image, options):
     # We no longer need this image's children, so clear it to save memory
     image.clear()
 
+    logger.debug("Exiting generate_image method.")
     return
