@@ -72,12 +72,18 @@ def run_from_config_file(config_file_name):
 
 def run_from_args(cline_args):
 
+    logger = getLogger(mv.logger_name)
+    
+    logger.debug("# Entering run_from_args method.")
+
     survey, options = load_default_configurations()
     
     # Apply cline-args
     apply_args(survey, options, cline_args)
 
     run_from_survey_and_options(survey, options)
+    
+    logger.debug("# Exiting run_from_args method.")
 
     return
 
@@ -101,27 +107,27 @@ def run_from_survey_and_options(survey, options):
     logger = getLogger(mv.logger_name)
 
     # Print all options we're using to the logger
-    logger.info("# Generating images with the following options: #")
-    logger.info("")
+    logger.debug("# Generating images with the following options: #")
+    logger.debug("")
     for name in options:
-        logger.info(name + ": " + str(options[name]))
-        logger.info("")
+        logger.debug(name + ": " + str(options[name]))
+        logger.debug("")
 
     # Print survey settings and levels too
-    logger.info("# And using the following settings for the physical model: #")
-    logger.info("")
+    logger.debug("# And using the following settings for the physical model: #")
+    logger.debug("")
     for name in allowed_survey_settings:
 
         gen_level = generation_levels_inverse[int(survey.get_generation_level(name))]
-        logger.info(name + " generation level: " + gen_level)
+        logger.debug(name + " generation level: " + gen_level)
 
         param_params = survey.get_param(name).get_params()
         pp_mode = param_params.name()
-        logger.info(name + " generation mode: " + pp_mode)
+        logger.debug(name + " generation mode: " + pp_mode)
         pp_params = param_params.get_parameters_string()
-        logger.info(name + " generation parameters: " + pp_params)
+        logger.debug(name + " generation parameters: " + pp_params)
 
-        logger.info("")
+        logger.debug("")
 
     # Ensure that the output folder exists
     cmd = 'mkdir -p ' + options['output_folder']

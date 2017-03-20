@@ -79,9 +79,9 @@ def mainMethod(args):
 
     logger = getLogger(mv.logger_name)
 
-    logger.info('#')
-    logger.info('# Entering GenGalsimImages mainMethod()')
-    logger.info('#')
+    logger.debug('#')
+    logger.debug('# Entering GenGalsimImages mainMethod()')
+    logger.debug('#')
 
     config_file_name = args.config_file
 
