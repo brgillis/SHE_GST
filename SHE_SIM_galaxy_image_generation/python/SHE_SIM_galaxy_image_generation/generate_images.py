@@ -264,7 +264,7 @@ def print_galaxies_and_psfs(image,
         # Set up galaxy groups and pairs    
         for i in range(num_groups):
             image.add_galaxy_group()
-        galaxy_groups = image.get_galaxy_group_desdendants()
+        galaxy_groups = image.get_galaxy_group_descendants()
         
         for galaxy_group in galaxy_groups:
             for i in range(num_pairs_per_group):
@@ -273,9 +273,9 @@ def print_galaxies_and_psfs(image,
         # Abduct galaxies into groups
         for i in range(num_target_galaxies):
             group_i = i // galaxies_per_group
-            pair_i = (i % galaxies_per_group) // num_pairs_per_group
+            pair_i = (i % galaxies_per_group) // 2
             
-            galaxy_groups[group_i].get_galaxy_pair_descendants()[pair_i].abduct_child(galaxies[i])
+            galaxy_groups[group_i].get_galaxy_pair_descendants()[pair_i].abduct_child(target_galaxies[i])
 
         # For each group, set the rotations as uniformly distributed
         logger.debug("Rotating galaxies in each group uniformly")
@@ -289,7 +289,7 @@ def print_galaxies_and_psfs(image,
 
             for i, galaxy in enumerate(galaxies_in_group):
                 new_rotation = base_rotation + i * 180. / num_galaxies_in_group
-                galaxy.set_param_param("rotation", "fixed", new_rotation)
+                galaxy.set_param_params("rotation", "fixed", new_rotation)
 
             # Now handle pairs
             galaxy_pairs_in_group = galaxy_group.get_galaxy_pairs()
@@ -297,9 +297,9 @@ def print_galaxies_and_psfs(image,
 
             for i, galaxy_pair in enumerate(galaxy_pairs_in_group):
                 new_rotation = base_rotation + i * 90. / num_galaxy_pairs_in_group
-                galaxy_pair.set_param_param("rotation", "fixed", new_rotation)
+                galaxy_pair.set_param_params("rotation", "fixed", new_rotation)
                 for galaxy in galaxy_pair.get_galaxies():
-                    galaxy.set_param_param("rotation", "fixed", new_rotation)
+                    galaxy.set_param_params("rotation", "fixed", new_rotation)
                     new_rotation += 90.
         
         logger.debug("Finished implementing shape noise cancellation")

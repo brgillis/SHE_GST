@@ -133,7 +133,7 @@ void ParamGenerator::_determine_value()
 	else
 	{
 	    // Check that parent version doesn't skip the proper generation level
-	    auto & _p_parent = _p_parent_version();
+	    const auto & _p_parent = _p_parent_version();
 	    if(!_p_parent)
 	    {
             // No parent, so generate here

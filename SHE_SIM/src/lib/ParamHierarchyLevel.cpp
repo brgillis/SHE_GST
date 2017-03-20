@@ -1010,7 +1010,7 @@ long_int_t ParamHierarchyLevel::get_full_ID() const
 
 std::vector<int_t> ParamHierarchyLevel::get_ID_seq() const
 {
-    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_ID_seq method.";
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::get_ID_seq method.";
 
 	// Append this to the parent's sequence if the parent exists
 	if(_p_parent)
@@ -1019,14 +1019,14 @@ std::vector<int_t> ParamHierarchyLevel::get_ID_seq() const
 
 		res.push_back(get_local_ID());
 
-	    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_ID_seq method successfully.";
+	    DEBUG_LOG() << "Exiting ParamHierarchyLevel::get_ID_seq method successfully.";
 		return res;
 	}
 	else // Just use this one's ID
 	{
 		std::vector<int_t> res({get_local_ID()});
 
-	    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_ID_seq method successfully.";
+	    DEBUG_LOG() << "Exiting ParamHierarchyLevel::get_ID_seq method successfully.";
 		return res;
 	}
 }
@@ -1059,7 +1059,7 @@ void ParamHierarchyLevel::set_seed()
 
 void ParamHierarchyLevel::set_seed( int_t const & seed )
 {
-    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::set_seed method.";
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::set_seed method.";
 	// Clear the cache
 	_clear_own_param_cache();
 
@@ -1078,7 +1078,7 @@ void ParamHierarchyLevel::set_seed( int_t const & seed )
 	{
 		child->set_seed(seed);
 	}
-    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::set_seed method successfully.";
+    DEBUG_LOG() << "Exiting ParamHierarchyLevel::set_seed method successfully.";
 }
 
 } // namespace SHE_SIM
