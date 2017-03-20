@@ -132,7 +132,23 @@ void ParamGenerator::_determine_value()
 	}
 	else
 	{
-		_cached_value = _parent_version().get();
+	    // Check that parent version doesn't skip the proper generation level
+	    auto & _p_parent = _p_parent_version();
+	    if(!_p_parent)
+	    {
+            // No parent, so generate here
+            _generate();
+	    }
+	    else if(_p_parent->_p_owner->get_hierarchy_level() >= level_generated_at())
+	    {
+	        // Generated at parent's level or higher
+	        _cached_value = _parent_version().get();
+	    }
+	    else
+	    {
+	        // Generated at a level between this and parent
+	        _generate();
+	    }
 	}
     DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::_determine_value method.";
 }
