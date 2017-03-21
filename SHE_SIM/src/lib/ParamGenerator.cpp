@@ -39,7 +39,7 @@
 
 // Toggle debug-level logging with a define, so we can completely disable it for efficiency later
 #define DEBUGGING true
-#define DEBUG_LOG() if(DEBUGGING) logger.debug()
+#define DEBUG_LOG() if(DEBUGGING) logger.info()
 
 namespace SHE_SIM
 {
@@ -153,7 +153,14 @@ bool ParamGenerator::_provisionally_generated_at_this_level() const
     // Provisional if parent version doesn't exist, or parent is at too shallow a level
     auto const & _p_parent = _p_parent_version();
     if(!_p_parent) return false;
-    return _p_parent->_p_owner->get_hierarchy_level() >= level_generated_at();
+    bool res = _p_parent->_p_owner->get_hierarchy_level() >= level_generated_at();
+
+    if(res)
+        DEBUG_LOG() << "Parameter " << name() << " found to be generated provisionally.";
+    else
+        DEBUG_LOG() << "Parameter " << name() << " found not to be generated provisionally.";
+
+    return res;
 }
 
 void ParamGenerator::_determine_value()
