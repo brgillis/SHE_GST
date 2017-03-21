@@ -143,7 +143,7 @@ void ParamGenerator::_determine_value()
 	}
 	else if(_provisionally_generated_at_this_level())
 	{
-        // Generate provisionally, so generate here
+        // Generated provisionally, so generate here
         _generate();
 	}
     else
