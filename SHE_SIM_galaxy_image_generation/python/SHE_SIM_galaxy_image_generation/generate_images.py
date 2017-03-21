@@ -193,10 +193,10 @@ def print_galaxies_and_psfs(image,
             # Add new galaxies
             logger.debug("Adjusting number of target galaxies upward.")
             num_extra_target_galaxies = options['num_target_galaxies'] - num_target_galaxies
-            if options['mode'] != 'stamps':
-                num_extra_background_galaxies = 0
-            else:
+            if options['mode'] == 'stamps' and options['render_background_galaxies']:
                 num_extra_background_galaxies = int((num_ratio - 1) * num_background_galaxies)
+            else:
+                num_extra_background_galaxies = 0
 
             num_new_target_galaxies = 0
             num_new_background_galaxies = 0
@@ -289,6 +289,7 @@ def print_galaxies_and_psfs(image,
 
             for i, galaxy in enumerate(galaxies_in_group):
                 new_rotation = base_rotation + i * 180. / num_galaxies_in_group
+                if new_rotation > 180: new_rotation -= 180
                 galaxy.set_param_params("rotation", "fixed", new_rotation)
 
             # Now handle pairs
@@ -297,10 +298,12 @@ def print_galaxies_and_psfs(image,
 
             for i, galaxy_pair in enumerate(galaxy_pairs_in_group):
                 new_rotation = base_rotation + i * 90. / num_galaxy_pairs_in_group
+                if new_rotation > 180: new_rotation -= 180
                 galaxy_pair.set_param_params("rotation", "fixed", new_rotation)
                 for galaxy in galaxy_pair.get_galaxies():
                     galaxy.set_param_params("rotation", "fixed", new_rotation)
                     new_rotation += 90.
+                    if new_rotation > 180: new_rotation -= 180
         
         logger.debug("Finished implementing shape noise cancellation")
 
