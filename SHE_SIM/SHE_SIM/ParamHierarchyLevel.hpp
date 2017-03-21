@@ -494,15 +494,18 @@ public:
 	 * Take ownership of a pre-existing child. Will throw an exception if the child isn't orphaned.
 	 *
 	 * @param p_child Pointer to the child to take ownership of.
+     * @param provisional_params Vector of pointers to parameters which were generated provisionally
+     *        by the child.
 	 */
-	void adopt_child(child_t * const & p_child);
+	void adopt_child(child_t * const & p_child,
+	        std::vector<ParamGenerator *> provisional_params = std::vector<ParamGenerator *>());
 
-  /**
-   * Take ownership of a pre-existing child, even if it isn't orphaned.
-   *
-   * @param p_child Pointer to the child to take ownership of.
-   */
-  void abduct_child(child_t * const & p_child);
+    /**
+    * Take ownership of a pre-existing child, even if it isn't orphaned.
+    *
+    * @param p_child Pointer to the child to take ownership of.
+    */
+    void abduct_child(child_t * const & p_child);
 
 	/**
 	 * Automatically generate appropriate children for this object.

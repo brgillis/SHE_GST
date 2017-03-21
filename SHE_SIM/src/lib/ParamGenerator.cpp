@@ -67,7 +67,7 @@ void ParamGenerator::_generate()
     DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::_generate method.";
 	if(_p_params->get_mode()==ParamParam::INDEPENDENT)
 	{
-		_cached_value = _p_params->get_independently(get_rng());
+	    _cache_value(_p_params->get_independently(get_rng()));
 	}
 	else
 	{
@@ -81,6 +81,28 @@ void ParamGenerator::_generate()
 bool ParamGenerator::_is_cached() const
 {
 	return _cached_value != UNCACHED_VALUE;
+}
+
+void ParamGenerator::_cache_value(flt_t const & new_value)
+{
+    _cached_value = new_value;
+}
+
+void ParamGenerator::_cache_provisional_value(flt_t const & new_value)
+{
+    _cache_value(new_value);
+    if(!_generated_at_this_level())
+    {
+        _p_parent_version()->_cache_provisional_value(new_value);
+    }
+    else
+    {
+        // Uncache for any children
+        for( auto const & child : _p_owner->_children )
+        {
+            child->_clear_param_cache(name());
+        }
+    }
 }
 
 void ParamGenerator::_decache()
@@ -149,7 +171,7 @@ void ParamGenerator::_determine_value()
     else
     {
         // Generated at parent's level or higher
-        _cached_value = _parent_version().get();
+        _cache_value(_parent_version().get());
     }
     DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::_determine_value method.";
 }

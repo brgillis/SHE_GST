@@ -532,7 +532,7 @@ ParamHierarchyLevel::child_t * ParamHierarchyLevel::orphan_child(child_t * const
     return p_child;
 }
 
-void ParamHierarchyLevel::adopt_child(child_t * const & p_child)
+void ParamHierarchyLevel::adopt_child(child_t * const & p_child, std::vector<ParamGenerator *> provisional_params)
 {
     DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::adopt_child method.";
 
@@ -548,8 +548,35 @@ void ParamHierarchyLevel::adopt_child(child_t * const & p_child)
         DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::adopt_child method sunuccessfully.";
         throw std::runtime_error("Children must be of a deeper hierarchy level to be adopted.");
     }
+
 	_children.push_back( child_ptr_t(p_child) );
 	p_child->_update_parent(this);
+
+	// Handle provisional parameters of the child now
+
+	// If it's the first child, we'll propagate anything it's already generated upward
+	if(_children.size()==1)
+	{
+	    for( auto p_param : provisional_params )
+	    {
+	        if(p_param->_is_cached())
+	        {
+	            auto p_parent_version = p_param->_p_parent_version();
+	            p_parent_version->_cache_provisional_value(p_param->get());
+	        }
+	    }
+	}
+	// If it's not the first child, clear the caches of all provisional params
+	else
+	{
+        for( auto p_param : provisional_params )
+        {
+            if(p_param->_is_cached())
+            {
+                p_param->_clear_cache();
+            }
+        }
+	}
 
     DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::adopt_child method successfully.";
 }
@@ -564,9 +591,9 @@ void ParamHierarchyLevel::abduct_child(child_t * const & p_child)
         DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::abduct_child method unsuccessfully.";
         throw std::runtime_error("Children must be of a deeper hierarchy level to be abducted.");
     }
-    p_child->emancipate();
-    _children.push_back( child_ptr_t(p_child) );
-    p_child->_update_parent(this);
+    std::vector<ParamGenerator *> provisional_params = p_child->emancipate();
+
+    adopt_child(p_child,provisional_params);
 
     DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::abduct_child method successfully.";
 }

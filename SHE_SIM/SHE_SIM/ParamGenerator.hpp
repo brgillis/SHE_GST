@@ -80,6 +80,9 @@ private:
 
 	virtual bool _is_cached() const;
 
+	void _cache_value(flt_t const & new_value);
+    void _cache_provisional_value(flt_t const & new_value);
+
 	virtual void _decache();
 	void _clear_cache();
 
