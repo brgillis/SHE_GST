@@ -129,7 +129,7 @@ bool ParamGenerator::_provisionally_generated_at_this_level() const
     if(_generated_at_this_level()) return false;
 
     // Provisional if parent version doesn't exist, or parent is at too shallow a level
-    auto & _p_parent = _p_parent_version();
+    auto const & _p_parent = _p_parent_version();
     if(!_p_parent) return false;
     return _p_parent->_p_owner->get_hierarchy_level() >= level_generated_at();
 }
