@@ -259,8 +259,10 @@ public:
 
 	/**
 	 * Make self an orphan, removing it from parent's list and clearing parent pointer.
+	 *
+	 * @return A vector of param generators which are/were provisionally generated at this level.
 	 */
-	void emancipate();
+	std::vector<ParamGenerator *> emancipate();
 
 #endif
 

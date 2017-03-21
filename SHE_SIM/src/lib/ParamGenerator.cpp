@@ -123,6 +123,17 @@ bool ParamGenerator::_generated_at_this_level() const
 	return _p_owner->get_hierarchy_level() <= level_generated_at();
 }
 
+bool ParamGenerator::_provisionally_generated_at_this_level() const
+{
+    // If we really generate here, it isn't provisional
+    if(_generated_at_this_level()) return false;
+
+    // Provisional if parent version doesn't exist, or parent is at too shallow a level
+    auto & _p_parent = _p_parent_version();
+    if(!_p_parent) return false;
+    return _p_parent->_p_owner->get_hierarchy_level() >= level_generated_at();
+}
+
 void ParamGenerator::_determine_value()
 {
     DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::_determine_value method.";
@@ -130,26 +141,16 @@ void ParamGenerator::_determine_value()
 	{
 		_generate();
 	}
-	else
+	else if(_provisionally_generated_at_this_level())
 	{
-	    // Check that parent version doesn't skip the proper generation level
-	    auto & _p_parent = _p_parent_version();
-	    if(!_p_parent)
-	    {
-            // No parent, so generate here
-            _generate();
-	    }
-	    else if(_p_parent->_p_owner->get_hierarchy_level() >= level_generated_at())
-	    {
-	        // Generated at parent's level or higher
-	        _cached_value = _parent_version().get();
-	    }
-	    else
-	    {
-	        // Generated at a level between this and parent
-	        _generate();
-	    }
+        // Generate provisionally, so generate here
+        _generate();
 	}
+    else
+    {
+        // Generated at parent's level or higher
+        _cached_value = _parent_version().get();
+    }
     DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::_determine_value method.";
 }
 

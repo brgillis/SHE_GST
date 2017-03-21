@@ -385,18 +385,35 @@ ParamHierarchyLevel & ParamHierarchyLevel::operator=(ParamHierarchyLevel && othe
 // Public methods
 
 
-void ParamHierarchyLevel::emancipate()
+std::vector<ParamGenerator *> ParamHierarchyLevel::emancipate()
 {
     DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::emancipate method.";
+
+    std::vector<ParamGenerator *> provisional_params;
 
     // Use the parent's method to orphan this
 
     // If there is no parent, silently return
-    if(!_p_parent) return;
+    if(!_p_parent)
+    {
+        DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::emancipate method successfully.";
+        return provisional_params;
+    }
+
+    // Fill up the result list of which params are/were provisionally generated here
+    for( auto & param_name_and_uptr : _params )
+    {
+        ParamGenerator * p_param = param_name_and_uptr.second.get();
+        if(p_param->_provisionally_generated_at_this_level())
+        {
+            provisional_params.push_back(p_param);
+        }
+    }
 
     _p_parent->orphan_child(this);
 
     DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::emancipate method successfully.";
+    return provisional_params;
 }
 
 std::vector<ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_children( name_t const & type_name )
