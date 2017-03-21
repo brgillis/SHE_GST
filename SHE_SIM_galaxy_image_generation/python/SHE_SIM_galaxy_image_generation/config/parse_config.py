@@ -25,11 +25,13 @@
 from string import split
 
 import SHE_SIM
+from SHE_SIM_galaxy_image_generation import magic_values as mv
 from SHE_SIM_galaxy_image_generation.config.config_default import (allowed_options,
                                                             allowed_fixed_params,
                                                             allowed_survey_settings,
                                                             generation_levels,
                                                             load_default_configurations)
+from icebrgpy.logging import getLogger
 
 __all__ = ['get_cfg_args','set_up_from_config_file','apply_args','clean_quotes']
 
@@ -100,17 +102,23 @@ def parse_line(line, args):
 
 def apply_args(survey, options, args):
 
+    logger = getLogger(mv.logger_name)
+    
+    logger.debug("# Entering apply_args method.")
+
     arg_lib = vars(args)
 
     # Check if each option was overriden in the args
     for option in allowed_options:
         if option in arg_lib:
+            logger.debug("Applying option " + option + ": " + str(arg_lib[option]))
             if arg_lib[option] is not None:
                 options[option] = clean_quotes(arg_lib[option])
 
     # Add allowed fixed params
     for fixed_param in allowed_fixed_params:
         if fixed_param in arg_lib:
+            logger.debug("Applying fixed param " + fixed_param + ": " + str(arg_lib[fixed_param]))
             if arg_lib[fixed_param] is not None:
                 survey.set_param_params(fixed_param, 'fixed', clean_quotes(arg_lib[fixed_param]))
 
@@ -120,6 +128,7 @@ def apply_args(survey, options, args):
 
         generation_level_name = param_name + "_level"
         if generation_level_name in arg_lib:
+            logger.debug("Applying generation level " + generation_level_name + ": " + str(arg_lib[generation_level_name]))
             if arg_lib[generation_level_name] is not None:
                 survey.set_generation_level(param_name,
                                             generation_levels[clean_quotes(arg_lib[generation_level_name])])
@@ -127,6 +136,7 @@ def apply_args(survey, options, args):
 
         settings_name = param_name + "_setting"
         if settings_name in arg_lib:
+            logger.debug("Applying setting " + settings_name + ": " + str(arg_lib[settings_name]))
             if arg_lib[settings_name] is not None:
 
                 split_params = clean_quotes(arg_lib[settings_name]).split()
@@ -138,6 +148,8 @@ def apply_args(survey, options, args):
                 survey.set_param_params(param_name, split_params[0].strip(), *flt_args)
         else:
             assert(False)
+    
+    logger.debug("# Exiting apply_args method.")
 
     return
 

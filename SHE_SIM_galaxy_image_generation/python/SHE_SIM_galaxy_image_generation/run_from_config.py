@@ -72,12 +72,18 @@ def run_from_config_file(config_file_name):
 
 def run_from_args(cline_args):
 
+    logger = getLogger(mv.logger_name)
+    
+    logger.debug("# Entering run_from_args method.")
+
     survey, options = load_default_configurations()
     
     # Apply cline-args
     apply_args(survey, options, cline_args)
 
     run_from_survey_and_options(survey, options)
+    
+    logger.debug("# Exiting run_from_args method.")
 
     return
 
