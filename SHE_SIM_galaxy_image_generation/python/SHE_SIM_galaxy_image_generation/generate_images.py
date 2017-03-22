@@ -779,7 +779,7 @@ def add_image_header_info(image, gain, stamp_size_px):
         image.header[mv.galsim_version_label] = '<1.2'
         
     # Gain
-    image.header["CCDGAIN"] = gain
+    image.header["CCDGAIN"] = (gain,'e-/ADU') # Bug in GalSim currentl prevents comments from working
     
     # Stamp size
     image.header["STAMP_PX"] = stamp_size_px
@@ -848,10 +848,10 @@ def generate_image(image, options):
     otable = Table(init_cols, names=output_table.get_names(),
                    dtype=output_table.get_dtypes())
     otable.meta[mv.version_label] = mv.version_str
-    otable.meta["S_SKYLV"] = image.get_param_value('subtracted_background')
-    otable.meta["US_SKYLV"] = image.get_param_value('unsubtracted_background')
-    otable.meta["RD_NOISE"] = options['read_noise']
-    otable.meta["CCDGAIN"] = options['gain']
+    otable.meta["S_SKYLV"] = (image.get_param_value('subtracted_background'),'ADU/arcsec^2')
+    otable.meta["US_SKYLV"] = (image.get_param_value('unsubtracted_background'),'ADU/arcsec^2')
+    otable.meta["RD_NOISE"] = (options['read_noise'],'e-/pixel')
+    otable.meta["CCDGAIN"] = (options['gain'],'e-/ADU')
 
     # Print the galaxies and psfs
     p_bulge_psf_image = []
