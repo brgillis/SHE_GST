@@ -23,7 +23,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from math import sqrt
+from numpy import sqrt
 
 from SHE_SIM_galaxy_image_generation.gain import get_ADU_from_count, get_count_from_ADU
 
@@ -95,7 +95,7 @@ def get_read_noise_ADU_per_pixel(read_noise_count,
     
     return read_noise_ADU_per_pixel
 
-def get_sigma_ADU_per_pixel(pixel_value_ADU,
+def get_var_ADU_per_pixel(pixel_value_ADU,
                             sky_level_ADU_per_sq_arcsec,
                             read_noise_count,
                             pixel_scale,
@@ -111,12 +111,12 @@ def get_sigma_ADU_per_pixel(pixel_value_ADU,
         @return The sigma of the total noise in units of ADU per pixel
     """
     
-    count_lambda = get_count_lambda_per_pixel(pixel_value_ADU,
+    pois_count_lambda = get_count_lambda_per_pixel(pixel_value_ADU,
                                               sky_level_ADU_per_sq_arcsec, pixel_scale, gain)
-    ADU_sigma_sq = get_ADU_from_count(get_ADU_from_count(count_lambda, gain)) # Apply twice since it's squared
+    pois_ADU_var = get_ADU_from_count(get_ADU_from_count(pois_count_lambda, gain), gain) # Apply twice since it's squared
     
-    read_noise_ADU_per_pixel = get_read_noise_ADU_per_pixel(read_noise_count, gain)
+    read_noise_ADU_sigma = get_read_noise_ADU_per_pixel(read_noise_count, gain)
     
-    total_sigma = sqrt( ADU_sigma_sq + read_noise_ADU_per_pixel**2 )
+    total_var = pois_ADU_var + read_noise_ADU_sigma**2
     
-    return total_sigma
+    return total_var

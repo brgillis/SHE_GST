@@ -43,7 +43,7 @@ from SHE_SIM_galaxy_image_generation.galaxy import (get_bulge_galaxy_profile,
                                              is_target_galaxy, get_disk_galaxy_profile,
                                              have_inclined_exponential)
 from SHE_SIM_galaxy_image_generation.magnitude_conversions import get_I
-from SHE_SIM_galaxy_image_generation.noise import get_sigma_ADU_per_pixel
+from SHE_SIM_galaxy_image_generation.noise import get_var_ADU_per_pixel
 from SHE_SIM_galaxy_image_generation.psf import get_psf_profile
 from icebrgpy.logging import getLogger
 from icebrgpy.rebin import rebin
@@ -892,14 +892,17 @@ def generate_image(image, options):
 
         dither += sky_level_unsubtracted_pixel
         if not options['suppress_noise']:
+            base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
             if options['stable_rng']:
-                noise = get_sigma_ADU_per_pixel(pixel_value_ADU=dither.array,
-                            sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
-                            read_noise_count=options['read_noise'],
-                            pixel_scale=pixel_scale,
-                            gain=options['gain'])*galsim.GaussianNoise(sigma=1.)
+                var_array = get_var_ADU_per_pixel(pixel_value_ADU=dither.array,
+                                sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
+                                read_noise_count=options['read_noise'],
+                                pixel_scale=pixel_scale,
+                                gain=options['gain'])
+                noise = galsim.VariableGaussianNoise(base_deviate,
+                                                     var_array)
             else:
-                noise = galsim.CCDNoise(galsim.BaseDeviate(image.get_full_seed() + 1),
+                noise = galsim.CCDNoise(base_deviate,
                                         gain=options['gain'],
                                         read_noise=options['read_noise'],
                                         sky_level=sky_level_subtracted_pixel)
