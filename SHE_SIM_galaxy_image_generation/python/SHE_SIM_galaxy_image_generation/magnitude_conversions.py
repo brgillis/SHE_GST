@@ -90,9 +90,9 @@ def get_I(I_parameter, parameter_type, gain=mv.default_gain, exp_time=mv.default
     elif(parameter_type == 'flux'):
         return get_ADU_from_count(I_parameter * exp_time, gain)
     elif(parameter_type == 'mag_vis'):
-        return get_ADU_from_count(get_count_from_mag_vis(I_parameter, exp_time=exp_time))
+        return get_ADU_from_count(get_count_from_mag_vis(I_parameter, exp_time=exp_time), gain)
     elif(parameter_type == 'mag_i'):
-        return get_ADU_from_count(get_count_from_mag_i(I_parameter, exp_time=exp_time))
+        return get_ADU_from_count(get_count_from_mag_i(I_parameter, exp_time=exp_time), gain)
     else:
         raise Exception("get_I can't handle parameter type '" + str(parameter_type) + "'")
     return
