@@ -348,23 +348,24 @@ def print_galaxies_and_psfs(image,
                                        scale=dithers[di].scale)
             
     # Set up bulge and disk psf images
-    psf_stamp_size_pix = options['psf_stamp_size']
-
-    if single_output_psf:
-        psf_stamp_image_npix_x = psf_stamp_size_pix
-        psf_stamp_image_npix_y = psf_stamp_size_pix
-    else:
-        psf_stamp_image_npix_x = ncols * psf_stamp_size_pix
-        psf_stamp_image_npix_y = nrows * psf_stamp_size_pix
+    if not options['details_only']:
+        psf_stamp_size_pix = options['psf_stamp_size']
     
-    p_bulge_psf_image.append(galsim.Image(psf_stamp_image_npix_x,
-                                          psf_stamp_image_npix_y,
-                                          dtype=dithers[0].dtype,
-                                          scale=dithers[0].scale/options['psf_scale_factor']))
-    p_disk_psf_image.append( galsim.Image(psf_stamp_image_npix_x,
-                                          psf_stamp_image_npix_y,
-                                          dtype=dithers[0].dtype,
-                                          scale=dithers[0].scale/options['psf_scale_factor']))
+        if single_output_psf:
+            psf_stamp_image_npix_x = psf_stamp_size_pix
+            psf_stamp_image_npix_y = psf_stamp_size_pix
+        else:
+            psf_stamp_image_npix_x = ncols * psf_stamp_size_pix
+            psf_stamp_image_npix_y = nrows * psf_stamp_size_pix
+        
+        p_bulge_psf_image.append(galsim.Image(psf_stamp_image_npix_x,
+                                              psf_stamp_image_npix_y,
+                                              dtype=dithers[0].dtype,
+                                              scale=dithers[0].scale/options['psf_scale_factor']))
+        p_disk_psf_image.append( galsim.Image(psf_stamp_image_npix_x,
+                                              psf_stamp_image_npix_y,
+                                              dtype=dithers[0].dtype,
+                                              scale=dithers[0].scale/options['psf_scale_factor']))
 
     if options['render_background_galaxies']:
         logger.info("Printing " + str(num_target_galaxies) + " target galaxies and " +
@@ -512,13 +513,15 @@ def print_galaxies_and_psfs(image,
             subsampling_factor = int(pixel_scale / mv.psf_model_scale)
 
         else: # if not options['details_only']:
-            # Store dummy values for pixel position
+            # Store dummy values for pixel positions
             xp = -1
             yp = -1
             xc = -1
             yc = -1
             xp_sp_shift = 0
             yp_sp_shift = 0
+            psf_xc = -1
+            psf_yc = -1
 
         # Store galaxy data to save calls to the class
 
@@ -717,6 +720,8 @@ def print_galaxies_and_psfs(image,
                                          offset=(-x_centre_offset + x_offset + xp_sp_shift,
                                                  - y_centre_offset + y_offset + xp_sp_shift),
                                          add_to_image=True)
+                    
+                    
 
 
         # Record all data used for this galaxy in the output table
@@ -880,8 +885,6 @@ def generate_image(image, options):
             dithers[di] = make_cutout_image(dithers[di], options, galaxies, otable,
                                             centre_offset)
 
-        dither = dithers[di]
-
         # Output the image
         if num_dithers > 1:
             dither_file_name_base = file_name_base + str(image_ID) + '_dither_' + str(di)
@@ -889,33 +892,35 @@ def generate_image(image, options):
             dither_file_name_base = file_name_base + str(image_ID)
 
         dither_file_name = dither_file_name_base + '.fits'
+        if not options['details_only']:
+            dither = dithers[di]
+            dither += sky_level_unsubtracted_pixel
 
-        dither += sky_level_unsubtracted_pixel
-        if not options['suppress_noise']:
-            base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
-            if options['stable_rng']:
-                var_array = get_var_ADU_per_pixel(pixel_value_ADU=dither.array,
-                                sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
-                                read_noise_count=options['read_noise'],
-                                pixel_scale=pixel_scale,
-                                gain=options['gain'])
-                noise = galsim.VariableGaussianNoise(base_deviate,
-                                                     var_array)
-            else:
-                noise = galsim.CCDNoise(base_deviate,
-                                        gain=options['gain'],
-                                        read_noise=options['read_noise'],
-                                        sky_level=sky_level_subtracted_pixel)
-            dither.addNoise(noise)
-
-        # Add a header containing version info
-        add_image_header_info(dither,options['gain'],stamp_size_pix)
-
-        galsim.fits.write(dither, dither_file_name)
-
-        # Compress the image if necessary
-        if options['compress_images'] >= 1:
-            compress_image(dither_file_name, lossy=(options['compress_images'] >= 2))
+            if not options['suppress_noise']:
+                base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
+                if options['stable_rng']:
+                    var_array = get_var_ADU_per_pixel(pixel_value_ADU=dither.array,
+                                    sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
+                                    read_noise_count=options['read_noise'],
+                                    pixel_scale=pixel_scale,
+                                    gain=options['gain'])
+                    noise = galsim.VariableGaussianNoise(base_deviate,
+                                                         var_array)
+                else:
+                    noise = galsim.CCDNoise(base_deviate,
+                                            gain=options['gain'],
+                                            read_noise=options['read_noise'],
+                                            sky_level=sky_level_subtracted_pixel)
+                dither.addNoise(noise)
+    
+            # Add a header containing version info
+            add_image_header_info(dither,options['gain'],stamp_size_pix)
+    
+            galsim.fits.write(dither, dither_file_name)
+    
+            # Compress the image if necessary
+            if options['compress_images'] >= 1:
+                compress_image(dither_file_name, lossy=(options['compress_images'] >= 2))
 
 
         # Output the datafile if necessary
