@@ -720,7 +720,7 @@ def print_galaxies_and_psfs(image,
 
 
         # Record all data used for this galaxy in the output table
-        if is_target_gal or (options['mode'] == 'field'):
+        if (not options['details_output_format']=='none') and (is_target_gal or (options['mode'] == 'field')):
             output_table.add_row(otable,
                              ID=galaxy.get_full_ID(),
                              x_center_pix=xc + xp_sp_shift,
@@ -842,17 +842,20 @@ def generate_image(image, options):
     else:
         stamp_size_pix = options['stamp_size']
 
-    # Set up a table for output
-    init_cols = []
-    for _ in xrange(output_table.size()):
-        init_cols.append([])
-    otable = Table(init_cols, names=output_table.get_names(),
-                   dtype=output_table.get_dtypes())
-    otable.meta[mv.version_label] = mv.version_str
-    otable.meta["S_SKYLV"] = (image.get_param_value('subtracted_background'),'ADU/arcsec^2')
-    otable.meta["US_SKYLV"] = (image.get_param_value('unsubtracted_background'),'ADU/arcsec^2')
-    otable.meta["RD_NOISE"] = (options['read_noise'],'e-/pixel')
-    otable.meta["CCDGAIN"] = (options['gain'],'e-/ADU')
+    # Set up a table for output if necessary
+    if options['details_output_format']=='none':
+        otable = None
+    else:
+        init_cols = []
+        for _ in xrange(output_table.size()):
+            init_cols.append([])
+        otable = Table(init_cols, names=output_table.get_names(),
+                       dtype=output_table.get_dtypes())
+        otable.meta[mv.version_label] = mv.version_str
+        otable.meta["S_SKYLV"] = (image.get_param_value('subtracted_background'),'ADU/arcsec^2')
+        otable.meta["US_SKYLV"] = (image.get_param_value('unsubtracted_background'),'ADU/arcsec^2')
+        otable.meta["RD_NOISE"] = (options['read_noise'],'e-/pixel')
+        otable.meta["CCDGAIN"] = (options['gain'],'e-/ADU')
 
     # Print the galaxies and psfs
     p_bulge_psf_image = []
@@ -912,17 +915,18 @@ def generate_image(image, options):
             compress_image(dither_file_name, lossy=(options['compress_images'] >= 2))
 
 
-        # Output the datafile
+        # Output the datafile if necessary
 
-        # Temporarily adjust centre positions by dithering
-        otable['x_center_pix'] += x_offset
-        otable['y_center_pix'] += y_offset
-
-        output_table.output_details_tables(otable, dither_file_name_base, options)
-
-        # Undo dithering adjustment
-        otable['x_center_pix'] -= x_offset
-        otable['y_center_pix'] -= y_offset
+        if not options['details_output_format']=='none':
+            # Temporarily adjust centre positions by dithering
+            otable['x_center_pix'] += x_offset
+            otable['y_center_pix'] += y_offset
+    
+            output_table.output_details_tables(otable, dither_file_name_base, options)
+    
+            # Undo dithering adjustment
+            otable['x_center_pix'] -= x_offset
+            otable['y_center_pix'] -= y_offset
 
         logger.info("Finished printing dither " + str(di) + ".")
 

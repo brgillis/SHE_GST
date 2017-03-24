@@ -30,7 +30,7 @@ from SHE_SIM_galaxy_image_generation.galaxy import is_target_galaxy
 import numpy as np
 
 
-def make_cutout_image(image, options, galaxies, otable,
+def make_cutout_image(image, options, galaxies, otable=None,
                       centre_offset=0):
 
     # Get a list of only the target galaxies
@@ -115,11 +115,12 @@ def make_cutout_image(image, options, galaxies, otable,
         # Add the galaxy's stamp to the cutout image
         cutout_image[cutout_bounds] += image[gal_bounds]
 
-        # Adjust the galaxy's x and y centre coordinates in output table
-        index = (otable["ID"] == galaxy.get_full_ID())
-        otable["x_center_pix"][index] = icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift + \
-            x_sp_shift + centre_offset
-        otable["y_center_pix"][index] = irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + \
-            y_sp_shift + centre_offset
+        # Adjust the galaxy's x and y centre coordinates in output table if necessary
+        if otable is not None:
+            index = (otable["ID"] == galaxy.get_full_ID())
+            otable["x_center_pix"][index] = icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift + \
+                x_sp_shift + centre_offset
+            otable["y_center_pix"][index] = irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + \
+                y_sp_shift + centre_offset
 
     return cutout_image
