@@ -61,6 +61,6 @@ def output_shear_estimates(stamps,args):
                         "GAL_GERR": stamp.shear_estimate.gerr,})
             
     # Output the table
-    otable.write(output_file_name,format='fits')
+    otable.write(output_file_name,format='fits',overwrite=True)
     
     return

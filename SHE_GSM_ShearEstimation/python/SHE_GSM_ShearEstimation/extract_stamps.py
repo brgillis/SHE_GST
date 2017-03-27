@@ -24,6 +24,9 @@
 
 import galsim
 
+class Stamp(object):
+    pass
+
 def extract_stamps(galaxies_hdulist):
     
     galaxies_hdu = galaxies_hdulist[0]
@@ -59,7 +62,7 @@ def extract_stamps(galaxies_hdulist):
             galaxy_image = image.subImage(stamp_bounds)
             
             # Set this up, along with its center, as an object to output
-            stamp = object()
+            stamp = Stamp()
             stamp.image = galaxy_image
             stamp.center = stamp_bounds.center()
             

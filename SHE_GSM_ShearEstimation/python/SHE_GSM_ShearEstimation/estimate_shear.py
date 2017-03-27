@@ -22,7 +22,30 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import numpy as np
 import galsim
+
+from icebrgpy.function_cache import lru_cache
+from icebrgpy.logging import getLogger
+
+from SHE_GSM_ShearEstimation import magic_values as mv
+
+class ShearEstimate(object):
+    pass
+
+@lru_cache(maxsize=1024)
+def get_resampled_image(file_name, scale):
+    
+    image = galsim.fits.read(file_name)
+    
+    resampled_nx = int(np.shape(image.array)[0] / (scale/image.scale))
+    resampled_ny = int(np.shape(image.array)[1] / (scale/image.scale))
+    
+    resampled_image = galsim.Image(resampled_nx,resampled_ny)
+    
+    galsim.InterpolatedImage(image).drawImage(resampled_image)
+    
+    return resampled_image
 
 def estimate_shear(method,*args,**kwargs):
     """
@@ -44,15 +67,40 @@ def estimate_shear(method,*args,**kwargs):
     else:
         raise Exception("Invalid shear estimation method: " + str(method))
     
-def estimate_shear_KSB(galaxy_image, psf_image):
+def estimate_shear_KSB(galaxy_image, psf_image_file_name):
+
+    logger = getLogger(mv.logger_name)
     
-    galsim_shear_estimate = galsim.hsm.EstimateShear(gal_image=galaxy_image, psf_image=psf_image,
-                                                     sky_var=0., shear_est='KSB')
+    logger.debug("Entering estimate_shear_KSB")
     
-    shear_estimate = object()
-    shear_estimate.g1 = galsim_shear_estimate.corrected_g1
-    shear_estimate.g2 = galsim_shear_estimate.corrected_g2
-    shear_estimate.gerr = galsim_shear_estimate.corrected_shape_err
+    psf_image= get_resampled_image(psf_image_file_name, galaxy_image.scale)
+    
+    shear_estimate = ShearEstimate()
+    
+    try:
+        galsim_shear_estimate = galsim.hsm.EstimateShear(gal_image=galaxy_image,
+                                                         PSF_image=psf_image,
+                                                         sky_var=100.,
+                                                         guess_sig_gal=0.5/galaxy_image.scale,
+                                                         guess_sig_PSF=0.2/psf_image.scale,
+                                                         shear_est='KSB')
+        
+        shear_estimate.g1 = galsim_shear_estimate.corrected_g1
+        shear_estimate.g2 = galsim_shear_estimate.corrected_g2
+        shear_estimate.gerr = galsim_shear_estimate.corrected_shape_err
+    except RuntimeError as e:
+        
+        if("HSM Error" not in str(e)):
+            raise
+        
+        logger.info(str(e))
+        
+        shear_estimate.g1 = 0
+        shear_estimate.g2 = 0
+        shear_estimate.gerr = 1e99
+        
+    
+    logger.debug("Exiting estimate_shear_KSB")
     
     return shear_estimate
     
