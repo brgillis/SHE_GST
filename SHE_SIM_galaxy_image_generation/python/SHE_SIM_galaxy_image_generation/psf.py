@@ -56,10 +56,8 @@ def load_psf_model_from_sed_z(sed, z=0.0, data_dir=mv.default_data_dir):
     z_str = "%0.2f" % z
 
     model_filename = sed_names[sed] + ".fits_0.000_0.804_" + z_str + ".fits"
-
-    model = galsim.fits.read(join(data_dir, mv.psf_model_path, model_filename))
-
-    return galsim.InterpolatedImage(model, scale=mv.psf_model_scale,
+    
+    return load_psf_model_from_file(model_filename, scale=mv.psf_model_scale,
                                     offset=mv.default_psf_center_offset)
 
 @lru_cache()
