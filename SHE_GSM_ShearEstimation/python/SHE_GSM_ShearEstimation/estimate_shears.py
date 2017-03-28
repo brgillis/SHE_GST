@@ -40,18 +40,15 @@ def estimate_shears_from_args(args):
     """
     
     # Load the galaxies image
-    galaxies_hdulist = fits.open(file_name=args.galaxies_image_file_name)
+    galaxies_hdulist = fits.open(args.galaxies_image_file_name)
     
     # Get a list of postage stamps
-    stamps = extract_stamps(galaxies_hdulist=galaxies_hdulist)
-    
-    # Load the PSF image
-    psf_image = galsim.fits.read(file_name=args.psf_image_file_name)
+    stamps = extract_stamps(galaxies_hdulist)
     
     # Estimate the shear for each stamp
     for stamp in stamps:
         shear_estimate = estimate_shear(galaxy_image=stamp.image,
-                                        psf_image=psf_image,
+                                        psf_image_file_name=args.psf_image_file_name,
                                         method=args.method)
         stamp.shear_estimate = shear_estimate
         

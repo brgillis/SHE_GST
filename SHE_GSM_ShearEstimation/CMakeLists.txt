@@ -9,7 +9,7 @@ elements_depends_on_subdirs(icebrgpy)
 elements_install_python_modules()
 
 # Instruction for creating a Python executable
-elements_add_python_program(SHE_GSM_EstimateShears SHE_GSM_ShearEstimation.EstimateShears)
+elements_add_python_program(SHE_GSM_EstimateShear SHE_GSM_ShearEstimation.EstimateShear)
 
 # Install the configuration files
 # elements_install_conf_files()

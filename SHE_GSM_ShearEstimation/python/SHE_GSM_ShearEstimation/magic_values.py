@@ -25,4 +25,4 @@
 logger_name = "SHE_GSM_EstimateShear"
 
 image_tail = ".fits"
-output_tail = "_shapes.fits"
+output_tail = "_shear_measurements.fits"

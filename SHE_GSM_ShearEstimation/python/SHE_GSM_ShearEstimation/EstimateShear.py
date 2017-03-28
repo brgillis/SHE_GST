@@ -43,9 +43,9 @@ def defineSpecificProgramOptions():
                         help='Store profiling data for execution.')
     
     # Input data
-    parser.add_argument('--galaxies_image_file_name',type=str,
+    parser.add_argument('galaxies_image_file_name',type=str,
                         help='Name of the simulated image file to process.')
-    parser.add_argument('--psf_image_file_name',type=str,
+    parser.add_argument('psf_image_file_name',type=str,
                         help='Name of the file containing the PSF image.')
     
     # Method to use
@@ -83,6 +83,6 @@ def mainMethod(args):
     else:
         estimate_shears_from_args(args)
 
-    logger.debug('Exiting GenGalsimImages mainMethod()')
+    logger.debug('# Exiting GenGalsimImages mainMethod()')
 
     return
