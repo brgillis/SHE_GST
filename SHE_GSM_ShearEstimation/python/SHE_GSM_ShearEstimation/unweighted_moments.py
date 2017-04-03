@@ -25,7 +25,7 @@
 
 import numpy as np
 
-from estimate_shear import ShearEstimate
+from SHE_GSM_ShearEstimation.estimate_shear import ShearEstimate
 
 def calculate_unweighted_ellipticity(prof):
     """
@@ -56,7 +56,7 @@ def draw_prof(prof):
     # Draw the image.  Note: need a method that integrates over pixels to get flux right.
     galsim_image = prof.drawImage(method='no_pixel',dtype=float)
     
-    return galsim_image.array()
+    return galsim_image.array
 
 def calculate_unweighted_ellipticity_from_image(image):
     """
@@ -72,7 +72,8 @@ def calculate_unweighted_ellipticity_from_image(image):
     shape = np.shape(image)
     
     # Note inversion of x and y due to reading it in in Fortran ordering
-    yc, xc = np.divide(shape,2.)
+    yc = (shape[0] - 1) / 2.
+    xc = (shape[1] - 1) / 2.
     
     indices = np.indices(shape, dtype=int)
     y_array = indices[0] - yc
