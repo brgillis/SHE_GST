@@ -924,13 +924,13 @@ def generate_image(image, options):
                 elif options['noise_cancellation']=='true':
                     dither_copy = deepcopy(dither)
                     dither.addNoise(noise)
-                    dithers[di] = [(dither_copy-dither, 'i')]
+                    dithers[di] = [(2*dither_copy-dither, 'i')]
                     del dither_copy
                 elif options['noise_cancellation']=='both':
                     dither_copy = deepcopy(dither)
                     dither.addNoise(noise)
                     dithers[di] = [(dither, ''),
-                                   (dither_copy-dither, 'i')]
+                                   (2*dither_copy-dither, 'i')]
                     del dither_copy
                 else:
                     raise Exception("Invalid value for noise_cancellation: " + str(options['noise_cancellation']))
