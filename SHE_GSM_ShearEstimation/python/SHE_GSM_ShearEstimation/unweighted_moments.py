@@ -58,6 +58,28 @@ def draw_prof(prof):
     
     return galsim_image.array
 
+def get_g_from_e(e1,e2):
+    """
+    @brief
+        Calculates the g-style shear from e-style
+        
+    @param e1
+    @param e2
+    
+    @return g1, g2
+    """
+    
+    e = np.sqrt(np.square(e1)+np.square(e2))
+    beta = np.arctan2(e2,e1)
+    
+    r2 = (1.-e)/(1.+e)
+    
+    r = np.sqrt(r2)
+    
+    g = (1.-r)/(1.+r)
+    
+    return g*np.cos(beta), g*np.sin(beta)
+
 def calculate_unweighted_ellipticity_from_image(image):
     """
     @brief
@@ -89,7 +111,9 @@ def calculate_unweighted_ellipticity_from_image(image):
     
     mxx_p_myy = mxx + myy
     
-    g1 = (mxx-myy) / mxx_p_myy
-    g2 = 2*mxy / mxx_p_myy
+    e1 = (mxx-myy) / mxx_p_myy
+    e2 = 2*mxy / mxx_p_myy
+    
+    g1, g2 = get_g_from_e(e1,e2)
     
     return ShearEstimate(g1,g2,0)
