@@ -128,7 +128,15 @@ def combine_dithers(dithers,
             combined_otable['x_center_pix'] -= 0.5
             combined_otable['y_center_pix'] *= 2
             combined_otable['y_center_pix'] -= 0.5
-            combined_otable['Read_noise'] *= 2
+            
+            old_read_noise = combined_otable.meta['RD_NOISE']
+            combined_otable.meta['RD_NOISE'] = 2*old_read_noise[0], old_read_noise[1]
+            
+            old_subtracted_sky_level = combined_otable.meta['S_SKYLV']
+            combined_otable.meta['S_SKYLV'] = 4*old_subtracted_sky_level[0], old_subtracted_sky_level[1]
+            
+            old_unsubtracted_sky_level = combined_otable.meta['US_SKYLV']
+            combined_otable.meta['US_SKYLV'] = 4*old_unsubtracted_sky_level[0], old_unsubtracted_sky_level[1]
 
     else:
         raise Exception("Unrecognized dithering scheme: " + dithering_scheme)

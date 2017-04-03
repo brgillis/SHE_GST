@@ -620,7 +620,7 @@ def print_galaxies_and_psfs(image,
                     bulge_psf_profile.drawImage(p_bulge_psf_image[0][psf_bounds],
                                                 add_to_image=False,
                                                 method='no_pixel',
-                                                offset=(0,centre_offset))
+                                                offset=(centre_offset,centre_offset))
                     disk_psf_profile.drawImage( p_disk_psf_image[0][psf_bounds],
                                                 add_to_image=False,
                                                 method='no_pixel',
