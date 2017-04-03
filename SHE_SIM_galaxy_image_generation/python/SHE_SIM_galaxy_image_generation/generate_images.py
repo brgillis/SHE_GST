@@ -28,6 +28,7 @@ from __future__ import division
 
 from multiprocessing import cpu_count, Pool
 from os.path import join
+from copy import deepcopy
 
 from astropy.table import Table
 import galsim
@@ -895,8 +896,12 @@ def generate_image(image, options):
         if not options['details_only']:
             dither = dithers[di]
             dither += sky_level_unsubtracted_pixel
+                
+            # Add a header containing version info
+            add_image_header_info(dither,options['gain'],stamp_size_pix)
 
             if not options['suppress_noise']:
+                
                 base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
                 if options['stable_rng']:
                     var_array = get_var_ADU_per_pixel(pixel_value_ADU=dither.array,
@@ -911,16 +916,38 @@ def generate_image(image, options):
                                             gain=options['gain'],
                                             read_noise=options['read_noise'],
                                             sky_level=sky_level_subtracted_pixel)
-                dither.addNoise(noise)
+                
+                # Set up noise inversion as necessary
+                if options['noise_cancellation']=='false':
+                    dither.addNoise(noise)
+                    dithers[di] = [(dither, '')]
+                elif options['noise_cancellation']=='true':
+                    dither_copy = deepcopy(dither)
+                    dither.addNoise(noise)
+                    dithers[di] = [(dither_copy-dither, 'i')]
+                    del dither_copy
+                elif options['noise_cancellation']=='both':
+                    dither_copy = deepcopy(dither)
+                    dither.addNoise(noise)
+                    dithers[di] = [(dither, ''),
+                                   (dither_copy-dither, 'i')]
+                    del dither_copy
+                else:
+                    raise Exception("Invalid value for noise_cancellation: " + str(options['noise_cancellation']))
     
-            # Add a header containing version info
-            add_image_header_info(dither,options['gain'],stamp_size_pix)
+            for dither_and_flag in dithers[di]:
+                
+                dither = dither_and_flag[0]
+                flag = dither_and_flag[1]
+                
+                dither_version_file_name = dither_file_name.replace(file_name_base + str(image_ID),
+                                                                   file_name_base + str(image_ID) + flag)
+                
+                galsim.fits.write(dither, dither_version_file_name)
     
-            galsim.fits.write(dither, dither_file_name)
-    
-            # Compress the image if necessary
-            if options['compress_images'] >= 1:
-                compress_image(dither_file_name, lossy=(options['compress_images'] >= 2))
+                # Compress the image if necessary
+                if options['compress_images'] >= 1:
+                    compress_image(dither_version_file_name, lossy=(options['compress_images'] >= 2))
 
 
         # Output the datafile if necessary
@@ -942,22 +969,33 @@ def generate_image(image, options):
     if num_dithers > 1:
 
         logger.debug("Printing combined image.")
+        
+        for _, flag in dithers[0]:
 
-        # Get the base name for this combined image
-        combined_file_name_base = file_name_base + str(image_ID) + "_combined"
-
-        # Get the table and (possibly changed) otable
-        combined_image, combined_otable = combine_dithers(dithers=dithers,
-                                                          dithering_scheme=options['dithering_scheme'],
-                                                          output_table=otable,
-                                                          copy_otable=False)
-
-        add_image_header_info(combined_image,options['gain'],stamp_size_pix)
-
-        # Output the new image
-        combined_file_name = combined_file_name_base + '.fits'
-        galsim.fits.write(combined_image, combined_file_name)
-
+            # Get the base name for this combined image
+            combined_file_name_base = file_name_base + str(image_ID) + flag + "_combined"
+    
+            # Get the proper dither list
+            dither_versions = []
+            if len(dithers[0]==1) or flag=='':
+                for dither_and_flag in dithers:
+                    dither_versions.append(dither_and_flag[0][0])
+            else:
+                for dither_and_flag in dithers:
+                    dither_versions.append(dither_and_flag[1][0])
+    
+            # Get the table and (possibly changed) otable
+            combined_image, combined_otable = combine_dithers(dithers=dither_versions,
+                                                              dithering_scheme=options['dithering_scheme'],
+                                                              output_table=otable,
+                                                              copy_otable=False)
+    
+            add_image_header_info(combined_image,options['gain'],stamp_size_pix)
+    
+            # Output the new image
+            combined_file_name = combined_file_name_base + '.fits'
+            galsim.fits.write(combined_image, combined_file_name)
+    
         # Output the details file for it
         output_table.output_details_tables(combined_otable, combined_file_name_base, options)
 

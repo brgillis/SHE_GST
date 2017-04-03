@@ -49,6 +49,7 @@ allowed_options = { 'data_dir': (mv.default_data_dir, str),
                     'model_psf_scale': (mv.default_pixel_scale/mv.default_psf_scale_factor, float),
                     'model_psf_x_offset': (mv.default_pixel_scale/mv.default_psf_scale_factor, float),
                     'model_psf_y_offset': (mv.default_pixel_scale/mv.default_psf_scale_factor, float),
+                    'noise_cancellation': ("false", str),
                     'num_parallel_threads': (-1, int),
                     'num_target_galaxies': (0, int),
                     'output_folder': (mv.default_output_folder, str),
@@ -72,7 +73,8 @@ allowed_option_values = { 'compress_images': (0, 1, 2),
                           'details_output_format': ('none', 'fits', 'ascii', 'both'),
                           'dithering_scheme': ('none', '2x2'),
                           'image_type': ('32f', '64f'),
-                          'mode': ('field', 'stamps', 'cutouts')}
+                          'mode': ('field', 'stamps', 'cutouts'),
+                          'noise_cancellation': ('true', 'false', 'both')}
 
 allowed_fixed_params = ('num_images',
                         'num_clusters',
