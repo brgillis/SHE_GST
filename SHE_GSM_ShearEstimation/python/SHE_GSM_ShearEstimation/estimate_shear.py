@@ -31,7 +31,11 @@ from icebrgpy.logging import getLogger
 from SHE_GSM_ShearEstimation import magic_values as mv
 
 class ShearEstimate(object):
-    pass
+    def __init__(self, g1, g2, gerr=None):
+        self.g1 = g1
+        self.g2 = g2
+        self.gerr = gerr
+        
 
 @lru_cache(maxsize=1024)
 def get_resampled_image(file_name, scale):
@@ -75,8 +79,6 @@ def estimate_shear_KSB(galaxy_image, psf_image_file_name):
     
     psf_image= get_resampled_image(psf_image_file_name, galaxy_image.scale)
     
-    shear_estimate = ShearEstimate()
-    
     try:
         galsim_shear_estimate = galsim.hsm.EstimateShear(gal_image=galaxy_image,
                                                          PSF_image=psf_image,
@@ -85,9 +87,9 @@ def estimate_shear_KSB(galaxy_image, psf_image_file_name):
                                                          guess_sig_PSF=0.2/psf_image.scale,
                                                          shear_est='KSB')
         
-        shear_estimate.g1 = galsim_shear_estimate.corrected_g1
-        shear_estimate.g2 = galsim_shear_estimate.corrected_g2
-        shear_estimate.gerr = galsim_shear_estimate.corrected_shape_err
+        shear_estimate = ShearEstimate(galsim_shear_estimate.corrected_g1,
+                                       galsim_shear_estimate.corrected_g2,
+                                       galsim_shear_estimate.corrected_shape_err,)
     except RuntimeError as e:
         
         if("HSM Error" not in str(e)):
@@ -95,9 +97,7 @@ def estimate_shear_KSB(galaxy_image, psf_image_file_name):
         
         logger.info(str(e))
         
-        shear_estimate.g1 = 0
-        shear_estimate.g2 = 0
-        shear_estimate.gerr = 1e99
+        shear_estimate = ShearEstimate(0, 0, 1e99)
         
     
     logger.debug("Exiting estimate_shear_KSB")
