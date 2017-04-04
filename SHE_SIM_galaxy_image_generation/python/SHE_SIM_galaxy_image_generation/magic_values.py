@@ -93,3 +93,9 @@ psf_model_scale = 0.02 # arcsec/pixel
 fftw_wisdom_filename = ".fftw_wisdom"
 
 logger_name = "SHE_SIM_galaxy_image_generation"
+
+detections_table_ID_label = 'ID'
+detections_table_gal_xc_label = 'x_center_pix'
+detections_table_gal_yc_label = 'y_center_pix'
+detections_table_psf_xc_label = 'psf_x_center_pix'
+detections_table_psf_yc_label = 'psf_y_center_pix'

@@ -38,16 +38,14 @@ class ShearEstimate(object):
         
 
 @lru_cache(maxsize=1024)
-def get_resampled_image(file_name, scale):
+def get_resampled_image(subsampled_psf_image, scale):
     
-    image = galsim.fits.read(file_name)
-    
-    resampled_nx = int(np.shape(image.array)[0] / (scale/image.scale))
-    resampled_ny = int(np.shape(image.array)[1] / (scale/image.scale))
+    resampled_nx = int(np.shape(subsampled_psf_image.array)[0] / (scale/subsampled_psf_image.scale))
+    resampled_ny = int(np.shape(subsampled_psf_image.array)[1] / (scale/subsampled_psf_image.scale))
     
     resampled_image = galsim.Image(resampled_nx,resampled_ny)
     
-    galsim.InterpolatedImage(image).drawImage(resampled_image)
+    galsim.InterpolatedImage(subsampled_psf_image).drawImage(resampled_image)
     
     return resampled_image
 
@@ -71,13 +69,13 @@ def estimate_shear(method,*args,**kwargs):
     else:
         raise Exception("Invalid shear estimation method: " + str(method))
     
-def estimate_shear_KSB(galaxy_image, psf_image_file_name):
+def estimate_shear_KSB(galaxy_image, subsampled_psf_image):
 
     logger = getLogger(mv.logger_name)
     
     logger.debug("Entering estimate_shear_KSB")
     
-    psf_image= get_resampled_image(psf_image_file_name, galaxy_image.scale)
+    psf_image = get_resampled_image(subsampled_psf_image, galaxy_image.scale)
     
     try:
         galsim_shear_estimate = galsim.hsm.EstimateShear(gal_image=galaxy_image,

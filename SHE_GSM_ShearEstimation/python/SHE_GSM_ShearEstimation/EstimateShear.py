@@ -43,6 +43,8 @@ def defineSpecificProgramOptions():
                         help='Store profiling data for execution.')
     
     # Input data
+    parser.add_argument('detections_table_file_name',type=str,
+                        help='Name of the data table containing positions of detected galaxies')
     parser.add_argument('galaxies_image_file_name',type=str,
                         help='Name of the simulated image file to process.')
     parser.add_argument('psf_image_file_name',type=str,

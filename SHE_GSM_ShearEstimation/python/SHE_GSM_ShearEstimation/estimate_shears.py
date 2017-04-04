@@ -23,7 +23,10 @@
 """
 
 from astropy.io import fits
+from astropy.table import Table
 import galsim
+
+from SHE_SIM_galaxy_image_generation import magic_values as sim_mv
 
 from SHE_GSM_ShearEstimation.estimate_shear import estimate_shear
 from SHE_GSM_ShearEstimation.extract_stamps import extract_stamps
@@ -39,20 +42,33 @@ def estimate_shears_from_args(args):
     @return None
     """
     
-    # Load the galaxies image
-    galaxies_hdulist = fits.open(args.galaxies_image_file_name)
+    # Load the detections table
+    detections_table = Table.read(args.detections_table_file_name)
     
-    # Get a list of postage stamps
-    stamps = extract_stamps(galaxies_hdulist)
+    # Load the galaxies and psf images
+    galaxies_hdulist = fits.open(args.galaxies_image_file_name)
+    psf_hdulist = fits.open(args.psf_image_file_name)
+    
+    # Get a list of galaxy postage stamps
+    gal_stamps = extract_stamps(detections_table,
+                                galaxies_hdulist,
+                                sim_mv.detections_table_gal_xc_label,
+                                sim_mv.detections_table_gal_yc_label,)
+    
+    # Get a list of galaxy postage stamps
+    psf_stamps = extract_stamps(detections_table,
+                                psf_hdulist,
+                                sim_mv.detections_table_psf_xc_label,
+                                sim_mv.detections_table_psf_yc_label,)
     
     # Estimate the shear for each stamp
-    for stamp in stamps:
-        shear_estimate = estimate_shear(galaxy_image=stamp.image,
-                                        psf_image_file_name=args.psf_image_file_name,
+    for gal_stamp, psf_stamp in zip(gal_stamps, psf_stamps):
+        shear_estimate = estimate_shear(galaxy_image=gal_stamp.image,
+                                        psf_image=psf_stamp.image,
                                         method=args.method)
-        stamp.shear_estimate = shear_estimate
+        gal_stamp.shear_estimate = shear_estimate
         
     # Output the measurements
-    output_shear_estimates(stamps=stamps,args=args)
+    output_shear_estimates(stamps=gal_stamps,args=args)
     
     return

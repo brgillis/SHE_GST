@@ -28,11 +28,11 @@ from SHE_SIM_galaxy_image_generation import magic_values as mv
 from SHE_SIM_galaxy_image_generation.tables import get_dtypes, get_names
 
 
-detections_table_names_and_dtypes = (('ID', 'i8', 'K'),
-                                    ('x_center_pix', 'i8', 'K'),
-                                    ('y_center_pix', 'i8', 'K'),
-                                    ('psf_x_center_pix', 'f4', 'E'),
-                                    ('psf_y_center_pix', 'f4', 'E'),)
+detections_table_names_and_dtypes = ((mv.detections_table_ID_label, 'i8', 'K'),
+                                    (mv.detections_table_gal_xc_label, 'i8', 'K'),
+                                    (mv.detections_table_gal_yc_label, 'i8', 'K'),
+                                    (mv.detections_table_psf_xc_label, 'f4', 'E'),
+                                    (mv.detections_table_psf_yc_label, 'f4', 'E'),)
 
 def make_detections_table_header(subtracted_sky_level,
                                  unsubtracted_sky_level,

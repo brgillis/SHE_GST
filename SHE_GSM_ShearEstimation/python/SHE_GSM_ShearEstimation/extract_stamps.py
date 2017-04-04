@@ -1,8 +1,8 @@
-""" @file extract_stamps.py
+""" @file extract_galaxy_stamps.py
 
     Created 27 Mar 2017
 
-    Function to extract galaxy stamps from an image.
+    Function to extract galaxy or psf stamps from an image.
 
     ---------------------------------------------------------------------
 
@@ -24,49 +24,79 @@
 
 import galsim
 
+from SHE_SIM_galaxy_image_generation import magic_values as sim_mv
+
+from SHE_GSM_ShearEstimation import magic_values as mv
+
 class Stamp(object):
     pass
 
-def extract_stamps(galaxies_hdulist):
+def extract_stamps(detections_table, image_hdulist,
+                   x_colname, y_colname):
     
-    galaxies_hdu = galaxies_hdulist[0]
+    image_hdu = image_hdulist[0]
     
     # Get the stamp size from the header
-    stamp_size_px = galaxies_hdu.header["STAMP_PX"]
+    try:
+        stamp_size_px = image_hdu.header["STAMP_PX"]
+    except KeyError as _e:
+        stamp_size_px = mv.default_stamp_size_px
     
     # Get the image shape
-    im_nx = galaxies_hdu.header["NAXIS1"]
-    im_ny = galaxies_hdu.header["NAXIS2"]
+    im_nx = image_hdu.header["NAXIS1"]
+    im_ny = image_hdu.header["NAXIS2"]
     
-    # Get the number of stamps in each dimension and check that the shape is
-    # evenly divisible by the stamp size
-    n_stamp_x = im_nx // stamp_size_px
-    n_stamp_y = im_ny // stamp_size_px
+    # Get the image
+    image = galsim.fits.read(hdu_list=image_hdulist)
     
-    if (n_stamp_x*stamp_size_px != im_nx) or (n_stamp_y*stamp_size_px != im_ny):
-        raise Exception("Bad stamp or image size.")
-    
-    image = galsim.fits.read(hdu_list=galaxies_hdulist)
+    # Get the x and y position columns
+    IDs = detections_table[sim_mv.detections_table_ID_label]
+    xcs = detections_table[x_colname]
+    ycs = detections_table[y_colname]
     
     stamps = []
-    for ix in range(n_stamp_x):
-        for iy in range(n_stamp_y):
+    for i in range(len(IDs)):
+        
+        # Get the initial bounds
+        xmin = xcs[i] - stamp_size_px // 2
+        xmax = xmin + stamp_size_px - 1
+        ymin = ycs[i] - stamp_size_px // 2
+        ymax = ymin + stamp_size_px - 1
+        
+        # Ensure the bounds are within the image bounds
+        if xmin < 1:
+            x_shift = 1-xmin
+            xmin += x_shift
+            xmax += x_shift
+        if xmax > im_nx:
+            x_shift = xmax - im_nx
+            xmin -= x_shift
+            xmax -= x_shift
+        if ymin < 1:
+            y_shift = 1-ymin
+            ymin += y_shift
+            ymax += y_shift
+        if ymax > im_ny:
+            y_shift = ymax - im_ny
+            ymin -= y_shift
+            ymax -= y_shift
             
-            # Set up bounds for the stamp
-            stamp_bounds = galsim.BoundsI(xmin=1+stamp_size_px*ix,
-                                          xmax=stamp_size_px*(ix+1),
-                                          ymin=1+stamp_size_px*iy,
-                                          ymax=stamp_size_px*(iy+1),)
-            
-            # Get a subimage from these bounds
-            galaxy_image = image.subImage(stamp_bounds)
-            
-            # Set this up, along with its center, as an object to output
-            stamp = Stamp()
-            stamp.image = galaxy_image
-            stamp.center = stamp_bounds.center()
-            
-            stamps.append(stamp)
+        # Set up bounds for the stamp
+        stamp_bounds = galsim.BoundsI(xmin=xmin,
+                                      xmax=xmax,
+                                      ymin=ymin,
+                                      ymax=ymax,)
+        
+        # Get a subimage from these bounds
+        subimage = image.subImage(stamp_bounds)
+        
+        # Set this up, along with its center, as an object to output
+        stamp = Stamp()
+        stamp.ID = IDs[i]
+        stamp.image = subimage
+        stamp.center = stamp_bounds.center()
+        
+        stamps.append(stamp)
             
     return stamps
     
