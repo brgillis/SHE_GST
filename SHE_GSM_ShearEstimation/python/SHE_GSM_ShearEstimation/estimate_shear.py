@@ -25,7 +25,6 @@
 import numpy as np
 import galsim
 
-from icebrgpy.function_cache import lru_cache
 from icebrgpy.logging import getLogger
 
 from SHE_GSM_ShearEstimation import magic_values as mv
@@ -36,8 +35,6 @@ class ShearEstimate(object):
         self.g2 = g2
         self.gerr = gerr
         
-
-@lru_cache(maxsize=1024)
 def get_resampled_image(subsampled_psf_image, scale):
     
     resampled_nx = int(np.shape(subsampled_psf_image.array)[0] / (scale/subsampled_psf_image.scale))
