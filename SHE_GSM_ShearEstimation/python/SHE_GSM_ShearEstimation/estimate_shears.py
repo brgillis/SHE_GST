@@ -26,6 +26,9 @@ from astropy.io import fits
 from astropy.table import Table
 import galsim
 
+from icebrgpy.logging import getLogger
+
+from SHE_GSM_ShearEstimation import magic_values as mv
 from SHE_SIM_galaxy_image_generation import magic_values as sim_mv
 
 from SHE_GSM_ShearEstimation.estimate_shear import estimate_shear
@@ -41,6 +44,10 @@ def estimate_shears_from_args(args):
     
     @return None
     """
+
+    logger = getLogger(mv.logger_name)
+    
+    logger.debug("Entering estimate_shear_KSB")
     
     # Load the detections table
     detections_table = Table.read(args.detections_table_file_name)
@@ -62,7 +69,9 @@ def estimate_shears_from_args(args):
                                 sim_mv.detections_table_psf_yc_label,)
     
     # Estimate the shear for each stamp
-    for gal_stamp, psf_stamp in zip(gal_stamps, psf_stamps):
+    for i, gal_stamp, psf_stamp in zip(range(len(gal_stamps)), gal_stamps, psf_stamps):
+        if i % 10 == 0:
+            logger.info("Measuring shear for galaxy " + str(i) + "/" + str(len(gal_stamps)) + ".")
         shear_estimate = estimate_shear(galaxy_image=gal_stamp.image,
                                         psf_image=psf_stamp.image,
                                         method=args.method)
@@ -70,5 +79,7 @@ def estimate_shears_from_args(args):
         
     # Output the measurements
     output_shear_estimates(stamps=gal_stamps,args=args)
+    
+    logger.debug("Exiting estimate_shear_KSB")
     
     return
