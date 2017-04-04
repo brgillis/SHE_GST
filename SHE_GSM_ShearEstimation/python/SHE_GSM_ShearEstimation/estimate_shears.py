@@ -61,17 +61,35 @@ def estimate_shears_from_args(kwargs):
     if kwargs["gain"] is not None:
         gain = kwargs["gain"]
     else:
-        gain = galaxies_hdulist[0].header[sim_mv.fits_header_gain_label]
+        try:
+            gain = galaxies_hdulist[0].header[sim_mv.fits_header_gain_label]
+        except KeyError as _e1:
+            try:
+                gain = detections_table.meta[sim_mv.fits_header_gain_label]
+            except KeyError as _e2:
+                raise KeyError("No gain value available.")
         
     if kwargs["subtracted_sky_level"] is not None:
         subtracted_sky_level = kwargs["subtracted_sky_level"]
     else:
-        subtracted_sky_level = galaxies_hdulist[0].header[sim_mv.fits_header_subtracted_sky_level_label]
+        try:
+            subtracted_sky_level = galaxies_hdulist[0].header[sim_mv.fits_header_subtracted_sky_level_label]
+        except KeyError as _e1:
+            try:
+                subtracted_sky_level = detections_table.meta[sim_mv.fits_header_subtracted_sky_level_label]
+            except KeyError as _e2:
+                raise KeyError("No subtracted_sky_level value available.")
         
     if kwargs["read_noise"] is not None:
         read_noise = kwargs["read_noise"]
     else:
-        read_noise = galaxies_hdulist[0].header[sim_mv.fits_header_read_noise_label]
+        try:
+            read_noise = galaxies_hdulist[0].header[sim_mv.fits_header_read_noise_label]
+        except KeyError as _e1:
+            try:
+                read_noise = detections_table.meta[sim_mv.fits_header_read_noise_label]
+            except KeyError as _e2:
+                raise KeyError("No read_noise value available.")
     
     # Get a list of galaxy postage stamps
     gal_stamps = extract_stamps(detections_table,
