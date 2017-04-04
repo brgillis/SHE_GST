@@ -96,10 +96,10 @@ def get_read_noise_ADU_per_pixel(read_noise_count,
     return read_noise_ADU_per_pixel
 
 def get_var_ADU_per_pixel(pixel_value_ADU,
-                            sky_level_ADU_per_sq_arcsec,
-                            read_noise_count,
-                            pixel_scale,
-                            gain):
+                          sky_level_ADU_per_sq_arcsec,
+                          read_noise_count,
+                          pixel_scale,
+                          gain):
     """ Calculate the sigma for Gaussian-like noise in units of ADU per pixel.
 
         @param pixel_value The expected value of a pixel in ADU. Can be a scalar or array

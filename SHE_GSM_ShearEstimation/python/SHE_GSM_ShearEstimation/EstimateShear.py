@@ -50,6 +50,14 @@ def defineSpecificProgramOptions():
     parser.add_argument('psf_image_file_name',type=str,
                         help='Name of the file containing the PSF image.')
     
+    # Info on noise
+    parser.add_argument('--gain', type=float,
+                        help="Gain of the galaxy image, in e-/ADU")
+    parser.add_argument('--read_noise', type=float,
+                        help="Read noise of the galaxy image, in e-/pixel")
+    parser.add_argument('--subtracted_sky_level', type=float,
+                        help="Sky level that's been subtracted from the galaxy image, in ADU/arcsec^2")
+    
     # Method to use
     parser.add_argument('--method',type=str,default='KSB',
                         help='Shape measurement method to use. Allowed: \'KSB\' (default)')
@@ -79,11 +87,11 @@ def mainMethod(args):
         
     if args.profile:
         import cProfile
-        cProfile.runctx("estimate_shears_from_args(args)",{},
+        cProfile.runctx("estimate_shears_from_args(vars(args))",{},
                         {"estimate_shears_from_args":estimate_shears_from_args,
                          "args":args},filename="measure_shapes.prof")
     else:
-        estimate_shears_from_args(args)
+        estimate_shears_from_args(vars(args))
 
     logger.debug('# Exiting GenGalsimImages mainMethod()')
 

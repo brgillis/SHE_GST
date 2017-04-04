@@ -25,28 +25,26 @@
 from astropy.table import Table
 from SHE_GSM_ShearEstimation import magic_values as mv
 
-def output_shear_estimates(stamps,args):
+def output_shear_estimates(stamps, output_file_name, galaxies_image_file_name):
     """
     @brief
         Outputs shear estimates into the desired fits table.
         
     @param stamps <list> List of stamp objects containing shear estimates
     
-    @param args Parsed command-line arguments
+    @param kwargs <dict> Parsed command-line arguments
     
     @return None
     """
     
     # Get the desired output filename
-    if args.output_file_name is not None:
-        output_file_name = args.output_file_name
-    else:
+    if output_file_name is None:
         # Replace the image tail with output tail
-        output_file_name = args.galaxies_image_file_name.replace(mv.image_tail,mv.output_tail)
+        output_file_name = galaxies_image_file_name.replace(mv.image_tail,mv.output_tail)
         
         # If that failed, make sure we don't overwrite the image
-        if output_file_name == args.galaxies_image_file_name:
-            output_file_name = args.galaxies_image_file_name + mv.output_tail
+        if output_file_name == galaxies_image_file_name:
+            output_file_name = galaxies_image_file_name + mv.output_tail
     
     # Initialize a table for output        
     otable = Table(names=["GAL_X1","GAL_X2","GAL_G1","GAL_G2","GAL_GERR",],

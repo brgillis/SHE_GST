@@ -52,10 +52,10 @@ def make_details_table_header(subtracted_sky_level,
                                read_noise,
                                gain,):
     header = {}
-    header["S_SKYLV"] = subtracted_sky_level
-    header["US_SKYLV"] = unsubtracted_sky_level
-    header["RD_NOISE"] = read_noise
-    header["CCDGAIN"] = gain
+    header[mv.fits_header_subtracted_sky_level_label] = subtracted_sky_level
+    header[mv.fits_header_unsubtracted_sky_level_label] = unsubtracted_sky_level
+    header[mv.fits_header_read_noise_label] = read_noise
+    header[mv.fits_header_gain_label] = gain
     
     return header
 
@@ -68,9 +68,9 @@ def initialise_details_table(image, options):
     details_table = Table(init_cols, names=get_names(details_table_names_and_dtypes),
                           dtype=get_dtypes(details_table_names_and_dtypes))
     details_table.meta[mv.version_label] = mv.version_str
-    details_table.meta["S_SKYLV"] = image.get_param_value('subtracted_background'), 'ADU/arcsec^2'
-    details_table.meta["US_SKYLV"] = image.get_param_value('unsubtracted_background'), 'ADU/arcsec^2'
-    details_table.meta["RD_NOISE"] = options['read_noise'], 'e-/pixel'
-    details_table.meta["CCDGAIN"] = options['gain'], 'e-/ADU'
+    details_table.meta[mv.fits_header_subtracted_sky_level_label] = image.get_param_value('subtracted_background'), 'ADU/arcsec^2'
+    details_table.meta[mv.fits_header_unsubtracted_sky_level_label] = image.get_param_value('unsubtracted_background'), 'ADU/arcsec^2'
+    details_table.meta[mv.fits_header_read_noise_label] = options['read_noise'], 'e-/pixel'
+    details_table.meta[mv.fits_header_gain_label] = options['gain'], 'e-/ADU'
     
     return details_table

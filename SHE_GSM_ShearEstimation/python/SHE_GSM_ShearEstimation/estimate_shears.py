@@ -35,12 +35,12 @@ from SHE_GSM_ShearEstimation.estimate_shear import estimate_shear
 from SHE_GSM_ShearEstimation.extract_stamps import extract_stamps
 from SHE_GSM_ShearEstimation.output_shear_estimates import output_shear_estimates
 
-def estimate_shears_from_args(args):
+def estimate_shears_from_args(kwargs):
     """
     @brief
         Perform shear estimation, given arguments from the command-line.
     
-    @param args Command-line arguments object
+    @param kwargs <dict>
     
     @return None
     """
@@ -50,11 +50,28 @@ def estimate_shears_from_args(args):
     logger.debug("Entering estimate_shear_KSB")
     
     # Load the detections table
-    detections_table = Table.read(args.detections_table_file_name)
+    detections_table = Table.read(kwargs["detections_table_file_name"])
     
     # Load the galaxies and psf images
-    galaxies_hdulist = fits.open(args.galaxies_image_file_name)
-    psf_hdulist = fits.open(args.psf_image_file_name)
+    galaxies_hdulist = fits.open(kwargs["galaxies_image_file_name"])
+    psf_hdulist = fits.open(kwargs["psf_image_file_name"])
+    
+    # Get the gain, subtracted sky level, and read noise from the galaxies image
+    # if they weren't passed at the command-line
+    if kwargs["gain"] is not None:
+        gain = kwargs["gain"]
+    else:
+        gain = galaxies_hdulist[0].header[sim_mv.fits_header_gain_label]
+        
+    if kwargs["subtracted_sky_level"] is not None:
+        subtracted_sky_level = kwargs["subtracted_sky_level"]
+    else:
+        subtracted_sky_level = galaxies_hdulist[0].header[sim_mv.fits_header_subtracted_sky_level_label]
+        
+    if kwargs["read_noise"] is not None:
+        read_noise = kwargs["read_noise"]
+    else:
+        read_noise = galaxies_hdulist[0].header[sim_mv.fits_header_read_noise_label]
     
     # Get a list of galaxy postage stamps
     gal_stamps = extract_stamps(detections_table,
@@ -62,7 +79,7 @@ def estimate_shears_from_args(args):
                                 sim_mv.detections_table_gal_xc_label,
                                 sim_mv.detections_table_gal_yc_label,)
     
-    # Get a list of galaxy postage stamps
+    # Get a list of PSF postage stamps
     psf_stamps = extract_stamps(detections_table,
                                 psf_hdulist,
                                 sim_mv.detections_table_psf_xc_label,
@@ -74,11 +91,16 @@ def estimate_shears_from_args(args):
             logger.info("Measuring shear for galaxy " + str(i) + "/" + str(len(gal_stamps)) + ".")
         shear_estimate = estimate_shear(galaxy_image=gal_stamp.image,
                                         psf_image=psf_stamp.image,
-                                        method=args.method)
+                                        method=kwargs["method"],
+                                        gain=gain,
+                                        subtracted_sky_level=subtracted_sky_level,
+                                        read_noise=read_noise)
         gal_stamp.shear_estimate = shear_estimate
         
     # Output the measurements
-    output_shear_estimates(stamps=gal_stamps,args=args)
+    output_shear_estimates(stamps=gal_stamps,
+                           output_file_name=kwargs["output_file_name"], 
+                           galaxies_image_file_name=kwargs["galaxies_image_file_name"])
     
     logger.debug("Exiting estimate_shear_KSB")
     

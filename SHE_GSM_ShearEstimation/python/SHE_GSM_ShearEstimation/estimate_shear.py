@@ -27,6 +27,8 @@ import galsim
 
 from icebrgpy.logging import getLogger
 
+from SHE_SIM_galaxy_image_generation.noise import get_var_ADU_per_pixel
+
 from SHE_GSM_ShearEstimation import magic_values as mv
 
 class ShearEstimate(object):
@@ -66,18 +68,27 @@ def estimate_shear(method,*args,**kwargs):
     else:
         raise Exception("Invalid shear estimation method: " + str(method))
     
-def estimate_shear_KSB(galaxy_image, psf_image):
+def estimate_shear_KSB(galaxy_image, psf_image, gain, subtracted_sky_level,
+                       read_noise):
 
     logger = getLogger(mv.logger_name)
     
     logger.debug("Entering estimate_shear_KSB")
     
+    # Calculate the sky variance
+    sky_var = get_var_ADU_per_pixel(pixel_value_ADU=0.,
+                                    sky_level_ADU_per_sq_arcsec=subtracted_sky_level,
+                                    read_noise_count=read_noise,
+                                    pixel_scale=galaxy_image.scale,
+                                    gain=gain)
+    
+    # Get a resampled PSF image
     resampled_psf_image = get_resampled_image(psf_image, galaxy_image.scale)
     
     try:
         galsim_shear_estimate = galsim.hsm.EstimateShear(gal_image=galaxy_image,
                                                          PSF_image=resampled_psf_image,
-                                                         sky_var=100.,
+                                                         sky_var=sky_var,
                                                          guess_sig_gal=0.5/galaxy_image.scale,
                                                          guess_sig_PSF=0.2/resampled_psf_image.scale,
                                                          shear_est='KSB')
