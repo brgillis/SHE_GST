@@ -90,7 +90,7 @@ def estimate_shear_KSB(galaxy_image, psf_image):
         if("HSM Error" not in str(e)):
             raise
         
-        logger.info(str(e))
+        logger.debug(str(e))
         
         shear_estimate = ShearEstimate(0, 0, 1e99)
         
