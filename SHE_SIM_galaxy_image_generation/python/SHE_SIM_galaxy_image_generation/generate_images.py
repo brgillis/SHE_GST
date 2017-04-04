@@ -34,10 +34,11 @@ from astropy.table import Table
 import galsim
 
 from SHE_SIM_galaxy_image_generation import magic_values as mv
-from SHE_SIM_galaxy_image_generation import output_table
 from SHE_SIM_galaxy_image_generation.combine_dithers import combine_dithers
 from SHE_SIM_galaxy_image_generation.compress_image import compress_image
 from SHE_SIM_galaxy_image_generation.cutouts import make_cutout_image
+from SHE_SIM_galaxy_image_generation.details_table import initialise_details_table
+from SHE_SIM_galaxy_image_generation.detections_table import initialise_detections_table
 from SHE_SIM_galaxy_image_generation.dither_schemes import get_dither_scheme
 from SHE_SIM_galaxy_image_generation.galaxy import (get_bulge_galaxy_profile,
                                              get_disk_galaxy_image,
@@ -46,6 +47,8 @@ from SHE_SIM_galaxy_image_generation.galaxy import (get_bulge_galaxy_profile,
 from SHE_SIM_galaxy_image_generation.magnitude_conversions import get_I
 from SHE_SIM_galaxy_image_generation.noise import get_var_ADU_per_pixel
 from SHE_SIM_galaxy_image_generation.psf import get_psf_profile
+from SHE_SIM_galaxy_image_generation.tables import add_row, output_tables
+
 from icebrgpy.logging import getLogger
 from icebrgpy.rebin import rebin
 import numpy as np
@@ -129,7 +132,8 @@ def print_galaxies_and_psfs(image,
                             full_x_size,
                             full_y_size,
                             pixel_scale,
-                            otable):
+                            detections_table,
+                            details_table):
     """
         @brief Prints galaxies onto a new image and stores details on them in the output table.
 
@@ -149,8 +153,11 @@ def print_galaxies_and_psfs(image,
             <int> The size in pixels of the y-axis of the generated images
         @param pixel_scale
             <float> The scale of pixels in the generated images in arcsec/pixel
-        @param otable
-            <astropy.Table> The table containing details on each galaxy, to be filled in generation.
+        @param detections_table
+            <astropy.Table> The table containing mock galaxy detections (ID and position),
+                            to be filled
+        @param details_table
+            <astropy.Table> The table containing details on each galaxy, to be filled.
 
         @returns galaxies
             <SHE_SIM.galaxy_list> Iterable list of the galaxies which were printed.
@@ -285,7 +292,7 @@ def print_galaxies_and_psfs(image,
 
             base_rotation = galaxy_group.get_param_value("rotation")
 
-            # Go for loose galaxies first, inc ase we do that in the future
+            # Go for loose galaxies first, in case we do that in the future
             galaxies_in_group = galaxy_group.get_galaxies()
             num_galaxies_in_group = len(galaxies_in_group)
 
@@ -727,27 +734,37 @@ def print_galaxies_and_psfs(image,
 
         # Record all data used for this galaxy in the output table
         if (not options['details_output_format']=='none') and (is_target_gal or (options['mode'] == 'field')):
-            output_table.add_row(otable,
-                             ID=galaxy.get_full_ID(),
-                             x_center_pix=xc + xp_sp_shift,
-                             y_center_pix=yc + yp_sp_shift,
-                             psf_x_center_pix=psf_xc,
-                             psf_y_center_pix=psf_yc,
-                             hlr_bulge_arcsec=bulge_size,
-                             hlr_disk_arcsec=disk_size,
-                             magnitude=galaxy.get_param_value('apparent_mag_vis'),
-                             sersic_index=n,
-                             bulge_ellipticity=g_ell,
-                             bulge_axis_ratio=galaxy.get_param_value('bulge_axis_ratio'),
-                             bulge_fraction=bulge_fraction,
-                             rotation=rotation,
-                             tilt=tilt,
-                             spin=spin,
-                             shear_magnitude=g_shear,
-                             shear_angle=beta_shear,
-                             is_target_galaxy=is_target_gal)
+            add_row(details_table,
+                     ID=galaxy.get_full_ID(),
+                     x_center_pix=xc + xp_sp_shift,
+                     y_center_pix=yc + yp_sp_shift,
+                     psf_x_center_pix=psf_xc,
+                     psf_y_center_pix=psf_yc,
+                     hlr_bulge_arcsec=bulge_size,
+                     hlr_disk_arcsec=disk_size,
+                     magnitude=galaxy.get_param_value('apparent_mag_vis'),
+                     sersic_index=n,
+                     bulge_ellipticity=g_ell,
+                     bulge_axis_ratio=galaxy.get_param_value('bulge_axis_ratio'),
+                     bulge_fraction=bulge_fraction,
+                     rotation=rotation,
+                     tilt=tilt,
+                     spin=spin,
+                     shear_magnitude=g_shear,
+                     shear_angle=beta_shear,
+                     is_target_galaxy=is_target_gal)
 
         if is_target_gal and not options['details_only']:
+            
+            # Add to detections table only if it's a target galaxy
+            add_row(detections_table,
+                    ID=galaxy.get_full_ID(),
+                    x_center_pix=int(xc + xp_sp_shift),
+                    y_center_pix=int(yc + yp_sp_shift),
+                    psf_x_center_pix=psf_xc,
+                    psf_y_center_pix=psf_yc,
+                    )
+            
             del final_disk, disk_psf_profile
             try:
                 del ss_disk_image, disk_gal_image
@@ -794,7 +811,6 @@ def add_image_header_info(image, gain, stamp_size_px):
     logger.debug("Exiting add_image_header_info method.")
     
     return
-
 
 def generate_image(image, options):
     """
@@ -850,25 +866,19 @@ def generate_image(image, options):
 
     # Set up a table for output if necessary
     if options['details_output_format']=='none':
-        otable = None
+        detections_table = None
+        details_table = None
     else:
-        init_cols = []
-        for _ in xrange(output_table.size()):
-            init_cols.append([])
-        otable = Table(init_cols, names=output_table.get_names(),
-                       dtype=output_table.get_dtypes())
-        otable.meta[mv.version_label] = mv.version_str
-        otable.meta["S_SKYLV"] = (image.get_param_value('subtracted_background'),'ADU/arcsec^2')
-        otable.meta["US_SKYLV"] = (image.get_param_value('unsubtracted_background'),'ADU/arcsec^2')
-        otable.meta["RD_NOISE"] = (options['read_noise'],'e-/pixel')
-        otable.meta["CCDGAIN"] = (options['gain'],'e-/ADU')
+        detections_table = initialise_detections_table(image, options)
+        details_table = initialise_details_table(image, options)
 
     # Print the galaxies and psfs
     p_bulge_psf_image = []
     p_disk_psf_image = []
     galaxies = print_galaxies_and_psfs(image, options, centre_offset, num_dithers, dithers,
                                        p_bulge_psf_image, p_disk_psf_image,
-                                       full_x_size, full_y_size, pixel_scale, otable)
+                                       full_x_size, full_y_size, pixel_scale,
+                                       detections_table, details_table)
 
     image_ID = image.get_full_ID()
 
@@ -883,7 +893,11 @@ def generate_image(image, options):
 
         # If we're using cutouts, make the cutout image now
         if options['mode'] == 'cutouts':
-            dithers[di] = make_cutout_image(dithers[di], options, galaxies, otable,
+            dithers[di] = make_cutout_image(dithers[di],
+                                            options,
+                                            galaxies,
+                                            detections_table,
+                                            details_table,
                                             centre_offset)
 
         # Output the image
@@ -954,14 +968,21 @@ def generate_image(image, options):
 
         if not options['details_output_format']=='none':
             # Temporarily adjust centre positions by dithering
-            otable['x_center_pix'] += x_offset
-            otable['y_center_pix'] += y_offset
+            details_table['x_center_pix'] += x_offset
+            details_table['y_center_pix'] += y_offset
+            detections_table['x_center_pix'] = int(details_table['x_center_pix'])
+            detections_table['y_center_pix'] = int(details_table['y_center_pix'])
     
-            output_table.output_details_tables(otable, dither_file_name_base, options)
+            output_tables(detections_table, dither_file_name_base,
+                          mv.detections_file_tail, options)
+            output_tables(details_table, dither_file_name_base,
+                          mv.details_file_tail, options)
     
             # Undo dithering adjustment
-            otable['x_center_pix'] -= x_offset
-            otable['y_center_pix'] -= y_offset
+            details_table['x_center_pix'] -= x_offset
+            details_table['y_center_pix'] -= y_offset
+            detections_table['x_center_pix'] = int(details_table['x_center_pix'])
+            detections_table['y_center_pix'] = int(details_table['y_center_pix'])
 
         logger.info("Finished printing dither " + str(di) + ".")
 
@@ -984,11 +1005,12 @@ def generate_image(image, options):
                 for dither_and_flag in dithers:
                     dither_versions.append(dither_and_flag[1][0])
     
-            # Get the table and (possibly changed) otable
-            combined_image, combined_otable = combine_dithers(dithers=dither_versions,
-                                                              dithering_scheme=options['dithering_scheme'],
-                                                              output_table=otable,
-                                                              copy_otable=False)
+            # Get the combined image and tables
+            combined_image, combined_detections_table, combined_details_table = combine_dithers(dithers=dither_versions,
+                                                                     dithering_scheme=options['dithering_scheme'],
+                                                                     detections_table=detections_table,
+                                                                     details_table=details_table,
+                                                                     copy_otable=False)
     
             add_image_header_info(combined_image,options['gain'],stamp_size_pix)
     
@@ -997,7 +1019,10 @@ def generate_image(image, options):
             galsim.fits.write(combined_image, combined_file_name)
     
         # Output the details file for it
-        output_table.output_details_tables(combined_otable, combined_file_name_base, options)
+        output_tables(combined_detections_table, combined_file_name_base,
+                      mv.detections_file_tail, options)
+        output_tables(combined_details_table, combined_file_name_base,
+                      mv.details_file_tail, options)
 
         logger.info("Finished printing combined image.")
 

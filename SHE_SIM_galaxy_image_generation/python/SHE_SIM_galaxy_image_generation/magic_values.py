@@ -79,8 +79,8 @@ fpack_lossless_command = "fpack -g2 -q 0.0 "
 fpack_lossy_command = "fpack -g2 -q 4.0 "
 rm_command = "rm -f "
 
-ascii_details_file_tail = "_details.dat"
-fits_details_file_tail = "_details.fits"
+detections_file_tail = "_detections"
+details_file_tail = "_details"
 
 bulge_model_head = "2dmodel_bulge_n"
 disk_model_head = "3dmodel_disk_n"
