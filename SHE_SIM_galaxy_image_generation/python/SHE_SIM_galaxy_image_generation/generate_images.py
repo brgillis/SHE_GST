@@ -970,8 +970,6 @@ def generate_image(image, options):
             # Temporarily adjust centre positions by dithering
             details_table['x_center_pix'] += x_offset
             details_table['y_center_pix'] += y_offset
-            detections_table['x_center_pix'] = int(details_table['x_center_pix'])
-            detections_table['y_center_pix'] = int(details_table['y_center_pix'])
     
             output_tables(detections_table, dither_file_name_base,
                           mv.detections_file_tail, options)
@@ -981,8 +979,6 @@ def generate_image(image, options):
             # Undo dithering adjustment
             details_table['x_center_pix'] -= x_offset
             details_table['y_center_pix'] -= y_offset
-            detections_table['x_center_pix'] = int(details_table['x_center_pix'])
-            detections_table['y_center_pix'] = int(details_table['y_center_pix'])
 
         logger.info("Finished printing dither " + str(di) + ".")
 
