@@ -69,20 +69,20 @@ def estimate_shear(method,*args,**kwargs):
     else:
         raise Exception("Invalid shear estimation method: " + str(method))
     
-def estimate_shear_KSB(galaxy_image, subsampled_psf_image):
+def estimate_shear_KSB(galaxy_image, psf_image):
 
     logger = getLogger(mv.logger_name)
     
     logger.debug("Entering estimate_shear_KSB")
     
-    psf_image = get_resampled_image(subsampled_psf_image, galaxy_image.scale)
+    resampled_psf_image = get_resampled_image(psf_image, galaxy_image.scale)
     
     try:
         galsim_shear_estimate = galsim.hsm.EstimateShear(gal_image=galaxy_image,
-                                                         PSF_image=psf_image,
+                                                         PSF_image=resampled_psf_image,
                                                          sky_var=100.,
                                                          guess_sig_gal=0.5/galaxy_image.scale,
-                                                         guess_sig_PSF=0.2/psf_image.scale,
+                                                         guess_sig_PSF=0.2/resampled_psf_image.scale,
                                                          shear_est='KSB')
         
         shear_estimate = ShearEstimate(galsim_shear_estimate.corrected_g1,
