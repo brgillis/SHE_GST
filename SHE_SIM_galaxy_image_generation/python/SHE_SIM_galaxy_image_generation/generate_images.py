@@ -996,7 +996,7 @@ def generate_image(image, options):
     
             # Get the proper dither list
             dither_versions = []
-            if len(dithers[0]==1) or flag=='':
+            if len(dithers[0])==1 or flag=='':
                 for dither_and_flag in dithers:
                     dither_versions.append(dither_and_flag[0][0])
             else:

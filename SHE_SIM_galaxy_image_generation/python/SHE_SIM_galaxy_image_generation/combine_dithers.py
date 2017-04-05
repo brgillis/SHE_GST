@@ -149,4 +149,4 @@ def combine_dithers(dithers,
     else:
         raise Exception("Unrecognized dithering scheme: " + dithering_scheme)
 
-    return combined_image, combined_otable
+    return combined_image, combined_detections_table, combined_details_table
