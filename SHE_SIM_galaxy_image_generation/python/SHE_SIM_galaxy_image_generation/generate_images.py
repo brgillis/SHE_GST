@@ -948,20 +948,22 @@ def generate_image(image, options):
                     del dither_copy
                 else:
                     raise Exception("Invalid value for noise_cancellation: " + str(options['noise_cancellation']))
+            else:
+                    dithers[di] = [(dithers[di], '')]
     
-            for dither_and_flag in dithers[di]:
+        for dither_and_flag in dithers[di]:
                 
-                dither = dither_and_flag[0]
-                flag = dither_and_flag[1]
+            dither = dither_and_flag[0]
+            flag = dither_and_flag[1]
                 
-                dither_version_file_name = dither_file_name.replace(file_name_base + str(image_ID),
-                                                                   file_name_base + str(image_ID) + flag)
+            dither_version_file_name = dither_file_name.replace(file_name_base + str(image_ID),
+                                                                file_name_base + str(image_ID) + flag)
                 
-                galsim.fits.write(dither, dither_version_file_name)
+            galsim.fits.write(dither, dither_version_file_name)
     
-                # Compress the image if necessary
-                if options['compress_images'] >= 1:
-                    compress_image(dither_version_file_name, lossy=(options['compress_images'] >= 2))
+            # Compress the image if necessary
+            if options['compress_images'] >= 1:
+                compress_image(dither_version_file_name, lossy=(options['compress_images'] >= 2))
 
 
         # Output the datafile if necessary
