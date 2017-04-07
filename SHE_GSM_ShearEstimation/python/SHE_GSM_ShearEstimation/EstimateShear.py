@@ -93,6 +93,6 @@ def mainMethod(args):
     else:
         estimate_shears_from_args(vars(args))
 
-    logger.debug('# Exiting GenGalsimImages mainMethod()')
+    logger.debug('# Exiting EstimateShear mainMethod()')
 
     return
