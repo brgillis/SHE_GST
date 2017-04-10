@@ -49,4 +49,4 @@ def output_bias_measurement(bias_measurement, output_file_name, output_format):
                           "c_err":bias_measurement.c2_err,
                           "mc_covar":bias_measurement.m2c2_covar})
     
-    output_table.write(output_file_name, format=output_format)
+    output_table.write(output_file_name, format=output_format, overwrite=True)

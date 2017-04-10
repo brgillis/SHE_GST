@@ -46,13 +46,13 @@ class BiasMeasurement(object):
         return np.sqrt(self.c1**2 + self.c2**2)
     
     def get_m_err(self):
-        m1s_err = 2*self.m1_err*self.m1
-        m2s_err = 2*self.m2_err*self.m2
+        m1s_err = 2*self.m1_err*np.abs(self.m1)
+        m2s_err = 2*self.m2_err*np.abs(self.m2)
         
         ms_err = np.sqrt(m1s_err**2+m2s_err**2)
         m = self.get_m()
         
-        ms_ferr = ms_err / m
+        ms_ferr = ms_err / m**2
         m_ferr = ms_ferr / 2
         
         m_err = m_ferr * m
@@ -60,13 +60,13 @@ class BiasMeasurement(object):
         return m_err
     
     def get_c_err(self):
-        c1s_err = 2*self.c1_err*self.c1
-        c2s_err = 2*self.c2_err*self.c2
+        c1s_err = 2*self.c1_err*np.abs(self.c1)
+        c2s_err = 2*self.c2_err*np.abs(self.c2)
         
         cs_err = np.sqrt(c1s_err**2+c2s_err**2)
         c = self.get_c()
         
-        cs_ferr = cs_err / c
+        cs_ferr = cs_err / c**2
         c_ferr = cs_ferr / 2
         
         c_err = c_ferr * c
@@ -79,9 +79,11 @@ class BiasMeasurement(object):
         @details Wild guess using harmonic means. If we actually need this I'll look into it more.
         """
         
-        mc_covar = np.sqrt(self.get_m_err()**2/(self.m1_err*self.m2_err) *
+        sign = np.sign(self.m1c1_covar*self.m2c2_covar)
+        
+        mc_covar = sign*np.sqrt(self.get_m_err()**2/(self.m1_err*self.m2_err) *
                            self.get_c_err()**2/(self.c1_err*self.c2_err) *
-                           self.m1c1_covar*self.m2c2_covar )
+                           np.abs(self.m1c1_covar*self.m2c2_covar) )
         
         return mc_covar
         
