@@ -52,7 +52,7 @@ def measure_bias_from_args(kwargs):
     # Load input files
     input_files = get_input_files(root_dir=kwargs["input_dir"],
                                   required_input_pattern=kwargs["required_input_pattern"],
-                                  depth=kwargs["depth"])
+                                  depth=kwargs["input_depth"])
     
     # Get shear measurement and actual value arrays from the combination of all input data
     all_shear_measurements = get_all_shear_measurements(input_files)
