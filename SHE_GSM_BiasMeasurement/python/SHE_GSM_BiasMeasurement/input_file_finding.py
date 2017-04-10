@@ -84,3 +84,5 @@ def get_input_files(root_dir, required_input_pattern=None, depth=0, input_files=
                                 depth=depth-1, input_files=input_files)
             
     logger.debug("Exiting get_input_files from directory " + root_dir + ".")
+    
+    return input_files
