@@ -50,8 +50,8 @@ def measure_bias_from_args(kwargs):
     all_shear_measurements = get_all_shear_measurements(input_files)
     
     # Calculate the bias
-    bias_measurements = calculate_bias(all_shear_measurements)
+    bias_measurement = calculate_bias(all_shear_measurements)
     
-    # Output the bias measurements
-    output_bias_measurements(bias_measurements=bias_measurements,
-                             output_file_name=kwargs["output_file_name"])
+    # Output the bias measurement
+    output_bias_measurement(bias_measurement=bias_measurement,
+                            output_file_name=kwargs["output_file_name"])

@@ -40,6 +40,19 @@ class BiasMeasurement(object):
         self.m2c2_covar = None
         
 def compress_measurements(real_values,measurements,measurement_errors):
+    """
+    @brief
+        Compress measurements when shape noise cancellation was used, to combine
+        measurements made on the same input values
+        
+    @param real_values <np.ndarray>
+    @param measurements <np.ndarray>
+    @param measurement_errors <np.ndarray>
+    
+    @return compressed_real_values <np.ndarray>,
+            compressed_measurements <np.ndarray>,
+            compressed_measurement_errors <np.ndarray>,
+    """
     
     compressed_real_values = []
     compressed_measurements = []
@@ -82,9 +95,15 @@ def linregress_with_errors(x, y, y_err):
         This uses a direct translation of GSL's gsl_fit_wlinear function, using
         inverse-variance weighting
         
-    @param x
-    @param y
-    @param y_err
+    @param x <np.ndarray>
+    @param y <np.ndarray>
+    @param y_err <np.ndarray>
+    
+    @return slope <float>,
+            intercept <float>,
+            slope_err <float>,
+            intercept_err <float>,
+            slope_intercept_covar <float>
     """
     
     y_weights = y_err**-2
@@ -109,15 +128,31 @@ def linregress_with_errors(x, y, y_err):
     return slope, intercept, slope_err, intercept_err, slope_intercept_covar
         
 def regress_shear_measurements(real_values, measurements, measurement_errors):
+    """
+    @brief
+        Perform a linear regression on a set of shear measurements
+        
+    @param real_values <np.ndarray>
+    @param measurements <np.ndarray>
+    @param measurement_errors <np.ndarray>
+    
+    @return m <float>,
+            c <float>,
+            m_err <float>,
+            c_err <float>,
+            mc_covar <float>
+    """
     
     # Compress measurements to properly account for shape noise cancellation
     (compressed_real_values,
      compressed_measurements,
      compressed_measurement_errors) = compress_measurements(real_values,measurements,measurement_errors)
      
-    m, c, m_err, c_err, mc_covar = linregress_with_errors(compressed_real_values,
-                                                          compressed_measurements,
-                                                          compressed_measurement_errors)
+    slope, c, m_err, c_err, mc_covar = linregress_with_errors(compressed_real_values,
+                                                              compressed_measurements,
+                                                              compressed_measurement_errors)
+    
+    m = slope - 1
     
     return m, m_err, c, c_err, mc_covar
         
