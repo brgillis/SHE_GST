@@ -36,6 +36,8 @@ def get_all_shear_measurements(input_files):
         Extract shear measurements and actual values from the input files.
     @param input_files
         <list<tuple>> List of tuples of detections and details files.
+    @return <astropy.table.Table>
+        Table of shear measurements.
     """
     
     joined_tables = []
