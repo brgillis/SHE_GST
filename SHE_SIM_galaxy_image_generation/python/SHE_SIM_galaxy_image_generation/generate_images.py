@@ -886,6 +886,10 @@ def generate_image(image, options):
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
     sky_level_unsubtracted_pixel = image.get_param_value('unsubtracted_background') * pixel_scale ** 2
 
+    # Get the initial noise deviate
+    if not options['suppress_noise']:
+        base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
+
     # For each dither
     for di, (x_offset, y_offset) in zip(range(num_dithers), get_dither_scheme(options['dithering_scheme'])):
 
@@ -916,7 +920,6 @@ def generate_image(image, options):
 
             if not options['suppress_noise']:
                 
-                base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
                 if options['stable_rng']:
                     var_array = get_var_ADU_per_pixel(pixel_value_ADU=dither.array,
                                     sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
@@ -1009,8 +1012,11 @@ def generate_image(image, options):
                                                                      detections_table=detections_table,
                                                                      details_table=details_table,
                                                                      copy_otable=False)
-    
-            add_image_header_info(combined_image,options['gain'],stamp_size_pix)
+            if options['dithering_scheme']=='2x2':
+                combined_stamp_size_pix = 2*stamp_size_pix
+            else:
+                raise Exception("Unrecognized dithering scheme: " + options['dithering_scheme'])
+            add_image_header_info(combined_image,options['gain'],combined_stamp_size_pix)
     
             # Output the new image
             combined_file_name = combined_file_name_base + '.fits'
