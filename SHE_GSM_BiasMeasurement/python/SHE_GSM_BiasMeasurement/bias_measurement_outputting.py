@@ -28,7 +28,7 @@ def output_bias_measurement(bias_measurement, output_file_name, output_format):
     
     # Set up a Table which we'll write out
     output_table = Table(names=["dimension","m","m_err","c","c_err","mc_covar"],
-                         dtypes=[int,float,float,float,float,float])
+                         dtype=[int,float,float,float,float,float])
     
     output_table.add_row({"dimension":0,
                           "m":bias_measurement.get_m(),
