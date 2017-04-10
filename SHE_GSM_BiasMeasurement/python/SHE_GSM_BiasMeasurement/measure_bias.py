@@ -28,8 +28,13 @@ import galsim
 
 from icebrgpy.logging import getLogger
 
-from SHE_GSM_BiasMeasurement import magic_values as mv
 from SHE_SIM_galaxy_image_generation import magic_values as sim_mv
+
+from SHE_GSM_BiasMeasurement import magic_values as mv
+from SHE_GSM_BiasMeasurement.input_file_finding import get_input_files
+from SHE_GSM_BiasMeasurement.measurement_extraction import get_all_shear_measurements
+from SHE_GSM_BiasMeasurement.bias_calculation import calculate_bias
+from SHE_GSM_BiasMeasurement.bias_measurement_outputting import output_bias_measurement
 
 def measure_bias_from_args(kwargs):
     """
@@ -40,6 +45,9 @@ def measure_bias_from_args(kwargs):
     
     @return None
     """
+    
+    logger = getLogger(mv.logger_name)
+    logger.debug("Entering measure_bias_from_args.")
     
     # Load input files
     input_files = get_input_files(root_dir=kwargs["input_dir"],
@@ -54,4 +62,9 @@ def measure_bias_from_args(kwargs):
     
     # Output the bias measurement
     output_bias_measurement(bias_measurement=bias_measurement,
-                            output_file_name=kwargs["output_file_name"])
+                            output_file_name=kwargs["output_file_name"],
+                            output_format=kwargs["output_format"])
+    
+    logger.debug("Exiting measure_bias_from_args.")
+    
+    return

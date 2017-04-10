@@ -52,7 +52,9 @@ def defineSpecificProgramOptions():
     
     # Output data
     parser.add_argument('--output_file_name',type=str,default=mv.default_output_filename,
-                        help='Desired name of the output fits file containing bias measurements.')
+                        help='Desired name of the output table containing bias measurements.')
+    parser.add_argument('--output_format',type=str,default=mv.default_output_format,
+                        help='Desired format of the output table.')
 
     return parser
 

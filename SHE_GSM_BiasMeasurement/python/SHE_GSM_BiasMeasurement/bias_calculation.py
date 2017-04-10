@@ -39,6 +39,52 @@ class BiasMeasurement(object):
         self.m1c1_covar = None
         self.m2c2_covar = None
         
+    def get_m(self):
+        return np.sqrt(self.m1**2 + self.m2**2)
+        
+    def get_c(self):
+        return np.sqrt(self.c1**2 + self.c2**2)
+    
+    def get_m_err(self):
+        m1s_err = 2*self.m1_err*self.m1
+        m2s_err = 2*self.m2_err*self.m2
+        
+        ms_err = np.sqrt(m1s_err**2+m2s_err**2)
+        m = self.get_m()
+        
+        ms_ferr = ms_err / m
+        m_ferr = ms_ferr / 2
+        
+        m_err = m_ferr * m
+        
+        return m_err
+    
+    def get_c_err(self):
+        c1s_err = 2*self.c1_err*self.c1
+        c2s_err = 2*self.c2_err*self.c2
+        
+        cs_err = np.sqrt(c1s_err**2+c2s_err**2)
+        c = self.get_c()
+        
+        cs_ferr = cs_err / c
+        c_ferr = cs_ferr / 2
+        
+        c_err = c_ferr * c
+        
+        return c_err
+    
+    def get_mc_covar(self):
+        """
+        @brief Estimate the mc covariance
+        @details Wild guess using harmonic means. If we actually need this I'll look into it more.
+        """
+        
+        mc_covar = np.sqrt(self.get_m_err()**2/(self.m1_err*self.m2_err) *
+                           self.get_c_err()**2/(self.c1_err*self.c2_err) *
+                           self.m1c1_covar*self.m2c2_covar )
+        
+        return mc_covar
+        
 def compress_measurements(real_values,measurements,measurement_errors):
     """
     @brief
