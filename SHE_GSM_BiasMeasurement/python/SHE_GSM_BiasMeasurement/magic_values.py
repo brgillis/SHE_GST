@@ -28,7 +28,7 @@ from SHE_GSM_ShearEstimation import magic_values as est_mv
 logger_name = "SHE_GSM_MeasureBias"
 
 default_output_filename = "shear_biases.fits"
-default_output_filename = "fits"
+default_output_format = "fits"
 
 fits_table_ID_label = sim_mv.detections_table_ID_label
 fits_table_sim_g1_label = "GAL_SIM_G1"
