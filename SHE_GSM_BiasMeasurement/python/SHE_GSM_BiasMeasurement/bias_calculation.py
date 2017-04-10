@@ -117,6 +117,9 @@ def compress_measurements(real_values,measurements,measurement_errors):
             measurements.append(measurements[j])
             measurement_errors.append(measurement_errors[j])
             j += 1
+            if j >= N:
+                break
+            
         measurements = np.array(measurements)
         measurement_errors = np.array(measurement_errors)
             
