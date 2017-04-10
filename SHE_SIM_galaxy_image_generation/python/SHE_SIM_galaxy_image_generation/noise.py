@@ -23,8 +23,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from numpy import sqrt
-
 from SHE_SIM_galaxy_image_generation.gain import get_ADU_from_count, get_count_from_ADU
 
 def get_sky_level_ADU_per_pixel(sky_level_ADU_per_sq_arcsec,
