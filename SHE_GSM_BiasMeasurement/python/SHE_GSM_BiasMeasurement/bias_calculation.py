@@ -112,12 +112,11 @@ def compress_measurements(real_values,measurements,measurement_errors):
         temp_measurements = []
         temp_measurement_errors = []
         
-        j = i
-        while real_values[j]==real_value:
-            temp_measurements.append(measurements[j])
-            temp_measurement_errors.append(measurement_errors[j])
-            j += 1
-            if j >= N:
+        while real_values[i]==real_value:
+            temp_measurements.append(measurements[i])
+            temp_measurement_errors.append(measurement_errors[i])
+            i += 1
+            if i >= N:
                 break
             
         temp_measurements = np.array(temp_measurements)
