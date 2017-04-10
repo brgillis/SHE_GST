@@ -78,10 +78,14 @@ def get_all_shear_measurements(input_files):
         joined_table.remove_column(mv.details_table_beta_label)
         
         # Rename columns as necessary
-        joined_table.rename_column(sim_mv.detections_table_ID_label,    mv.fits_table_ID_label)
-        joined_table.rename_column(est_mv.fits_table_gal_g1_label,      mv.fits_table_est_g1_label)
-        joined_table.rename_column(est_mv.fits_table_gal_g2_label,      mv.fits_table_est_g2_label)
-        joined_table.rename_column(est_mv.fits_table_gal_gerr_label,    mv.fits_table_est_gerr_label)
+        def rename_column(old_name, new_name):
+            if old_name != new_name:
+                joined_table.rename_column(old_name, new_name)
+                
+        rename_column(sim_mv.detections_table_ID_label,    mv.fits_table_ID_label)
+        rename_column(est_mv.fits_table_gal_g1_label,      mv.fits_table_est_g1_label)
+        rename_column(est_mv.fits_table_gal_g2_label,      mv.fits_table_est_g2_label)
+        rename_column(est_mv.fits_table_gal_gerr_label,    mv.fits_table_est_gerr_label)
         
         joined_tables.append(joined_table)
         
