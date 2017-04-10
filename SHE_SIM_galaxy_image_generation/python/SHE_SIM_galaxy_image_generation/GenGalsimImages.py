@@ -28,7 +28,8 @@ import argparse
 from SHE_SIM_galaxy_image_generation import magic_values as mv
 from SHE_SIM_galaxy_image_generation.config.config_default import (allowed_options,
                                                             allowed_fixed_params,
-                                                            allowed_survey_settings)
+                                                            allowed_survey_settings,
+                                                            str2bool)
 from SHE_SIM_galaxy_image_generation.run_from_config import run_from_args
 from icebrgpy.logging import getLogger
 
@@ -49,6 +50,8 @@ def defineSpecificProgramOptions():
     # Add in each allowed option, with a null default
     for option in allowed_options:
         option_type = allowed_options[option][1]
+        if option_type==str2bool:
+            option_type = bool
         parser.add_argument("--" + option, type=option_type)
 
     # Add allowed fixed params
