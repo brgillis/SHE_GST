@@ -109,24 +109,24 @@ def compress_measurements(real_values,measurements,measurement_errors):
     
     while i < N:
         real_value = real_values[i]
-        measurements = []
-        measurement_errors = []
+        temp_measurements = []
+        temp_measurement_errors = []
         
         j = i
         while real_values[j]==real_value:
-            measurements.append(measurements[j])
-            measurement_errors.append(measurement_errors[j])
+            temp_measurements.append(measurements[j])
+            temp_measurement_errors.append(measurement_errors[j])
             j += 1
             if j >= N:
                 break
             
-        measurements = np.array(measurements)
-        measurement_errors = np.array(measurement_errors)
+        temp_measurements = np.array(temp_measurements)
+        temp_measurement_errors = np.array(temp_measurement_errors)
             
-        measurement_weights = measurement_errors**-2
+        temp_measurement_weights = temp_measurement_errors**-2
         
-        mean_measurement = np.sum(measurements*measurement_weights)/np.sum(measurement_weights)
-        mean_measurement_error = np.sqrt(1/np.sum(measurement_weights))
+        mean_measurement = np.sum(temp_measurements*temp_measurement_weights)/np.sum(temp_measurement_weights)
+        mean_measurement_error = np.sqrt(1/np.sum(temp_measurement_weights))
         
         compressed_real_values.append(real_value)
         compressed_measurements.append(mean_measurement)
