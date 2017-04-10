@@ -4,6 +4,7 @@ elements_subdir(SHE_GSM_ShearEstimation)
 # Declare Elements module dependencies
 elements_depends_on_subdirs(ElementsKernel)
 elements_depends_on_subdirs(icebrgpy)
+elements_depends_on_subdirs(SHE_SIM_galaxy_image_generation)
 
 # Instruction for Python module installation
 elements_install_python_modules()
