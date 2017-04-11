@@ -81,6 +81,7 @@ def run_from_args(cline_args):
     
     # Apply arguments in extra config files specified
     for config_file_name in cline_args.config_files:
+        logger.debug('Applying arguments from config file: ' + config_file_name)
         cfg_args = get_cfg_args(config_file_name)
         apply_args(survey, options, cfg_args)
     
