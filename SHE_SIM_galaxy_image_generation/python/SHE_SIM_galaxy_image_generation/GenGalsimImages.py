@@ -50,7 +50,7 @@ def defineSpecificProgramOptions():
     # Extra configuration files
     parser.add_argument('--config_files', nargs='*',
                         help='Extra configuration files. Each will overwrite an values specified in previous ' +
-                             'files, or the one specified with the --config-file option.')
+                             'files, but NOT the one specified with the --config-file option.')
 
     # Add in each allowed option, with a null default
     for option in allowed_options:
@@ -92,13 +92,12 @@ def mainMethod(args):
     if(args.config_file is None and len(args.config_files)==0):
         logger.info('Using default configurations.')
     else:
-        config_files = []
         if args.config_file is not None:
-            config_files.append(args.config_file)
-        config_files += args.config_files
-        logger.info('Using configurations in file(s): ')
-        for config_file in config_files:
-            logger.info('* ' + config_file)
+            logger.info('Using primary configuration file: ' + args.config_file)
+        if len(args.config_files)>0:
+            logger.info('Using configurations in file(s): ')
+            for config_file in args.config_files:
+                logger.info('* ' + config_file)
         
     if args.profile:
         import cProfile
