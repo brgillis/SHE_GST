@@ -150,8 +150,6 @@ def apply_args(survey, options, args):
                     flt_args.append(float(str_arg.strip()))
 
                 survey.set_param_params(param_name, split_params[0].strip(), *flt_args)
-        else:
-            assert(False)
     
     logger.debug("# Exiting apply_args method.")
 
