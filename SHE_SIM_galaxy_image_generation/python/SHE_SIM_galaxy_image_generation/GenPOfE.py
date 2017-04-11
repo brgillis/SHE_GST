@@ -1,5 +1,4 @@
-"""
-    @file GenGalsimImages.py
+""" @file GenPOfE.py
 
     Created 23 Mar 2016
 
@@ -27,10 +26,10 @@ import argparse
 
 from SHE_SIM_galaxy_image_generation import magic_values as mv
 from SHE_SIM_galaxy_image_generation.config.config_default import (allowed_options,
-                                                            allowed_fixed_params,
-                                                            allowed_survey_settings)
+                                                                   allowed_fixed_params,
+                                                                   allowed_survey_settings)
 from SHE_SIM_galaxy_image_generation.run_from_config import run_from_args
-from SHE_SIM_galaxy_image_generation.generate_images import generate_images
+from SHE_SIM_galaxy_image_generation.generate_p_of_e import generate_p_of_e
 from icebrgpy.logging import getLogger
 
 def defineSpecificProgramOptions():
@@ -87,7 +86,7 @@ def mainMethod(args):
     logger = getLogger(mv.logger_name)
 
     logger.debug('#')
-    logger.debug('# Entering GenGalsimImages mainMethod()')
+    logger.debug('# Entering GenPOfE mainMethod()')
     logger.debug('#')
 
     if(args.config_file is None and len(args.config_files)==0):
@@ -105,10 +104,10 @@ def mainMethod(args):
         cProfile.runctx("run_from_args(generate_images,args)",{},
                         {"run_from_args":run_from_args,
                          "args":args,
-                         "generate_images":generate_images},
+                         "generate_p_of_e":generate_p_of_e},
                         filename="gen_galsim_images.prof")
     else:
-        run_from_args(generate_images, args)
+        run_from_args(generate_p_of_e,args)
 
     logger.debug('Exiting GenGalsimImages mainMethod()')
 

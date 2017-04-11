@@ -25,8 +25,6 @@
 
 import numpy as np
 
-from SHE_GSM_ShearEstimation.estimate_shear import ShearEstimate
-
 def calculate_unweighted_ellipticity(prof):
     """
     @brief
@@ -39,9 +37,9 @@ def calculate_unweighted_ellipticity(prof):
     
     image = draw_prof(prof)
     
-    shear_estimate = calculate_unweighted_ellipticity_from_image(image)
+    g1, g2 = calculate_unweighted_ellipticity_from_image(image)
     
-    return shear_estimate
+    return g1, g2
 
 def draw_prof(prof):
     """
@@ -116,4 +114,4 @@ def calculate_unweighted_ellipticity_from_image(image):
     
     g1, g2 = get_g_from_e(e1,e2)
     
-    return ShearEstimate(g1,g2,0)
+    return g1, g2
