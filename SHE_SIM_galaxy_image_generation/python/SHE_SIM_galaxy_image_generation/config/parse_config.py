@@ -106,7 +106,11 @@ def apply_args(survey, options, args):
     
     logger.debug("# Entering apply_args method.")
 
-    arg_lib = vars(args)
+    # Make sure we have a dictionary
+    if not isinstance(args, dict):
+        arg_lib = vars(args)
+    else:
+        arg_lib = args
 
     # Check if each option was overriden in the args
     for option in allowed_options:
