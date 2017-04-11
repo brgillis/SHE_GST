@@ -1,0 +1,154 @@
+""" @file generate_p_of_e.py
+
+    Created 23 Jul 2015
+
+    This module contains the functions which do the heavy lifting of
+    generating P(e)
+
+    ---------------------------------------------------------------------
+
+    Copyright (C) 2015, 2016 Bryan R. Gillis
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import numpy as np
+
+from icebrgpy.logging import getLogger
+from SHE_SIM_galaxy_image_generation import magic_values as mv
+from SHE_SIM_galaxy_image_generation.galaxy import (get_bulge_galaxy_profile,
+                                             get_disk_galaxy_profile,
+                                             is_target_galaxy)
+from SHE_SIM_galaxy_image_generation.magnitude_conversions import get_I
+from SHE_SIM_galaxy_image_generation.unweighted_moments import calculate_unweighted_ellipticity
+
+def generate_p_of_e(survey, options):
+    """
+        @brief This function handles assigning specific images to be created by different parallel
+            threads.
+
+        @details If successful, generates images and corresponding details according to
+            the configuration stored in the survey and options objects.
+
+        @param survey
+            <SHE_SIM.Survey> The survey object which specifies parameters for generation
+        @param options
+            <dict> The options dictionary for this run
+    """
+    
+    logger = getLogger(mv.logger_name)
+    logger.debug("Entering generate_p_of_e method.")
+
+    # Seed the survey
+    if options['seed'] == 0:
+        survey.set_seed() # Seed from the time
+    else:
+        survey.set_seed(options['seed'])
+        
+    # Set up the bins for e
+    pe_bins = np.zeros(options['e_bins'],dtype=int)
+
+    # Create empty image objects for the survey
+    survey.fill_images()
+    images = survey.get_images()
+
+    for image in images:
+        image_pe_bins = get_pe_bins_for_image(image, options)
+        pe_bins += image_pe_bins
+        
+    output_pe_bins(pe_bins)
+        
+    logger.debug("Exiting generate_p_of_e method.")
+    
+def get_pe_bins_for_image(image, options):
+    
+    logger = getLogger(mv.logger_name)
+    logger.debug("Entering get_pe_bins_for_image method.")
+    
+    # Set up empty bins
+    num_e_bins = options['num_e_bins']
+    e_bin_limits = np.linspace(0.,1.,num_e_bins+1)
+    e_bin_size = 1./num_e_bins
+    
+    image_pe_bins = np.zeros(num_e_bins,dtype=int)
+
+    # Fill up galaxies in this image
+    image.autofill_children()
+    
+    galaxies = image.get_galaxy_descendants()
+    
+    for galaxy in galaxies:
+        galaxy.generate_parameters()
+
+        # Sort out target galaxies
+        if not is_target_galaxy(galaxy, options):
+            continue
+        
+        # Store galaxy data to save calls to the class
+
+        gal_I = get_I(galaxy.get_param_value('apparent_mag_vis'),
+                      'mag_vis',
+                      gain=options['gain'],
+                      exp_time=options['exp_time'])
+        
+        rotation = galaxy.get_param_value('rotation')
+        tilt = galaxy.get_param_value('tilt')
+
+        g_shear = galaxy.get_param_value('shear_magnitude')
+        beta_shear = galaxy.get_param_value('shear_angle')
+
+        g_ell = galaxy.get_param_value('bulge_ellipticity')
+
+        bulge_fraction = galaxy.get_param_value('bulge_fraction')
+        n = galaxy.get_param_value('sersic_index')
+
+        bulge_size = galaxy.get_param_value('apparent_size_bulge')
+        disk_size = galaxy.get_param_value('apparent_size_disk')
+        disk_height_ratio=galaxy.get_param_value('disk_height_ratio')
+        
+
+        bulge_gal_profile = get_bulge_galaxy_profile(sersic_index=n,
+                                        half_light_radius=bulge_size,
+                                        flux=gal_I * bulge_fraction,
+                                        g_ell=g_ell,
+                                        beta_deg_ell=rotation,
+                                        g_shear=g_shear,
+                                        beta_deg_shear=beta_shear,
+                                        data_dir=options['data_dir'])
+        disk_gal_profile = get_disk_galaxy_profile(half_light_radius=disk_size,
+                                           rotation=rotation,
+                                           tilt=tilt,
+                                           flux=gal_I * (1 - bulge_fraction),
+                                           g_shear=g_shear,
+                                           beta_deg_shear=beta_shear,
+                                           height_ratio=disk_height_ratio)
+        
+        gal_profile = bulge_gal_profile + disk_gal_profile
+        
+        e1, e2 = calculate_unweighted_ellipticity(gal_profile)
+        
+        e = np.sqrt(e1**2 + e2**2)
+        
+        bin_index = int(e/e_bin_size)
+        image_pe_bins[bin_index] += 1
+        
+
+    # We no longer need this image's children, so clear it to save memory
+    image.clear()
+
+    logger.debug("Exiting get_pe_bins_for_image method.")
+
+    return image_pe_bins
+    
+    
