@@ -64,7 +64,7 @@ def parse_line(line, args):
     no_comments_line = split(line, sep='#')[0]
 
     # Split by =
-    eq_split_line = split(no_comments_line, sep=':')
+    eq_split_line = split(no_comments_line, sep='=')
 
     # Check if this looks good
     if len(eq_split_line) != 2:
