@@ -47,16 +47,27 @@ def output_shear_estimates(stamps, output_file_name, galaxies_image_file_name):
             output_file_name = galaxies_image_file_name + mv.output_tail
     
     # Initialize a table for output        
-    otable = Table(names=["GAL_X1","GAL_X2","GAL_G1","GAL_G2","GAL_GERR",],
-                   dtype=[   float,   float,   float,   float,     float,])
+    otable = Table(names=[mv.fits_table_ID_label,
+                          mv.fits_table_gal_x_label,
+                          mv.fits_table_gal_y_label,
+                          mv.fits_table_gal_g1_label,
+                          mv.fits_table_gal_g2_label,
+                          mv.fits_table_gal_gerr_label,],
+                   dtype=[int,
+                          float,
+                          float,
+                          float,
+                          float,
+                          float,])
     
     # Add each stamp's data to it in turn
     for stamp in stamps:
-        otable.add_row({"GAL_X1"  : stamp.center.x,
-                        "GAL_X2"  : stamp.center.y,
-                        "GAL_G1"  : stamp.shear_estimate.g1,
-                        "GAL_G2"  : stamp.shear_estimate.g2,
-                        "GAL_GERR": stamp.shear_estimate.gerr,})
+        otable.add_row({mv.fits_table_ID_label       : stamp.ID,
+                        mv.fits_table_gal_x_label    : stamp.center.x,
+                        mv.fits_table_gal_y_label    : stamp.center.y,
+                        mv.fits_table_gal_g1_label   : stamp.shear_estimate.g1,
+                        mv.fits_table_gal_g2_label   : stamp.shear_estimate.g2,
+                        mv.fits_table_gal_gerr_label : stamp.shear_estimate.gerr,})
             
     # Output the table
     otable.write(output_file_name,format='fits',overwrite=True)
