@@ -43,8 +43,14 @@ def defineSpecificProgramOptions():
 
     parser = argparse.ArgumentParser()
 
+    # Option for profiling
     parser.add_argument('--profile',action='store_true',
                         help='Store profiling data for execution.')
+    
+    # Extra configuration files
+    parser.add_argument('--config_files', nargs='*',
+                        help='Extra configuration files. Each will overwrite an values specified in previous ' +
+                             'files, or the one specified with the --config-file option.')
 
     # Add in each allowed option, with a null default
     for option in allowed_options:

@@ -49,6 +49,7 @@ from SHE_SIM_galaxy_image_generation.config.config_default import (allowed_surve
                                                                    generation_levels_inverse,)
 from SHE_SIM_galaxy_image_generation.config.parse_config import (set_up_from_config_file,
                                                                  load_default_configurations,
+                                                                 get_cfg_args,
                                                                  apply_args)
 from SHE_SIM_galaxy_image_generation.generate_images import generate_images
 from icebrgpy.logging import getLogger
@@ -73,10 +74,15 @@ def run_from_config_file(config_file_name):
 def run_from_args(cline_args):
 
     logger = getLogger(mv.logger_name)
-    
     logger.debug("# Entering run_from_args method.")
 
+    # Load defaults
     survey, options = load_default_configurations()
+    
+    # Apply arguments in extra config files specified
+    for config_file_name in cline_args.config_files:
+        cfg_args = get_cfg_args(config_file_name)
+        apply_args(survey, options, cfg_args)
     
     # Apply cline-args
     apply_args(survey, options, cline_args)
