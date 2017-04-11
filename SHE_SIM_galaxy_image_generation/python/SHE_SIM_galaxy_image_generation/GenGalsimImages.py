@@ -89,12 +89,16 @@ def mainMethod(args):
     logger.debug('# Entering GenGalsimImages mainMethod()')
     logger.debug('#')
 
-    config_file_name = args.config_file
-
-    if(config_file_name is None):
+    if(args.config_file is None and len(args.config_files)==0):
         logger.info('Using default configurations.')
     else:
-        logger.info('Using configurations from file ' + config_file_name + '.')
+        config_files = []
+        if args.config_file is not None:
+            config_files.append(args.config_file)
+        config_files += args.config_files
+        logger.info('Using configurations in file(s): ')
+        for config_file in config_files:
+            logger.info('* ' + config_file)
         
     if args.profile:
         import cProfile
