@@ -70,6 +70,14 @@ def estimate_shears_from_args(kwargs):
     galaxies_hdulist = fits.open(kwargs["galaxies_image_file_name"])
     psf_hdulist = fits.open(kwargs["psf_image_file_name"])
     
+    # Load the P(e) table if available
+    p_of_e_table_file_name = kwargs["p_of_e_table_file_name"]
+    if p_of_e_table_file_name is not None:
+        p_of_e_table = Table.read(p_of_e_table_file_name)
+    else:
+        p_of_e_table = None
+        logger.warn("No P(e) table specified. Default assumptions about shape noise will be made.")
+    
     # Get the gain, subtracted sky level, and read noise from the galaxies image
     # if they weren't passed at the command-line
     gain = find_value(kwargs["gain"], "gain", sim_mv.fits_header_gain_label, 
@@ -101,7 +109,8 @@ def estimate_shears_from_args(kwargs):
                                         method=kwargs["method"],
                                         gain=gain,
                                         subtracted_sky_level=subtracted_sky_level,
-                                        read_noise=read_noise)
+                                        read_noise=read_noise,
+                                        p_of_e_table=p_of_e_table)
         gal_stamp.shear_estimate = shear_estimate
         
     # Output the measurements
