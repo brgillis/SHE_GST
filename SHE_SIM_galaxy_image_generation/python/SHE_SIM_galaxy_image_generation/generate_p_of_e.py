@@ -24,6 +24,7 @@
 """
 
 import numpy as np
+import galsim
 
 from icebrgpy.logging import getLogger
 from SHE_SIM_galaxy_image_generation import magic_values as mv
@@ -34,7 +35,7 @@ from SHE_SIM_galaxy_image_generation.magnitude_conversions import get_I
 from SHE_SIM_galaxy_image_generation.unweighted_moments import calculate_unweighted_ellipticity
 from SHE_SIM_galaxy_image_generation.p_of_e_io import output_p_of_e
 
-def generate_p_of_e(survey, options, header_items):
+def generate_p_of_e(survey, options, header_items, e_bins):
     """
         @brief This function handles assigning specific images to be created by different parallel
             threads.
@@ -58,14 +59,14 @@ def generate_p_of_e(survey, options, header_items):
         survey.set_seed(options['seed'])
         
     # Set up the bins for e
-    pe_bins = np.zeros(options['e_bins'],dtype=int)
+    pe_bins = np.zeros(e_bins,dtype=int)
 
     # Create empty image objects for the survey
     survey.fill_images()
     images = survey.get_images()
 
     for image in images:
-        image_pe_bins = get_pe_bins_for_image(image, options)
+        image_pe_bins = get_pe_bins_for_image(image, options, e_bins)
         pe_bins += image_pe_bins
         
     # Set up output header as specified at input
@@ -77,21 +78,22 @@ def generate_p_of_e(survey, options, header_items):
         
     logger.debug("Exiting generate_p_of_e method.")
     
-def get_pe_bins_for_image(image, options):
+def get_pe_bins_for_image(image, options, e_bins):
     
     logger = getLogger(mv.logger_name)
     logger.debug("Entering get_pe_bins_for_image method.")
     
     # Set up empty bins
-    num_e_bins = options['num_e_bins']
-    e_bin_size = 1./num_e_bins
+    e_bin_size = 1./e_bins
     
-    image_pe_bins = np.zeros(num_e_bins,dtype=int)
+    image_pe_bins = np.zeros(e_bins,dtype=int)
 
     # Fill up galaxies in this image
     image.autofill_children()
     
     galaxies = image.get_galaxy_descendants()
+    
+    i=0
     
     for galaxy in galaxies:
         galaxy.generate_parameters()
@@ -99,6 +101,10 @@ def get_pe_bins_for_image(image, options):
         # Sort out target galaxies
         if not is_target_galaxy(galaxy, options):
             continue
+        
+        if i%10 == 0:
+            logger.info("Calculating P(e) for galaxy " + str(i) + ".")
+        i += 1
         
         # Store galaxy data to save calls to the class
 
@@ -122,6 +128,7 @@ def get_pe_bins_for_image(image, options):
         disk_size = galaxy.get_param_value('apparent_size_disk')
         disk_height_ratio=galaxy.get_param_value('disk_height_ratio')
         
+        gsparams = galsim.GSParams(maxk_threshold=1e-2)
 
         bulge_gal_profile = get_bulge_galaxy_profile(sersic_index=n,
                                         half_light_radius=bulge_size,
@@ -130,14 +137,16 @@ def get_pe_bins_for_image(image, options):
                                         beta_deg_ell=rotation,
                                         g_shear=g_shear,
                                         beta_deg_shear=beta_shear,
-                                        data_dir=options['data_dir'])
+                                        data_dir=options['data_dir'],
+                                        gsparams=gsparams)
         disk_gal_profile = get_disk_galaxy_profile(half_light_radius=disk_size,
                                            rotation=rotation,
                                            tilt=tilt,
                                            flux=gal_I * (1 - bulge_fraction),
                                            g_shear=g_shear,
                                            beta_deg_shear=beta_shear,
-                                           height_ratio=disk_height_ratio)
+                                           height_ratio=disk_height_ratio,
+                                           gsparams=gsparams)
         
         gal_profile = bulge_gal_profile + disk_gal_profile
         

@@ -48,14 +48,16 @@ def defineSpecificProgramOptions():
                         help='Store profiling data for execution.')
     
     # Extra configuration files
-    parser.add_argument('--config_files', nargs='*',
+    parser.add_argument('--config_files', nargs='*', default=[],
                         help='Extra configuration files. Each will overwrite an values specified in previous ' +
                              'files, but NOT the one specified with the --config-file option.')
     
-    # Extra configuration files
-    parser.add_argument('--header_items', nargs='*',
+    # Header items
+    parser.add_argument('--header_items', nargs='*', default=[],
                         help='Items to be put in the header of the output table. Must be specified in pairs, eg. ' +
                         '--header_items Foo 117 Bar 0.1')
+    parser.add_argument('--e_bins', type=int, default=100,
+                        help='Number of bins in e (always from 0 to 1). Default = 100.')
 
     # Add in each allowed option, with a null default
     for option in allowed_options:
@@ -110,14 +112,16 @@ def mainMethod(args):
         
     if args.profile:
         import cProfile
-        cProfile.runctx("run_from_args(generate_images,args,header_items=header_items)",{},
+        cProfile.runctx("run_from_args(generate_images,args,header_items=header_items,e_bins=e_bins)",{},
                         {"run_from_args":run_from_args,
                          "args":args,
                          "generate_p_of_e":generate_p_of_e,
-                         "header_items":header_items},
+                         "header_items":header_items,
+                         "e_bins":args.e_bins},
                         filename="gen_galsim_images.prof")
     else:
-        run_from_args(generate_p_of_e,args,header_items=header_items)
+        run_from_args(generate_p_of_e, args, header_items=header_items,
+                      e_bins=args.e_bins)
 
     logger.debug('Exiting GenGalsimImages mainMethod()')
 

@@ -23,7 +23,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import galsim
 import numpy as np
+
+image_size = 1023
+image_scale = 0.02
 
 def calculate_unweighted_ellipticity(prof):
     """
@@ -51,8 +55,9 @@ def draw_prof(prof):
     @return <np.ndarray> The image of the profile
     """
 
-    # Draw the image.  Note: need a method that integrates over pixels to get flux right.
-    galsim_image = prof.drawImage(method='no_pixel',dtype=float)
+    galsim_image = galsim.Image(image_size,image_size,scale=image_scale)
+    prof = galsim.Convolve([prof],gsparams=galsim.GSParams(maximum_fft_size=20000))
+    prof.drawImage(galsim_image, method='no_pixel')
     
     return galsim_image.array
 
