@@ -86,7 +86,7 @@ def estimate_shear_KSB(galaxy_image, psf_image, gain, subtracted_sky_level,
     
     # Get the variance due to shape noise
     if p_of_e_table is None:
-        shape_noise_var = 0.1
+        shape_noise_var = 0.06
     else:
         e_half_step = (p_of_e_table["E_LOW"][1] - p_of_e_table["E_LOW"][0])/2.
         shape_noise_var = (((p_of_e_table["E_LOW"]+e_half_step)**2 * p_of_e_table["E_COUNT"]).sum() /
@@ -100,7 +100,10 @@ def estimate_shear_KSB(galaxy_image, psf_image, gain, subtracted_sky_level,
                                                          guess_sig_PSF=0.2/resampled_psf_image.scale,
                                                          shear_est='KSB')
         
-        gerr = np.sqrt(shape_noise_var+galsim_shear_estimate.corrected_shape_err**2)
+        if np.abs(galsim_shear_estimate.corrected_shape_err) < 1e99:
+            gerr = np.sqrt(shape_noise_var+galsim_shear_estimate.corrected_shape_err**2)
+        else:
+            gerr = galsim_shear_estimate.corrected_shape_err
         
         shear_estimate = ShearEstimate(galsim_shear_estimate.corrected_g1,
                                        galsim_shear_estimate.corrected_g2,
