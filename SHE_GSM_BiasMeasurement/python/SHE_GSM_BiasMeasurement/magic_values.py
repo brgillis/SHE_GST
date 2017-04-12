@@ -36,6 +36,8 @@ fits_table_sim_g2_label = "GAL_SIM_G2"
 fits_table_est_g1_label = est_mv.fits_table_gal_g1_label
 fits_table_est_g2_label = est_mv.fits_table_gal_g2_label
 fits_table_est_gerr_label = est_mv.fits_table_gal_gerr_label
+fits_table_est_g1_err_label = "GAL_G1_ERR"
+fits_table_est_g2_err_label = "GAL_G2_ERR"
 
 details_table_g_label = 'shear_magnitude'
 details_table_beta_label = 'shear_angle'

@@ -219,6 +219,15 @@ def calculate_bias(all_shear_measurements):
     
     bias_measurement = BiasMeasurement()
     
+    # Check if we have independent errors on g1 and g2
+    if (mv.fits_table_est_g1_err_label in all_shear_measurements and
+        mv.fits_table_est_g2_err_label in all_shear_measurements):
+        g1_err_label = mv.fits_table_est_g1_err_label
+        g2_err_label = mv.fits_table_est_g2_err_label
+    else:
+        g1_err_label = mv.fits_table_est_gerr_label
+        g2_err_label = mv.fits_table_est_gerr_label
+    
     # Get bias for both index 1 and 2 independently
     
     (bias_measurement.m1, bias_measurement.m1_err,
@@ -226,14 +235,14 @@ def calculate_bias(all_shear_measurements):
      bias_measurement.m1c1_covar) = (
             regress_shear_measurements(all_shear_measurements[mv.fits_table_sim_g1_label],
                                        all_shear_measurements[mv.fits_table_est_g1_label],
-                                       all_shear_measurements[mv.fits_table_est_gerr_label]) )
+                                       all_shear_measurements[g1_err_label]) )
     
     (bias_measurement.m2, bias_measurement.m2_err,
      bias_measurement.c2, bias_measurement.c2_err,
      bias_measurement.m2c2_covar) = (
             regress_shear_measurements(all_shear_measurements[mv.fits_table_sim_g2_label],
                                        all_shear_measurements[mv.fits_table_est_g2_label],
-                                       all_shear_measurements[mv.fits_table_est_gerr_label]) )
+                                       all_shear_measurements[g2_err_label]) )
      
     return bias_measurement 
         
