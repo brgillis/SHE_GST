@@ -51,6 +51,11 @@ def defineSpecificProgramOptions():
     parser.add_argument('--config_files', nargs='*',
                         help='Extra configuration files. Each will overwrite an values specified in previous ' +
                              'files, but NOT the one specified with the --config-file option.')
+    
+    # Extra configuration files
+    parser.add_argument('--header_items', nargs='*',
+                        help='Items to be put in the header of the output table. Must be specified in pairs, eg. ' +
+                        '--header_items Foo 117 Bar 0.1')
 
     # Add in each allowed option, with a null default
     for option in allowed_options:
@@ -88,6 +93,10 @@ def mainMethod(args):
     logger.debug('#')
     logger.debug('# Entering GenPOfE mainMethod()')
     logger.debug('#')
+    
+    if len(args.header_items) % 2 != 0:
+        raise Exception("An even number of items must be passed to the header_items argument.")
+    header_items = args.header_items
 
     if(args.config_file is None and len(args.config_files)==0):
         logger.info('Using default configurations.')
@@ -101,13 +110,14 @@ def mainMethod(args):
         
     if args.profile:
         import cProfile
-        cProfile.runctx("run_from_args(generate_images,args)",{},
+        cProfile.runctx("run_from_args(generate_images,args,header_items=header_items)",{},
                         {"run_from_args":run_from_args,
                          "args":args,
-                         "generate_p_of_e":generate_p_of_e},
+                         "generate_p_of_e":generate_p_of_e,
+                         "header_items":header_items},
                         filename="gen_galsim_images.prof")
     else:
-        run_from_args(generate_p_of_e,args)
+        run_from_args(generate_p_of_e,args,header_items=header_items)
 
     logger.debug('Exiting GenGalsimImages mainMethod()')
 

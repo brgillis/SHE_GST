@@ -42,15 +42,15 @@ except ImportError as _e:
     have_pyfftw = False
 
 
-def run_from_config_file(func, config_file_name):
+def run_from_config_file(func, config_file_name, *args, **kwargs):
 
     survey, options = set_up_from_config_file(config_file_name)
 
-    run_from_survey_and_options(func, survey, options)
+    run_from_survey_and_options(func, survey, options, *args, **kwargs)
 
     return
 
-def run_from_args(func, cline_args):
+def run_from_args(func, cline_args, *args, **kwargs):
 
     logger = getLogger(mv.logger_name)
     logger.debug("# Entering run_from_args method.")
@@ -67,24 +67,24 @@ def run_from_args(func, cline_args):
     # Apply cline-args
     apply_args(survey, options, cline_args)
 
-    run_from_survey_and_options(func, survey, options)
+    run_from_survey_and_options(func, survey, options, *args, **kwargs)
     
     logger.debug("# Exiting run_from_args method.")
 
     return
 
-def run_from_config_file_and_args(func, config_file_name, cline_args):
+def run_from_config_file_and_args(func, config_file_name, cline_args, *args, **kwargs):
 
     survey, options = set_up_from_config_file(config_file_name)
     
     # Apply cline-args
     apply_args(survey, options, cline_args)
 
-    run_from_survey_and_options(func, survey, options)
+    run_from_survey_and_options(func, survey, options, *args, **kwargs)
 
     return
 
-def run_from_survey_and_options(func, survey, options):
+def run_from_survey_and_options(func, survey, options, *args, **kwargs):
 
     # Check if the folder path was given with a slash at the end. If so, trim it
     if(options['output_folder'][-1] == '/'):
@@ -128,7 +128,7 @@ def run_from_survey_and_options(func, survey, options):
             pass
 
     # We have the input we want, now run the program
-    func(survey, options)
+    func(survey, options, *args, **kwargs)
 
     # Save fftw wisdom
     if have_pyfftw:
