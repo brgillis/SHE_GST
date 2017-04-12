@@ -1,13 +1,13 @@
 """ @file generate_p_of_e.py
 
-    Created 23 Jul 2015
+    Created 11 Apr 2017
 
     This module contains the functions which do the heavy lifting of
     generating P(e)
 
     ---------------------------------------------------------------------
 
-    Copyright (C) 2015, 2016 Bryan R. Gillis
+    Copyright (C) 2017 Bryan R. Gillis
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ from SHE_SIM_galaxy_image_generation.galaxy import (get_bulge_galaxy_profile,
                                              is_target_galaxy)
 from SHE_SIM_galaxy_image_generation.magnitude_conversions import get_I
 from SHE_SIM_galaxy_image_generation.unweighted_moments import calculate_unweighted_ellipticity
+from SHE_SIM_galaxy_image_generation.p_of_e_io import output_p_of_e
 
 def generate_p_of_e(survey, options):
     """
@@ -67,7 +68,7 @@ def generate_p_of_e(survey, options):
         image_pe_bins = get_pe_bins_for_image(image, options)
         pe_bins += image_pe_bins
         
-    output_pe_bins(pe_bins)
+    output_p_of_e(pe_bins)
         
     logger.debug("Exiting generate_p_of_e method.")
     
@@ -78,7 +79,6 @@ def get_pe_bins_for_image(image, options):
     
     # Set up empty bins
     num_e_bins = options['num_e_bins']
-    e_bin_limits = np.linspace(0.,1.,num_e_bins+1)
     e_bin_size = 1./num_e_bins
     
     image_pe_bins = np.zeros(num_e_bins,dtype=int)
