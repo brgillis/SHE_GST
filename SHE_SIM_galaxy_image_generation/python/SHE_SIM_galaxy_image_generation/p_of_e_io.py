@@ -28,7 +28,7 @@ from astropy.table import Table
 fits_table_bin_low_label = "E_LOW"
 fits_table_e_count_label = "E_COUNT"
 
-def output_p_of_e(p_of_e_bins, output_file_name, output_format, header = {}):
+def output_p_of_e(p_of_e_bins, output_file_name, format, header = {}):
     """
         @brief Output a histogram of P(e) to a file.
         
@@ -50,13 +50,15 @@ def output_p_of_e(p_of_e_bins, output_file_name, output_format, header = {}):
     bin_lows = np.linspace(0.,1.,N_bins,endpoint=False)
     
     # Set up the table
-    p_of_e_table = Table(data = {fits_table_bin_low_label:bin_lows,
-                                 fits_table_e_count_label:p_of_e_bins},
+    p_of_e_table = Table(data = [bin_lows,
+                                 p_of_e_bins],
+                         names = [fits_table_bin_low_label,
+                                  fits_table_e_count_label],
                          dtype = [float,int],
                          meta = header)
     
     # Print it
-    p_of_e_table.write(output_file_name, format = output_format)
+    p_of_e_table.write(output_file_name, format = format, overwrite = True)
     
 def load_p_of_e(input_file_name, input_format=None):
     """

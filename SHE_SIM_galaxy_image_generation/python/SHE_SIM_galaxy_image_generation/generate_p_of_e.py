@@ -71,7 +71,7 @@ def generate_p_of_e(survey, options, header_items, e_bins):
         
     # Set up output header as specified at input
     header = {}
-    for i in range(header_items//2):
+    for i in range(len(header_items)//2):
         header[header_items[2*i]] = header_items[2*i+1]
         
     output_p_of_e(pe_bins,options['p_of_e_output_file_name'],format=options['p_of_e_output_format'])
@@ -91,12 +91,10 @@ def get_pe_bins_for_image(image, options, e_bins):
     # Fill up galaxies in this image
     image.autofill_children()
     
-    galaxies = image.get_galaxy_descendants()
-    
     i=0
     
-    for galaxy in galaxies:
-        galaxy.generate_parameters()
+    while i<options['num_target_galaxies']:
+        galaxy = image.add_galaxy()
 
         # Sort out target galaxies
         if not is_target_galaxy(galaxy, options):
@@ -128,7 +126,7 @@ def get_pe_bins_for_image(image, options, e_bins):
         disk_size = galaxy.get_param_value('apparent_size_disk')
         disk_height_ratio=galaxy.get_param_value('disk_height_ratio')
         
-        gsparams = galsim.GSParams(maxk_threshold=1e-2)
+        gsparams = galsim.GSParams(maxk_threshold=5e-2)
 
         bulge_gal_profile = get_bulge_galaxy_profile(sersic_index=n,
                                         half_light_radius=bulge_size,
