@@ -57,6 +57,8 @@ def defineSpecificProgramOptions():
                         help="Read noise of the galaxy image, in e-/pixel")
     parser.add_argument('--subtracted_sky_level', type=float,
                         help="Sky level that's been subtracted from the galaxy image, in ADU/arcsec^2")
+    parser.add_argument('--p_of_e_table_file_name',type=str,
+                        help='Name of the file containing the P(e) table.')
     
     # Method to use
     parser.add_argument('--method',type=str,default='KSB',
