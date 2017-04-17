@@ -35,7 +35,7 @@ from SHE_SIM_galaxy_image_generation.magnitude_conversions import get_I
 from SHE_SIM_galaxy_image_generation.unweighted_moments import calculate_unweighted_ellipticity
 from SHE_SIM_galaxy_image_generation.p_of_e_io import output_p_of_e
 
-def generate_p_of_e(survey, options, header_items, e_bins):
+def generate_p_of_e(survey, options, output_file_name, header_items, e_bins):
     """
         @brief This function handles assigning specific images to be created by different parallel
             threads.
@@ -76,7 +76,7 @@ def generate_p_of_e(survey, options, header_items, e_bins):
     for i in range(len(header_items)//2):
         header[header_items[2*i]] = header_items[2*i+1]
         
-    output_p_of_e(pe_bins,e_samples,options['p_of_e_output_file_name'],header=header)
+    output_p_of_e(pe_bins,e_samples,output_file_name,header=header)
         
     logger.debug("Exiting generate_p_of_e method.")
     
