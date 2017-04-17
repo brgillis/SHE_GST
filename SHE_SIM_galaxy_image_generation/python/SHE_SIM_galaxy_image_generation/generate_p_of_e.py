@@ -35,7 +35,7 @@ from SHE_SIM_galaxy_image_generation.magnitude_conversions import get_I
 from SHE_SIM_galaxy_image_generation.unweighted_moments import calculate_unweighted_ellipticity
 from SHE_SIM_galaxy_image_generation.p_of_e_io import output_p_of_e
 
-def generate_p_of_e(survey, options, header_items, e_bins):
+def generate_p_of_e(survey, options, output_file_name, header_items, e_bins):
     """
         @brief This function handles assigning specific images to be created by different parallel
             threads.
@@ -60,21 +60,23 @@ def generate_p_of_e(survey, options, header_items, e_bins):
         
     # Set up the bins for e
     pe_bins = np.zeros(e_bins,dtype=int)
+    e_samples = []
 
     # Create empty image objects for the survey
     survey.fill_images()
     images = survey.get_images()
 
     for image in images:
-        image_pe_bins = get_pe_bins_for_image(image, options, e_bins)
+        image_pe_bins, image_e_samples = get_pe_bins_for_image(image, options, e_bins)
         pe_bins += image_pe_bins
+        e_samples += image_e_samples
         
     # Set up output header as specified at input
     header = {}
     for i in range(len(header_items)//2):
         header[header_items[2*i]] = header_items[2*i+1]
         
-    output_p_of_e(pe_bins,options['p_of_e_output_file_name'],format=options['p_of_e_output_format'])
+    output_p_of_e(pe_bins,e_samples,output_file_name,header=header)
         
     logger.debug("Exiting generate_p_of_e method.")
     
@@ -87,6 +89,7 @@ def get_pe_bins_for_image(image, options, e_bins):
     e_bin_size = 1./e_bins
     
     image_pe_bins = np.zeros(e_bins,dtype=int)
+    image_e_samples = []
 
     # Fill up galaxies in this image
     image.autofill_children()
@@ -155,12 +158,14 @@ def get_pe_bins_for_image(image, options, e_bins):
         bin_index = int(e/e_bin_size)
         image_pe_bins[bin_index] += 1
         
+        image_e_samples.append(e)
+        
 
     # We no longer need this image's children, so clear it to save memory
     image.clear()
 
     logger.debug("Exiting get_pe_bins_for_image method.")
 
-    return image_pe_bins
+    return image_pe_bins, image_e_samples
     
     

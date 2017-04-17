@@ -23,12 +23,13 @@
 """
 
 import numpy as np
-from astropy.table import Table
+from astropy.io import fits
 
 fits_table_bin_low_label = "E_LOW"
 fits_table_e_count_label = "E_COUNT"
+fits_table_e_samples_label = "E_SAMPLES"
 
-def output_p_of_e(p_of_e_bins, output_file_name, format, header = {}):
+def output_p_of_e(p_of_e_bins, e_samples, output_file_name, header = {}):
     """
         @brief Output a histogram of P(e) to a file.
         
@@ -49,16 +50,21 @@ def output_p_of_e(p_of_e_bins, output_file_name, format, header = {}):
     N_bins = len(p_of_e_bins)
     bin_lows = np.linspace(0.,1.,N_bins,endpoint=False)
     
-    # Set up the table
-    p_of_e_table = Table(data = [bin_lows,
-                                 p_of_e_bins],
-                         names = [fits_table_bin_low_label,
-                                  fits_table_e_count_label],
-                         dtype = [float,int],
-                         meta = header)
+    # Set up the HDU for the bins
+    p_of_e_hdu = fits.BinTableHDU.from_columns(
+                    [fits.Column(name=fits_table_bin_low_label, format='E', array=bin_lows),
+                     fits.Column(name=fits_table_e_count_label, format='K', array=fits_table_e_count_label)])
+    
+    # Set up the HDU for the samples
+    e_sample_hdu = fits.BinTableHDU.from_columns(
+                    [fits.Column(name=fits_table_e_samples_label, format='E', array=e_samples)])
+    
+    primary_hdu = fits.PrimaryHDU(header=header)
+    
+    hdu_list = fits.HDUList([primary_hdu,p_of_e_hdu,e_sample_hdu])
     
     # Print it
-    p_of_e_table.write(output_file_name, format = format, overwrite = True)
+    hdu_list.writeto(output_file_name, overwrite = True)
     
 def load_p_of_e(input_file_name, input_format=None):
     """

@@ -53,6 +53,8 @@ def defineSpecificProgramOptions():
                              'files, but NOT the one specified with the --config-file option.')
     
     # Header items
+    parser.add_argument('--output_file_name', default="p_of_e.fits",
+                        help='File name to store P(e) data in.')
     parser.add_argument('--header_items', nargs='*', default=[],
                         help='Items to be put in the header of the output table. Must be specified in pairs, eg. ' +
                         '--header_items Foo 117 Bar 0.1')
@@ -112,15 +114,19 @@ def mainMethod(args):
         
     if args.profile:
         import cProfile
-        cProfile.runctx("run_from_args(generate_images,args,header_items=header_items,e_bins=e_bins)",{},
+        cProfile.runctx("run_from_args(generate_images,args,output_file_name=output_file_name,"+
+                        "header_items=header_items,e_bins=e_bins)",{},
                         {"run_from_args":run_from_args,
                          "args":args,
                          "generate_p_of_e":generate_p_of_e,
+                         "output_file_name":args.output_file_name,
                          "header_items":header_items,
                          "e_bins":args.e_bins},
                         filename="gen_galsim_images.prof")
     else:
-        run_from_args(generate_p_of_e, args, header_items=header_items,
+        run_from_args(generate_p_of_e, args,
+                      output_file_name=args.output_file_name,
+                      header_items=header_items,
                       e_bins=args.e_bins)
 
     logger.debug('Exiting GenGalsimImages mainMethod()')
