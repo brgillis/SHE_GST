@@ -151,14 +151,27 @@ def get_pe_bins_for_image(image, options, e_bins):
         
         gal_profile = bulge_gal_profile + disk_gal_profile
         
-        e1, e2 = calculate_unweighted_ellipticity(gal_profile)
+        try:
+            e1, e2 = calculate_unweighted_ellipticity(gal_profile)
         
-        e = np.sqrt(e1**2 + e2**2)
-        
-        bin_index = int(e/e_bin_size)
-        image_pe_bins[bin_index] += 1
-        
-        image_e_samples.append(e)
+            e = np.sqrt(e1**2 + e2**2)
+            
+            bin_index = int(e/e_bin_size)
+            image_pe_bins[bin_index] += 1
+            
+            image_e_samples.append(e)
+        except Exception as e:
+            if not "image of all zeroes" in str(e):
+                raise
+            warn_str = ("Galaxy image is all zeroes." +
+                        "\nsersic_index = " + str(n) +
+                        "\nhalf_light_radius = " + str(bulge_size) +
+                        "\nflux = " + str(gal_I * bulge_fraction) +
+                        "\ng_ell = " + str(g_ell) +
+                        "\nbeta_deg_ell = " + str(rotation) +
+                        "\ng_shear = " + str(g_shear) +
+                        "\nbeta_deg_shear = " + str(beta_shear))
+            logger.warn(warn_str)
         
 
     # We no longer need this image's children, so clear it to save memory

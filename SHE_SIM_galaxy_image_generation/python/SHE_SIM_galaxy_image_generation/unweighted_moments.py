@@ -112,10 +112,11 @@ def calculate_unweighted_ellipticity_from_image(image):
     myy = (y2_array * image).sum()
     mxy = (xy_array * image).sum()
     
-    mxx_p_myy = mxx + myy
+    if not mxx + mxy > 0:
+        raise Exception("Cannot calculate moments for image of all zeroes.")
     
-    e1 = (mxx-myy) / mxx_p_myy
-    e2 = 2*mxy / mxx_p_myy
+    e1 = (mxx-myy) / (mxx + myy)
+    e2 = 2*mxy / (mxx + myy)
     
     g1, g2 = get_g_from_e(e1,e2)
     
