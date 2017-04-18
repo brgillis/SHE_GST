@@ -25,6 +25,7 @@
 
 import numpy as np
 import galsim
+from os.path import join
 
 from icebrgpy.logging import getLogger
 from SHE_SIM_galaxy_image_generation import magic_values as mv
@@ -76,7 +77,9 @@ def generate_p_of_e(survey, options, output_file_name, header_items, e_bins):
     for i in range(len(header_items)//2):
         header[header_items[2*i]] = header_items[2*i+1]
         
-    output_p_of_e(pe_bins,e_samples,output_file_name,header=header)
+    joined_file_name = join(options["output_folder"],output_file_name)
+        
+    output_p_of_e(pe_bins,e_samples,joined_file_name,header=header)
         
     logger.debug("Exiting generate_p_of_e method.")
     
