@@ -167,13 +167,20 @@ def get_pe_bins_for_image(image, options, e_bins):
             if not "image of all zeroes" in str(e):
                 raise
             warn_str = ("Galaxy image is all zeroes." +
+                        "\nBulge: " +
                         "\nsersic_index = " + str(n) +
                         "\nhalf_light_radius = " + str(bulge_size) +
                         "\nflux = " + str(gal_I * bulge_fraction) +
                         "\ng_ell = " + str(g_ell) +
                         "\nbeta_deg_ell = " + str(rotation) +
                         "\ng_shear = " + str(g_shear) +
-                        "\nbeta_deg_shear = " + str(beta_shear))
+                        "\nbeta_deg_shear = " + str(beta_shear) +
+                        "\nDisk: " +
+                        "\nhalf_light_radius = " + str(disk_size) +
+                        "\nflux = " + str(gal_I * (1 - bulge_fraction)) +
+                        "\ng_shear = " + str(g_shear) +
+                        "\nbeta_deg_shear = " + str(beta_shear) +
+                        "\nheight_ratio = " + str(disk_height_ratio))
             logger.warn(warn_str)
         
 
