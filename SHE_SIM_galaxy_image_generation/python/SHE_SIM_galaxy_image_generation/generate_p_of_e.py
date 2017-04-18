@@ -177,7 +177,7 @@ def get_pe_bins_for_image(image, options, e_bins):
                         "\nbeta_deg_shear = " + str(beta_shear) +
                         "\nDisk: " +
                         "\nhalf_light_radius = " + str(disk_size) +
-                        "\\tinlt = " + str(tilt) +
+                        "\ntilt = " + str(tilt) +
                         "\nflux = " + str(gal_I * (1 - bulge_fraction)) +
                         "\ng_shear = " + str(g_shear) +
                         "\nbeta_deg_shear = " + str(beta_shear) +
