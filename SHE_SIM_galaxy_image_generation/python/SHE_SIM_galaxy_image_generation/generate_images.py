@@ -955,19 +955,19 @@ def generate_image(image, options):
             else:
                     dithers[di] = [(dithers[di], '')]
     
-        for dither_and_flag in dithers[di]:
-                
-            dither = dither_and_flag[0]
-            flag = dither_and_flag[1]
-                
-            dither_version_file_name = dither_file_name.replace(file_name_base + str(image_ID),
-                                                                file_name_base + str(image_ID) + flag)
-                
-            galsim.fits.write(dither, dither_version_file_name)
-    
-            # Compress the image if necessary
-            if options['compress_images'] >= 1:
-                compress_image(dither_version_file_name, lossy=(options['compress_images'] >= 2))
+            for dither_and_flag in dithers[di]:
+                    
+                dither = dither_and_flag[0]
+                flag = dither_and_flag[1]
+                    
+                dither_version_file_name = dither_file_name.replace(file_name_base + str(image_ID),
+                                                                    file_name_base + str(image_ID) + flag)
+                    
+                galsim.fits.write(dither, dither_version_file_name)
+        
+                # Compress the image if necessary
+                if options['compress_images'] >= 1:
+                    compress_image(dither_version_file_name, lossy=(options['compress_images'] >= 2))
 
 
         # Output the datafile if necessary
