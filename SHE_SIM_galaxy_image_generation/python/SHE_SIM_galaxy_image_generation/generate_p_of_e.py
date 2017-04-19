@@ -167,7 +167,7 @@ def get_pe_bins_for_image(image, options, e_bins):
             
             image_e_samples.append(e)
         except Exception as e:
-            if not "image of all zeroes" in str(e) or isinstance(e,ValueError):
+            if not ("image of all zeroes" in str(e) or isinstance(e,ValueError)):
                 raise
             warn_str = ("Bad galaxy ellipticity." +
                         "\nBulge: " +
