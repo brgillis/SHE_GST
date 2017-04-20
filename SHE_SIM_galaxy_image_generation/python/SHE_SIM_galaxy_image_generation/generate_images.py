@@ -715,11 +715,17 @@ def print_galaxies_and_psfs(image,
                 if is_target_gal:
                     final_bulge.drawImage(gal_image, scale=pixel_scale,
                                           offset=(-x_centre_offset + x_offset + xp_sp_shift,
-                                                  - y_centre_offset + y_offset + yp_sp_shift),
+                                                  -y_centre_offset + y_offset + yp_sp_shift),
                                           add_to_image=True)
+                    if have_inclined_exponential:
+                        disk_xp_sp_shift = xp_sp_shift
+                        disk_yp_sp_shift = yp_sp_shift
+                    else: # Offset will be handled in making the image
+                        disk_xp_sp_shift = 0
+                        disk_yp_sp_shift = 0
                     final_disk.drawImage(gal_image, scale=pixel_scale,
-                                         offset=(-x_centre_offset + x_offset,
-                                                 - y_centre_offset + y_offset),
+                                         offset=(-x_centre_offset + x_offset + disk_xp_sp_shift,
+                                                 -y_centre_offset + y_offset + disk_yp_sp_shift),
                                          add_to_image=True,
                                          method='no_pixel')
 
