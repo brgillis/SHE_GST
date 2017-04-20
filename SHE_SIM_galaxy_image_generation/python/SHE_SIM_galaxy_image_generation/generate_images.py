@@ -968,7 +968,7 @@ def generate_image(image, options):
             dither_version_file_name = dither_file_name.replace(file_name_base + str(image_ID),
                                                                 file_name_base + str(image_ID) + flag)
                 
-            galsim.fits.write(dither, dither_version_file_name)
+            galsim.fits.write(dither, dither_version_file_name, clobber=True)
     
             # Compress the image if necessary
             if options['compress_images'] >= 1:
@@ -1026,7 +1026,7 @@ def generate_image(image, options):
     
             # Output the new image
             combined_file_name = combined_file_name_base + '.fits'
-            galsim.fits.write(combined_image, combined_file_name)
+            galsim.fits.write(combined_image, combined_file_name, clobber=True)
     
         # Output the details file for it
         output_tables(combined_detections_table, combined_file_name_base,
@@ -1049,7 +1049,7 @@ def generate_image(image, options):
             psf_file_name = psf_file_name_base + label + '.fits'
         
             # Output the new image
-            galsim.fits.write(psf_image, psf_file_name)
+            galsim.fits.write(psf_image, psf_file_name, clobber=True)
         
             logger.info("Finished printing "+label+" psf image.")
 
