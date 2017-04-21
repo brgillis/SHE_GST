@@ -66,7 +66,7 @@ def output_p_of_e(p_of_e_bins, e_samples, output_file_name, header = {}):
     hdu_list = fits.HDUList([primary_hdu,p_of_e_hdu,e_sample_hdu])
     
     # Print it
-    hdu_list.writeto(output_file_name, overwrite = True)
+    hdu_list.writeto(output_file_name, clobber = True)
     
 def load_p_of_e(input_file_name, input_format=None):
     """
