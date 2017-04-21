@@ -61,7 +61,7 @@ def output_p_of_e(p_of_e_bins, e_samples, output_file_name, header = {}):
     e_sample_hdu = fits.BinTableHDU.from_columns(
                     [fits.Column(name=fits_table_e_samples_label, format='E', array=e_samples)])
     
-    primary_hdu = fits.PrimaryHDU(header=header)
+    primary_hdu = fits.PrimaryHDU(header=fits.Header(header))
     
     hdu_list = fits.HDUList([primary_hdu,p_of_e_hdu,e_sample_hdu])
     
