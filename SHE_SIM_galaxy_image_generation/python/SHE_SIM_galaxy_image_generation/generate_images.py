@@ -26,9 +26,9 @@
 
 from __future__ import division
 
+from copy import deepcopy
 from multiprocessing import cpu_count, Pool
 from os.path import join
-from copy import deepcopy
 
 from astropy.table import Table
 import galsim
@@ -48,11 +48,11 @@ from SHE_SIM_galaxy_image_generation.magnitude_conversions import get_I
 from SHE_SIM_galaxy_image_generation.noise import get_var_ADU_per_pixel
 from SHE_SIM_galaxy_image_generation.psf import get_psf_profile
 from SHE_SIM_galaxy_image_generation.tables import add_row, output_tables
-
 from icebrgpy.logging import getLogger
 from icebrgpy.rebin import rebin
 import numpy as np
-    
+
+
 default_gsparams = galsim.GSParams(folding_threshold=5e-3,
                                    maxk_threshold=1e-3,
                                    kvalue_accuracy=1e-5,
@@ -753,6 +753,7 @@ def print_galaxies_and_psfs(image,
                      bulge_ellipticity=g_ell,
                      bulge_axis_ratio=galaxy.get_param_value('bulge_axis_ratio'),
                      bulge_fraction=bulge_fraction,
+                     disk_height_ratio=disk_height_ratio,
                      rotation=rotation,
                      tilt=tilt,
                      spin=spin,
@@ -960,19 +961,19 @@ def generate_image(image, options):
             else:
                     dithers[di] = [(dithers[di], '')]
     
-        for dither_and_flag in dithers[di]:
-                
-            dither = dither_and_flag[0]
-            flag = dither_and_flag[1]
-                
-            dither_version_file_name = dither_file_name.replace(file_name_base + str(image_ID),
-                                                                file_name_base + str(image_ID) + flag)
-                
-            galsim.fits.write(dither, dither_version_file_name)
-    
-            # Compress the image if necessary
-            if options['compress_images'] >= 1:
-                compress_image(dither_version_file_name, lossy=(options['compress_images'] >= 2))
+            for dither_and_flag in dithers[di]:
+                    
+                dither = dither_and_flag[0]
+                flag = dither_and_flag[1]
+                    
+                dither_version_file_name = dither_file_name.replace(file_name_base + str(image_ID),
+                                                                    file_name_base + str(image_ID) + flag)
+                    
+                galsim.fits.write(dither, dither_version_file_name)
+        
+                # Compress the image if necessary
+                if options['compress_images'] >= 1:
+                    compress_image(dither_version_file_name, lossy=(options['compress_images'] >= 2))
 
 
         # Output the datafile if necessary

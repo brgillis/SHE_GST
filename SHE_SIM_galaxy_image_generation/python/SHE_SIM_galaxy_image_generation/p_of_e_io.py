@@ -22,8 +22,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import numpy as np
 from astropy.io import fits
+
+import numpy as np
+
 
 fits_table_bin_low_label = "E_LOW"
 fits_table_e_count_label = "E_COUNT"
@@ -53,7 +55,7 @@ def output_p_of_e(p_of_e_bins, e_samples, output_file_name, header = {}):
     # Set up the HDU for the bins
     p_of_e_hdu = fits.BinTableHDU.from_columns(
                     [fits.Column(name=fits_table_bin_low_label, format='E', array=bin_lows),
-                     fits.Column(name=fits_table_e_count_label, format='K', array=fits_table_e_count_label)])
+                     fits.Column(name=fits_table_e_count_label, format='K', array=p_of_e_bins)])
     
     # Set up the HDU for the samples
     e_sample_hdu = fits.BinTableHDU.from_columns(

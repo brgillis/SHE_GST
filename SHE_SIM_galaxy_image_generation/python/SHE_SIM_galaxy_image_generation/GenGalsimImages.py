@@ -49,7 +49,7 @@ def defineSpecificProgramOptions():
                         help='Store profiling data for execution.')
     
     # Extra configuration files
-    parser.add_argument('--config_files', nargs='*',
+    parser.add_argument('--config_files', nargs='*', default=[],
                         help='Extra configuration files. Each will overwrite an values specified in previous ' +
                              'files, but NOT the one specified with the --config-file option.')
 
