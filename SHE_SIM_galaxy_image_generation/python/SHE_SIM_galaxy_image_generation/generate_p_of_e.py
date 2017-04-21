@@ -23,18 +23,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import numpy as np
-import galsim
+from __builtin__ import isinstance
 from os.path import join
 
-from icebrgpy.logging import getLogger
+import galsim
+
 from SHE_SIM_galaxy_image_generation import magic_values as mv
 from SHE_SIM_galaxy_image_generation.galaxy import (get_bulge_galaxy_profile,
                                              get_disk_galaxy_profile,
                                              is_target_galaxy)
 from SHE_SIM_galaxy_image_generation.magnitude_conversions import get_I
-from SHE_SIM_galaxy_image_generation.unweighted_moments import calculate_unweighted_ellipticity
 from SHE_SIM_galaxy_image_generation.p_of_e_io import output_p_of_e
+from SHE_SIM_galaxy_image_generation.unweighted_moments import calculate_unweighted_ellipticity
+from icebrgpy.logging import getLogger
+import numpy as np
+
 
 def generate_p_of_e(survey, options, output_file_name, header_items, e_bins):
     """
@@ -164,9 +167,9 @@ def get_pe_bins_for_image(image, options, e_bins):
             
             image_e_samples.append(e)
         except Exception as e:
-            if not "image of all zeroes" in str(e):
+            if not ("image of all zeroes" in str(e) or isinstance(e,ValueError)):
                 raise
-            warn_str = ("Galaxy image is all zeroes." +
+            warn_str = ("Bad galaxy ellipticity." +
                         "\nBulge: " +
                         "\nsersic_index = " + str(n) +
                         "\nhalf_light_radius = " + str(bulge_size) +
