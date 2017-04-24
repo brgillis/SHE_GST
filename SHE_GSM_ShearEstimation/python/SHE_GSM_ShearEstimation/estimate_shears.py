@@ -115,6 +115,8 @@ def estimate_shears_from_args(kwargs):
                                         shape_noise_var=shape_noise_var)
         gal_stamp.shear_estimate = shear_estimate
         
+    logger.info("Finished estimating shear. Outputting results to " + kwargs["output_file_name"] + ".")
+        
     # Output the measurements
     output_shear_estimates(stamps=gal_stamps,
                            output_file_name=kwargs["output_file_name"], 
