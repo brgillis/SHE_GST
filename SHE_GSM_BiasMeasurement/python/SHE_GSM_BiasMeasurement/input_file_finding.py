@@ -67,13 +67,29 @@ def get_input_files(root_dir, required_input_pattern=None, depth=0, input_files=
             if est_mv.output_tail not in file_or_dir_name:
                 continue
             
+            test_details_file_name = None
+            
             # Check if a corresponding details file exists
-            test_details_file_name = joined_name.replace(est_mv.output_tail,"_details.fits")
-            if not os.path.isfile(test_details_file_name):
-                logger.warning("Shear measurements file " + joined_name + " has no corresponding details file. " + 
-                               "(Expected " + str(test_details_file_name) + ".)")
-                continue
+            test_details_file_name_1 = joined_name.replace(est_mv.output_tail,"_details.fits")
+            if os.path.isfile(test_details_file_name_1):
+                test_details_file_name = test_details_file_name_1
             else:
+                # Try using the required_input_pattern as well 
+                test_details_file_name_2 = joined_name.replace(required_input_pattern+est_mv.output_tail,"_details.fits")
+                if os.path.isfile(test_details_file_name_2):
+                    test_details_file_name = test_details_file_name_2
+                else:
+                    test_details_file_name_3 = joined_name.replace("_"+required_input_pattern+est_mv.output_tail,"_details.fits")
+                    if os.path.isfile(test_details_file_name_3):
+                        test_details_file_name = test_details_file_name_3
+                    else:
+                        logger.warning("Shear measurements file " + joined_name + " has no corresponding details file. " + 
+                                       "(Expected " + str(test_details_file_name_1) + ", " +
+                                       str(test_details_file_name_2) + ", or " +
+                                       str(test_details_file_name_3) + ".)")
+                continue
+
+            if test_details_file_name is not None:
                 input_files.append((joined_name,test_details_file_name))
         else:
 
