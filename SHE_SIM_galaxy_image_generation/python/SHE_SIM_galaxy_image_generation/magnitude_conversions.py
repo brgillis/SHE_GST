@@ -30,7 +30,7 @@ import SHE_SIM_galaxy_image_generation.magic_values as mv
 import numpy as np
 
 
-def get_count_from_mag_vis(m, exp_time=mv.default_exp_time):
+def get_count_from_mag_vis(m, exp_time):
     """ Gets the expected count from a magnitude using Euclid's magnitude zeropoint.
 
         @param m The input magnitude
@@ -41,7 +41,7 @@ def get_count_from_mag_vis(m, exp_time=mv.default_exp_time):
 
     return exp_time * 10.0 ** (0.4 * (mv.mag_vis_zeropoint - m))
 
-def get_mag_vis_from_count(c, exp_time=mv.default_exp_time):
+def get_mag_vis_from_count(c, exp_time):
     """ Gets the magnitude from the expected count using Euclid's magnitude zeropoint.
 
         @param c The input expected count
@@ -52,7 +52,7 @@ def get_mag_vis_from_count(c, exp_time=mv.default_exp_time):
 
     return mv.mag_vis_zeropoint - 2.5 * np.log10(c / exp_time)
 
-def get_count_from_mag_i(m, exp_time=mv.default_exp_time):
+def get_count_from_mag_i(m, exp_time):
     """ Gets the expected count from a magnitude using Euclid's magnitude zeropoint.
 
         @param m The input magnitude
@@ -63,7 +63,7 @@ def get_count_from_mag_i(m, exp_time=mv.default_exp_time):
 
     return exp_time * 10.0 ** (0.4 * (mv.mag_i_zeropoint - m))
 
-def get_mag_i_from_count(c, exp_time=mv.default_exp_time):
+def get_mag_i_from_count(c, exp_time):
     """ Gets the magnitude from the expected count using Euclid's magnitude zeropoint.
 
         @param c The input expected count
@@ -74,7 +74,7 @@ def get_mag_i_from_count(c, exp_time=mv.default_exp_time):
 
     return mv.mag_i_zeropoint - 2.5 * np.log10(c / exp_time)
 
-def get_I(I_parameter, parameter_type, gain=mv.default_gain, exp_time=mv.default_exp_time):
+def get_I(I_parameter, parameter_type, gain, exp_time):
     """ Gets the measured intensity from the provided parameters
 
         @param c The input expected count
