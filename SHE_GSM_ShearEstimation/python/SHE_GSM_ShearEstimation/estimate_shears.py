@@ -61,7 +61,7 @@ def estimate_shears_from_args(kwargs):
 
     logger = getLogger(mv.logger_name)
     
-    logger.debug("Entering estimate_shear_KSB")
+    logger.debug("Entering estimate_shears_from_args")
     
     # Load the detections table
     detections_table = Table.read(kwargs["detections_table_file_name"])
@@ -118,6 +118,6 @@ def estimate_shears_from_args(kwargs):
                            output_file_name=kwargs["output_file_name"], 
                            galaxies_image_file_name=kwargs["galaxies_image_file_name"])
     
-    logger.debug("Exiting estimate_shear_KSB")
+    logger.debug("Exiting estimate_shears_from_args")
     
     return

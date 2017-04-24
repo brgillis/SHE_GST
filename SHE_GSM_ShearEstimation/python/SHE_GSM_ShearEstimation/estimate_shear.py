@@ -28,6 +28,7 @@ import galsim
 from icebrgpy.logging import getLogger
 
 from SHE_SIM_galaxy_image_generation.noise import get_var_ADU_per_pixel
+from SHE_SIM_galaxy_image_generation.unweighted_moments import get_g_from_e
 
 from SHE_GSM_ShearEstimation import magic_values as mv
 
@@ -63,16 +64,18 @@ def estimate_shear(method,*args,**kwargs):
     """
     
     # Check the method and call the appropriate function
-    if method == 'KSB':
-        return estimate_shear_KSB(*args,**kwargs)
+    if method.lower() == 'ksb':
+        return estimate_shear_gs(method="KSB",*args,**kwargs)
+    if method.lower() == 'regauss':
+        return estimate_shear_gs(method="REGAUSS",*args,**kwargs)
     else:
         raise Exception("Invalid shear estimation method: " + str(method))
     
-def estimate_shear_KSB(galaxy_image, psf_image, gain, subtracted_sky_level,
-                       read_noise, p_of_e_table):
+def estimate_shear_gs(galaxy_image, psf_image, gain, subtracted_sky_level,
+                       read_noise, p_of_e_table, method):
 
     logger = getLogger(mv.logger_name)
-    logger.debug("Entering estimate_shear_KSB")
+    logger.debug("Entering estimate_shear_gs")
     
     # Calculate the sky variance
     sky_var = get_var_ADU_per_pixel(pixel_value_ADU=0.,
@@ -98,16 +101,27 @@ def estimate_shear_KSB(galaxy_image, psf_image, gain, subtracted_sky_level,
                                                          sky_var=sky_var,
                                                          guess_sig_gal=0.5/galaxy_image.scale,
                                                          guess_sig_PSF=0.2/resampled_psf_image.scale,
-                                                         shear_est='KSB')
+                                                         shear_est=method)
         
         if np.abs(galsim_shear_estimate.corrected_shape_err) < 1e99:
-            gerr = np.sqrt(shape_noise_var+galsim_shear_estimate.corrected_shape_err**2)
+            shape_err = np.sqrt(shape_noise_var+galsim_shear_estimate.corrected_shape_err**2)
         else:
-            gerr = galsim_shear_estimate.corrected_shape_err
+            shape_err = galsim_shear_estimate.corrected_shape_err
         
-        shear_estimate = ShearEstimate(galsim_shear_estimate.corrected_g1,
-                                       galsim_shear_estimate.corrected_g2,
-                                       gerr,)
+        if method=="KSB":
+            shear_estimate = ShearEstimate(galsim_shear_estimate.corrected_g1,
+                                           galsim_shear_estimate.corrected_g2,
+                                           shape_err,)
+        elif method=="REGAUSS":
+            e1 = galsim_shear_estimate.corrected_e1
+            e2 = galsim_shear_estimate.corrected_e2
+            g1, g2 = get_g_from_e(e1,e2)
+            gerr = shape_err * np.sqrt((g1**2+g2**2)/(e1**2+e2**2))
+            shear_estimate = ShearEstimate(g1, g2, gerr,)
+        else:
+            raise Exception("Invalid shear estimation method for GalSim: " + str(method))
+            
+            
     except RuntimeError as e:
         
         if("HSM Error" not in str(e)):
@@ -118,7 +132,7 @@ def estimate_shear_KSB(galaxy_image, psf_image, gain, subtracted_sky_level,
         shear_estimate = ShearEstimate(0, 0, 1e99)
         
     
-    logger.debug("Exiting estimate_shear_KSB")
+    logger.debug("Exiting estimate_shear_gs")
     
     return shear_estimate
     
