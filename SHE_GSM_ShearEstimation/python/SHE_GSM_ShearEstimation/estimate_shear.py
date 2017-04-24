@@ -99,7 +99,7 @@ def estimate_shear_gs(galaxy_image, psf_image, gain, subtracted_sky_level,
             g2 = galsim_shear_estimate.corrected_g2
             mag = g1**2 + g2**2
             if mag > 1:
-                raise Exception("HSM Error: Magnitude of g shear is too large: " + str(mag))
+                raise RuntimeError("HSM Error: Magnitude of g shear is too large: " + str(mag))
         
             if np.abs(galsim_shear_estimate.corrected_shape_err) < 1e99:
                 shape_err = np.sqrt(shape_noise_var+galsim_shear_estimate.corrected_shape_err**2)
@@ -124,7 +124,7 @@ def estimate_shear_gs(galaxy_image, psf_image, gain, subtracted_sky_level,
                 
             shear_estimate = ShearEstimate(g1, g2, shape_err,)
         else:
-            raise Exception("Invalid shear estimation method for GalSim: " + str(method))
+            raise RuntimeError("Invalid shear estimation method for GalSim: " + str(method))
             
             
     except RuntimeError as e:
