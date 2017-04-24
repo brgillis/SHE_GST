@@ -94,17 +94,18 @@ def estimate_shear_gs(galaxy_image, psf_image, gain, subtracted_sky_level,
                                                          guess_sig_PSF=0.2/resampled_psf_image.scale,
                                                          shear_est=method)
         
-        if np.abs(galsim_shear_estimate.corrected_shape_err) < 1e99:
-            shape_err = np.sqrt(shape_noise_var+galsim_shear_estimate.corrected_shape_err**2)
-        else:
-            shape_err = galsim_shear_estimate.corrected_shape_err
-        
         if method=="KSB":
             g1 = galsim_shear_estimate.corrected_g1
             g2 = galsim_shear_estimate.corrected_g2
             mag = g1**2 + g2**2
             if mag > 1:
                 raise "HSM Error: Magnitude of g shear is too large: " + str(mag)
+        
+            if np.abs(galsim_shear_estimate.corrected_shape_err) < 1e99:
+                shape_err = np.sqrt(shape_noise_var+galsim_shear_estimate.corrected_shape_err**2)
+            else:
+                shape_err = galsim_shear_estimate.corrected_shape_err
+                
             shear_estimate = ShearEstimate(galsim_shear_estimate.corrected_g1,
                                            galsim_shear_estimate.corrected_g2,
                                            shape_err,)
@@ -114,8 +115,14 @@ def estimate_shear_gs(galaxy_image, psf_image, gain, subtracted_sky_level,
             if mag > 1:
                 raise "HSM Error: Magnitude of e shear is too large: " + str(mag)
             g1, g2 = get_g_from_e(e1,e2)
-            gerr = shape_err * np.sqrt((g1**2+g2**2)/(e1**2+e2**2))
-            shear_estimate = ShearEstimate(g1, g2, gerr,)
+            gerr = galsim_shear_estimate.corrected_shape_err * np.sqrt((g1**2+g2**2)/(e1**2+e2**2))
+        
+            if np.abs(galsim_shear_estimate.corrected_shape_err) < 1e99:
+                shape_err = np.sqrt(shape_noise_var+gerr**2)
+            else:
+                shape_err = gerr
+                
+            shear_estimate = ShearEstimate(g1, g2, shape_err,)
         else:
             raise Exception("Invalid shear estimation method for GalSim: " + str(method))
             
