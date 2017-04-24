@@ -409,7 +409,7 @@ def print_galaxies_and_psfs(image,
         gal_I = get_I(galaxy.get_param_value('apparent_mag_vis'),
                       'mag_vis',
                       gain=options['gain'],
-                      exp_time=options['exp_time'])
+                      exp_time=galaxy.get_param_value('exp_time'))
         if options['single_psf']:
             gal_n = 1
             gal_z = 0
