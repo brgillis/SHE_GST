@@ -67,8 +67,6 @@ def get_input_files(root_dir, required_input_pattern=None, depth=0, input_files=
             if est_mv.output_tail not in file_or_dir_name:
                 continue
             
-            import pdb; pdb.set_trace()
-            
             test_details_file_name = None
             
             # Check if a corresponding details file exists
