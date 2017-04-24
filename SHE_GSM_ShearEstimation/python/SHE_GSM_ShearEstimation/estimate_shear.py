@@ -72,7 +72,7 @@ def estimate_shear(method,*args,**kwargs):
         raise Exception("Invalid shear estimation method: " + str(method))
     
 def estimate_shear_gs(galaxy_image, psf_image, gain, subtracted_sky_level,
-                       read_noise, p_of_e_table, method):
+                       read_noise, shape_noise_var, method):
 
     logger = getLogger(mv.logger_name)
     logger.debug("Entering estimate_shear_gs")
@@ -86,15 +86,6 @@ def estimate_shear_gs(galaxy_image, psf_image, gain, subtracted_sky_level,
     
     # Get a resampled PSF image
     resampled_psf_image = get_resampled_image(psf_image, galaxy_image.scale)
-    
-    # Get the variance due to shape noise
-    if p_of_e_table is None:
-        shape_noise_var = 0.06
-    else:
-        e_half_step = (p_of_e_table["E_LOW"][1] - p_of_e_table["E_LOW"][0])/2.
-        shape_noise_var = (((p_of_e_table["E_LOW"]+e_half_step)**2 * p_of_e_table["E_COUNT"]).sum() /
-                           p_of_e_table["E_COUNT"].sum())
-    
     try:
         galsim_shear_estimate = galsim.hsm.EstimateShear(gal_image=galaxy_image,
                                                          PSF_image=resampled_psf_image,

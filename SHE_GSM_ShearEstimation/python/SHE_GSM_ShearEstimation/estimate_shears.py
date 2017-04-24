@@ -74,9 +74,11 @@ def estimate_shears_from_args(kwargs):
     p_of_e_table_file_name = kwargs["p_of_e_table_file_name"]
     if p_of_e_table_file_name is not None:
         p_of_e_table = Table.read(p_of_e_table_file_name)
+        e_half_step = (p_of_e_table["E_LOW"][1] - p_of_e_table["E_LOW"][0])/2.
+        shape_noise_var = (((p_of_e_table["E_LOW"]+e_half_step)**2 * p_of_e_table["E_COUNT"]).sum() /
+                           p_of_e_table["E_COUNT"].sum())
     else:
-        p_of_e_table = None
-        logger.warn("No P(e) table specified. Default assumptions about shape noise will be made.")
+        shape_noise_var = 0.06
     
     # Get the gain, subtracted sky level, and read noise from the galaxies image
     # if they weren't passed at the command-line
@@ -110,7 +112,7 @@ def estimate_shears_from_args(kwargs):
                                         gain=gain,
                                         subtracted_sky_level=subtracted_sky_level,
                                         read_noise=read_noise,
-                                        p_of_e_table=p_of_e_table)
+                                        shape_noise_var=shape_noise_var)
         gal_stamp.shear_estimate = shear_estimate
         
     # Output the measurements
