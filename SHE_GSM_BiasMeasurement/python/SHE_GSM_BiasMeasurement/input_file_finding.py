@@ -87,7 +87,6 @@ def get_input_files(root_dir, required_input_pattern=None, depth=0, input_files=
                                        "(Expected " + str(test_details_file_name_1) + ", " +
                                        str(test_details_file_name_2) + ", or " +
                                        str(test_details_file_name_3) + ".)")
-                continue
 
             if test_details_file_name is not None:
                 input_files.append((joined_name,test_details_file_name))
