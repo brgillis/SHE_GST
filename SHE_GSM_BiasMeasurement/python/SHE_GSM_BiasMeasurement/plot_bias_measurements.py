@@ -59,9 +59,11 @@ m_target = 1e-4
 c_target = 5e-4
 
 method_colors = {"KSB": "k",
-                 "REGAUSS": "r"}
+                 "REGAUSS": "r",
+                 "LensMC": "b",}
 method_offsets = {"KSB": 0,
-                  "REGAUSS": 0.01}
+                  "REGAUSS": 0.01,
+                  "LensMC": -0.01,}
 
 fontsize = 12
 
@@ -83,7 +85,7 @@ def main():
     # Set up the command-line arguments
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--methods', nargs='*', default=["KSB","REGAUSS"],
+    parser.add_argument('--methods', nargs='*', default=["KSB","REGAUSS","LensMC"],
                         help='Methods to plot bias measurements for.')
     parser.add_argument('--data_folder', default="/home/brg/Data/SHE_SIM/sensitivity_testing/bias_measurements")
     parser.add_argument('--output_folder', default="/home/brg/Data/SHE_SIM/sensitivity_testing/plots")
@@ -204,11 +206,11 @@ def main():
                 ax.plot(xlim,[-20*target,-20*target],label=None,color="k",linestyle="dotted")
                 ax.plot(xlim,[0,0],label=None,color="k",linestyle="solid")
                 
-                # Set the limits and scale
-                ax.set_xlim(x_ranges[testing_data_key])
-                
-                # Show the legend
-                ax.legend(loc="lower right")
+            # Set the limits and scale
+            ax.set_xlim(x_ranges[testing_data_key])
+            
+            # Show the legend
+            ax.legend(loc="lower right")
                     
                     
             # Save and show it
