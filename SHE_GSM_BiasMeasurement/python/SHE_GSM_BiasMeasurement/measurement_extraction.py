@@ -30,7 +30,39 @@ from SHE_GSM_ShearEstimation import magic_values as est_mv
 
 from SHE_GSM_BiasMeasurement import magic_values as mv
 
-def get_all_shear_measurements(input_files):
+def isolate_measurements(measurements_table, var_e = mv.var_e["p0"]):
+        
+    # Trim the joined table to only have the needed columns
+    colnames = measurements_table.colnames
+    for colname in colnames:
+        if colname not in [sim_mv.detections_table_ID_label,
+                           mv.fits_table_est_g1_label,
+                           mv.fits_table_est_g2_label,
+                           mv.fits_table_est_gerr_label,
+                           mv.fits_table_est_g1_err_label,
+                           mv.fits_table_est_g2_err_label,
+                           mv.fits_table_est_e1_err_label,
+                           mv.fits_table_est_e2_err_label,]:
+            measurements_table.remove_column(colname)
+        else:
+            # Handle specific columns as necessary
+            if colname == mv.fits_table_est_gerr_label:
+                # Override g1 and g2 with this
+                # Copy to g1
+                measurements_table[mv.fits_table_est_g1_err_label] = measurements_table[mv.fits_table_est_gerr_label]
+                # Rename to g2
+                measurements_table.rename_column(mv.fits_table_est_gerr_label,mv.fits_table_est_g2_err_label)
+            elif colname == mv.fits_table_est_e1_err_label:
+                # Use to calculate g1_err
+                measurements_table[mv.fits_table_est_g1_err_label] = np.sqrt(var_e+measurements_table[colname]**2)
+                measurements_table.remove_column(colname)
+            elif colname == mv.fits_table_est_e2_err_label:
+                # Use to calculate g2_err
+                measurements_table[mv.fits_table_est_g2_err_label] = np.sqrt(var_e+measurements_table[colname]**2)
+                measurements_table.remove_column(colname)
+    
+
+def get_all_shear_measurements(input_files, var_e = mv.var_e["p0"]):
     """
     @brief
         Extract shear measurements and actual values from the input files.
@@ -48,6 +80,9 @@ def get_all_shear_measurements(input_files):
         measurements_table = Table.read(measurements_table_filename)
         details_table = Table.read(details_table_filename)
         
+        # Get just the needed columns for the measurements table
+        isolate_measurements(measurements_table, var_e)
+        
         # Join the tables
         joined_table = join(measurements_table,
                             details_table,
@@ -64,7 +99,6 @@ def get_all_shear_measurements(input_files):
             if colname not in [sim_mv.detections_table_ID_label,
                                est_mv.fits_table_gal_g1_label,
                                est_mv.fits_table_gal_g2_label,
-                               est_mv.fits_table_gal_gerr_label,
                                mv.details_table_g_label,
                                mv.details_table_beta_label,]:
                 joined_table.remove_column(colname)
@@ -76,16 +110,6 @@ def get_all_shear_measurements(input_files):
         
         joined_table.remove_column(mv.details_table_g_label)
         joined_table.remove_column(mv.details_table_beta_label)
-        
-        # Rename columns as necessary
-        def rename_column(old_name, new_name):
-            if old_name != new_name:
-                joined_table.rename_column(old_name, new_name)
-                
-        rename_column(sim_mv.detections_table_ID_label,    mv.fits_table_ID_label)
-        rename_column(est_mv.fits_table_gal_g1_label,      mv.fits_table_est_g1_label)
-        rename_column(est_mv.fits_table_gal_g2_label,      mv.fits_table_est_g2_label)
-        rename_column(est_mv.fits_table_gal_gerr_label,    mv.fits_table_est_gerr_label)
         
         joined_tables.append(joined_table)
         

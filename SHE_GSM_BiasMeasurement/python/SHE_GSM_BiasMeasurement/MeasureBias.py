@@ -50,6 +50,9 @@ def defineSpecificProgramOptions():
     parser.add_argument('--input_depth', type=int, default=0,
                         help='Maximum subfolder depth to search for input files. 0 = input_dir only.')
     
+    parser.add_argument('--e', type=str, default="p0",
+                        help='P(e) to use. Must be one of m2, m1, p0, p1, or p2.')
+    
     # Output data
     parser.add_argument('--output_file_name',type=str,default=mv.default_output_filename,
                         help='Desired name of the output table containing bias measurements.')
