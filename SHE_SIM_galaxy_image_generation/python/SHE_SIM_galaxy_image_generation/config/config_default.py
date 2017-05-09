@@ -66,7 +66,6 @@ allowed_options = { 'data_dir': (mv.default_data_dir, str),
                     'stamp_size_factor': (4.5, float),
                     'suppress_noise': (False, str2bool),
                     'gain': (3.3, float),
-                    'exp_time': (565., float),
                     'read_noise': (5.4, float) }
 
 allowed_option_values = { 'compress_images': (0, 1, 2),
