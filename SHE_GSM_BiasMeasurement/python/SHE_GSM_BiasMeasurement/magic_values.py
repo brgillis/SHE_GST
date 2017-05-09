@@ -38,6 +38,14 @@ fits_table_est_g2_label = est_mv.fits_table_gal_g2_label
 fits_table_est_gerr_label = est_mv.fits_table_gal_gerr_label
 fits_table_est_g1_err_label = "GAL_G1_ERR"
 fits_table_est_g2_err_label = "GAL_G2_ERR"
+fits_table_est_e1_err_label = "GAL_ERR_E1"
+fits_table_est_e2_err_label = "GAL_ERR_E2"
 
 details_table_g_label = 'shear_magnitude'
 details_table_beta_label = 'shear_angle'
+
+var_e = {"m2": 0.30241731263684996,
+         "m1": 0.27099491059570091,
+         "p0": 0.2422044791810781,
+         "p1": 0.21333834512347458,
+         "p2": 0.18556590758327751}

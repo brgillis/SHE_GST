@@ -55,7 +55,7 @@ def measure_bias_from_args(kwargs):
                                   depth=kwargs["input_depth"])
     
     # Get shear measurement and actual value arrays from the combination of all input data
-    all_shear_measurements = get_all_shear_measurements(input_files)
+    all_shear_measurements = get_all_shear_measurements(input_files, var_e=mv.var_e[kwargs["e"]])
     
     # Calculate the bias
     bias_measurement = calculate_bias(all_shear_measurements)
