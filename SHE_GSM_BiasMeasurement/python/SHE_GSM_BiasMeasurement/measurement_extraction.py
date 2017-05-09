@@ -99,6 +99,8 @@ def get_all_shear_measurements(input_files, var_e = mv.var_e["p0"]):
             if colname not in [sim_mv.detections_table_ID_label,
                                est_mv.fits_table_gal_g1_label,
                                est_mv.fits_table_gal_g2_label,
+                               mv.fits_table_est_g1_err_label,
+                               mv.fits_table_est_g2_err_label,
                                mv.details_table_g_label,
                                mv.details_table_beta_label,]:
                 joined_table.remove_column(colname)
