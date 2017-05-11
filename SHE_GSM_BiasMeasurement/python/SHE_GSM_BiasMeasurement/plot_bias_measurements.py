@@ -40,7 +40,7 @@ testing_data_labels = {"p": "PSF Size",
                        "e": "P(e)"}
 
 testing_variant_labels = ("m2", "m1", "p0", "p1", "p2")
-measurement_keys = ("mDIM", "mDIM_err", "cDIM", "cDIM_err")
+measurement_key_templates = ("mDIM", "mDIM_err", "cDIM", "cDIM_err")
 
 x_values = {"p": [0.8,0.9,1.0,1.1,1.2],
             "s": [8.0608794667689825, 9.0670343062718768, 10.073467500059127,
@@ -53,10 +53,12 @@ x_ranges = {"p":(0.75,1.25),
             "s":(7.5,12.5),
             "e":(0.170,0.315)}
 
+y_range = (1e-6,5e-1)
+
 err_factor = np.sqrt(0.0001)
     
 m_target = 1e-4
-c_target = 5e-4
+c_target = 5e-6
 
 method_colors = {"KSB": "k",
                  "REGAUSS": "r",
@@ -108,7 +110,7 @@ def main():
             
             sens_testing_data["x"] = x_values[testing_data_key]
             
-            for measurement_key_template in measurement_keys:
+            for measurement_key_template in measurement_key_templates:
                 for dim in range(3):
                     sens_testing_data[measurement_key_template.replace("DIM",str(dim))] = []
             
@@ -121,7 +123,7 @@ def main():
                     dim = bias_measurement_table["dimension"][row_i]
                 
                     # Store the measured values
-                    for measurement_key_template in measurement_keys:
+                    for measurement_key_template in measurement_key_templates:
                         sens_testing_data[measurement_key_template.replace("DIM",str(dim))].append(
                             bias_measurement_table[measurement_key_template.replace("DIM","")][row_i])
                 
@@ -134,10 +136,8 @@ def main():
         
     # Plot the biases and errors for each measurement
     for testing_data_key in testing_data_keys:
-            
-        xlim = x_ranges[testing_data_key]
     
-        for measurement_key_template in measurement_keys:
+        for measurement_key_template in measurement_key_templates:
             
             # Plot regularly for dim = 0
             measurement_key = measurement_key_template.replace("DIM","")
@@ -159,8 +159,8 @@ def main():
                 
                 x_vals = np.array(np.add(sens_testing_data["x"],
                                 method_offsets[method]*np.abs(sens_testing_data["x"][3]-sens_testing_data["x"][1])))
-                y1_vals = np.array(np.subtract(sens_testing_data[measurement_key_1],sens_testing_data[measurement_key_1][2]))
-                y2_vals = np.array(np.subtract(sens_testing_data[measurement_key_2],sens_testing_data[measurement_key_2][2]))
+                y1_vals = np.array(sens_testing_data[measurement_key_1])
+                y2_vals = np.array(sens_testing_data[measurement_key_2])
                 
                 if testing_data_key=="e":
                     x_vals = np.flipud(x_vals)
@@ -194,20 +194,24 @@ def main():
                 ax.plot(x_spline_vals, y_spline_vals, color=method_colors[method], marker='None',
                         label=method)
                     
-                # Plot the target line
-                if("m" in measurement_key):
-                    target = m_target
-                else:
-                    target = c_target
-                
-                ax.plot(xlim,[target,target],label=None,color="k",linestyle="dashed")
-                ax.plot(xlim,[-target,-target],label=None,color="k",linestyle="dashed")
-                ax.plot(xlim,[20*target,20*target],label=None,color="k",linestyle="dotted")
-                ax.plot(xlim,[-20*target,-20*target],label=None,color="k",linestyle="dotted")
-                ax.plot(xlim,[0,0],label=None,color="k",linestyle="solid")
+            # Plot the target line
+            if "m" in measurement_key:
+                target = m_target
+            else:
+                target = c_target
+            
+            xlim = x_ranges[testing_data_key]
+            
+            ax.plot(xlim,[target,target],label=None,color="k",linestyle="dashed")
+            ax.plot(xlim,[-target,-target],label=None,color="k",linestyle="dashed")
+            ax.plot(xlim,[20*target,20*target],label=None,color="k",linestyle="dotted")
+            ax.plot(xlim,[-20*target,-20*target],label=None,color="k",linestyle="dotted")
+            ax.plot(xlim,[0,0],label=None,color="k",linestyle="solid")
                 
             # Set the limits and scale
-            ax.set_xlim(x_ranges[testing_data_key])
+            ax.set_xlim(xlim)
+            ax.set_ylim(y_range)
+            ax.set_yscale("log",nonposy="clip")
             
             # Show the legend
             ax.legend(loc="lower right")
