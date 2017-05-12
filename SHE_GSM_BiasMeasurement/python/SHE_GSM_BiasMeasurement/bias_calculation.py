@@ -118,11 +118,10 @@ def compress_measurements(real_values,measurements,measurement_errors):
             # Check that the measurement is good
             new_measurement = measurements[i]
             new_measurement_error = measurement_errors[i]
-            if not (new_measurement > -2 and new_measurement < 2 and 
+            if (new_measurement > -2 and new_measurement < 2 and 
                     new_measurement_error > 0 and new_measurement_error < 1e99):
-                continue
-            temp_measurements.append(new_measurement)
-            temp_measurement_errors.append(new_measurement_error)
+                temp_measurements.append(new_measurement)
+                temp_measurement_errors.append(new_measurement_error)
             i += 1
             if i >= N:
                 break
