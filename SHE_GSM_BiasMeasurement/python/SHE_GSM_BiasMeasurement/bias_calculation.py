@@ -131,7 +131,12 @@ def compress_measurements(real_values,measurements,measurement_errors):
             
         temp_measurement_weights = temp_measurement_errors**-2
         
-        mean_measurement = np.sum(temp_measurements*temp_measurement_weights)/np.sum(temp_measurement_weights)
+        total_weight = np.sum(temp_measurement_weights)
+        
+        if total_weight==0:
+            continue
+        
+        mean_measurement = np.sum(temp_measurements*temp_measurement_weights)/total_weight
         mean_measurement_error = np.sqrt(1/np.sum(temp_measurement_weights))
         
         compressed_real_values.append(real_value)
