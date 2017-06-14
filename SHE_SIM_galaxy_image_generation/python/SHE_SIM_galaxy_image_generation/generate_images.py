@@ -995,7 +995,7 @@ def generate_image(image, options):
         logger.info("Finished printing dither " + str(di) + ".")
 
     # If we have more than one dither, output the combined image
-    if num_dithers > 1:
+    if num_dithers > 1 and not options['details_only']:
 
         logger.debug("Printing combined image.")
         
