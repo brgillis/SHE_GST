@@ -92,7 +92,7 @@ constexpr const int_t field_level = 4;
 
 constexpr const int_t galaxy_group_level = 5;
 
-// GalaxyGroup-level
+// GalaxyPair-level
 
 constexpr const int_t galaxy_pair_level = 6;
 
@@ -115,6 +115,8 @@ constexpr const flt_t bulge_axis_ratio_n_cutoff = 2.25;
 constexpr const flt_t bulge_intrinsic_ellipticity_sigma = 0.25;
 constexpr const flt_t bulge_intrinsic_ellipticity_max = 0.9;
 constexpr const flt_t bulge_intrinsic_ellipticity_p = 4.;
+
+constexpr const flt_t disk_height_ratio = 0.1;
 
 constexpr const flt_t galaxy_type = 0.;
 

@@ -1,12 +1,12 @@
-""" @file output_table.py
+""" @file tables.py
 
-    Created 23 Jul 2015
+    Created 4 Apr 2017
 
-    Functions related to output of details tables.
+    Functions related to output of details and detections tables.
 
     ---------------------------------------------------------------------
 
-    Copyright (C) 2015 Bryan R. Gillis
+    Copyright (C) 2015-2017 Bryan R. Gillis
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,36 +23,11 @@
 """
 
 import subprocess
-
 from astropy.io import fits
 
 from SHE_SIM_galaxy_image_generation import magic_values as mv
 
-
-names_and_dtypes = (('ID', 'i8', 'K'),
-            ('x_center_pix', 'f4', 'E'),
-            ('y_center_pix', 'f4', 'E'),
-            ('psf_x_center_pix', 'f4', 'E'),
-            ('psf_y_center_pix', 'f4', 'E'),
-            ('hlr_bulge_arcsec', 'f4', 'E'),
-            ('hlr_disk_arcsec', 'f4', 'E'),
-            ('bulge_ellipticity', 'f4', 'E'),
-            ('bulge_axis_ratio', 'f4', 'E'),
-            ('bulge_fraction', 'f4', 'E'),
-            ('magnitude', 'f4', 'E'),
-            ('sersic_index', 'f4', 'E'),
-            ('rotation', 'f4', 'E'),
-            ('spin', 'f4', 'E'),
-            ('tilt', 'f4', 'E'),
-            ('shear_magnitude', 'f4', 'E'),
-            ('shear_angle', 'f4', 'E'),
-            ('subtracted_sky_level', 'f4', 'E'),
-            ('unsubtracted_sky_level', 'f4', 'E'),
-            ('read_noise', 'f4', 'E'),
-            ('gain', 'f4', 'E'),
-            ('is_target_galaxy', 'b1', 'L'))
-
-def get_names():
+def get_names(names_and_dtypes):
     """ Get the column names for the details table.
 
         Requires: (nothing)
@@ -62,7 +37,7 @@ def get_names():
 
     return zip(*names_and_dtypes)[0]
 
-def get_dtypes():
+def get_dtypes(names_and_dtypes):
     """ Get the data types for the details table, in the format for an astropy table.
 
         Requires: (nothing)
@@ -72,7 +47,7 @@ def get_dtypes():
 
     return zip(*names_and_dtypes)[1]
 
-def get_fits_dtypes():
+def get_fits_dtypes(names_and_dtypes):
     """ Get the data types for the details table, in the format for a fits table
 
         Requires: (nothing)
@@ -81,16 +56,6 @@ def get_fits_dtypes():
     """
 
     return zip(*names_and_dtypes)[2]
-
-def size():
-    """ Get the number of columns for the details table.
-
-        Requires: (nothing)
-
-        Return: <int>
-    """
-
-    return len(names_and_dtypes)
 
 def add_row(table, **kwargs):
     """ Add a row to a table by packing the keyword arguments and passing them as a
@@ -109,7 +74,25 @@ def add_row(table, **kwargs):
     table.add_row(vals=kwargs)
     return
 
-def output_as_fits(table, filename):
+def output_tables(otable, file_name_base, table_tail, options):
+
+    if ((options['details_output_format'] == 'ascii') or (options['details_output_format'] == 'both')):
+        text_file_name = file_name_base + table_tail + ".dat"
+        otable.write(text_file_name, format='ascii.ecsv')
+        # Allow group access to it
+        cmd = 'chmod g+rw ' + text_file_name
+        subprocess.call(cmd, shell=True)
+
+    if ((options['details_output_format'] == 'fits') or (options['details_output_format'] == 'both')):
+        fits_file_name = file_name_base + table_tail + ".fits"
+        otable.write(fits_file_name, format='fits', overwrite=True)
+        # Allow group access to it
+        cmd = 'chmod g+rw ' + fits_file_name
+        subprocess.call(cmd, shell=True)
+
+    return
+
+def output_table_as_fits(table, filename, names_and_dtypes, header=None):
     """ Output an astropy table as a fits binary table.
 
         Requires: table <astropy.tables.Table> (table to be output)
@@ -131,23 +114,5 @@ def output_as_fits(table, filename):
 
     # Output it to the desired filename
     my_bin_hdu.writeto(filename, clobber=True)
-
-    return
-
-def output_details_tables(otable, file_name_base, options):
-
-    if ((options['details_output_format'] == 'ascii') or (options['details_output_format'] == 'both')):
-        text_file_name = file_name_base + mv.ascii_details_file_tail
-        otable.write(text_file_name, format='ascii.commented_header')
-        # Allow group access to it
-        cmd = 'chmod g+rw ' + text_file_name
-        subprocess.call(cmd, shell=True)
-
-    if ((options['details_output_format'] == 'fits') or (options['details_output_format'] == 'both')):
-        fits_file_name = file_name_base + mv.fits_details_file_tail
-        output_as_fits(otable, fits_file_name)
-        # Allow group access to it
-        cmd = 'chmod g+rw ' + fits_file_name
-        subprocess.call(cmd, shell=True)
 
     return

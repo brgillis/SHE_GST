@@ -33,7 +33,8 @@ import numpy as np
 
 def combine_dithers(dithers,
                     dithering_scheme,
-                    output_table=None,
+                    detections_table=None,
+                    details_table=None,
                     copy_otable=False):
     """
         @brief Combine the dithered images in a list, according to the specific plan for a
@@ -41,7 +42,8 @@ def combine_dithers(dithers,
 
         @param dithers List of galsim Image objects of the same size/shape/dtype.
         @param dithering_scheme String representing the name of the dithering scheme
-        @param output_table Output table to (possibly) modify for combined image
+        @param detections_table Output table to (possibly) modify for combined image
+        @param details_table Output table to (possibly) modify for combined image
         @param copy_otable If False, output table will be modified in place. If True,
             it will be copied. In either case, the modified table will be returned
 
@@ -52,9 +54,11 @@ def combine_dithers(dithers,
     # Set up the output table we'll modify, depending on whether or not we want to copy
     # the passed output table.
     if copy_otable:
-        combined_otable = copy.deepcopy(output_table)
+        combined_detections_table = copy.deepcopy(detections_table)
+        combined_details_table = copy.deepcopy(details_table)
     else:
-        combined_otable = output_table
+        combined_detections_table = detections_table
+        combined_details_table = details_table
 
     # Check which dithering scheme we're using
     if dithering_scheme == '2x2':
@@ -120,17 +124,29 @@ def combine_dithers(dithers,
         combined_data = combined_data[0:-1, 0:-1]
 
         # Make a Galsim image from this data
-        combined_image = galsim.Image(combined_data)
+        combined_image = galsim.Image(combined_data,scale=dithers[0].scale/2)
 
         # Now that we have the image, let's modify the output table
-        if combined_otable is not None:
-            combined_otable['x_center_pix'] *= 2
-            combined_otable['x_center_pix'] -= 0.5
-            combined_otable['y_center_pix'] *= 2
-            combined_otable['y_center_pix'] -= 0.5
-            combined_otable['Read_noise'] *= 2
+        for combined_otable in combined_detections_table, combined_details_table:
+            if combined_otable is not None:
+                combined_otable['x_center_pix'] *= 2
+                combined_otable['x_center_pix'] -= 0.5
+                combined_otable['y_center_pix'] *= 2
+                combined_otable['y_center_pix'] -= 0.5
+                
+                if 'RD_NOISE' in combined_otable.meta:
+                    old_read_noise = combined_otable.meta['RD_NOISE']
+                    combined_otable.meta['RD_NOISE'] = 2*old_read_noise[0], old_read_noise[1]
+                
+                if 'S_SKYLV' in combined_otable.meta:
+                    old_subtracted_sky_level = combined_otable.meta['S_SKYLV']
+                    combined_otable.meta['S_SKYLV'] = 4*old_subtracted_sky_level[0], old_subtracted_sky_level[1]
+                
+                if 'US_SKYLV' in combined_otable.meta:
+                    old_unsubtracted_sky_level = combined_otable.meta['US_SKYLV']
+                    combined_otable.meta['US_SKYLV'] = 4*old_unsubtracted_sky_level[0], old_unsubtracted_sky_level[1]
 
     else:
         raise Exception("Unrecognized dithering scheme: " + dithering_scheme)
 
-    return combined_image, combined_otable
+    return combined_image, combined_detections_table, combined_details_table

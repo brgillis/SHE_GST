@@ -61,9 +61,13 @@ public:
 	// Methods to add children
 #if(1)
 
-	GalaxyGroup * add_galaxy_group();
+    GalaxyGroup * add_galaxy_group();
 
-	void add_galaxy_groups(int_t const & N);
+    void add_galaxy_groups(int_t const & N);
+
+    GalaxyPair * add_galaxy_pair();
+
+    void add_galaxy_pairs(int_t const & N);
 
 	Galaxy * add_galaxy();
 

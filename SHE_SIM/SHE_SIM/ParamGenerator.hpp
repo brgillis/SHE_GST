@@ -65,7 +65,8 @@ protected:
 	flt_t _request_param_value(name_t const & name);
 	ParamGenerator * _request_param(name_t const & name);
 
-	bool _generated_at_this_level() const;
+    bool _generated_at_this_level() const;
+	bool _provisionally_generated_at_this_level() const;
 
 	ParamGenerator * _p_parent_version();
 	ParamGenerator const * _p_parent_version() const;
@@ -78,6 +79,9 @@ private:
 	// Private methods
 
 	virtual bool _is_cached() const;
+
+	void _cache_value(flt_t const & new_value);
+    void _cache_provisional_value(flt_t const & new_value);
 
 	virtual void _decache();
 	void _clear_cache();

@@ -36,6 +36,7 @@ DEF_NAME(cluster)
 DEF_NAME(field_group)
 DEF_NAME(field)
 DEF_NAME(galaxy_group)
+DEF_NAME(galaxy_pair)
 DEF_NAME(galaxy)
 
 #undef DEF_NAME

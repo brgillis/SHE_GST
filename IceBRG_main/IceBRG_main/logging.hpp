@@ -30,6 +30,9 @@
 
 #include "ElementsKernel/Logging.h"
 
+#define ICEBRG_GET_LOGGER(program) \
+    Elements::Logging::getLogger(#program)
+
 #define ICEBRG_LOG_TRIVIAL(mode) \
   Elements::Logging::getLogger(LOGGER_NAME).mode()
 #define ICEBRG_LOG(mode,program) \
@@ -45,6 +48,9 @@
 #define BOOST_LOG_DYN_LINK 1
 
 #include <boost/log/trivial.hpp>
+
+#define ICEBRG_GET_LOGGER(program) \
+    std::cout
 
 #define ICEBRG_LOG_TRIVIAL(mode) \
   BOOST_LOG_TRIVIAL(mode)

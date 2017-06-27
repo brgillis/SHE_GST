@@ -29,7 +29,8 @@ from SHE_SIM_galaxy_image_generation import magic_values as mv
 from SHE_SIM_galaxy_image_generation.config.config_default import (allowed_options,
                                                             allowed_fixed_params,
                                                             allowed_survey_settings)
-from SHE_SIM_galaxy_image_generation.run_from_config import run_from_config_file_and_args
+from SHE_SIM_galaxy_image_generation.run_from_config import run_from_args
+from SHE_SIM_galaxy_image_generation.generate_images import generate_images
 from icebrgpy.logging import getLogger
 
 def defineSpecificProgramOptions():
@@ -43,28 +44,31 @@ def defineSpecificProgramOptions():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--config-file-name', type=str, default="",
-                        help='Filename of the configuration file to use for values not specified ' +
-                        'in the options here.')
+    # Option for profiling
     parser.add_argument('--profile',action='store_true',
                         help='Store profiling data for execution.')
+    
+    # Extra configuration files
+    parser.add_argument('--config_files', nargs='*', default=[],
+                        help='Extra configuration files. Each will overwrite an values specified in previous ' +
+                             'files, but NOT the one specified with the --config-file option.')
 
     # Add in each allowed option, with a null default
     for option in allowed_options:
         option_type = allowed_options[option][1]
-        parser.add_argument("--" + option.replace('_', '-'), type=option_type)
+        parser.add_argument("--" + option, type=option_type)
 
     # Add allowed fixed params
     for allowed_fixed_param in allowed_fixed_params:
-        parser.add_argument("--" + allowed_fixed_param.replace('_', '-'), type=float)
+        parser.add_argument("--" + allowed_fixed_param, type=float)
 
     # Add allowed survey settings, with both level and setting possibilities
     for allowed_survey_setting in allowed_survey_settings:
 
-        generation_level = allowed_survey_setting.replace('_', '-') + "-level"
+        generation_level = allowed_survey_setting + "_level"
         parser.add_argument("--" + generation_level, type=str)
 
-        settings = allowed_survey_setting.replace('_', '-') + "-setting"
+        settings = allowed_survey_setting + "_setting"
         parser.add_argument("--" + settings, type=str)
 
     return parser
@@ -82,26 +86,31 @@ def mainMethod(args):
 
     logger = getLogger(mv.logger_name)
 
-    logger.info('#')
-    logger.info('# Entering GenGalsimImages mainMethod()')
-    logger.info('#')
+    logger.debug('#')
+    logger.debug('# Entering GenGalsimImages mainMethod()')
+    logger.debug('#')
 
-    config_file_name = args.config_file_name
-
-    if(config_file_name == ""):
+    if(args.config_file is None and len(args.config_files)==0):
         logger.info('Using default configurations.')
     else:
-        logger.info('Using configurations from file ' + config_file_name + '.')
+        if args.config_file is not None:
+            logger.info('Using primary configuration file: ' + args.config_file)
+        if len(args.config_files)>0:
+            logger.info('Using configurations in file(s): ')
+            for config_file in args.config_files:
+                logger.info('* ' + config_file)
         
     if args.profile:
         import cProfile
-        cProfile.runctx("run_from_config_file_and_args(config_file_name, args)",{},
-                        {"run_from_config_file_and_args":run_from_config_file_and_args,
-                         "config_file_name":config_file_name,"args":args},filename="gen_galsim_images.prof")
+        cProfile.runctx("run_from_args(generate_images,args)",{},
+                        {"run_from_args":run_from_args,
+                         "args":args,
+                         "generate_images":generate_images},
+                        filename="gen_galsim_images.prof")
     else:
-        run_from_config_file_and_args(config_file_name, args)
+        run_from_args(generate_images, args)
 
-    logger.info('Exiting GenGalsimImages mainMethod()')
+    logger.debug('Exiting GenGalsimImages mainMethod()')
 
     return
 

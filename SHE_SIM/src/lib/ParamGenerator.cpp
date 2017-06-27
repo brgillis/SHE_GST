@@ -28,6 +28,8 @@
 #include <limits>
 #include <stdexcept>
 
+#include "IceBRG_main/logging.hpp"
+
 #include "SHE_SIM/common.hpp"
 #include "SHE_SIM/default_param_params.hpp"
 #include "SHE_SIM/ParamHierarchyLevel.hpp"
@@ -35,33 +37,43 @@
 
 #define UNCACHED_VALUE std::numeric_limits<flt_t>::infinity()
 
+// Toggle debug-level logging with a define, so we can completely disable it for efficiency later
+#define DEBUGGING false
+#define DEBUG_LOG() if(DEBUGGING) logger.info()
+
 namespace SHE_SIM
 {
+
+static auto logger = ICEBRG_GET_LOGGER(logger_name);
 
 // Protected methods
 
 flt_t ParamGenerator::_request_param_value(name_t const & param_name)
 {
+    DEBUG_LOG() << "Entering/exiting " << name() << "<ParamGenerator>::_request_param_value(\"" << param_name << "\") method.";
 	if(!_p_owner) throw std::logic_error("Cannot request another param value from a default ParamGenerator.");
 	return _p_owner->_request_param_value(param_name, name());
 }
 
 ParamGenerator * ParamGenerator::_request_param(name_t const & param_name)
 {
+    DEBUG_LOG() << "Entering/exiting " << name() << "<ParamGenerator>::_request_param(\"" << param_name << "\") method.";
 	if(!_p_owner) return nullptr;
 	return _p_owner->_request_param(param_name, name());
 }
 
 void ParamGenerator::_generate()
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::_generate method.";
 	if(_p_params->get_mode()==ParamParam::INDEPENDENT)
 	{
-		_cached_value = _p_params->get_independently(get_rng());
+	    _cache_value(_p_params->get_independently(get_rng()));
 	}
 	else
 	{
 		throw bad_mode_error(_p_params->get_mode_name());
 	}
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::_generate method.";
 }
 
 // Private methods
@@ -71,6 +83,28 @@ bool ParamGenerator::_is_cached() const
 	return _cached_value != UNCACHED_VALUE;
 }
 
+void ParamGenerator::_cache_value(flt_t const & new_value)
+{
+    _cached_value = new_value;
+}
+
+void ParamGenerator::_cache_provisional_value(flt_t const & new_value)
+{
+    _cache_value(new_value);
+    if(!_generated_at_this_level())
+    {
+        _p_parent_version()->_cache_provisional_value(new_value);
+    }
+    else
+    {
+        // Uncache for any children
+        for( auto const & child : _p_owner->_children )
+        {
+            child->_clear_param_cache(name());
+        }
+    }
+}
+
 void ParamGenerator::_decache()
 {
 	_cached_value = UNCACHED_VALUE;
@@ -78,6 +112,7 @@ void ParamGenerator::_decache()
 
 void ParamGenerator::_clear_cache()
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::_clear_cache method.";
 	_decache();
 
 	if(_p_owner)
@@ -96,6 +131,7 @@ void ParamGenerator::_clear_cache()
 	}
 
 	_dependant_names.clear();
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::_clear_cache method.";
 }
 
 void ParamGenerator::_add_dependant(name_t const & dependant_name)
@@ -109,26 +145,59 @@ bool ParamGenerator::_generated_at_this_level() const
 	return _p_owner->get_hierarchy_level() <= level_generated_at();
 }
 
+bool ParamGenerator::_provisionally_generated_at_this_level() const
+{
+    // If we really generate here, it isn't provisional
+    if(_generated_at_this_level()) return false;
+
+    // Provisional if parent version doesn't exist, or parent is at too shallow a level
+    auto const & _p_parent = _p_parent_version();
+    if(!_p_parent) return false;
+    bool res = _p_parent->_p_owner->get_hierarchy_level() < level_generated_at();
+
+    if(res)
+    {
+        DEBUG_LOG() << "Parameter " << name() << " found to be generated provisionally.";
+    }
+    else
+    {
+        DEBUG_LOG() << "Parameter " << name() << " found not to be generated provisionally.";
+    }
+
+    return res;
+}
+
 void ParamGenerator::_determine_value()
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::_determine_value method.";
 	if(_generated_at_this_level())
 	{
 		_generate();
 	}
-	else
+	else if(_provisionally_generated_at_this_level())
 	{
-		_cached_value = _parent_version().get();
+        // Generated provisionally, so generate here
+        _generate();
 	}
+    else
+    {
+        // Generated at parent's level or higher
+        _cache_value(_parent_version().get());
+    }
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::_determine_value method.";
 }
 
 void ParamGenerator::_determine_new_value()
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::_determine_new_value method.";
 	_clear_cache();
 	this->_determine_value();
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::_determine_new_value method.";
 }
 
 ParamGenerator * ParamGenerator::_p_parent_version()
 {
+    DEBUG_LOG() << "Entering/exiting " << name() << "<ParamGenerator>::_p_parent_version method.";
 	if(!_p_owner) return nullptr;
 	auto p_parent = _p_owner->get_parent();
 	if(!p_parent) return nullptr;
@@ -137,6 +206,7 @@ ParamGenerator * ParamGenerator::_p_parent_version()
 
 ParamGenerator const * ParamGenerator::_p_parent_version() const
 {
+    DEBUG_LOG() << "Entering/exiting " << name() << "<ParamGenerator>::_p_parent_version method.";
 	if(!_p_owner) return nullptr;
 	auto p_parent = _p_owner->get_parent();
 	if(!p_parent) return nullptr;
@@ -240,7 +310,9 @@ level_t const * const & ParamGenerator::get_p_generation_level() const
 
 void ParamGenerator::set_generation_level( level_t const & level )
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::set_generation_level method.";
 	_p_owner->set_generation_level(name(),level);
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::set_generation_level method.";
 }
 
 void ParamGenerator::set_p_generation_level( level_t const * const & p_level )
@@ -266,31 +338,45 @@ flt_t const & ParamGenerator::get_new()
 
 ParamGenerator * ParamGenerator::request(name_t const & requester_name)
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::request(\"" << requester_name << "\") method.";
 	_add_dependant(requester_name);
 	if(!_is_cached())
 	{
 		_determine_value();
 	}
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::request(\"" << requester_name << "\") method.";
 	return this;
 }
 
 ParamGenerator * ParamGenerator::request_new(name_t const & requester_name)
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::request_new(\"" << requester_name << "\") method.";
 	_add_dependant(requester_name);
 	_determine_new_value();
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::request_new(\"" << requester_name << "\") method.";
 	return this;
 }
 
 flt_t const & ParamGenerator::request_value(name_t const & requester_name)
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::request_value(\"" << requester_name << "\") method.";
+
 	_add_dependant(requester_name);
-	return get();
+	flt_t const & res = get();
+
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::request_value(\"" << requester_name << "\") method.";
+	return res;
 }
 
 flt_t const & ParamGenerator::request_new_value(name_t const & requester_name)
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::request_new_value(\"" << requester_name << "\") method.";
+
 	_add_dependant(requester_name);
-	return get_new();
+	flt_t const & res =get_new();
+
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::request_new_value(\"" << requester_name << "\") method.";
+	return res;
 }
 
 const level_t & ParamGenerator::level_generated_at() const

@@ -55,6 +55,7 @@ class Cluster;
 class FieldGroup;
 class Field;
 class GalaxyGroup;
+class GalaxyPair;
 class Galaxy;
 
 /**
@@ -91,7 +92,8 @@ private:
 	void _update_parent(parent_ptr_t const & new_p_parent);
 
 	// Private methods
-	void _update_child(child_t * const & old_p_child, child_t * const & new_p_child);
+	void _update_child(child_t * const & old_p_child, child_t * const & new_p_child,
+	    bool release = false);
 
 	/**
 	 * Get the value for a parameter with a given name. Will throw an exception if none
@@ -229,6 +231,13 @@ public:
 	 */
 	int_t num_children() const { return get_children().size(); }
 
+	/**
+	 * Tell whether or not this PHL is orphaned (has no parent).
+	 *
+	 * @return Whether or not this PHL is orphaned
+	 */
+	bool is_orphan() const { return _p_parent == nullptr; }
+
 #endif // Get details on this object
 
 	// Parent-related methods
@@ -247,6 +256,13 @@ public:
 	 * @return A pointer to this object's parent.
 	 */
 	parent_t const * get_parent() const { return _p_parent; }
+
+	/**
+	 * Make self an orphan, removing it from parent's list and clearing parent pointer.
+	 *
+	 * @return A vector of param generators which are/were provisionally generated at this level.
+	 */
+	std::vector<ParamGenerator *> emancipate();
 
 #endif
 
@@ -351,6 +367,8 @@ public:
 
 		for( auto & child : _children )
 		{
+	    if( !child.get() ) continue;
+
 			T_child * casted_child = dynamic_cast<T_child *>(child.get());
 			if( casted_child != nullptr )
 			{
@@ -382,6 +400,8 @@ public:
 
 		for( auto & child : _children )
 		{
+	    if( !child.get() ) continue;
+
 			T_child * casted_child = dynamic_cast<const T_child *>(child.get());
 			if( casted_child != nullptr )
 			{
@@ -433,6 +453,26 @@ public:
 		return _children.back().get();
 	}
 
+    /**
+     * Orphan a child. Will throw an exception if no child with the given index exists. Returns
+     * a pointer to the child, which can then be readopted by another level (or not).
+     *
+     * @param i Index of the desired child to orphan
+     *
+     * @return A pointer to the orphaned child.
+     */
+    child_t * orphan_child(const int & i);
+
+    /**
+     * Orphan a child. Will throw an exception if this isn't the parent of that child. Returns
+     * a pointer to the child, which can then be readopted by another level (or not).
+     *
+     * @param child_t * Pointer to the desired child to orphan
+     *
+     * @return A pointer to the orphaned child.
+     */
+    child_t * orphan_child(child_t * const & i);
+
 	/**
 	 * Create multiple new children, each with the specified arguments pass to its constructor.
 	 *
@@ -451,11 +491,21 @@ public:
 	}
 
 	/**
-	 * Take ownership of a pre-existing child.
+	 * Take ownership of a pre-existing child. Will throw an exception if the child isn't orphaned.
 	 *
 	 * @param p_child Pointer to the child to take ownership of.
+     * @param provisional_params Vector of pointers to parameters which were generated provisionally
+     *        by the child.
 	 */
-	void adopt_child(child_t * const & p_child);
+	void adopt_child(child_t * const & p_child,
+	        std::vector<ParamGenerator *> provisional_params = std::vector<ParamGenerator *>());
+
+    /**
+    * Take ownership of a pre-existing child, even if it isn't orphaned.
+    *
+    * @param p_child Pointer to the child to take ownership of.
+    */
+    void abduct_child(child_t * const & p_child);
 
 	/**
 	 * Automatically generate appropriate children for this object.
@@ -479,6 +529,7 @@ public:
 	std::vector<FieldGroup *> get_field_groups();
 	std::vector<Field *> get_fields();
 	std::vector<GalaxyGroup *> get_galaxy_groups();
+    std::vector<GalaxyPair *> get_galaxy_pairs();
 	std::vector<Galaxy *> get_galaxies();
 	std::vector<Galaxy *> get_background_galaxies();
 	std::vector<Galaxy *> get_foreground_galaxies();
@@ -497,7 +548,8 @@ public:
 	std::vector<Cluster *> get_cluster_descendants();
 	std::vector<FieldGroup *> get_field_group_descendants();
 	std::vector<Field *> get_field_descendants();
-	std::vector<GalaxyGroup *> get_galaxy_group_descendants();
+    std::vector<GalaxyGroup *> get_galaxy_group_descendants();
+    std::vector<GalaxyPair *> get_galaxy_pair_descendants();
 	std::vector<Galaxy *> get_galaxy_descendants();
 	std::vector<Galaxy *> get_background_galaxy_descendants();
 	std::vector<Galaxy *> get_foreground_galaxy_descendants();

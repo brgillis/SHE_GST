@@ -23,26 +23,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import SHE_SIM_galaxy_image_generation.magic_values as mv
-
-def get_I_from_count(c, gain=mv.default_gain):
-    """ Calculated the intensity I from count with the given gain.
+def get_ADU_from_count(c, gain):
+    """ Calculate the intensity in ADU from count with the given gain.
 
         @param c The electron count
-        @param gain The gain
+        @param gain The gain in units of e-/ADU
 
-        @return The intensity
+        @return The intensity in units of ADU
     """
 
     return c / gain
 
-def get_count_from_I(I, gain=mv.default_gain):
-    """ Calculated the electron count from intensity I with the given gain.
+def get_count_from_ADU(I, gain):
+    """ Calculate the electron count from intensity in units of ADU with the given gain.
 
-        @param I The intensity
-        @param gain The gain
+        @param I The intensity in units of ADU
+        @param gain The gain in units of e-/ADU
 
-        @return The intensity
+        @return The count in units of e-
     """
 
     return I * gain

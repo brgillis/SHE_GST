@@ -23,12 +23,13 @@
 
  \**********************************************************************/
 
-#include "SHE_SIM/ParamHierarchyLevel.hpp"
 
 #include <ctime>
 #include <memory>
 #include <random>
 #include <utility>
+
+#include "IceBRG_main/logging.hpp"
 
 #include "SHE_SIM/common.hpp"
 #include "SHE_SIM/levels/Cluster.hpp"
@@ -37,30 +38,64 @@
 #include "SHE_SIM/levels/FieldGroup.hpp"
 #include "SHE_SIM/levels/Galaxy.hpp"
 #include "SHE_SIM/levels/GalaxyGroup.hpp"
+#include "SHE_SIM/levels/GalaxyPair.hpp"
 #include "SHE_SIM/levels/Image.hpp"
 #include "SHE_SIM/levels/ImageGroup.hpp"
 #include "SHE_SIM/levels/Survey.hpp"
 #include "SHE_SIM/params_list.hpp"
 #include "SHE_SIM/ParamGenerator.hpp"
+#include "SHE_SIM/ParamHierarchyLevel.hpp"
 #include "SHE_SIM/ParamParam.hpp"
+
+// Toggle debug-level logging with a define, so we can completely disable it for efficiency later
+#define DEBUGGING false
+#define DEBUG_LOG() if(DEBUGGING) logger.info()
 
 namespace SHE_SIM
 {
+
+static auto logger = ICEBRG_GET_LOGGER(logger_name);
 
 // Private methods
 void ParamHierarchyLevel::_update_parent(parent_ptr_t const & new_p_parent)
 {
 	_p_parent = new_p_parent;
 }
-void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t * const & new_p_child)
+void ParamHierarchyLevel::_update_child(child_t * const & old_p_child, child_t * const & new_p_child,
+    bool release )
 {
-	for( auto & child : _children )
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::_update_child method.";
+    // Find this child in the children list
+
+    // Start by trying to index by the local ID
+    int_t old_child_ID = old_p_child->get_local_ID();
+    if( old_child_ID < int_t(_children.size()) )
+    {
+        auto & test_child = _children.at(old_child_ID);
+        if( test_child.get() == old_p_child )
+        {
+            if(release) test_child.release();
+            test_child.reset(new_p_child);
+            DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::_update_child method successfully.";
+            return;
+        }
+    }
+
+    // Can't find by local ID, so we'll have to search
+	for( auto & test_child : _children )
 	{
-		if(child.get()==old_p_child)
+		if(test_child.get()==old_p_child)
 		{
-			child.reset(new_p_child);
+		    if(release) test_child.release();
+		    test_child.reset(new_p_child);
+            DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::_update_child method successfully.";
+		    return;
 		}
 	}
+
+	// Not in children
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::_update_child method unsuccessfully.";
+	throw std::runtime_error("Cannot update child - can't find it in children list.");
 }
 
 flt_t const & ParamHierarchyLevel::_request_param_value(name_t const & name, name_t const & requester_name)
@@ -75,6 +110,7 @@ ParamGenerator * ParamHierarchyLevel::_request_param(name_t const & name, name_t
 
 void ParamHierarchyLevel::_drop_local_param_param(name_t const & name)
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::_drop_local_param_param(\"" << name << "\") method.";
 	if ( _local_param_params.find(name) == _local_param_params.end() )
 	{
 		// Key isn't in the map
@@ -93,10 +129,12 @@ void ParamHierarchyLevel::_drop_local_param_param(name_t const & name)
 			_local_param_params.erase(name);
 		}
 	}
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::_drop_local_param_param(\"" << name << "\") method successfully.";
 }
 
 void ParamHierarchyLevel::_drop_local_generation_level(name_t const & name)
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::_drop_local_generation_level(\"" << name << "\") method.";
 	if ( _local_generation_levels.find(name) == _local_generation_levels.end() )
 	{
 		// Key isn't in the map
@@ -115,10 +153,12 @@ void ParamHierarchyLevel::_drop_local_generation_level(name_t const & name)
 			_local_generation_levels.erase(name);
 		}
 	}
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::_drop_local_generation_level(\"" << name << "\") method successfully.";
 }
 
 void ParamHierarchyLevel::_clear_param_cache(name_t const & name)
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::_clear_param_cache(\"" << name << "\") method.";
 	// Clear for this
 	_clear_own_param_cache(name);
 
@@ -127,6 +167,7 @@ void ParamHierarchyLevel::_clear_param_cache(name_t const & name)
 	{
 		child->_clear_param_cache(name);
 	}
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::_clear_param_cache(\"" << name << "\") method successfully.";
 }
 
 void ParamHierarchyLevel::_clear_own_param_cache(name_t const & name)
@@ -136,6 +177,7 @@ void ParamHierarchyLevel::_clear_own_param_cache(name_t const & name)
 
 void ParamHierarchyLevel::_clear_param_cache()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::_clear_param_cache method.";
 	// Clear for this
 	_clear_own_param_cache();
 
@@ -144,6 +186,7 @@ void ParamHierarchyLevel::_clear_param_cache()
 	{
 		child->_clear_param_cache();
 	}
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::_clear_param_cache method successfully.";
 }
 
 void ParamHierarchyLevel::_clear_own_param_cache()
@@ -159,6 +202,7 @@ void ParamHierarchyLevel::_clear_own_param_cache()
 ParamHierarchyLevel::ParamHierarchyLevel(parent_ptr_t const & p_parent)
 : _p_parent(p_parent)
 {
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::ParamHierarchyLevel method.";
 	// Inherit parameters and generation_levels from parent if it exists
 	if(p_parent)
 	{
@@ -187,6 +231,8 @@ ParamHierarchyLevel::ParamHierarchyLevel(parent_ptr_t const & p_parent)
 		// Use default parameters map
 		_params = get_full_params_map(*this);
 	}
+
+    DEBUG_LOG() << "Exiting ParamHierarchyLevel::ParamHierarchyLevel method successfully.";
 }
 
 ParamHierarchyLevel::ParamHierarchyLevel(const ParamHierarchyLevel & other)
@@ -196,6 +242,8 @@ ParamHierarchyLevel::ParamHierarchyLevel(const ParamHierarchyLevel & other)
   _seed_seq(other._seed_seq),
   _rng(other._rng)
 {
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::ParamHierarchyLevel method.";
+
 	// Deep-copy maps
 
 	for( auto const & child_ptr : other._children )
@@ -220,6 +268,8 @@ ParamHierarchyLevel::ParamHierarchyLevel(const ParamHierarchyLevel & other)
 		_local_generation_levels.insert( std::make_pair( gen_level_name_and_ptr.first,
 				level_ptr_t( new level_t( *(gen_level_name_and_ptr.second.get()) ) ) ) );
 	}
+
+    DEBUG_LOG() << "Exiting ParamHierarchyLevel::ParamHierarchyLevel method successfully.";
 }
 
 
@@ -239,6 +289,8 @@ ParamHierarchyLevel::ParamHierarchyLevel(ParamHierarchyLevel && other)
   _rng(std::move(other._rng)),
   _params(std::move(other._params))
 {
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::ParamHierarchyLevel method.";
+
 	// Update parent's pointer to this
 	if(_p_parent)
 	{
@@ -250,10 +302,13 @@ ParamHierarchyLevel::ParamHierarchyLevel(ParamHierarchyLevel && other)
 	{
 		child->_update_parent(this);
 	}
+    DEBUG_LOG() << "Exiting ParamHierarchyLevel::ParamHierarchyLevel method successfully.";
 }
 
 ParamHierarchyLevel & ParamHierarchyLevel::operator=(const ParamHierarchyLevel & other)
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::operator= method.";
+
 	_p_parent = other._p_parent;
 	_local_ID = other._local_ID;
 	_seed = other._seed;
@@ -293,11 +348,14 @@ ParamHierarchyLevel & ParamHierarchyLevel::operator=(const ParamHierarchyLevel &
 				level_ptr_t( new level_t( *(gen_level_name_and_ptr.second.get()) ) ) ) );
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::operator= method successfully.";
 	return *this;
 }
 
 ParamHierarchyLevel & ParamHierarchyLevel::operator=(ParamHierarchyLevel && other)
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::_drop_local_param_param method.";
+
 	_p_parent = std::move(other._p_parent);
 	_params = std::move(other._params);
 	_children = std::move(other._children);
@@ -320,13 +378,48 @@ ParamHierarchyLevel & ParamHierarchyLevel::operator=(ParamHierarchyLevel && othe
 		child->_update_parent(this);
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::operator= method successfully.";
 	return *this;
 }
 
 // Public methods
 
+
+std::vector<ParamGenerator *> ParamHierarchyLevel::emancipate()
+{
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::emancipate method.";
+
+    std::vector<ParamGenerator *> provisional_params;
+
+    // Use the parent's method to orphan this
+
+    // If there is no parent, silently return
+    if(!_p_parent)
+    {
+        DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::emancipate method successfully.";
+        return provisional_params;
+    }
+
+    // Fill up the result list of which params are/were provisionally generated here
+    for( auto & param_name_and_uptr : _params )
+    {
+        ParamGenerator * p_param = param_name_and_uptr.second.get();
+        if(p_param->_provisionally_generated_at_this_level())
+        {
+            provisional_params.push_back(p_param);
+        }
+    }
+
+    _p_parent->orphan_child(this);
+
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::emancipate method successfully.";
+    return provisional_params;
+}
+
 std::vector<ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_children( name_t const & type_name )
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_children(\"" << type_name << "\") method.";
+
 	std::vector<ParamHierarchyLevel::child_t *> res;
 
 	for( auto & child : _children )
@@ -334,27 +427,37 @@ std::vector<ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_children( n
 		if( ( child->get_name()==type_name ) or ( type_name == "" ) ) res.push_back( child.get() );
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_children method(\"" << type_name << "\") successfully.";
 	return res;
 }
 
 std::vector<const ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_children( name_t const & type_name ) const
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_children(\"" << type_name << "\") method.";
+
 	std::vector<const ParamHierarchyLevel::child_t *> res;
 
 	for( const auto & child : _children )
 	{
-		if( ( child->get_name()==type_name ) or ( type_name == "" ) ) res.push_back( child.get() );
+	  if( !child.get() ) continue;
+
+	  if( ( child->get_name()==type_name ) or ( type_name == "" ) ) res.push_back( child.get() );
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_children(\"" << type_name << "\") method successfully.";
 	return res;
 }
 
 std::vector<ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_descendants( name_t const & type_name )
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_descendants(\"" << type_name << "\") method.";
+
 	std::vector<child_t *> res;
 
 	for( auto & child : _children )
 	{
+    if( !child.get() ) continue;
+
 		if( ( child->get_name()==type_name ) or ( type_name == "" ) )
 			res.push_back( child.get() );
 
@@ -366,15 +469,20 @@ std::vector<ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_descendants
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_descendants(\"" << type_name << "\") method successfully.";
 	return res;
 }
 
 std::vector<const ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_descendants( name_t const & type_name ) const
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_descendants(\"" << type_name << "\") method.";
+
 	std::vector<const child_t *> res;
 
 	for( const auto & child : _children )
 	{
+    if( !child.get() ) continue;
+
 		if( ( child->get_name()==type_name ) or ( type_name == "" ) )
 			res.push_back( child.get() );
 
@@ -386,6 +494,7 @@ std::vector<const ParamHierarchyLevel::child_t *> ParamHierarchyLevel::get_desce
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_descendants(\"" << type_name << "\") method successfully.";
 	return res;
 }
 
@@ -399,18 +508,110 @@ ParamHierarchyLevel::child_t const * ParamHierarchyLevel::get_child(const int & 
 	return _children.at(i).get();
 }
 
-void ParamHierarchyLevel::adopt_child(child_t * const & p_child)
+ParamHierarchyLevel::child_t * ParamHierarchyLevel::orphan_child(const int & i)
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::orphan_child method.";
+
+    child_t * p_child = _children.at(i).release();
+
+    p_child->_update_parent(nullptr);
+
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::orphan_child method successfully.";
+    return p_child;
+}
+
+ParamHierarchyLevel::child_t * ParamHierarchyLevel::orphan_child(child_t * const & p_child)
+{
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::orphan_child method.";
+
+    _update_child(p_child,nullptr,true);
+
+    p_child->_update_parent(nullptr);
+
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::orphan_child method successfully.";
+    return p_child;
+}
+
+void ParamHierarchyLevel::adopt_child(child_t * const & p_child, std::vector<ParamGenerator *> provisional_params)
+{
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::adopt_child method.";
+
+    // Check that the child is orphaned first
+    if( !p_child->is_orphan() )
+    {
+        DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::adopt_child method unsuccessfully.";
+        throw std::runtime_error("Only orphaned children can be adopted.");
+    }
+    // Make sure the child is of a deeper hierarchy level
+    if( p_child->get_hierarchy_level() <= get_hierarchy_level() )
+    {
+        DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::adopt_child method sunuccessfully.";
+        throw std::runtime_error("Children must be of a deeper hierarchy level to be adopted.");
+    }
+
 	_children.push_back( child_ptr_t(p_child) );
+	p_child->_update_parent(this);
+
+	// Handle provisional parameters of the child now
+
+	// If it's the first child, we'll propagate anything it's already generated upward
+	if(_children.size()==1)
+	{
+	    for( auto p_param : provisional_params )
+	    {
+	        if(p_param->_is_cached())
+	        {
+	            auto p_parent_version = p_param->_p_parent_version();
+	            p_parent_version->_cache_provisional_value(p_param->get());
+	        }
+	    }
+	}
+	// If it's not the first child, clear the caches of all provisional params
+	else
+	{
+        for( auto p_param : provisional_params )
+        {
+            if(p_param->_is_cached())
+            {
+                p_param->_clear_cache();
+            }
+        }
+	}
+
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::adopt_child method successfully.";
+}
+
+void ParamHierarchyLevel::abduct_child(child_t * const & p_child)
+{
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::abduct_child method.";
+
+    // Make sure the child is of a deeper hierarchy level
+    if( p_child->get_hierarchy_level() <= get_hierarchy_level() )
+    {
+        DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::abduct_child method unsuccessfully.";
+        throw std::runtime_error("Children must be of a deeper hierarchy level to be abducted.");
+    }
+    std::vector<ParamGenerator *> provisional_params = p_child->emancipate();
+
+    adopt_child(p_child,provisional_params);
+
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::abduct_child method successfully.";
 }
 
 void ParamHierarchyLevel::autofill_children()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::autofill_children method.";
+
+    clear_children();
 	fill_children();
 	for( auto & child : _children )
 	{
+    if( !child.get() ) continue;
+
 		child->autofill_children();
 	}
+
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::autofill_children method successfully.";
 }
 
 // Methods to get children of specific types
@@ -444,12 +645,18 @@ std::vector<GalaxyGroup *> ParamHierarchyLevel::ParamHierarchyLevel::get_galaxy_
 {
 	return get_children<GalaxyGroup>();
 }
+std::vector<GalaxyPair *> ParamHierarchyLevel::ParamHierarchyLevel::get_galaxy_pairs()
+{
+    return get_children<GalaxyPair>();
+}
 std::vector<Galaxy *> ParamHierarchyLevel::get_galaxies()
 {
 	return get_children<Galaxy>();
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_background_galaxies()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_background_galaxies method.";
+
 	std::vector<Galaxy *> res;
 
 	for( auto & child : get_children() )
@@ -462,10 +669,13 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_background_galaxies()
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_background_galaxies method successfully.";
 	return res;
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_foreground_galaxies()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_foreground_galaxies method successfully.";
+
 	std::vector<Galaxy *> res;
 
 	for( auto & child : get_children() )
@@ -478,10 +688,12 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_foreground_galaxies()
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_foreground_galaxies method successfully.";
 	return res;
 }
 Galaxy * ParamHierarchyLevel::get_central_galaxy()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_central_galaxy method.";
 
 	for( auto & child : get_children() )
 	{
@@ -489,14 +701,20 @@ Galaxy * ParamHierarchyLevel::get_central_galaxy()
 		if( casted_child != nullptr )
 		{
 			if( casted_child->is_central_galaxy())
+			{
+			    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_central_galaxy method successfully.";
 				return casted_child;
+			}
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_central_galaxy method unsuccessfully.";
 	return nullptr;
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_field_galaxies()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_field_galaxies method.";
+
 	std::vector<Galaxy *> res;
 
 	for( auto & child : get_children() )
@@ -509,10 +727,13 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_field_galaxies()
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_field_galaxies method successfully.";
 	return res;
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_satellite_galaxies()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_satellite_galaxies method.";
+
 	std::vector<Galaxy *> res;
 
 	for( auto & child : get_children() )
@@ -525,6 +746,7 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_satellite_galaxies()
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_satellite_galaxies method successfully.";
 	return res;
 }
 
@@ -559,7 +781,11 @@ std::vector<Field *> ParamHierarchyLevel::get_field_descendants()
 }
 std::vector<GalaxyGroup *> ParamHierarchyLevel::ParamHierarchyLevel::get_galaxy_group_descendants()
 {
-	return get_descendants<GalaxyGroup>();
+    return get_descendants<GalaxyGroup>();
+}
+std::vector<GalaxyPair *> ParamHierarchyLevel::ParamHierarchyLevel::get_galaxy_pair_descendants()
+{
+    return get_descendants<GalaxyPair>();
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_galaxy_descendants()
 {
@@ -567,6 +793,8 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_galaxy_descendants()
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_background_galaxy_descendants()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_background_galaxy_descendants method.";
+
 	std::vector<Galaxy *> res;
 
 	for( auto & child : get_children() )
@@ -588,10 +816,13 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_background_galaxy_descendants()
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_background_galaxy_descendants method successfully.";
 	return res;
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_foreground_galaxy_descendants()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_foreground_galaxy_descendants method.";
+
 	std::vector<Galaxy *> res;
 
 	for( auto & child : get_children() )
@@ -613,10 +844,13 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_foreground_galaxy_descendants()
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_foreground_galaxy_descendants method successfully.";
 	return res;
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_central_galaxy_descendants()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_central_galaxy_descendants method.";
+
 	std::vector<Galaxy *> res;
 
 	for( auto & child : get_children() )
@@ -638,10 +872,13 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_central_galaxy_descendants()
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_central_galaxy_descendants method successfully.";
 	return res;
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_field_galaxy_descendants()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_central_galaxy_descendants method.";
+
 	std::vector<Galaxy *> res;
 
 	for( auto & child : get_children() )
@@ -663,10 +900,13 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_field_galaxy_descendants()
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_central_galaxy_descendants method successfully.";
 	return res;
 }
 std::vector<Galaxy *> ParamHierarchyLevel::get_satellite_galaxy_descendants()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_satellite_galaxy_descendants method.";
+
 	std::vector<Galaxy *> res;
 
 	for( auto & child : get_children() )
@@ -688,6 +928,7 @@ std::vector<Galaxy *> ParamHierarchyLevel::get_satellite_galaxy_descendants()
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_satellite_galaxy_descendants method successfully.";
 	return res;
 }
 
@@ -722,6 +963,8 @@ level_t const * const & ParamHierarchyLevel::get_p_generation_level( name_t cons
 
 void ParamHierarchyLevel::set_p_generation_level( name_t const & name, level_t const * const & p_level )
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::set_p_generation_level(\"" << name << "\") method.";
+
 	get_param(name)->set_p_generation_level( p_level );
 
 	// Pass this along to all children
@@ -731,13 +974,19 @@ void ParamHierarchyLevel::set_p_generation_level( name_t const & name, level_t c
 	}
 
 	_drop_local_generation_level(name);
+
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::set_p_generation_level(\"" << name << "\") method successfully.";
 }
 
 void ParamHierarchyLevel::set_generation_level( name_t name, level_t const & level )
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::set_generation_level(\"" << name << "\") method.";
+
 	boost::algorithm::to_lower(name);
 	_local_generation_levels[name] = level_ptr_t( new level_t(level) );
 	set_p_generation_level( name, _local_generation_levels.at(name).get() );
+
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::set_generation_level(\"" << name << "\") method successfully.";
 }
 
 ParamParam const * const & ParamHierarchyLevel::get_p_param_params( name_t const & name ) const
@@ -747,6 +996,7 @@ ParamParam const * const & ParamHierarchyLevel::get_p_param_params( name_t const
 
 void ParamHierarchyLevel::set_p_param_params( name_t const & name, ParamParam const * const & params )
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_p_param_params(\"" << name << "\") method.";
 
 	get_param(name)->set_p_params(params);
 
@@ -757,10 +1007,14 @@ void ParamHierarchyLevel::set_p_param_params( name_t const & name, ParamParam co
 	}
 
 	_drop_local_param_param(name);
+
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_p_param_params(\"" << name << "\") method successfully.";
 }
 
 void ParamHierarchyLevel::generate_parameters()
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::generate_parameters method.";
+
 	// Get all parameters at this level
 	for( auto & param_name_and_ptr : _params )
 	{
@@ -773,10 +1027,13 @@ void ParamHierarchyLevel::generate_parameters()
 		child->generate_parameters();
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::generate_parameters method successfully.";
 }
 
 long_int_t ParamHierarchyLevel::get_full_ID() const
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_full_ID method.";
+
 	long_int_t ID = get_local_ID();
 
 	// Add the proper parent ID
@@ -791,11 +1048,14 @@ long_int_t ParamHierarchyLevel::get_full_ID() const
 		}
 	}
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_full_ID method successfully.";
 	return ID;
 }
 
 std::vector<int_t> ParamHierarchyLevel::get_ID_seq() const
 {
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::get_ID_seq method.";
+
 	// Append this to the parent's sequence if the parent exists
 	if(_p_parent)
 	{
@@ -803,18 +1063,22 @@ std::vector<int_t> ParamHierarchyLevel::get_ID_seq() const
 
 		res.push_back(get_local_ID());
 
+	    DEBUG_LOG() << "Exiting ParamHierarchyLevel::get_ID_seq method successfully.";
 		return res;
 	}
 	else // Just use this one's ID
 	{
 		std::vector<int_t> res({get_local_ID()});
 
+	    DEBUG_LOG() << "Exiting ParamHierarchyLevel::get_ID_seq method successfully.";
 		return res;
 	}
 }
 
 long_int_t ParamHierarchyLevel::get_full_seed() const
 {
+    DEBUG_LOG() << "Entering " << get_name() << "<ParamHierarchyLevel>::get_full_seed method.";
+
 	// Start with the actual seed value
 	long_int_t seed = get_seed();
 
@@ -827,6 +1091,7 @@ long_int_t ParamHierarchyLevel::get_full_seed() const
 	// Add the full ID, so that each object will get a unique value for this function
 	seed += get_full_ID();
 
+    DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_full_seed method successfully.";
 	return seed;
 }
 
@@ -838,6 +1103,7 @@ void ParamHierarchyLevel::set_seed()
 
 void ParamHierarchyLevel::set_seed( int_t const & seed )
 {
+    DEBUG_LOG() << "Entering ParamHierarchyLevel::set_seed method.";
 	// Clear the cache
 	_clear_own_param_cache();
 
@@ -856,6 +1122,7 @@ void ParamHierarchyLevel::set_seed( int_t const & seed )
 	{
 		child->set_seed(seed);
 	}
+    DEBUG_LOG() << "Exiting ParamHierarchyLevel::set_seed method successfully.";
 }
 
 } // namespace SHE_SIM

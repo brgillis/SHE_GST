@@ -1,56 +1,36 @@
-#!/usr/bin/env python
+""" @file run_from_config.py
 
-"""gen_galsim_images.py
-   Created by Bryan Gillis, March 2014
-   Last edited by brg, 11 Aug 2015
+    Created 27 Mar 2017
 
-   Contact: brg@roe.ac.uk
+    Functions to apply configurations and run one of the programs
 
-   Requirements: GalSim toolkit (and its requirements).
-   GalSim can be downloaded from https://github.com/GalSim-developers/GalSim, and see
-   https://github.com/GalSim-developers/GalSim/wiki/Installation-Instructions for its
-   installation requirements.
+    ---------------------------------------------------------------------
 
-   This is a script to generate a set of seeded random images using the GalSim toolkit,
-   suitable for Euclid benchmarking tests of shear-measurement algorithms.
-   This script should be invoked with a command that points it to an appropriate
-   configuration script, for instance through:
+    Copyright (C) 2017 Bryan R. Gillis
 
-   $ python gen_galsim_images.py my_config.cfg
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-   See the sample configuration files included with this script for the proper format.
-   It is recommended that you start with an appropriate configuration script and modify
-   it to suit your purposes.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-   If a configuration file is not passed to this script, it will use the set of default
-   configuration values assigned in the load_default_configurations(...) function below.
-
-   NOTE 1: If you got this script or the configuration file from someone else, check the
-   output directory and change it if necessary. It can use absolute paths, and the
-   folders will be created if necessary, which may result in creating a file structure
-   you don't want.
-
-   NOTE 2: If you see odd bugs in running this, it's possibly due to a parallelization bug.
-   This script assumes that all of the process it calls are not parallelized, and if they
-   are, it can lead to clashes between threads. You can try fixing this by setting the
-   following environmental variables before run (which one is actually needed depends on
-   the specifics of your installation):
-       export MKL_NUM_THREADS=1
-       export NUMEXPR_NUM_THREADS=1
-       export OPENBLAS_NUM_THREADS=1
-    If this doesn't work, please let me know at brg@roe.ac.uk, and I'll try to figure out
-    what's going on.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import subprocess
 
 from SHE_SIM_galaxy_image_generation import magic_values as mv
-from SHE_SIM_galaxy_image_generation.config.config_default import (allowed_options,
-                                                            allowed_fixed_params,
-                                                            allowed_survey_settings,
-                                                            generation_levels,
-                                                            generation_levels_inverse)
-from SHE_SIM_galaxy_image_generation.generate_images import generate_images
+from SHE_SIM_galaxy_image_generation.config.config_default import (allowed_survey_settings,
+                                                                   generation_levels_inverse,)
+from SHE_SIM_galaxy_image_generation.config.parse_config import (set_up_from_config_file,
+                                                                 load_default_configurations,
+                                                                 get_cfg_args,
+                                                                 apply_args)
 from icebrgpy.logging import getLogger
 
 
@@ -61,36 +41,50 @@ try:
 except ImportError as _e:
     have_pyfftw = False
 
-def clean_quotes(s):
-    if not isinstance(s, basestring): return s
 
-    if s[0] == "'" and s[-1] == "'":
-        s = s[1:-1]
-    if s[0] == '"' and s[-1] == '"':
-        s = s[1:-1]
-
-    return s
-
-
-def run_from_config_file(config_file_name):
+def run_from_config_file(func, config_file_name, *args, **kwargs):
 
     survey, options = set_up_from_config_file(config_file_name)
 
-    run_from_survey_and_options(survey, options)
+    run_from_survey_and_options(func, survey, options, *args, **kwargs)
 
     return
 
-def run_from_config_file_and_args(config_file_name, args):
+def run_from_args(func, cline_args, *args, **kwargs):
+
+    logger = getLogger(mv.logger_name)
+    logger.debug("# Entering run_from_args method.")
+
+    # Load defaults
+    survey, options = load_default_configurations()
+    
+    # Apply arguments in extra config files specified
+    for config_file_name in cline_args.config_files:
+        logger.debug('Applying arguments from config file: ' + config_file_name)
+        cfg_args = get_cfg_args(config_file_name)
+        apply_args(survey, options, cfg_args)
+    
+    # Apply cline-args
+    apply_args(survey, options, cline_args)
+
+    run_from_survey_and_options(func, survey, options, *args, **kwargs)
+    
+    logger.debug("# Exiting run_from_args method.")
+
+    return
+
+def run_from_config_file_and_args(func, config_file_name, cline_args, *args, **kwargs):
 
     survey, options = set_up_from_config_file(config_file_name)
+    
+    # Apply cline-args
+    apply_args(survey, options, cline_args)
 
-    apply_args(survey, options, args)
-
-    run_from_survey_and_options(survey, options)
+    run_from_survey_and_options(func, survey, options, *args, **kwargs)
 
     return
 
-def run_from_survey_and_options(survey, options):
+def run_from_survey_and_options(func, survey, options, *args, **kwargs):
 
     # Check if the folder path was given with a slash at the end. If so, trim it
     if(options['output_folder'][-1] == '/'):
@@ -99,27 +93,27 @@ def run_from_survey_and_options(survey, options):
     logger = getLogger(mv.logger_name)
 
     # Print all options we're using to the logger
-    logger.info("# Generating images with the following options: #")
-    logger.info("")
+    logger.debug("# Running with the following options: #")
+    logger.debug("")
     for name in options:
-        logger.info(name + ": " + str(options[name]))
-        logger.info("")
+        logger.debug(name + ": " + str(options[name]))
+        logger.debug("")
 
     # Print survey settings and levels too
-    logger.info("# And using the following settings for the physical model: #")
-    logger.info("")
+    logger.debug("# And using the following settings for the physical model: #")
+    logger.debug("")
     for name in allowed_survey_settings:
 
         gen_level = generation_levels_inverse[int(survey.get_generation_level(name))]
-        logger.info(name + " generation level: " + gen_level)
+        logger.debug(name + " generation level: " + gen_level)
 
         param_params = survey.get_param(name).get_params()
         pp_mode = param_params.name()
-        logger.info(name + " generation mode: " + pp_mode)
+        logger.debug(name + " generation mode: " + pp_mode)
         pp_params = param_params.get_parameters_string()
-        logger.info(name + " generation parameters: " + pp_params)
+        logger.debug(name + " generation parameters: " + pp_params)
 
-        logger.info("")
+        logger.debug("")
 
     # Ensure that the output folder exists
     cmd = 'mkdir -p ' + options['output_folder']
@@ -133,90 +127,11 @@ def run_from_survey_and_options(survey, options):
         except IOError as _e:
             pass
 
-    # We have the input we want, now generate the images
-    generate_images(survey, options)
+    # We have the input we want, now run the program
+    func(survey, options, *args, **kwargs)
 
     # Save fftw wisdom
     if have_pyfftw:
         pickle.dump(pyfftw.export_wisdom(), open(mv.fftw_wisdom_filename, "wb"))
-
-    return
-
-def set_up_from_config_file(config_file_name):
-
-    if config_file_name == "":
-        from SHE_SIM_galaxy_image_generation.config.config_default import load_default_configurations
-        survey, options = load_default_configurations()
-
-    else:
-
-        # Open and read in the config file
-        with open(config_file_name, 'r') as config_file:
-
-            # Read in the file, except for comment lines
-            config_lines = []
-            for config_line in config_file:
-                if((config_line[0] != '#') and (len(config_line.strip()) > 0)):
-                    config_lines.append(config_line.strip())
-
-            # Get configuration file version from first line
-            version = str(config_lines[0].split()[-1])
-
-            # Check which configuration file version it is. This allows potential backwards-compatibility with
-            # older config files.
-            if(version == '2.0'):
-
-                from SHE_SIM_galaxy_image_generation.config.config_v2_0 import load_config_2_0
-                survey, options = load_config_2_0(config_lines[1:])
-
-            else:
-                raise Exception("Unsupported config file version or improperly formatted"
-                + "configuration file. Please check sample files and ensure it has"
-                + "one of the proper formats and versions.")
-
-            # End reading in the configuration file
-
-    return survey, options
-
-def apply_args(survey, options, args):
-
-    arg_lib = vars(args)
-
-    # Check if each option was overriden in the args
-    for option in allowed_options:
-        if option in arg_lib:
-            if arg_lib[option] is not None:
-                options[option] = clean_quotes(arg_lib[option])
-
-    # Add allowed fixed params
-    for fixed_param in allowed_fixed_params:
-        if fixed_param in arg_lib:
-            if arg_lib[fixed_param] is not None:
-                survey.set_param_params(fixed_param, 'fixed', clean_quotes(arg_lib[fixed_param]))
-
-
-    # Add allowed survey settings, with both level and setting possibilities
-    for param_name in allowed_survey_settings:
-
-        generation_level_name = param_name + "_level"
-        if generation_level_name in arg_lib:
-            if arg_lib[generation_level_name] is not None:
-                survey.set_generation_level(param_name,
-                                            generation_levels[clean_quotes(arg_lib[generation_level_name])])
-
-
-        settings_name = param_name + "_setting"
-        if settings_name in arg_lib:
-            if arg_lib[settings_name] is not None:
-
-                split_params = clean_quotes(arg_lib[settings_name]).split()
-
-                flt_args = []
-                for str_arg in split_params[1:]:
-                    flt_args.append(float(str_arg.strip()))
-
-                survey.set_param_params(param_name, split_params[0].strip(), *flt_args)
-        else:
-            assert(False)
 
     return

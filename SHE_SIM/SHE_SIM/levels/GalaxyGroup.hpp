@@ -36,6 +36,7 @@ namespace SHE_SIM
 {
 
 // Forward-declare children
+class GalaxyPair;
 class Galaxy;
 
 /**
@@ -59,9 +60,13 @@ public:
 	// Methods to add children
 #if(1)
 
-	Galaxy * add_galaxy();
+	GalaxyPair * add_galaxy_pair();
 
-	void add_galaxies(int_t const & N);
+	void add_galaxy_pairs(int_t const & N);
+
+    Galaxy * add_galaxy();
+
+    void add_galaxies(int_t const & N);
 
 #endif
 

@@ -25,7 +25,7 @@
 
 # Version info
 version_label = 'SS_VER'
-version_str = '1.0.3'
+version_str = '1.0.4'
 
 galsim_version_label = 'GS_VER'
 
@@ -52,6 +52,8 @@ default_dithering_scheme = 'none'
 default_num_images = 1
 default_gain = 3.3
 default_pixel_scale = 0.1
+default_psf_scale_factor = 5
+default_psf_center_offset = (-0.5,-2.5)
 default_read_noise = 5.4
 default_sky_level = 32570.
 default_exp_time = 565. # seconds
@@ -77,8 +79,8 @@ fpack_lossless_command = "fpack -g2 -q 0.0 "
 fpack_lossy_command = "fpack -g2 -q 4.0 "
 rm_command = "rm -f "
 
-ascii_details_file_tail = "_details.dat"
-fits_details_file_tail = "_details.fits"
+detections_file_tail = "_detections"
+details_file_tail = "_details"
 
 bulge_model_head = "2dmodel_bulge_n"
 disk_model_head = "3dmodel_disk_n"
@@ -90,4 +92,15 @@ psf_model_scale = 0.02 # arcsec/pixel
 
 fftw_wisdom_filename = ".fftw_wisdom"
 
-logger_name = "GenGalsimImages"
+logger_name = "SHE_SIM_galaxy_image_generation"
+
+detections_table_ID_label = 'ID'
+detections_table_gal_xc_label = 'x_center_pix'
+detections_table_gal_yc_label = 'y_center_pix'
+detections_table_psf_xc_label = 'psf_x_center_pix'
+detections_table_psf_yc_label = 'psf_y_center_pix'
+
+fits_header_subtracted_sky_level_label = "S_SKYLV"
+fits_header_unsubtracted_sky_level_label = "US_SKYLV"
+fits_header_read_noise_label = "RD_NOISE"
+fits_header_gain_label = "CCDGAIN"

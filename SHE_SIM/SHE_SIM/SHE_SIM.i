@@ -43,6 +43,7 @@
 	#include "SHE_SIM/levels/FieldGroup.hpp"
 	#include "SHE_SIM/levels/Galaxy.hpp"
 	#include "SHE_SIM/levels/GalaxyGroup.hpp"
+	#include "SHE_SIM/levels/GalaxyPair.hpp"
 	#include "SHE_SIM/levels/Image.hpp"
 	#include "SHE_SIM/levels/ImageGroup.hpp"
 	#include "SHE_SIM/levels/Survey.hpp"
@@ -63,6 +64,7 @@
 %include "SHE_SIM/levels/FieldGroup.hpp"
 %include "SHE_SIM/levels/Galaxy.hpp"
 %include "SHE_SIM/levels/GalaxyGroup.hpp"
+%include "SHE_SIM/levels/GalaxyPair.hpp"
 %include "SHE_SIM/levels/Image.hpp"
 %include "SHE_SIM/levels/ImageGroup.hpp"
 %include "SHE_SIM/levels/Survey.hpp"
@@ -117,6 +119,7 @@ namespace std {
 %template(FieldGroupVector) vector<SHE_SIM::FieldGroup *>;
 %template(GalaxyVector) vector<SHE_SIM::Galaxy *>;
 %template(GalaxyGroupVector) vector<SHE_SIM::GalaxyGroup *>;
+%template(GalaxyPairVector) vector<SHE_SIM::GalaxyPair *>;
 %template(ImageVector) vector<SHE_SIM::Image *>;
 %template(ImageGroupVector) vector<SHE_SIM::ImageGroup *>;
 
