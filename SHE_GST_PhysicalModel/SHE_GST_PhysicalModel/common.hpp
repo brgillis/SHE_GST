@@ -68,7 +68,7 @@ typedef std::unordered_map<name_t,param_param_ptr_t> param_params_t;
 
 // Other info
 
-constexpr const char * const logger_name = "SHE_SIM";
+constexpr const char * const logger_name = "SHE_GST_PM";
 
 }
 
