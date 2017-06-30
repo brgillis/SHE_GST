@@ -52,7 +52,7 @@
 #include "SHE_GST_IceBRG_physics/galaxy_visibility.hpp"
 
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 // Implement default maps
 
@@ -149,4 +149,4 @@ using namespace IceBRG;
 
 #include "SHE_GST_PhysicalModel/src/lib/param_implementation_detail/galaxy_level_param_implementations.hh"
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
