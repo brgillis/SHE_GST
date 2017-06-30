@@ -33,7 +33,7 @@
 
 // General typedefs
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 typedef short int short_int_t;
 typedef int int_t;

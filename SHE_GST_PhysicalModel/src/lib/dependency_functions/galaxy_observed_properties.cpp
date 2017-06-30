@@ -40,7 +40,7 @@
 #include "SHE_GST_PhysicalModel/common.hpp"
 #include "SHE_GST_PhysicalModel/default_values.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 flt_t get_apparent_mag_vis( flt_t const & absolute_mag_vis, flt_t const & redshift )
 {
@@ -79,4 +79,4 @@ flt_t generate_shear_magnitude( flt_t const & , flt_t const & , flt_t const & , 
 
 
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

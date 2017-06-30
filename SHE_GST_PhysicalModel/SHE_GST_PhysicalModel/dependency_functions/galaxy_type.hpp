@@ -30,7 +30,7 @@
 #include "SHE_GST_IceBRG_main/math/misc_math.hpp"
 
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 // Constant definitions for each type
 constexpr const flt_t central_galaxy_type = -1.;
@@ -52,7 +52,7 @@ inline bool is_satellite_galaxy( flt_t const & galaxy_type )
 	return galaxy_type>0;
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 
 

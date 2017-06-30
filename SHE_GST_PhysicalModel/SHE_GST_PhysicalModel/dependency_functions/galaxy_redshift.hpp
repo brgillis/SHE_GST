@@ -29,7 +29,7 @@
 #include "SHE_GST_PhysicalModel/common.hpp"
 #include "SHE_GST_IceBRG_main/units/units.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 flt_t get_cluster_pz( flt_t const & z );
 
@@ -50,7 +50,7 @@ flt_t get_total_enhancement(flt_t const & total_density, flt_t const & z_min, fl
 
 flt_t get_ex_num_cluster_galaxies(flt_t const & num_clusters, flt_t const & z_min, flt_t const & z_max);
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 
 

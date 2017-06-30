@@ -36,7 +36,7 @@
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 #include <SHE_GST_IceBRG_lensing/lensing_tNFW_profile.hpp>
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 using namespace IceBRG;
 

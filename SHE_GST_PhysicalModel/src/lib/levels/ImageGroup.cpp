@@ -34,7 +34,7 @@
 #include "SHE_GST_PhysicalModel/levels/Image.hpp"
 #include "SHE_GST_PhysicalModel/levels/ImageGroup.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 ImageGroup::ImageGroup(ParamHierarchyLevel * const & p_parent)
@@ -57,4 +57,4 @@ void ImageGroup::add_images(int_t const & N)
 
 #endif
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

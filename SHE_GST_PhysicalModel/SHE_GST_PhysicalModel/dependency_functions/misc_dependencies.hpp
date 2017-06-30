@@ -31,7 +31,7 @@
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 // Inlined functions first
 
@@ -128,6 +128,6 @@ flt_t generate_apparent_size_bulge( flt_t const & apparent_mag_vis, gen_t & rng 
 
 flt_t generate_apparent_size_disk( flt_t const & apparent_mag_vis, gen_t & rng );
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 #endif // SHE_SIM_GAL_PARAMS_DEPENDENCY_FUNCTIONS_MISC_DEPENDENCIES_HPP_

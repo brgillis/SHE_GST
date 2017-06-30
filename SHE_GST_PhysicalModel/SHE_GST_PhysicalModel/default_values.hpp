@@ -28,7 +28,7 @@
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 
-namespace SHE_SIM { namespace dv {
+namespace SHE_GST_PhysicalModel { namespace dv {
 
 // Survey-level
 
@@ -154,7 +154,7 @@ constexpr const flt_t xp_max = image_size_xp;
 constexpr const flt_t yp_min = 0.;
 constexpr const flt_t yp_max = image_size_yp;
 
-} } // namespace SHE_SIM{ namespace dv{
+} } // namespace SHE_GST_PhysicalModel{ namespace dv{
 
 
 

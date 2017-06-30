@@ -33,7 +33,7 @@
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 // Implement the random number generator engine
 gen_t rng;
@@ -115,4 +115,4 @@ flt_t rand_from_pdf( std::function<flt_t(flt_t const &)> const & f, int_t const 
 	return res;
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

@@ -38,7 +38,7 @@
 #include "SHE_GST_PhysicalModel/dependency_functions/galaxy_size_detail.hpp"
 #include "SHE_GST_PhysicalModel/dependency_functions/misc_dependencies.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 using namespace IceBRG;
 
@@ -236,6 +236,6 @@ gal_size_scatter_cache_t load_gal_size_scatter_disk_cache()
 			std::move(sigma_l10_R_array));
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 

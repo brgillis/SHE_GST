@@ -28,7 +28,7 @@
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 constexpr flt_t const Omega_m = 0.288; // WMAP9 + priors
 constexpr flt_t const Omega_r = 0.000086; // WMAP9 + priors
@@ -65,6 +65,6 @@ flt_t get_relative_luminosity_distance( const flt_t & z1, const flt_t & z2 );
 
 flt_t get_apparent_magnitude_at_other_redshift( const flt_t & mag1, const flt_t & z1, const flt_t & z2);
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 #endif // SHE_SIM_GAL_PARAMS_DEPENDENCY_FUNCTIONS_COSMOLOGY_HPP_

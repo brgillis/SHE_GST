@@ -35,7 +35,7 @@
 #include "SHE_GST_PhysicalModel/param_params/IndFixed.hpp"
 #include "SHE_GST_PhysicalModel/levels/Survey.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 struct PHL_copy_fixture {
@@ -88,4 +88,4 @@ BOOST_FIXTURE_TEST_CASE(test_PHL_copy_assign, PHL_copy_fixture) {
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

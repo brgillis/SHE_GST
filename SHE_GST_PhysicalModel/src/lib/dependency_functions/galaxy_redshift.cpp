@@ -38,7 +38,7 @@
 #include "SHE_GST_IceBRG_physics/galaxy_visibility.hpp"
 
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 flt_t get_cluster_pz( flt_t const & z )
 {
@@ -114,4 +114,4 @@ flt_t get_ex_num_cluster_galaxies(flt_t const & num_clusters, flt_t const & z_mi
 	return num_clusters*mean_richness;
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

@@ -38,7 +38,7 @@
 #include "SHE_GST_PhysicalModel/levels/ImageGroup.hpp"
 #include "SHE_GST_PhysicalModel/levels/Image.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 struct PHL_ID_fixture {
@@ -112,4 +112,4 @@ BOOST_FIXTURE_TEST_CASE(test_PHL_ID, PHL_ID_fixture) {
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

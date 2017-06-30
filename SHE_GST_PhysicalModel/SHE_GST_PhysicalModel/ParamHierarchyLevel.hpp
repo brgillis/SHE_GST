@@ -42,7 +42,7 @@
 #include "SHE_GST_PhysicalModel/ParamGenerator.hpp"
 #include "SHE_GST_PhysicalModel/ParamParam.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 // Forward declare ParamGenerator
@@ -653,6 +653,6 @@ public:
 
 }; // ParamHierarchyLevel
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 #endif // SHE_SIM_GAL_PARAMS_PARAMHIERARCHYLEVEL_HPP_

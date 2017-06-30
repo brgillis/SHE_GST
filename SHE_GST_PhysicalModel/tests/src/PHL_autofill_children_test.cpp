@@ -43,7 +43,7 @@
 #include "SHE_GST_PhysicalModel/levels/Survey.hpp"
 #include "SHE_GST_PhysicalModel/default_values.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 using namespace IceBRG;
@@ -105,4 +105,4 @@ BOOST_FIXTURE_TEST_CASE(test_PHL_autofill_children, PHL_autofill_children_fixtur
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

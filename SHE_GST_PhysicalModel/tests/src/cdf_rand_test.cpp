@@ -35,7 +35,7 @@
 #include "SHE_GST_PhysicalModel/common.hpp"
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 struct cdf_rand_fixture {
@@ -101,4 +101,4 @@ BOOST_FIXTURE_TEST_CASE(test_cdf_rand, cdf_rand_fixture) {
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

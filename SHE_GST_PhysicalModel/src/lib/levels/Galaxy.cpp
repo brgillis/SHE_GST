@@ -33,7 +33,7 @@
 #include "SHE_GST_PhysicalModel/dependency_functions/galaxy_type.hpp"
 #include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 Galaxy::Galaxy(ParamHierarchyLevel * const & p_parent)
@@ -60,15 +60,15 @@ void Galaxy::set_as_foreground_galaxy()
 
 bool Galaxy::is_central_galaxy()
 {
-	return ::SHE_SIM::is_central_galaxy(get_param_value(galaxy_type_name));
+	return ::SHE_GST_PhysicalModel::is_central_galaxy(get_param_value(galaxy_type_name));
 }
 bool Galaxy::is_field_galaxy()
 {
-	return ::SHE_SIM::is_field_galaxy(get_param_value(galaxy_type_name));
+	return ::SHE_GST_PhysicalModel::is_field_galaxy(get_param_value(galaxy_type_name));
 }
 bool Galaxy::is_satellite_galaxy()
 {
-	return ::SHE_SIM::is_satellite_galaxy(get_param_value(galaxy_type_name));
+	return ::SHE_GST_PhysicalModel::is_satellite_galaxy(get_param_value(galaxy_type_name));
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

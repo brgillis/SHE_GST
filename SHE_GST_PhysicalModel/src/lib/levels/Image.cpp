@@ -43,7 +43,7 @@
 #include "SHE_GST_PhysicalModel/levels/GalaxyPair.hpp"
 #include "SHE_GST_PhysicalModel/levels/Image.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 using namespace IceBRG;
@@ -195,4 +195,4 @@ void Image::autofill_field()
 
 #endif
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

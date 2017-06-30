@@ -41,7 +41,7 @@
 #define DEBUGGING false
 #define DEBUG_LOG() if(DEBUGGING) logger.info()
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 static auto logger = ICEBRG_GET_LOGGER(logger_name);
@@ -384,4 +384,4 @@ const level_t & ParamGenerator::level_generated_at() const
 	return _p_owner->get_generation_level(name());
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

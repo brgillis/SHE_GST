@@ -52,7 +52,7 @@
 #define DEBUGGING false
 #define DEBUG_LOG() if(DEBUGGING) logger.info()
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 static auto logger = ICEBRG_GET_LOGGER(logger_name);
@@ -1126,4 +1126,4 @@ void ParamHierarchyLevel::set_seed( int_t const & seed )
     DEBUG_LOG() << "Exiting ParamHierarchyLevel::set_seed method successfully.";
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

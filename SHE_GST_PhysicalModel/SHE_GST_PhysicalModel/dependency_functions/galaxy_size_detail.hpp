@@ -32,7 +32,7 @@
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 typedef Eigen::Array<flt_t,Eigen::Dynamic,1> gal_size_array_t;
 typedef std::tuple< gal_size_array_t, gal_size_array_t, gal_size_array_t > med_gal_size_cache_t;
@@ -54,7 +54,7 @@ flt_t generate_physical_size( flt_t const & redshift,
 		gal_size_scatter_cache_t const & gal_size_scatter_cache,
 		gen_t & rng );
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 
 

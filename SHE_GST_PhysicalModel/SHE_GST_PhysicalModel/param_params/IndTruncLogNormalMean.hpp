@@ -33,7 +33,7 @@
 #include "SHE_GST_PhysicalModel/ParamParam.hpp"
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 /**
@@ -105,6 +105,6 @@ public:
 	}
 };
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 #endif // SHE_SIM_GAL_PARAMS_PARAM_PARAMS_INDTRUNCLOGNORMALMEAN_HPP_

@@ -53,7 +53,7 @@
 #include "SHE_GST_PhysicalModel/ParamParam.hpp"
 #include "SHE_GST_PhysicalModel/ParamParam.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 extern const param_params_t param_params_map;
 
@@ -95,6 +95,6 @@ inline param_params_t make_full_param_params_map()
 
 } // param_params_t get_full_param_params_map()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 #endif // SHE_SIM_GAL_PARAMS_MAKE_PARAM_PARAMS_MAP_HPP_

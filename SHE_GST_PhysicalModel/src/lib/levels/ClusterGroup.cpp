@@ -34,7 +34,7 @@
 #include "SHE_GST_PhysicalModel/levels/Cluster.hpp"
 #include "SHE_GST_PhysicalModel/levels/ClusterGroup.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 ClusterGroup::ClusterGroup(ParamHierarchyLevel * const & p_parent)
@@ -57,4 +57,4 @@ void ClusterGroup::add_clusters(int_t const & N)
 
 #endif
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

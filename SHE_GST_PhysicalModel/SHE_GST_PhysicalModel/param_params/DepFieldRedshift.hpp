@@ -34,7 +34,7 @@
 #include "SHE_GST_PhysicalModel/dependency_functions/galaxy_redshift.hpp"
 #include "SHE_GST_PhysicalModel/param_params/IndClusterRedshift.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 /**
@@ -130,6 +130,6 @@ public:
 	}
 };
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 #endif // SHE_SIM_GAL_PARAMS_PARAM_PARAMS_DEPFIELDREDSHIFT_HPP_

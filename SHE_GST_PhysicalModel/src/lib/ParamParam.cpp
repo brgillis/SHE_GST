@@ -31,7 +31,7 @@
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 // Initialization
@@ -79,4 +79,4 @@ name_t ParamParam::_get_name_from_mode( Mode const & mode ) const
 	}
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

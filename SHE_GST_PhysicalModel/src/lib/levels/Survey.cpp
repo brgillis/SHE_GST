@@ -38,7 +38,7 @@
 #include "SHE_GST_PhysicalModel/levels/ImageGroup.hpp"
 #include "SHE_GST_PhysicalModel/levels/Survey.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 using namespace IceBRG;
@@ -83,4 +83,4 @@ void Survey::fill_images()
 
 #endif
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

@@ -34,7 +34,7 @@
 #include "SHE_GST_PhysicalModel/levels/Field.hpp"
 #include "SHE_GST_PhysicalModel/levels/FieldGroup.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 FieldGroup::FieldGroup(ParamHierarchyLevel * const & p_parent)
@@ -57,4 +57,4 @@ void FieldGroup::add_fields(int_t const & N)
 
 #endif
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

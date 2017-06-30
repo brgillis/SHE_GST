@@ -28,12 +28,12 @@
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 extern param_params_t default_param_params_map;
 extern generation_level_map_t default_generation_levels_map;
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 
 

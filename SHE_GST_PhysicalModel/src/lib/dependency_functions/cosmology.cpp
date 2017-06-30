@@ -38,7 +38,7 @@
 #include "SHE_GST_PhysicalModel/dependency_functions/cosmology.hpp"
 #include "SHE_GST_PhysicalModel/dependency_functions/dfa_cache.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 using namespace IceBRG;
 
@@ -72,6 +72,6 @@ flt_t get_apparent_magnitude_at_other_redshift( const flt_t & mag1, const flt_t 
 	return mag2;
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 

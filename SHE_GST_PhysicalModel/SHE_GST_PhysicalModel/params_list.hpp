@@ -33,7 +33,7 @@
 #include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
 
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 class ParamGenerator;
 class ParamHierarchyLevel;
@@ -68,6 +68,6 @@ inline params_t get_full_params_map(ParamHierarchyLevel & owner)
 
 } // params_t get_full_params_map()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 #endif // SHE_SIM_GAL_PARAMS_PARAMS_PARAMS_LIST_HPP_

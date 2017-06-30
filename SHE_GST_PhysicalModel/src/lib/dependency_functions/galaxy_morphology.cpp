@@ -39,7 +39,7 @@
 #include "SHE_GST_PhysicalModel/default_values.hpp"
 #include "SHE_GST_PhysicalModel/dependency_functions/morphology.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 using namespace IceBRG;
 
@@ -271,4 +271,4 @@ flt_t get_bulge_ellipticity( flt_t const & bulge_axis_ratio, flt_t const & tilt 
 }
 
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

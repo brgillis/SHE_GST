@@ -31,7 +31,7 @@
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 #define DECLARE_PARAM(param) \
 extern const name_t param##_name; \
@@ -121,6 +121,6 @@ DECLARE_PARAM(yp)
 
 #undef DECLARE_PARAM
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 #endif // SHE_SIM_GAL_PARAMS_PARAM_DECLARATIONS_HPP_

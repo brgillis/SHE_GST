@@ -41,7 +41,7 @@
 #include "SHE_GST_PhysicalModel/levels/GalaxyGroup.hpp"
 #include "SHE_GST_PhysicalModel/levels/GalaxyPair.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 using namespace IceBRG;
@@ -128,4 +128,4 @@ void Cluster::fill_galaxies()
 
 #endif
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

@@ -43,7 +43,7 @@
 #include "SHE_GST_PhysicalModel/param_params/IndTruncRayleigh.hpp"
 #include "SHE_GST_PhysicalModel/param_params/IndUniform.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 struct param_param_fixture {
@@ -205,4 +205,4 @@ BOOST_FIXTURE_TEST_CASE(test_poisson, param_param_fixture) {
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

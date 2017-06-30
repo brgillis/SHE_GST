@@ -30,7 +30,7 @@
 #include "SHE_GST_IceBRG_main/Eigen.hpp"
 
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 constexpr int_t num_bulge_classes=5;
 

@@ -32,7 +32,7 @@
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 typedef Eigen::Array<flt_t,Eigen::Dynamic,1> dfa_array_t;
 typedef std::pair< dfa_array_t, dfa_array_t > dfa_cache_t;
@@ -41,7 +41,7 @@ extern const dfa_cache_t dfa_cache;
 
 dfa_cache_t load_dfa_cache();
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 
 

@@ -36,7 +36,7 @@
 #include "SHE_GST_PhysicalModel/levels/Survey.hpp"
 #include "SHE_GST_PhysicalModel/param_params/IndFixed.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 struct gen_params_fixture {
@@ -60,4 +60,4 @@ BOOST_FIXTURE_TEST_CASE(test_gen_params, gen_params_fixture) {
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

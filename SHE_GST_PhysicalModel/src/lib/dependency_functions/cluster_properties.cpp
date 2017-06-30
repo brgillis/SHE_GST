@@ -39,7 +39,7 @@
 #include "SHE_GST_IceBRG_physics/cluster_visibility.hpp"
 #include "SHE_GST_IceBRG_physics/mass_function.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 using namespace IceBRG;
 
@@ -65,4 +65,4 @@ flt_t get_cluster_richness( flt_t const & cluster_mass, flt_t const & cluster_re
 	return richness;
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

@@ -39,7 +39,7 @@
 #include "SHE_GST_PhysicalModel/levels/Survey.hpp"
 #include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 using namespace IceBRG;
@@ -202,4 +202,4 @@ BOOST_FIXTURE_TEST_CASE(test_physical_size, physical_size_fixture) {
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

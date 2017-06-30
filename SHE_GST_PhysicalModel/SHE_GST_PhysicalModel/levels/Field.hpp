@@ -33,7 +33,7 @@
 #include "SHE_GST_PhysicalModel/level_names.hpp"
 #include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 // Forward-declare children
@@ -88,6 +88,6 @@ public:
 
 };
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 #endif // SHE_SIM_GAL_PARAMS_LEVELS_FIELD_HPP_

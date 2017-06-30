@@ -35,7 +35,7 @@
 #include "SHE_GST_PhysicalModel/levels/GalaxyGroup.hpp"
 #include "SHE_GST_PhysicalModel/levels/GalaxyPair.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 GalaxyGroup::GalaxyGroup(ParamHierarchyLevel * const & p_parent)
@@ -68,4 +68,4 @@ void GalaxyGroup::add_galaxies(int_t const & N)
 
 #endif
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

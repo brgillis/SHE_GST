@@ -38,7 +38,7 @@
 #include "SHE_GST_PhysicalModel/levels/Image.hpp"
 #include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
 
-namespace SHE_SIM
+namespace SHE_GST_PhysicalModel
 {
 
 struct hierarchy_fixture {
@@ -181,4 +181,4 @@ BOOST_FIXTURE_TEST_CASE(test_hierarchy, hierarchy_fixture) {
 
 BOOST_AUTO_TEST_SUITE_END ()
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel

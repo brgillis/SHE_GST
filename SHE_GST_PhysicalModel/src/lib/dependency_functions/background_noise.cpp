@@ -33,7 +33,7 @@
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 flt_t get_background_noise( flt_t const & subtracted_background, flt_t const & unsubtracted_background,
 		flt_t const & read_noise, flt_t const & gain, flt_t const & pixel_scale )
@@ -48,6 +48,6 @@ flt_t get_background_noise( flt_t const & subtracted_background, flt_t const & u
 }
 
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 

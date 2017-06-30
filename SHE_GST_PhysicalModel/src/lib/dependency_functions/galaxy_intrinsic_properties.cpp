@@ -43,7 +43,7 @@
 #include "SHE_GST_PhysicalModel/common.hpp"
 #include "SHE_GST_PhysicalModel/default_values.hpp"
 
-namespace SHE_SIM {
+namespace SHE_GST_PhysicalModel {
 
 using namespace IceBRG;
 
@@ -148,6 +148,6 @@ flt_t get_stellar_mass( flt_t const & abs_mag_vis )
 	return stellar_mass_msun;
 }
 
-} // namespace SHE_SIM
+} // namespace SHE_GST_PhysicalModel
 
 
