@@ -143,10 +143,10 @@ param##_initializer param##_initializer_instance;
 
 using namespace IceBRG;
 
-#include "SHE_GST_PhysicalModel/src/lib/param_implementation_detail/high_level_param_implementations.hh"
+#include "param_implementation_detail/high_level_param_implementations.hh"
 
-#include "SHE_GST_PhysicalModel/src/lib/param_implementation_detail/mid_level_param_implementations.hh"
+#include "param_implementation_detail/mid_level_param_implementations.hh"
 
-#include "SHE_GST_PhysicalModel/src/lib/param_implementation_detail/galaxy_level_param_implementations.hh"
+#include "param_implementation_detail/galaxy_level_param_implementations.hh"
 
 } // namespace SHE_GST_PhysicalModel
