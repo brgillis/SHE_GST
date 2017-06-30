@@ -39,7 +39,7 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 
-#include "../../SHE_GST_IceBRG_lensing/lens_source_pair.hpp"
+#include "SHE_GST_IceBRG_lensing/lens_source_pair.hpp"
 #include "SHE_GST_IceBRG_main/common.hpp"
 
 #include "SHE_GST_IceBRG_main/math/statistics/effective_count.hpp"

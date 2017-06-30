@@ -26,7 +26,7 @@
 #ifndef SHE_SIM_GAL_PARAMS_DEPENDENCY_FUNCTIONS_MISC_DEPENDENCIES_HPP_
 #define SHE_SIM_GAL_PARAMS_DEPENDENCY_FUNCTIONS_MISC_DEPENDENCIES_HPP_
 
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
 #include "SHE_GST_IceBRG_main/math/misc_math.hpp"
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 

@@ -31,17 +31,17 @@
 
 #include "SHE_GST_IceBRG_main/math/misc_math.hpp"
 
-#include "../../../SHE_GST_PhysicalModel/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/params_list.hpp"
-#include "../../../SHE_GST_PhysicalModel/param_declarations.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/Cluster.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/ClusterGroup.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/Field.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/FieldGroup.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/Galaxy.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/GalaxyGroup.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/GalaxyPair.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/Image.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/params_list.hpp"
+#include "SHE_GST_PhysicalModel/param_declarations.hpp"
+#include "SHE_GST_PhysicalModel/levels/Cluster.hpp"
+#include "SHE_GST_PhysicalModel/levels/ClusterGroup.hpp"
+#include "SHE_GST_PhysicalModel/levels/Field.hpp"
+#include "SHE_GST_PhysicalModel/levels/FieldGroup.hpp"
+#include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
+#include "SHE_GST_PhysicalModel/levels/GalaxyGroup.hpp"
+#include "SHE_GST_PhysicalModel/levels/GalaxyPair.hpp"
+#include "SHE_GST_PhysicalModel/levels/Image.hpp"
 
 namespace SHE_SIM
 {

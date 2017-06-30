@@ -28,10 +28,10 @@
 
 #include <utility>
 
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/default_values.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/level_names.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/ParamHierarchyLevel.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/default_values.hpp"
+#include "SHE_GST_PhysicalModel/level_names.hpp"
+#include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
 
 namespace SHE_SIM
 {

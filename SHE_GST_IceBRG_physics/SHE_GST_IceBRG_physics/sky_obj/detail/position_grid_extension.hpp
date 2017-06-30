@@ -30,7 +30,7 @@
 
 #include <cassert>
 
-#include "../../../SHE_GST_IceBRG_physics/sky_obj/detail/position_grid_cache.hpp"
+#include "SHE_GST_IceBRG_physics/sky_obj/detail/position_grid_cache.hpp"
 #include "SHE_GST_IceBRG_main/common.hpp"
 
 

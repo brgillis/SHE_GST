@@ -31,7 +31,7 @@
 
 #include "SHE_GST_IceBRG_main/math/misc_math.hpp"
 
-#include "../../../SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
 
 namespace SHE_SIM {
 

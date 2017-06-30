@@ -24,27 +24,27 @@
  \**********************************************************************/
 
 
-#include "../../SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
+#include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
 
 #include <ctime>
 #include <memory>
 #include <random>
 #include <utility>
 
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/ParamGenerator.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/ParamParam.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Cluster.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/ClusterGroup.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Field.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/FieldGroup.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Galaxy.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/GalaxyGroup.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/GalaxyPair.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Image.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/ImageGroup.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Survey.hpp"
-#include "../../SHE_GST_PhysicalModel/params_list.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/ParamGenerator.hpp"
+#include "SHE_GST_PhysicalModel/ParamParam.hpp"
+#include "SHE_GST_PhysicalModel/levels/Cluster.hpp"
+#include "SHE_GST_PhysicalModel/levels/ClusterGroup.hpp"
+#include "SHE_GST_PhysicalModel/levels/Field.hpp"
+#include "SHE_GST_PhysicalModel/levels/FieldGroup.hpp"
+#include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
+#include "SHE_GST_PhysicalModel/levels/GalaxyGroup.hpp"
+#include "SHE_GST_PhysicalModel/levels/GalaxyPair.hpp"
+#include "SHE_GST_PhysicalModel/levels/Image.hpp"
+#include "SHE_GST_PhysicalModel/levels/ImageGroup.hpp"
+#include "SHE_GST_PhysicalModel/levels/Survey.hpp"
+#include "SHE_GST_PhysicalModel/params_list.hpp"
 #include "SHE_GST_IceBRG_main/logging.hpp"
 
 

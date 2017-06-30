@@ -27,9 +27,9 @@
 #ifndef SHE_SIM_GAL_PARAMS_PARAM_DECLARATIONS_HPP_
 #define SHE_SIM_GAL_PARAMS_PARAM_DECLARATIONS_HPP_
 
-#include "../SHE_GST_PhysicalModel/ParamGenerator.hpp"
+#include "SHE_GST_PhysicalModel/ParamGenerator.hpp"
 
-#include "../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
 
 namespace SHE_SIM {
 

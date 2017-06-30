@@ -30,7 +30,7 @@
 
 #include <SHE_GST_IceBRG_physics/sky_obj/galaxy.hpp>
 
-#include "../SHE_GST_IceBRG_lensing/detail/source_obj.hpp"
+#include "SHE_GST_IceBRG_lensing/detail/source_obj.hpp"
 
 
 namespace IceBRG {

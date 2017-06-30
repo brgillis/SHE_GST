@@ -28,9 +28,9 @@
 
 #include <utility>
 
-#include "../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
-#include "../../SHE_GST_PhysicalModel/SHE_SIM/ParamGenerator.hpp"
-#include "../../SHE_GST_PhysicalModel/SHE_SIM/ParamHierarchyLevel.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/ParamGenerator.hpp"
+#include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
 
 
 namespace SHE_SIM {

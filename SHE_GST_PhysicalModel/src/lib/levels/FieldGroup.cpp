@@ -29,10 +29,10 @@
 
 #include <utility>
 
-#include "../../../SHE_GST_PhysicalModel/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/params_list.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/Field.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/FieldGroup.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/params_list.hpp"
+#include "SHE_GST_PhysicalModel/levels/Field.hpp"
+#include "SHE_GST_PhysicalModel/levels/FieldGroup.hpp"
 
 namespace SHE_SIM
 {

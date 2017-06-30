@@ -25,10 +25,10 @@
 #ifndef _BRG_TNFW_GALAXY_H_
 #define _BRG_TNFW_GALAXY_H_
 
-#include "../../SHE_GST_IceBRG_physics/density_profile/detail/density_profile.hpp"
-#include "../../SHE_GST_IceBRG_physics/density_profile/tNFW_profile.hpp"
-#include "../../SHE_GST_IceBRG_physics/sky_obj/detail/sky_obj.hpp"
-#include "../../SHE_GST_IceBRG_physics/sky_obj/galaxy.hpp"
+#include "SHE_GST_IceBRG_physics/density_profile/detail/density_profile.hpp"
+#include "SHE_GST_IceBRG_physics/density_profile/tNFW_profile.hpp"
+#include "SHE_GST_IceBRG_physics/sky_obj/detail/sky_obj.hpp"
+#include "SHE_GST_IceBRG_physics/sky_obj/galaxy.hpp"
 #include "SHE_GST_IceBRG_main/common.hpp"
 
 

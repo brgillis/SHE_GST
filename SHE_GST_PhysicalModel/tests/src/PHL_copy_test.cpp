@@ -30,10 +30,10 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "../../SHE_GST_PhysicalModel/common.hpp"
-#include "../../SHE_GST_PhysicalModel/param_declarations.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/IndFixed.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Survey.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/param_declarations.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndFixed.hpp"
+#include "SHE_GST_PhysicalModel/levels/Survey.hpp"
 
 namespace SHE_SIM
 {

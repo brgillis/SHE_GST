@@ -32,7 +32,7 @@
 #include <boost/units/get_dimension.hpp>
 #include <boost/units/is_quantity.hpp>
 
-#include "../../SHE_GST_IceBRG_main/container/is_stl_container.hpp"
+#include "SHE_GST_IceBRG_main/container/is_stl_container.hpp"
 #include "SHE_GST_IceBRG_main/common.hpp"
 
 #include "SHE_GST_IceBRG_main/container/is_eigen_container.hpp"

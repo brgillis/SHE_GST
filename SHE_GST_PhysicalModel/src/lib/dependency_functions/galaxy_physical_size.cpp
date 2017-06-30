@@ -32,11 +32,11 @@
 #include "SHE_GST_IceBRG_physics/constants.hpp"
 #include "SHE_GST_IceBRG_physics/cosmology.hpp"
 
-#include "../../../SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
 
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/cosmology.hpp"
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/galaxy_size_detail.hpp"
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/misc_dependencies.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/cosmology.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/galaxy_size_detail.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/misc_dependencies.hpp"
 
 namespace SHE_SIM {
 

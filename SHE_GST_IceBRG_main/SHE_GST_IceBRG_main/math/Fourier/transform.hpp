@@ -32,7 +32,7 @@
 #include <boost/optional.hpp>
 #include <fftw3.h>
 
-#include "../../../SHE_GST_IceBRG_main/math/Fourier/management.hpp"
+#include "SHE_GST_IceBRG_main/math/Fourier/management.hpp"
 #include "SHE_GST_IceBRG_main/Eigen.hpp"
 #include "SHE_GST_IceBRG_main/container/coerce.hpp"
 #include "SHE_GST_IceBRG_main/container/is_eigen_container.hpp"

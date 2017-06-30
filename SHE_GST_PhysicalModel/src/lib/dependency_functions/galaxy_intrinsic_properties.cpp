@@ -38,10 +38,10 @@
 #include "SHE_GST_IceBRG_physics/abundance_matching.hpp"
 #include "SHE_GST_IceBRG_physics/luminosity.hpp"
 
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/galaxy_type.hpp"
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/misc_dependencies.hpp"
-#include "../../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/default_values.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/galaxy_type.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/misc_dependencies.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/default_values.hpp"
 
 namespace SHE_SIM {
 

@@ -29,10 +29,10 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "../SHE_GST_PhysicalModel/common.hpp"
-#include "../SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
 
-#include "../../SHE_GST_PhysicalModel/SHE_SIM/ParamParam.hpp"
+#include "SHE_GST_PhysicalModel/ParamParam.hpp"
 
 namespace SHE_SIM
 {

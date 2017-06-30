@@ -30,7 +30,7 @@
 
 #include <Eigen/Core>
 
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
 
 namespace SHE_SIM {
 

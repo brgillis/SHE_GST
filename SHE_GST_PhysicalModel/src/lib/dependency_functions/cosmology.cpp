@@ -34,9 +34,9 @@
 #include "SHE_GST_IceBRG_main/units/units.hpp"
 #include "SHE_GST_IceBRG_physics/distance_measures.hpp"
 
-#include "../../../SHE_GST_PhysicalModel/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/cosmology.hpp"
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/dfa_cache.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/cosmology.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/dfa_cache.hpp"
 
 namespace SHE_SIM {
 

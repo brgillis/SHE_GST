@@ -35,13 +35,13 @@
 #include "SHE_GST_IceBRG_physics/cluster_visibility.hpp"
 #include "SHE_GST_IceBRG_physics/galaxy_visibility.hpp"
 
-#include "../../SHE_GST_PhysicalModel/common.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Cluster.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Field.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Galaxy.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Image.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Survey.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/default_values.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/levels/Cluster.hpp"
+#include "SHE_GST_PhysicalModel/levels/Field.hpp"
+#include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
+#include "SHE_GST_PhysicalModel/levels/Image.hpp"
+#include "SHE_GST_PhysicalModel/levels/Survey.hpp"
+#include "SHE_GST_PhysicalModel/default_values.hpp"
 
 namespace SHE_SIM
 {

@@ -37,16 +37,16 @@
 #include <boost/iterator.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "../../SHE_GST_IceBRG_main/container/is_stl_container.hpp"
-#include "../../SHE_GST_IceBRG_main/container/labeled_array/labeled_array_col_iterator.hpp"
-#include "../../SHE_GST_IceBRG_main/container/labeled_array/labeled_array_col_reference.hpp"
-#include "../../SHE_GST_IceBRG_main/container/labeled_array/labeled_array_element_iterator.hpp"
-#include "../../SHE_GST_IceBRG_main/container/labeled_array/labeled_array_iterator_chooser.hpp"
-#include "../../SHE_GST_IceBRG_main/container/labeled_array/labeled_array_raw_col_iterator.hpp"
-#include "../../SHE_GST_IceBRG_main/container/labeled_array/labeled_array_raw_row_iterator.hpp"
-#include "../../SHE_GST_IceBRG_main/container/labeled_array/labeled_array_row_iterator.hpp"
-#include "../../SHE_GST_IceBRG_main/container/labeled_array/labeled_array_row_reference.hpp"
-#include "../../SHE_GST_IceBRG_main/container/labeled_array/labeled_array_vecs.hpp"
+#include "SHE_GST_IceBRG_main/container/is_stl_container.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_col_iterator.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_col_reference.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_element_iterator.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_iterator_chooser.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_raw_col_iterator.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_raw_row_iterator.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_row_iterator.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_row_reference.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_vecs.hpp"
 #include "SHE_GST_IceBRG_main/common.hpp"
 
 #include "SHE_GST_IceBRG_main/Eigen.hpp"

@@ -25,27 +25,27 @@
 
 #include <utility>
 
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/Calculated.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/DepFieldRedshift.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/IndArcCos.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/IndClusterRedshift.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/IndContRayleigh.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/IndFixed.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/IndLogNormalMean.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/IndTruncLogNormalMean.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/param_params/IndUniform.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/ParamGenerator.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/ParamHierarchyLevel.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/ParamParam.hpp"
-#include "../../SHE_GST_PhysicalModel/default_param_params.hpp"
-#include "../../SHE_GST_PhysicalModel/default_values.hpp"
-#include "../../SHE_GST_PhysicalModel/dependency_functions/cosmology.hpp"
-#include "../../SHE_GST_PhysicalModel/dependency_functions/galaxy_redshift.hpp"
-#include "../../SHE_GST_PhysicalModel/dependency_functions/galaxy_type.hpp"
-#include "../../SHE_GST_PhysicalModel/dependency_functions/halos.hpp"
-#include "../../SHE_GST_PhysicalModel/dependency_functions/misc_dependencies.hpp"
-#include "../../SHE_GST_PhysicalModel/dependency_functions/morphology.hpp"
-#include "../../SHE_GST_PhysicalModel/param_declarations.hpp"
+#include "SHE_GST_PhysicalModel/param_params/Calculated.hpp"
+#include "SHE_GST_PhysicalModel/param_params/DepFieldRedshift.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndArcCos.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndClusterRedshift.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndContRayleigh.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndFixed.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndLogNormalMean.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndTruncLogNormalMean.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndUniform.hpp"
+#include "SHE_GST_PhysicalModel/ParamGenerator.hpp"
+#include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
+#include "SHE_GST_PhysicalModel/ParamParam.hpp"
+#include "SHE_GST_PhysicalModel/default_param_params.hpp"
+#include "SHE_GST_PhysicalModel/default_values.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/cosmology.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/galaxy_redshift.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/galaxy_type.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/halos.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/misc_dependencies.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/morphology.hpp"
+#include "SHE_GST_PhysicalModel/param_declarations.hpp"
 #include "SHE_GST_IceBRG_main/math/misc_math.hpp"
 #include "SHE_GST_IceBRG_main/units/unit_conversions.hpp"
 #include "SHE_GST_IceBRG_physics/cluster_visibility.hpp"
@@ -143,10 +143,10 @@ param##_initializer param##_initializer_instance;
 
 using namespace IceBRG;
 
-#include "../../../SHE_GST_PhysicalModel/src/lib/param_implementation_detail/high_level_param_implementations.hh"
+#include "SHE_GST_PhysicalModel/src/lib/param_implementation_detail/high_level_param_implementations.hh"
 
-#include "../../../SHE_GST_PhysicalModel/src/lib/param_implementation_detail/mid_level_param_implementations.hh"
+#include "SHE_GST_PhysicalModel/src/lib/param_implementation_detail/mid_level_param_implementations.hh"
 
-#include "../../../SHE_GST_PhysicalModel/src/lib/param_implementation_detail/galaxy_level_param_implementations.hh"
+#include "SHE_GST_PhysicalModel/src/lib/param_implementation_detail/galaxy_level_param_implementations.hh"
 
 } // namespace SHE_SIM

@@ -39,8 +39,8 @@
 #include <boost/container/flat_set.hpp>
 #include <boost/optional.hpp>
 #include <SHE_GST_IceBRG_physics/sky_obj/galaxy.hpp>
-#include "../SHE_GST_IceBRG_lensing/detail/pair_bin.hpp"
-#include "../SHE_GST_IceBRG_lensing/detail/pair_bins_summary.hpp"
+#include "SHE_GST_IceBRG_lensing/detail/pair_bin.hpp"
+#include "SHE_GST_IceBRG_lensing/detail/pair_bins_summary.hpp"
 #include "SHE_GST_IceBRG_main/units/units.hpp"
 
 #include "SHE_GST_IceBRG_main/common.hpp"

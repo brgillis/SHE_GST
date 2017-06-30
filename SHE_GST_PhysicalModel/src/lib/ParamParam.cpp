@@ -23,13 +23,13 @@
 
  \**********************************************************************/
 
-#include "../../SHE_GST_PhysicalModel/ParamParam.hpp"
+#include "SHE_GST_PhysicalModel/ParamParam.hpp"
 
 #include <stdexcept>
 
 #include <boost/bimap.hpp>
 
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
 
 namespace SHE_SIM
 {

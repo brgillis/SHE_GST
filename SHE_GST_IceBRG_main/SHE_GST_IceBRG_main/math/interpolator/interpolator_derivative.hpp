@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include "../../../SHE_GST_IceBRG_main/math/interpolator/interpolator.hpp"
+#include "SHE_GST_IceBRG_main/math/interpolator/interpolator.hpp"
 #include "SHE_GST_IceBRG_main/common.hpp"
 
 #include "SHE_GST_IceBRG_main/utility.hpp"

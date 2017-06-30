@@ -29,7 +29,7 @@
 #include <type_traits>
 #include <iterator>
 
-#include "../../SHE_GST_IceBRG_main/container/is_stl_container.hpp"
+#include "SHE_GST_IceBRG_main/container/is_stl_container.hpp"
 #include "SHE_GST_IceBRG_main/container/is_eigen_container.hpp"
 #include "SHE_GST_IceBRG_main/utility.hpp"
 

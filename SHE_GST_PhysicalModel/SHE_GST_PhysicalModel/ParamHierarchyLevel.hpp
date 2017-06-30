@@ -36,11 +36,11 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "../SHE_GST_PhysicalModel/param_params_map.hpp"
+#include "SHE_GST_PhysicalModel/param_params_map.hpp"
 
-#include "../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
-#include "../../SHE_GST_PhysicalModel/SHE_SIM/ParamGenerator.hpp"
-#include "../../SHE_GST_PhysicalModel/SHE_SIM/ParamParam.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/ParamGenerator.hpp"
+#include "SHE_GST_PhysicalModel/ParamParam.hpp"
 
 namespace SHE_SIM
 {

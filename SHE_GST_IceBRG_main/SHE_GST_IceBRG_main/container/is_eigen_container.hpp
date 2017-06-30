@@ -30,7 +30,7 @@
 
 #include <type_traits>
 
-#include "../../SHE_GST_IceBRG_main/container/is_stl_container.hpp"
+#include "SHE_GST_IceBRG_main/container/is_stl_container.hpp"
 #include "SHE_GST_IceBRG_main/Eigen.hpp"
 
 

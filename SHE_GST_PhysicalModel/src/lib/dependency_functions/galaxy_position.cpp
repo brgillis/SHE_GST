@@ -29,9 +29,9 @@
 
 #include <cmath>
 
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/galaxy_type.hpp"
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/misc_dependencies.hpp"
-#include "../../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/galaxy_type.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/misc_dependencies.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
 
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 #include <SHE_GST_IceBRG_lensing/lensing_tNFW_profile.hpp>

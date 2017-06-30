@@ -30,18 +30,18 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "../../SHE_GST_PhysicalModel/common.hpp"
-#include "../../SHE_GST_PhysicalModel/ParamParam.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndFixed.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndContRayleigh.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndGaussian.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndLogNormalPeak.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndLogNormalMean.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndPoisson.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndRayleigh.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndTruncGaussian.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndTruncRayleigh.hpp"
-#include "../../SHE_GST_PhysicalModel/param_params/IndUniform.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/ParamParam.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndFixed.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndContRayleigh.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndGaussian.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndLogNormalPeak.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndLogNormalMean.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndPoisson.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndRayleigh.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndTruncGaussian.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndTruncRayleigh.hpp"
+#include "SHE_GST_PhysicalModel/param_params/IndUniform.hpp"
 
 namespace SHE_SIM
 {

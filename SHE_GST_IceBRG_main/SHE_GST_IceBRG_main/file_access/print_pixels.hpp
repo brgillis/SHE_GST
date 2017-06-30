@@ -28,7 +28,7 @@
 
 #include <type_traits>
 
-#include "../../SHE_GST_IceBRG_main/container/is_stl_container.hpp"
+#include "SHE_GST_IceBRG_main/container/is_stl_container.hpp"
 #include "SHE_GST_IceBRG_main/file_access/ascii_table_map.hpp"
 #include "SHE_GST_IceBRG_main/file_access/open_file.hpp"
 #include "SHE_GST_IceBRG_main/utility.hpp"

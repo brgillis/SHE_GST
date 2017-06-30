@@ -27,11 +27,11 @@
 #include "config.h"
 #endif
 
-#include "../../../SHE_GST_PhysicalModel/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/params_list.hpp"
-#include "../../../SHE_GST_PhysicalModel/param_declarations.hpp"
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/galaxy_type.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/Galaxy.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/params_list.hpp"
+#include "SHE_GST_PhysicalModel/param_declarations.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/galaxy_type.hpp"
+#include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
 
 namespace SHE_SIM
 {

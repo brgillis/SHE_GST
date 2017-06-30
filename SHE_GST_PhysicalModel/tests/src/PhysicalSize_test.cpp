@@ -32,12 +32,12 @@
 
 #include "SHE_GST_IceBRG_main/math/misc_math.hpp"
 
-#include "../../SHE_GST_PhysicalModel/common.hpp"
-#include "../../SHE_GST_PhysicalModel/default_values.hpp"
-#include "../../SHE_GST_PhysicalModel/param_declarations.hpp"
-#include "../../SHE_GST_PhysicalModel/dependency_functions/galaxy_size_detail.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Survey.hpp"
-#include "../../SHE_GST_PhysicalModel/levels/Galaxy.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/default_values.hpp"
+#include "SHE_GST_PhysicalModel/param_declarations.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/galaxy_size_detail.hpp"
+#include "SHE_GST_PhysicalModel/levels/Survey.hpp"
+#include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
 
 namespace SHE_SIM
 {

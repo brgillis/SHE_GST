@@ -34,10 +34,10 @@
 #include "SHE_GST_IceBRG_main/logging.hpp"
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 
-#include "../../../SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
 
-#include "../../../SHE_GST_PhysicalModel/default_values.hpp"
-#include "../../../SHE_GST_PhysicalModel/dependency_functions/morphology.hpp"
+#include "SHE_GST_PhysicalModel/default_values.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/morphology.hpp"
 
 namespace SHE_SIM {
 

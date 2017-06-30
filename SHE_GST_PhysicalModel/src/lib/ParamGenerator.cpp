@@ -23,15 +23,15 @@
 
  \**********************************************************************/
 
-#include "../../SHE_GST_PhysicalModel/ParamGenerator.hpp"
+#include "SHE_GST_PhysicalModel/ParamGenerator.hpp"
 
 #include <limits>
 #include <stdexcept>
 
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/ParamHierarchyLevel.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/ParamParam.hpp"
-#include "../../SHE_GST_PhysicalModel/default_param_params.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
+#include "SHE_GST_PhysicalModel/ParamParam.hpp"
+#include "SHE_GST_PhysicalModel/default_param_params.hpp"
 #include "SHE_GST_IceBRG_main/logging.hpp"
 
 

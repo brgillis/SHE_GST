@@ -37,7 +37,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 
-#include "../../SHE_GST_IceBRG_main/container/is_stl_container.hpp"
+#include "SHE_GST_IceBRG_main/container/is_stl_container.hpp"
 #include "SHE_GST_IceBRG_main/file_access/open_file.hpp"
 #include "SHE_GST_IceBRG_main/utility.hpp"
 

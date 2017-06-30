@@ -23,7 +23,7 @@
 
 \**********************************************************************/
 
-#include "../../SHE_GST_PhysicalModel/param_params_map.hpp"
+#include "SHE_GST_PhysicalModel/param_params_map.hpp"
 
 namespace SHE_SIM {
 

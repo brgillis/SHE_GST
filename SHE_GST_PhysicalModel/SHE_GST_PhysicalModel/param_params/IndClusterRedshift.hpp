@@ -29,9 +29,9 @@
 #include <initializer_list>
 #include <sstream>
 
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/dependency_functions/galaxy_redshift.hpp"
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/ParamParam.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/dependency_functions/galaxy_redshift.hpp"
+#include "SHE_GST_PhysicalModel/ParamParam.hpp"
 
 namespace SHE_SIM
 {

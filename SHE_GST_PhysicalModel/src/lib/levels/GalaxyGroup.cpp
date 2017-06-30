@@ -29,11 +29,11 @@
 
 #include <vector>
 
-#include "../../../SHE_GST_PhysicalModel/common.hpp"
-#include "../../../SHE_GST_PhysicalModel/params_list.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/Galaxy.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/GalaxyGroup.hpp"
-#include "../../../SHE_GST_PhysicalModel/levels/GalaxyPair.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/params_list.hpp"
+#include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
+#include "SHE_GST_PhysicalModel/levels/GalaxyGroup.hpp"
+#include "SHE_GST_PhysicalModel/levels/GalaxyPair.hpp"
 
 namespace SHE_SIM
 {
