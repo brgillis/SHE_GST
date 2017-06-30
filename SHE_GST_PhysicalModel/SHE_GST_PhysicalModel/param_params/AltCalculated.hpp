@@ -28,8 +28,8 @@
 
 #include <initializer_list>
 
-#include "../../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
-#include "../../SHE_GST_PhysicalModel/ParamParam.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
+#include "SHE_GST_PhysicalModel/ParamParam.hpp"
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 
 namespace SHE_SIM

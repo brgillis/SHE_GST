@@ -33,7 +33,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/bimap.hpp>
 
-#include "../../SHE_GST_PhysicalModel/SHE_SIM/common.hpp"
+#include "SHE_GST_PhysicalModel/common.hpp"
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 
 namespace SHE_SIM

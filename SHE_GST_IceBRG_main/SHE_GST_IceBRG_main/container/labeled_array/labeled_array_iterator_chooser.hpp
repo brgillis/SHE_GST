@@ -32,7 +32,7 @@
 
 #include <boost/type_traits.hpp>
 
-#include "../../../../SHE_GST_IceBRG_main/IceBRG_main/container/labeled_array/labeled_array_element_iterator.hpp"
+#include "SHE_GST_IceBRG_main/container/labeled_array/labeled_array_element_iterator.hpp"
 #include "SHE_GST_IceBRG_main/Eigen.hpp"
 
 

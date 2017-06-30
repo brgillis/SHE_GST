@@ -3,3 +3,4 @@ Install*
 *.pyc
 *.prof
 *.bin
+*.log
