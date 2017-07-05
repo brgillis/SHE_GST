@@ -1,5 +1,5 @@
 """
-    @file GenGalsimImages.py
+    @file GenGalaxyImages.py
 
     Created 23 Mar 2016
 
@@ -7,7 +7,7 @@
 
     ---------------------------------------------------------------------
 
-    Copyright (C) 2016 Bryan R. Gillis
+    Copyright (C) 2016, 2017 Bryan R. Gillis
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ def mainMethod(args):
     logger = getLogger(mv.logger_name)
 
     logger.debug('#')
-    logger.debug('# Entering GenGalsimImages mainMethod()')
+    logger.debug('# Entering GenGalaxyImages mainMethod()')
     logger.debug('#')
 
     if(args.config_file is None and len(args.config_files)==0):
@@ -106,11 +106,11 @@ def mainMethod(args):
                         {"run_from_args":run_from_args,
                          "args":args,
                          "generate_images":generate_images},
-                        filename="gen_galsim_images.prof")
+                        filename="gen_galaxy_images.prof")
     else:
         run_from_args(generate_images, args)
 
-    logger.debug('Exiting GenGalsimImages mainMethod()')
+    logger.debug('Exiting GenGalaxyImages mainMethod()')
 
     return
 

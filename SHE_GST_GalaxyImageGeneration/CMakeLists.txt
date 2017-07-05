@@ -13,7 +13,7 @@ elements_depends_on_subdirs(SHE_GST_PhysicalModel)
 elements_install_python_modules()
 
 # Instruction for creating a Python executable
-elements_add_python_program(GenGalsimImages SHE_GST_GalaxyImageGeneration.GenGalsimImages)
+elements_add_python_program(GenGalaxyImages SHE_GST_GalaxyImageGeneration.GenGalaxyImages)
 elements_add_python_program(GenPOfE SHE_GST_GalaxyImageGeneration.GenPOfE)
 
 # Install the configuration files
