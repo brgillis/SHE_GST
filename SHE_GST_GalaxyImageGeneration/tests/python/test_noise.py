@@ -44,7 +44,7 @@ class NoiseTestCase(unittest.TestCase):
         self.read_noise_ADU_per_pixel = 4
         
         self.count_lambda_per_pixel = 3750
-        self.var_ADU_per_pixel = 1516
+        self.var_ADU_per_pixel = 616
 
     def test_get_sky_level_ADU_per_pixel(self):
         
