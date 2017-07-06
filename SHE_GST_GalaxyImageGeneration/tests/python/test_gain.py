@@ -28,7 +28,7 @@ from SHE_GST_GalaxyImageGeneration.gain import get_ADU_from_count, get_count_fro
 
 class TestCase(unittest.TestCase):
     
-    def __init__(self):
+    def setUp(self):
         self.test_c = 1000
         self.test_gain = 2.5
         self.test_ADU = 400
