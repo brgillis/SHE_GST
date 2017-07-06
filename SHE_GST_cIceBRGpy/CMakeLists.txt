@@ -5,7 +5,6 @@ elements_subdir(SHE_GST_cIceBRGpy)
 elements_depends_on_subdirs(ElementsKernel)
 elements_depends_on_subdirs(SHE_GST_IceBRG_main)
 elements_depends_on_subdirs(SHE_GST_IceBRG_physics)
-elements_depends_on_subdirs(SHE_GST_IceBRG_lensing)
 
 # Declare library dependencies
 
