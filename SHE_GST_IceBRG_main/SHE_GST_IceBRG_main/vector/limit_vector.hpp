@@ -43,7 +43,6 @@
 #include "SHE_GST_IceBRG_main/utility.hpp"
 #include "SHE_GST_IceBRG_main/vector/make_limit_vector_base.hpp"
 #include "SHE_GST_IceBRG_main/vector/make_vector.hpp"
-#include "SHE_GST_IceBRG_main/vector/summary_functions.hpp"
 
 namespace IceBRG {
 

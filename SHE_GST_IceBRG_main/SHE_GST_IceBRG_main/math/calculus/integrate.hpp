@@ -31,7 +31,6 @@
 #include <utility>
 
 #include "SHE_GST_IceBRG_main/common.hpp"
-#include "SHE_GST_IceBRG_main/math/functor/functor_product.hpp"
 #include "SHE_GST_IceBRG_main/math/misc_math.hpp"
 #include "SHE_GST_IceBRG_main/math/safe_math.hpp"
 #include "SHE_GST_IceBRG_main/utility.hpp"
@@ -299,7 +298,7 @@ inline auto integrate_weighted_trapezoid( const f1 * func, const f2 * func_weigh
 		const T & min_in_param, const T & max_in_param, const T & in_param_step )
 			-> decltype(func(min_in_param))
 {
-	functor_product< f1, f2, T > fprod( func, func_weight );
+  auto fprod = [&](T const & x){return func(x)*func_weight(x);};
 
 	auto prod_out_param = integrate_trapezoid( fprod, min_in_param,
 			max_in_param, in_param_step );
@@ -318,7 +317,7 @@ inline auto integrate_weighted_trapezoid( const f1 * func, const f2 * func_weigh
 		const std::vector< T > & passed_in_param = std::vector< T >( 0 ) ) ->
 			decltype(func(min_in_param))
 {
-	functor_product< f1, f2, T > fprod( func, func_weight );
+  auto fprod = [&](T const & x){return func(x)*func_weight(x);};
 
 	auto prod_out_param = integrate_trapezoid( fprod, min_in_param,
 			max_in_param, in_param_step, passed_in_param );
@@ -341,7 +340,7 @@ inline auto integrate_weighted_trapezoid( const f1 * func, const f2 * func_weigh
 		const T & max_in_param, const int_t num_samples ) ->
 			decltype(func(min_in_param))
 {
-	functor_product< f1, f2, T > fprod( func, func_weight );
+  auto fprod = [&](T const & x){return func(x)*func_weight(x);};
 
 	auto prod_out_param = integrate_trapezoid( fprod, min_in_param,
 			max_in_param, num_samples );
@@ -359,7 +358,7 @@ inline auto integrate_weighted_trapezoid( const f1 * func, const f2 * func_weigh
 		const std::vector< T > & passed_in_param = std::vector< T >( 0 ) ) ->
 			decltype(func(min_in_param))
 {
-	functor_product< f1, f2, T > fprod( func, func_weight );
+  auto fprod = [&](T const & x){return func(x)*func_weight(x);};
 
 	auto prod_out_param = integrate( fprod, min_in_param,
 			max_in_param, num_samples, passed_in_param );
@@ -744,7 +743,7 @@ inline auto integrate_product_Romberg( const f_in_1 & func1,
 		const flt_t & precision = 0.00001, const bool tighten_precision = false ) ->
 			decltype(func1(min_in_param)*func2(min_in_param)*min_in_param)
 {
-	functor_product< f_in_1, f_in_2, T > fprod( func1, func2 );
+  auto fprod = [&](T const & x){return func1(x)*func2(x);};
 
 	return integrate_Romberg( fprod, min_in_param, max_in_param,
 			precision, tighten_precision );
@@ -759,7 +758,7 @@ inline auto integrate_product_Romberg( const f_in_1 & func1,
 		const std::vector< T > & passed_in_param = std::vector< T >( 0 ) ) ->
 			decltype(multiply(multiply(func1(min_in_param),func2(min_in_param)),min_in_param))
 {
-	functor_product< f_in_1, f_in_2, T > fprod( func1, func2 );
+  auto fprod = [&](T const & x){return func1(x)*func2(x);};
 
 	return integrate_Romberg( fprod, min_in_param, max_in_param,
 			precision, tighten_precision, passed_in_param );
@@ -772,7 +771,7 @@ inline auto integrate_weighted_Romberg( const f_in_1 & func,
 		const flt_t & precision = 0.00001 ) ->
 			decltype(func(min_in_param))
 {
-	functor_product< f_in_1, f_in_2, T > fprod( func, func_weight );
+  auto fprod = [&](T const & x){return func(x)*func_weight(x);};
 
 	auto prod_out_param = integrate_Romberg( fprod, min_in_param, max_in_param,
 			precision );
@@ -791,7 +790,7 @@ inline auto integrate_weighted_Romberg( const f_in_1 & func,
 		const std::vector< T > & passed_in_param = std::vector< T >( 0 ) ) ->
 			decltype(func(min_in_param))
 {
-	functor_product< f_in_1, f_in_2, T > fprod( func, func_weight );
+  auto fprod = [&](T const & x){return func(x)*func_weight(x);};
 
 	auto prod_out_param = integrate_Romberg( fprod, min_in_param, max_in_param,
 			precision, passed_in_param );
