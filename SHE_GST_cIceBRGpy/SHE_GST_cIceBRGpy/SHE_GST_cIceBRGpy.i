@@ -107,8 +107,8 @@ import_array();
 	#include "SHE_GST_IceBRG_physics/sky_obj/detail/sky_obj.hpp"
 	#include "SHE_GST_IceBRG_physics/sky_obj/galaxy.hpp"
 
-	#include "SHE_GST_IceBRG_lensing/detail/lensing_profile_extension.hpp"
-	#include "SHE_GST_IceBRG_lensing/lensing_tNFW_profile.hpp"
+	#include "SHE_GST_IceBRG_physics/detail/lensing_profile_extension.hpp"
+	#include "SHE_GST_IceBRG_physics/lensing_tNFW_profile.hpp"
 	
 	using namespace IceBRG;
 	 
@@ -205,10 +205,10 @@ rebin_wrap( T * p_image,
 %include "SHE_GST_IceBRG_physics/sky_obj/detail/sky_obj.hpp"
 %include "SHE_GST_IceBRG_physics/sky_obj/galaxy.hpp"
 
-%include "SHE_GST_IceBRG_lensing/detail/lensing_profile_extension.hpp"
+%include "SHE_GST_IceBRG_physics/detail/lensing_profile_extension.hpp"
 %template(lensing_tNFW_profile_extension)
 	IceBRG::lensing_profile_extension< IceBRG::lensing_tNFW_profile >;
-%include "SHE_GST_IceBRG_lensing/lensing_tNFW_profile.hpp"
+%include "SHE_GST_IceBRG_physics/lensing_tNFW_profile.hpp"
 
 // Tell Swig about typedefs in use
 typedef double flt_t;

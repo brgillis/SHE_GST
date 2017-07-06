@@ -13,7 +13,7 @@ elements_depends_on_subdirs(SHE_GST_IceBRG_lensing)
 
 # Instructions for creating a SWIG binding
 elements_add_swig_binding(SHE_GST_cIceBRGpy SHE_GST_cIceBRGpy/SHE_GST_cIceBRGpy.i
-                          LINK_LIBRARIES SHE_GST_IceBRG_main SHE_GST_IceBRG_physics SHE_GST_IceBRG_lensing
-                          INCLUDE_DIRS SHE_GST_IceBRG_main SHE_GST_IceBRG_physics SHE_GST_IceBRG_lensing
+                          LINK_LIBRARIES SHE_GST_IceBRG_main SHE_GST_IceBRG_physics
+                          INCLUDE_DIRS SHE_GST_IceBRG_main SHE_GST_IceBRG_physics
 						  NO_PUBLIC_HEADERS)
 

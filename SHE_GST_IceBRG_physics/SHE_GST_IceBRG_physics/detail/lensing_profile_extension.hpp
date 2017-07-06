@@ -30,7 +30,7 @@
 #include <SHE_GST_IceBRG_physics/distance_measures.hpp>
 #include "SHE_GST_IceBRG_main/units/units.hpp"
 
-#include "SHE_GST_IceBRG_lensing/detail/lensing_profile_extension_functors.hpp"
+#include "SHE_GST_IceBRG_physics/detail/lensing_profile_extension_functors.hpp"
 
 
 // TODO: Update lensing tNFW_profile along with updates here
