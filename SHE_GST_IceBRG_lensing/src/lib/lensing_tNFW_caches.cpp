@@ -95,42 +95,6 @@ DEFINE_BRG_CACHE_4D( tNFW_group_sig_cache,
 
 )
 
-// Initialisation for IceBRG::tNFW_shifted_sig_cache
-DEFINE_BRG_CACHE_3D( tNFW_shifted_sig_cache,
-		flt_t,flt_t,flt_t,surface_density_type,
-		std::log(1e9*unitconv::Msuntokg),std::log(1e15*unitconv::Msuntokg),(std::log(1e15)-std::log(1e9))/60,
-		0.1,1.5,0.1,
-		std::log(0.1*unitconv::kpctom),std::log(10000*unitconv::kpctom),(std::log(10000)-std::log(0.1))/100
-		,
-			const auto mass = units_cast<mass_type>(std::exp(in_param_1));
-			const auto z = in_param_2;
-			const auto R = units_cast<distance_type>(std::exp(in_param_3));
-			IceBRG::lensing_tNFW_profile profile(mass,z);
-			return profile.semiquick_shifted_Delta_Sigma( R );
-		,
-			tNFW_offset_sig_cache().load();
-		,
-			tNFW_offset_sig_cache().unload();
-)
-
-// Initialisation for IceBRG::tNFW_shifted_sig_no_enh_cache
-DEFINE_BRG_CACHE_3D( tNFW_shifted_no_enh_sig_cache,
-		flt_t,flt_t,flt_t,surface_density_type,
-		std::log(1e9*unitconv::Msuntokg),std::log(1e15*unitconv::Msuntokg),(std::log(1e15)-std::log(1e9))/60,
-		0.1,1.5,0.1,
-		std::log(0.1*unitconv::kpctom),std::log(10000*unitconv::kpctom),(std::log(10000)-std::log(0.1))/100
-		,
-			const auto mass = units_cast<mass_type>(std::exp(in_param_1));
-			const auto z = in_param_2;
-			const auto R = units_cast<distance_type>(std::exp(in_param_3));
-			IceBRG::lensing_tNFW_profile profile(mass,z);
-			return profile.semiquick_shifted_no_enh_Delta_Sigma( R );
-		,
-			tNFW_offset_sig_cache().load();
-		,
-			tNFW_offset_sig_cache().unload();
-		)
-
 // Initialisation for IceBRG::tNFW_Sigma_cache
 DEFINE_BRG_CACHE_3D( tNFW_Sigma_cache,
 		flt_t,flt_t,flt_t,surface_density_type,

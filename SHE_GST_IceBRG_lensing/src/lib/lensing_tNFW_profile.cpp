@@ -58,20 +58,6 @@ surface_density_type IceBRG::lensing_tNFW_profile::_quick_group_Delta_Sigma(
 			group_c );
 	return result;
 }
-surface_density_type IceBRG::lensing_tNFW_profile::_quick_shifted_Delta_Sigma(
-		const distance_type & R ) const
-{
-	surface_density_type result = IceBRG::tNFW_shifted_sig_cache().get(
-			std::log(value_of(mvir0())), z(), std::log(value_of(R)));
-	return result;
-}
-surface_density_type IceBRG::lensing_tNFW_profile::_quick_shifted_no_enh_Delta_Sigma(
-		const distance_type & R ) const
-{
-	surface_density_type result = IceBRG::tNFW_shifted_no_enh_sig_cache().get(
-			std::log(value_of(mvir0())), z(), std::log(value_of(R)));
-	return result;
-}
 surface_density_type IceBRG::lensing_tNFW_profile::_quick_Sigma( const distance_type & r ) const
 {
 	surface_density_type result = IceBRG::tNFW_Sigma_cache().get(

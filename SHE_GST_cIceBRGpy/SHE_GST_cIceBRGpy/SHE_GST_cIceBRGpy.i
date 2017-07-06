@@ -108,14 +108,7 @@ import_array();
 	#include "SHE_GST_IceBRG_physics/sky_obj/galaxy.hpp"
 
 	#include "SHE_GST_IceBRG_lensing/detail/lensing_profile_extension.hpp"
-	#include "SHE_GST_IceBRG_lensing/detail/pair_bin_summary.hpp"
-	#include "SHE_GST_IceBRG_lensing/detail/pair_bin.hpp"
-	#include "SHE_GST_IceBRG_lensing/detail/pair_bins_summary.hpp"
-	#include "SHE_GST_IceBRG_lensing/detail/source_obj.hpp"
-	#include "SHE_GST_IceBRG_lensing/lens_source_pair.hpp"
 	#include "SHE_GST_IceBRG_lensing/lensing_tNFW_profile.hpp"
-	#include "SHE_GST_IceBRG_lensing/pair_binner.hpp"
-	#include "SHE_GST_IceBRG_lensing/source_galaxy.hpp"
 	
 	using namespace IceBRG;
 	 
@@ -213,18 +206,9 @@ rebin_wrap( T * p_image,
 %include "SHE_GST_IceBRG_physics/sky_obj/galaxy.hpp"
 
 %include "SHE_GST_IceBRG_lensing/detail/lensing_profile_extension.hpp"
-%include "SHE_GST_IceBRG_lensing/detail/pair_bin_summary.hpp"
-%include "SHE_GST_IceBRG_lensing/detail/pair_bin.hpp"
-%include "SHE_GST_IceBRG_lensing/detail/pair_bins_summary.hpp"
-%include "SHE_GST_IceBRG_lensing/detail/source_obj.hpp"
-%include "SHE_GST_IceBRG_lensing/lens_source_pair.hpp"
-
 %template(lensing_tNFW_profile_extension)
 	IceBRG::lensing_profile_extension< IceBRG::lensing_tNFW_profile >;
 %include "SHE_GST_IceBRG_lensing/lensing_tNFW_profile.hpp"
-
-%include "SHE_GST_IceBRG_lensing/pair_binner.hpp"
-%include "SHE_GST_IceBRG_lensing/source_galaxy.hpp"
 
 // Tell Swig about typedefs in use
 typedef double flt_t;

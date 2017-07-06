@@ -31,8 +31,6 @@
 #include "SHE_GST_IceBRG_main/units/units.hpp"
 
 #include "SHE_GST_IceBRG_lensing/detail/lensing_profile_extension_functors.hpp"
-#include "SHE_GST_IceBRG_lensing/detail/two_halo_term_functions.hpp"
-#include "SHE_GST_IceBRG_lensing/shifting/detail/shifting_cache.hpp"
 
 
 // TODO: Update lensing tNFW_profile along with updates here
@@ -162,11 +160,6 @@ private:
 				min_in_param, max_in_param, 0.00001);
 		return out_param;
 	}
-	surface_density_type _two_halo_Delta_Sigma( const distance_type &  ) const
-	{
-		assert(false); // TODO: Fill this out
-		return surface_density_type();
-	}
 
 	surface_density_type _offset_Sigma( const distance_type & R,
 			const distance_type & offset_R ) const // Expected Sigma at radius R from position offset by offset_R
@@ -249,87 +242,6 @@ private:
 
 		return out_param;
 	}
-	surface_density_type _two_halo_Sigma( const distance_type & R,
-			const flt_t & group_c ) const
-	{
-		assert(false); // TODO: Fill this out
-
-		return surface_density_type();
-	}
-
-	surface_density_type _shifted_Delta_Sigma( const distance_type & R ) const
-	{
-		distance_type R_to_use = abs( R );
-		distance_type sigma = SPCP(name)->_shift_sigma(R_to_use);
-
-		if(value_of(sigma)<=0) return _Delta_Sigma(R);
-
-		IceBRG::shifted_Delta_Sigma_functor<name> func( SPCP(name), R_to_use, true );
-		IceBRG::shifted_Delta_Sigma_weight_functor<name> weight_func( sigma );
-
-		flt_t precision = 0.00001;
-
-		distance_type min_in_param( units_cast<distance_type>(0.) ), max_in_param( 4.*sigma );
-
-		surface_density_type out_param = IceBRG::integrate_weighted_Romberg( func, weight_func,
-				min_in_param, max_in_param, precision );
-
-		return out_param;
-	}
-
-	surface_density_type _semiquick_shifted_Delta_Sigma( const distance_type & R ) const
-	{
-		distance_type R_to_use = abs( R );
-		distance_type sigma = SPCP(name)->_shift_sigma(R_to_use);
-
-		if(value_of(sigma)<=0) return _Delta_Sigma(R);
-
-		IceBRG::shifted_Delta_Sigma_functor<name> func( SPCP(name), R_to_use, true );
-		IceBRG::shifted_Delta_Sigma_weight_functor<name> weight_func( sigma );
-
-		distance_type min_in_param( units_cast<distance_type>(0.) ), max_in_param( 4.*sigma );
-
-		surface_density_type out_param = IceBRG::integrate_weighted_Romberg( func, weight_func,
-				min_in_param, max_in_param, 0.00001);
-		return out_param;
-	}
-
-	surface_density_type _shifted_no_enh_Delta_Sigma( const distance_type & R ) const
-	{
-		distance_type R_to_use = abs( R );
-		distance_type sigma = SPCP(name)->_shift_sigma(R_to_use);
-
-		if(value_of(sigma)<=0) return _Delta_Sigma(R);
-
-		IceBRG::shifted_Delta_Sigma_functor<name> func( SPCP(name), R_to_use, false );
-		IceBRG::shifted_Delta_Sigma_weight_functor<name> weight_func( sigma );
-
-		flt_t precision = 0.00001;
-
-		distance_type min_in_param( units_cast<distance_type>(0.) ), max_in_param( 4.*sigma );
-
-		surface_density_type out_param = IceBRG::integrate_weighted_Romberg( func, weight_func,
-				min_in_param, max_in_param, precision );
-
-		return out_param;
-	}
-
-	surface_density_type _semiquick_shifted_no_enh_Delta_Sigma( const distance_type & R ) const
-	{
-		distance_type R_to_use = abs( R );
-		distance_type sigma = SPCP(name)->_shift_sigma(R_to_use);
-
-		if(value_of(sigma)<=0) return _Delta_Sigma(R);
-
-		IceBRG::shifted_Delta_Sigma_functor<name> func( SPCP(name), R_to_use, false );
-		IceBRG::shifted_Delta_Sigma_weight_functor<name> weight_func( sigma );
-
-		distance_type min_in_param( units_cast<distance_type>(0.) ), max_in_param( 4.*sigma );
-
-		surface_density_type out_param = IceBRG::integrate_weighted_Romberg( func, weight_func,
-				min_in_param, max_in_param, 0.00001);
-		return out_param;
-	}
 
 #endif // Advanced calculations which usually can't be overridden, but should be if possible
 
@@ -368,18 +280,6 @@ private:
 	{
 		return SPCP(name)->_group_Sigma( R, group_c );
 	}
-	surface_density_type _quick_two_halo_Sigma( const distance_type & R ) const
-	{
-		return SPCP(name)->_two_halo_Sigma(R);
-	}
-	surface_density_type _quick_shifted_Delta_Sigma( const distance_type & R ) const
-	{
-		return SPCP(name)->_shifted_Delta_Sigma( R );
-	}
-	surface_density_type _quick_shifted_no_enh_Delta_Sigma( const distance_type & R ) const
-	{
-		return SPCP(name)->_shifted_no_enh_Delta_Sigma( R );
-	}
 
 #endif // Quick functions - should be overridden if a cache is implemented for the halo
 
@@ -390,19 +290,6 @@ private:
 		distance_type R_to_use = max( abs( R ), units_cast<distance_type>(units_cast<distance_type>(SMALL_FACTOR)) );
 		return SPCP(name)->proj_enc_mass( R_to_use )
 				/ ( pi * square( R_to_use ) );
-	}
-
-	distance_type _shift_sigma( const distance_type & R ) const
-	{
-		return R*shift_factor(R);
-	}
-	flt_t _shift_factor( const distance_type & R ) const
-	{
-		if(value_of(R)==0) return 0.;
-		const angle_type theta_separation = afd(R,SPCP(name)->z());
-		return any_cast<angle_type>(shifting_cache().get(std::log(value_of(theta_separation)),
-				SPCP(name)->z()))
-				/ theta_separation;
 	}
 	surface_density_type _Delta_Sigma( const distance_type & R ) const // Weak lensing signal in tangential shear Delta-Sigma at radius R
 	{
@@ -509,54 +396,6 @@ public:
 	}
 #endif
 
-	// Two Halo Delta Sigma
-#if (1)
-	surface_density_type two_halo_Delta_Sigma( const distance_type & R ) const // Expected weak lensing signal in tangential shear Delta-Sigma at radius R from ensemble of satellites in group with satellite concentration group_c
-	{
-		return SPCP(name)->_two_halo_Delta_Sigma( R );
-	}
-	surface_density_type quick_two_halo_Delta_Sigma( const distance_type & R ) const // As deltasigma, but uses group_Delta_Sigma cache to speed it up if overwritten
-	{
-		return SPCP(name)->_quick_two_halo_Delta_Sigma( R );
-	}
-#endif
-
-	// Shifted Delta Sigma
-#if (1)
-	// This represents the weak-lensing signal after being corrected for errors due to relative
-	// shifting of the lens and source due to an intervening mass_type distribution
-
-	flt_t shift_factor( const distance_type & R ) const
-	{
-		return SPCP(name)->_shift_factor( R );
-	}
-
-	surface_density_type shifted_Delta_Sigma( const distance_type & R ) const
-	{
-		return SPCP(name)->_shifted_Delta_Sigma( R );
-	}
-	surface_density_type semiquick_shifted_Delta_Sigma( const distance_type & R ) const
-	{
-		return SPCP(name)->_semiquick_shifted_Delta_Sigma( R );
-	}
-	surface_density_type quick_shifted_Delta_Sigma( const distance_type & R ) const
-	{
-		return SPCP(name)->_quick_shifted_Delta_Sigma( R );
-	}
-	surface_density_type shifted_no_enh_Delta_Sigma( const distance_type & R ) const
-	{
-		return SPCP(name)->_shifted_no_enh_Delta_Sigma( R );
-	}
-	surface_density_type semiquick_shifted_no_enh_Delta_Sigma( const distance_type & R ) const
-	{
-		return SPCP(name)->_semiquick_shifted_no_enh_Delta_Sigma( R );
-	}
-	surface_density_type quick_shifted_no_enh_Delta_Sigma( const distance_type & R ) const
-	{
-		return SPCP(name)->_quick_shifted_no_enh_Delta_Sigma( R );
-	}
-#endif
-
 	// Sigma
 #if (1)
 	surface_density_type Sigma( const distance_type & R ) const // Magnification signal Sigma at radius R
@@ -601,20 +440,6 @@ public:
 		return SPCP(name)->_quick_group_Sigma( R, group_c );
 	}
 #endif
-
-	// Two Halo Sigma
-#if (1)
-	surface_density_type two_halo_Sigma( const distance_type & R ) const // Expected weak lensing signal in tangential shear Delta-Sigma at radius R from ensemble of satellites in group with satellite concentration group_c
-	{
-		return SPCP(name)->_two_halo_Delta_Sigma( R );
-	}
-	surface_density_type quick_two_halo_Sigma( const distance_type & R ) const // As deltasigma, but uses group_Delta_Sigma cache to speed it up if overwritten
-	{
-		return SPCP(name)->_quick_two_halo_Delta_Sigma( R );
-	}
-#endif
-
-#include "SHE_GST_IceBRG_lensing/detail/two_halo_term_methods.hpp"
 
 #endif
 
