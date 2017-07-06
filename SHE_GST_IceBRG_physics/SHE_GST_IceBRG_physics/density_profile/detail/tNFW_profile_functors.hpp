@@ -32,47 +32,21 @@
 namespace IceBRG
 {
 
-class tNFW_solve_rvir_iterative_functor
+class tNFW_solve_rvir_functor
 {
 private:
 	const tNFW_profile *_halo_;
 
 public:
 
-	tNFW_solve_rvir_iterative_functor(const tNFW_profile *halo)
-	: _halo_(halo)
-	{
-	}
-
-	distance_type operator()( const distance_type & in_param ) const
-	{
-		if(value_of(in_param)<=0)
-		{
-			return _halo_->rvir0();
-		}
-		else
-		{
-			return in_param * _halo_->enc_dens(in_param)/(virial_density_factor*_halo_->rho_crit());
-		}
-	}
-
-};
-
-class tNFW_solve_rvir_minimize_functor
-{
-private:
-	const tNFW_profile *_halo_;
-
-public:
-
-	tNFW_solve_rvir_minimize_functor(const tNFW_profile *halo)
+	tNFW_solve_rvir_functor(const tNFW_profile *halo)
 	: _halo_(halo)
 	{
 	}
 
 	density_type operator()( const distance_type &  in_param ) const
 	{
-		return abs(virial_density_factor*_halo_->rho_crit()-_halo_->enc_dens(in_param));
+		return virial_density_factor*_halo_->rho_crit()-_halo_->enc_dens(in_param);
 	}
 
 };

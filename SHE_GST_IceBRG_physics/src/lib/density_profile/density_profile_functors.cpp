@@ -110,7 +110,7 @@ IceBRG::mass_type IceBRG::solve_rhm_functor::operator()( const distance_type & i
 	{
 		throw std::runtime_error("ERROR: Host must be assigned to solve_rhm_functor before function can be called.\n");
 	}
-	return abs(_target_mass_ - _host_ptr_->enc_mass( abs( in_param ) ) );
+	return _target_mass_ - _host_ptr_->enc_mass( abs( in_param ) );
 }
 
 IceBRG::solve_rhm_functor::solve_rhm_functor()

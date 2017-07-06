@@ -22,11 +22,12 @@
 
 #include <iostream>
 
+#include <boost/math/tools/roots.hpp>
+
 #include "SHE_GST_IceBRG_main/common.hpp"
 
 #include "SHE_GST_IceBRG_main/error_handling.hpp"
 #include "SHE_GST_IceBRG_main/math/calculus/integrate.hpp"
-#include "SHE_GST_IceBRG_main/math/solvers/solvers.hpp"
 #include "SHE_GST_IceBRG_main/units/units.hpp"
 
 #include "SHE_GST_IceBRG_physics/density_profile/detail/density_profile_functors.hpp"
@@ -71,7 +72,9 @@ IceBRG::distance_type IceBRG::density_profile::rhmtot() const
 
 	try
 	{
-		rhm_test = solve_grid( func, units_cast<distance_type>(0.), max_r, 10, units_cast<mass_type>(0.) );
+		auto r_bracket = boost::math::tools::bisect( func, units_cast<distance_type>(0.), max_r,
+		    boost::math::tools::eps_tolerance<distance_type>(4));
+		rhm_test = r_bracket.first + (r_bracket.second - r_bracket.first)/2;
 	}
 	catch(const std::exception &e)
 	{
@@ -108,7 +111,9 @@ IceBRG::distance_type IceBRG::density_profile::rhmvir() const
 
 	try
 	{
-		rhm_test = solve_grid( func, units_cast<distance_type>(0.), max_r, 10, units_cast<mass_type>(0.));
+    auto r_bracket = boost::math::tools::bisect( func, units_cast<distance_type>(0.), max_r,
+        boost::math::tools::eps_tolerance<distance_type>(4));
+    rhm_test = r_bracket.first + (r_bracket.second - r_bracket.first)/2;
 	}
 	catch(const std::exception &e)
 	{

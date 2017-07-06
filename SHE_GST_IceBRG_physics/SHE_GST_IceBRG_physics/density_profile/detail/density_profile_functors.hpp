@@ -72,30 +72,31 @@ class solve_rhm_functor
 	 Function class for solving the half-mass_type
 	 radius of a halo.
 
-	 Parent class: function_class (from brg_functors)
+	 Parent class: None
 
 	 **********************************/
 private:
-	const density_profile *_host_ptr_;mass_type _target_mass_;
+	const density_profile * _host_ptr_;
+	mass_type _target_mass_;
 
 public:
 
-	void set_host_ptr( const density_profile *new_host_ptr );
+	void set_host_ptr( const density_profile * new_host_ptr );
 	const density_profile * host_ptr()
 	{
 		return _host_ptr_;
 	}
-	void set_target_mass( const mass_type &new_target_mass );
-	const mass_type & target_mass()
+	void set_target_mass( mass_type const & new_target_mass );
+	mass_type const & target_mass()
 	{
 		return _target_mass_;
 	}
 
-	mass_type operator ()( const distance_type & in_param ) const;
+	mass_type operator ()( distance_type const & in_param ) const;
 
 	solve_rhm_functor();
 	solve_rhm_functor( const density_profile *init_host,
-			const mass_type &init_target_mass );
+			mass_type const & init_target_mass );
 
 };
 // end class unitless_solve_rhm_functor

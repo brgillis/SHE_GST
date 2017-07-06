@@ -26,10 +26,11 @@
 #include <stdexcept>
 #include <vector>
 
+#include <boost/math/tools/roots.hpp>
+
 #include "SHE_GST_IceBRG_main/common.hpp"
 
 #include "SHE_GST_IceBRG_main/error_handling.hpp"
-#include "SHE_GST_IceBRG_main/math/solvers/solvers.hpp"
 #include "SHE_GST_IceBRG_main/units/units.hpp"
 #include "SHE_GST_IceBRG_main/utility.hpp"
 
@@ -207,29 +208,26 @@ IceBRG::distance_type IceBRG::tNFW_profile::rvir() const
 	if(!_rvir_cached_)
 	{
 
-		tNFW_solve_rvir_iterative_functor it_solver(this);
+		tNFW_solve_rvir_functor func(this);
 
 		_rvir_cache_ = units_cast<distance_type>(0.);
 
 		// First, we try solving iteratively
-		_rvir_cache_ = solve_iterate( it_solver, rvir0(), 1, 0.0001, 1000 );
-		if ( ( value_of(_rvir_cache_) == 0. ) || ( isbad( _rvir_cache_ ) ) )
-		{
-			// Iteratively didn't work, so we go to the grid option
-			tNFW_solve_rvir_minimize_functor min_solver(this);
+	  try
+	  {
+	    distance_type max_r = rvir0();
+	    auto r_bracket = boost::math::tools::bisect( func, units_cast<distance_type>(0.), max_r,
+	        boost::math::tools::eps_tolerance<distance_type>(4));
+	    _rvir_cache_ = r_bracket.first + (r_bracket.second - r_bracket.first)/2;
+	  }
+	  catch(const std::exception &e)
+	  {
+	    handle_error("Could not solve virial radius. Assuming it's zero.");
 
-			distance_type max_rvir = rvir0();
-			try
-			{
-				_rvir_cache_ =  solve_grid( min_solver, units_cast<distance_type>(0.), max_rvir, 100,
-						units_cast<density_type>(0.));
-			}
-			catch(const std::exception &e)
-			{
-				std::cerr << "ERROR: Cannot solve virial radius for tNFW profile.\n";
-				throw e;
-			}
-		}
+	    _rvir_cache_ = units_cast<distance_type>(0.);
+	    _rvir_cached_ = true;
+	    return _rvir_cache_;
+	  }
 		_rvir_cached_ = true;
 	}
 	return _rvir_cache_;
