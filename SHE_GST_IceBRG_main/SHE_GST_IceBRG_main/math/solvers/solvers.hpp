@@ -32,7 +32,6 @@
 
 #include "SHE_GST_IceBRG_main/container/is_container.hpp"
 #include "SHE_GST_IceBRG_main/container/generic_functions.hpp"
-#include "SHE_GST_IceBRG_main/container/tuple.hpp"
 #include "SHE_GST_IceBRG_main/math/misc_math.hpp"
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"
 #include "SHE_GST_IceBRG_main/units/units.hpp"
@@ -1007,7 +1006,7 @@ T solve_MCMC( const f & func, const T & init_in_param, const T & init_min_in_par
  * @param annealing_factor
  * @return
  */
-template< typename f, typename T, BRG_F_IS_CONTAINER_OR_TUPLE(T) >
+template< typename f, typename T, BRG_F_IS_CONTAINER(T) >
 T solve_MCMC( const f & func, const T & init_in_params,
 		const T & init_min_in_params,
 		const T & init_max_in_params,
