@@ -2,7 +2,7 @@
 
     Created 6 July 2017
 
-    Tests of functions dealing with gain calculations
+    Tests of functions dealing with gain calculations.
 
     ---------------------------------------------------------------------
 
@@ -26,18 +26,18 @@ import unittest
 from numpy.testing import assert_almost_equal
 from SHE_GST_GalaxyImageGeneration.gain import get_ADU_from_count, get_count_from_ADU
 
-class TestCase(unittest.TestCase):
+class GainTestCase(unittest.TestCase):
     
     def setUp(self):
-        self.test_c = 1000
-        self.test_gain = 2.5
-        self.test_ADU = 400
+        self.count = 1000
+        self.gain = 2.5
+        self.ADU = 400
 
     def test_get_ADU_from_count(self):
-        check_ADU = get_ADU_from_count(self.test_c,self.test_gain)
-        assert_almost_equal(check_ADU, self.test_ADU)
+        check_ADU = get_ADU_from_count(self.count,self.gain)
+        assert_almost_equal(check_ADU, self.ADU)
 
     def test_get_count_from_ADU(self):
-        check_count = get_count_from_ADU(self.test_ADU,self.test_gain)
-        assert_almost_equal(check_count, self.test_c)
+        check_count = get_count_from_ADU(self.ADU,self.gain)
+        assert_almost_equal(check_count, self.count)
         

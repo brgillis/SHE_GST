@@ -6,7 +6,7 @@
 import unittest
 
 
-class TestCase(unittest.TestCase):
+class ImportTestCase(unittest.TestCase):
 
     # External imports
 
