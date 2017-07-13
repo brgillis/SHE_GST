@@ -6,4 +6,4 @@ find_package(ElementsProject)
 #---------------------------------------------------------------
 
 # Declare project name and version
-elements_project(SHE_GST 1.1.0 USE Elements 4.0 EuclidDmTools 1.2.9)
+elements_project(SHE_GST 1.1.1 USE Elements 4.0 EuclidDmTools 1.2.9)
