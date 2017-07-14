@@ -31,8 +31,6 @@
 
 #include "SHE_GST_IceBRG_physics/detail/redshift_obj.hpp"
 
-#include "SHE_GST_IceBRG_physics/sky_obj/detail/position_grid_cache.hpp"
-
 namespace IceBRG {
 
 class sky_obj: public virtual redshift_obj

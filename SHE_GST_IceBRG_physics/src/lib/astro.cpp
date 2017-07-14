@@ -37,7 +37,6 @@
 
 #include "SHE_GST_IceBRG_physics/astro.hpp"
 
-#include "SHE_GST_IceBRG_physics/sky_obj/detail/position_grid_cache.hpp"
 #include "SHE_GST_IceBRG_physics/detail/astro_caches.hpp"
 
 namespace IceBRG {
