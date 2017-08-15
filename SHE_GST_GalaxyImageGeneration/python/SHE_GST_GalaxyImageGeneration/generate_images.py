@@ -42,8 +42,7 @@ from SHE_GST_GalaxyImageGeneration.detections_table import initialise_detections
 from SHE_GST_GalaxyImageGeneration.dither_schemes import get_dither_scheme
 from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
                                              get_disk_galaxy_image,
-                                             is_target_galaxy, get_disk_galaxy_profile,
-                                             have_inclined_exponential)
+                                             is_target_galaxy, get_disk_galaxy_profile)
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
 from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
@@ -567,46 +566,17 @@ def print_galaxies_and_psfs(image,
                                               gsparams=default_gsparams)
 
                 # Try to get a disk galaxy profile if the galsim version supports it
-                if have_inclined_exponential:
-                    disk_gal_profile = get_disk_galaxy_profile(half_light_radius=disk_size,
-                                                               rotation=rotation,
-                                                               tilt=tilt,
-                                                               flux=gal_I * (1 - bulge_fraction),
-                                                               g_shear=g_shear,
-                                                               beta_deg_shear=beta_shear,
-                                                               height_ratio=disk_height_ratio)
+                disk_gal_profile = get_disk_galaxy_profile(half_light_radius=disk_size,
+                                                           rotation=rotation,
+                                                           tilt=tilt,
+                                                           flux=gal_I * (1 - bulge_fraction),
+                                                           g_shear=g_shear,
+                                                           beta_deg_shear=beta_shear,
+                                                           height_ratio=disk_height_ratio)
 
-                    final_disk = galsim.Convolve([disk_gal_profile, disk_psf_profile,
-                                                  galsim.Pixel(scale=pixel_scale)],
-                                              gsparams=default_gsparams)
-
-                else:
-                    disk_gal_image = get_disk_galaxy_image(sersic_index=n,
-                                                    half_light_radius=disk_size,
-                                                    stamp_size_factor=options['stamp_size_factor'],
-                                                    rotation=rotation,
-                                                    tilt=tilt,
-                                                    spin=spin,
-                                                    flux=1.,
-                                                    g_shear=g_shear,
-                                                    beta_deg_shear=beta_shear,
-                                                    xp_sp_shift=xp_sp_shift,
-                                                    yp_sp_shift=yp_sp_shift,
-                                                    image_scale=pixel_scale,
-                                                    subsampling_factor=subsampling_factor,
-                                                    data_dir=options['data_dir'],
-                                                    height_ratio=disk_height_ratio)
-
-                    ss_disk_image = convolve(disk_psf_profile.image.array, disk_gal_image)
-
-                    final_disk_image = rebin(ss_disk_image,
-                                            x_shift=int(subsampling_factor * xp_sp_shift + 0.5),
-                                            y_shift=int(subsampling_factor * yp_sp_shift + 0.5),
-                                            subsampling_factor=subsampling_factor)
-
-                    final_disk = galsim.InterpolatedImage(galsim.Image(final_disk_image, scale=pixel_scale),
-                                                                       flux=gal_I * (1 - bulge_fraction),
-                                                                       x_interpolant='nearest')
+                final_disk = galsim.Convolve([disk_gal_profile, disk_psf_profile,
+                                              galsim.Pixel(scale=pixel_scale)],
+                                          gsparams=default_gsparams)
                     
                 # Now draw the PSFs for this galaxy onto those images
                 
@@ -717,12 +687,10 @@ def print_galaxies_and_psfs(image,
                                           offset=(-x_centre_offset + x_offset + xp_sp_shift,
                                                   -y_centre_offset + y_offset + yp_sp_shift),
                                           add_to_image=True)
-                    if have_inclined_exponential:
-                        disk_xp_sp_shift = xp_sp_shift
-                        disk_yp_sp_shift = yp_sp_shift
-                    else: # Offset will be handled in making the image
-                        disk_xp_sp_shift = 0
-                        disk_yp_sp_shift = 0
+                    
+                    disk_xp_sp_shift = xp_sp_shift
+                    disk_yp_sp_shift = yp_sp_shift
+                    
                     final_disk.drawImage(gal_image, scale=pixel_scale,
                                          offset=(-x_centre_offset + x_offset + disk_xp_sp_shift,
                                                  -y_centre_offset + y_offset + disk_yp_sp_shift),
@@ -773,10 +741,6 @@ def print_galaxies_and_psfs(image,
                     )
             
             del final_disk, disk_psf_profile
-            try:
-                del ss_disk_image, disk_gal_image
-            except UnboundLocalError as _e:
-                pass
 
     logger.info("Finished printing galaxies.")
 

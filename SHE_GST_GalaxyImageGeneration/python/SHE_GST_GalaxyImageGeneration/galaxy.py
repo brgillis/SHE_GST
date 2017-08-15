@@ -35,19 +35,10 @@ __all__ = ['get_galaxy_profile']
 
 try:
     from galsim import InclinedSersic
-    have_inclined_sersic = True
 except ImportError:
-    have_inclined_sersic = False
-    getLogger(mv.logger_name).warning("GalSim's InclinedSersic profile is not available. Fallback will be used; " +
-                   "Note that this will result in different profiles being generated.")
-
-try:
-    from galsim import InclinedExponential
-    have_inclined_exponential = True
-except ImportError:
-    have_inclined_exponential = False
-    getLogger(mv.logger_name).warning("GalSim's InclinedSersic profile is not available. Fallback will be used; " +
-                   "Note that this will result in different profiles being generated.")
+    err = "GalSim's InclinedSersic profile is not available."
+    getLogger(mv.logger_name).error(err)
+    raise ImportError(err)
 
 allowed_ns = np.array((1.8, 2.0, 2.56, 2.71, 3.0, 3.5, 4.0))
 
@@ -186,23 +177,13 @@ def get_disk_galaxy_profile(half_light_radius,
     # (where hlr is hlr for face-on profile specifically)
     scale_radius = half_light_radius / galsim.Exponential._hlr_factor
 
-    if have_inclined_sersic:
-        base_prof = InclinedSersic(n=1.,
-                                   inclination=tilt * galsim.degrees,
-                                   half_light_radius=half_light_radius,
-                                   trunc=mv.default_truncation_radius_factor*scale_radius,
-                                   flux=flux,
-                                   scale_h_over_r=height_ratio,
-                                   gsparams=gsparams)
-    elif have_inclined_exponential:
-        base_prof = InclinedExponential(inclination=tilt * galsim.degrees,
-                                        scale_radius=scale_radius,
-                                        flux=flux,
-                                        scale_h_over_r=height_ratio,
-                                        gsparams=gsparams)
-    else:
-        raise Exception("get_disk_galaxy_profile requires a version of galsim with the " +
-                        "InclinedExponential or InclinedSersic profile.")
+    base_prof = InclinedSersic(n=1.,
+                               inclination=tilt * galsim.degrees,
+                               half_light_radius=half_light_radius,
+                               trunc=mv.default_truncation_radius_factor*scale_radius,
+                               flux=flux,
+                               scale_h_over_r=height_ratio,
+                               gsparams=gsparams)
 
     rotated_prof = base_prof.rotate(rotation * galsim.degrees)
 
