@@ -29,6 +29,7 @@ New Features
 New config features
 -------------------
 
+
 Miscellaneous
 -------------
 - Re-licensed code to Euclid SGS under LGPL
