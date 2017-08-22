@@ -3,11 +3,10 @@ elements_subdir(SHE_GST_GalaxyImageGeneration)
 
 # Declare Elements module dependencies
 elements_depends_on_subdirs(ElementsKernel)
-elements_depends_on_subdirs(EuclidDmBindings)
-elements_depends_on_subdirs(EuclidDmUtils)
 elements_depends_on_subdirs(SHE_GST_cIceBRGpy)
 elements_depends_on_subdirs(SHE_GST_IceBRGpy)
 elements_depends_on_subdirs(SHE_GST_PhysicalModel)
+elements_depends_on_subdirs(SHE_PPT)
 
 # Instruction for Python module installation
 elements_install_python_modules()
