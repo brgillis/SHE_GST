@@ -28,6 +28,9 @@ from numpy.lib.stride_tricks import as_strided
 
 import numpy as np
 
+from SHE_PPT.details_table_format import details_table_format as datf
+from SHE_PPT.detections_table_format import detections_table_format as detf
+
 
 def combine_dithers(dithers,
                     dithering_scheme,
@@ -125,24 +128,25 @@ def combine_dithers(dithers,
         combined_image = galsim.Image(combined_data,scale=dithers[0].scale/2)
 
         # Now that we have the image, let's modify the output table
-        for combined_otable in combined_detections_table, combined_details_table:
+        for (combined_otable, tf) in ((combined_detections_table, detf),
+                                          (combined_details_table, datf)):
             if combined_otable is not None:
-                combined_otable['x_center_pix'] *= 2
-                combined_otable['x_center_pix'] -= 0.5
-                combined_otable['y_center_pix'] *= 2
-                combined_otable['y_center_pix'] -= 0.5
+                combined_otable[tf.gal_x] *= 2
+                combined_otable[tf.gal_x] -= 0.5
+                combined_otable[tf.gal_y] *= 2
+                combined_otable[tf.gal_y] -= 0.5
                 
-                if 'RD_NOISE' in combined_otable.meta:
-                    old_read_noise = combined_otable.meta['RD_NOISE']
-                    combined_otable.meta['RD_NOISE'] = 2*old_read_noise[0], old_read_noise[1]
+                if tf.meta_read_noise in combined_otable.meta:
+                    old_read_noise = combined_otable.meta[tf.meta_read_noise]
+                    combined_otable.meta[tf.meta_read_noise] = 2*old_read_noise[0], old_read_noise[1]
                 
-                if 'S_SKYLV' in combined_otable.meta:
-                    old_subtracted_sky_level = combined_otable.meta['S_SKYLV']
-                    combined_otable.meta['S_SKYLV'] = 4*old_subtracted_sky_level[0], old_subtracted_sky_level[1]
+                if tf.meta_subtracted_sky_level in combined_otable.meta:
+                    old_subtracted_sky_level = combined_otable.meta[tf.meta_subtracted_sky_level]
+                    combined_otable.meta[tf.meta_subtracted_sky_level] = 4*old_subtracted_sky_level[0], old_subtracted_sky_level[1]
                 
-                if 'US_SKYLV' in combined_otable.meta:
-                    old_unsubtracted_sky_level = combined_otable.meta['US_SKYLV']
-                    combined_otable.meta['US_SKYLV'] = 4*old_unsubtracted_sky_level[0], old_unsubtracted_sky_level[1]
+                if tf.meta_unsubtracted_sky_level in combined_otable.meta:
+                    old_unsubtracted_sky_level = combined_otable.meta[tf.meta_unsubtracted_sky_level]
+                    combined_otable.meta[tf.meta_unsubtracted_sky_level] = 4*old_unsubtracted_sky_level[0], old_unsubtracted_sky_level[1]
 
     else:
         raise Exception("Unrecognized dithering scheme: " + dithering_scheme)

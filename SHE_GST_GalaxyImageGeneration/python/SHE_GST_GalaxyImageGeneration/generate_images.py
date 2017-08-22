@@ -35,8 +35,6 @@ from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.combine_dithers import combine_dithers
 from SHE_GST_GalaxyImageGeneration.compress_image import compress_image
 from SHE_GST_GalaxyImageGeneration.cutouts import make_cutout_image
-from SHE_GST_GalaxyImageGeneration.details_table import initialise_details_table
-from SHE_GST_GalaxyImageGeneration.detections_table import initialise_detections_table
 from SHE_GST_GalaxyImageGeneration.dither_schemes import get_dither_scheme
 from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
                                              get_disk_galaxy_image,
@@ -44,10 +42,14 @@ from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
 from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
-from SHE_GST_GalaxyImageGeneration.tables import add_row, output_tables
 
 from SHE_GST_IceBRGpy.logging import getLogger
 from SHE_GST_IceBRGpy.rebin import rebin
+
+from SHE_PPT.details_table_format import initialise_details_table
+from SHE_PPT.detections_table_format import initialise_detections_table
+from SHE_PPT.table_utility import add_row, output_tables
+
 import numpy as np
     
 default_gsparams = galsim.GSParams(folding_threshold=5e-3,
