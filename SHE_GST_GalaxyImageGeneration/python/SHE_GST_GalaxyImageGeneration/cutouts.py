@@ -27,6 +27,8 @@ import galsim
 from SHE_GST_GalaxyImageGeneration.galaxy import is_target_galaxy
 import numpy as np
 
+from SHE_PPT.details_table_format import details_table_format as datf
+from SHE_PPT.detections_table_format import detections_table_format as detf
 
 def make_cutout_image(image,
                       options,
@@ -118,13 +120,13 @@ def make_cutout_image(image,
         cutout_image[cutout_bounds] += image[gal_bounds]
 
         # Adjust the galaxy's x and y centre coordinates in output tables if necessary
-        for otable, dtype in ((detections_table, int),
-                              (details_table, float)):
+        for (otable, tf, dtype) in ((detections_table, detf, int),
+                                    (details_table, datf, float)):
             if otable is not None:
-                index = (otable["ID"] == galaxy.get_full_ID())
-                otable["x_center_pix"][index] = dtype(icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift +
+                index = (otable[tf.ID] == galaxy.get_full_ID())
+                otable[tf.gal_x][index] = dtype(icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift +
                     x_sp_shift + centre_offset)
-                otable["y_center_pix"][index] = dtype(irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + \
+                otable[tf.gal_y][index] = dtype(irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + \
                     y_sp_shift + centre_offset)
 
     return cutout_image

@@ -46,7 +46,7 @@ from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
 from SHE_GST_IceBRGpy.logging import getLogger
 from SHE_GST_IceBRGpy.rebin import rebin
 
-from SHE_PPT.details_table_format import initialise_details_table
+from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table
 from SHE_PPT.table_utility import add_row, output_tables
 
@@ -944,8 +944,8 @@ def generate_image(image, options):
 
         if not options['details_output_format']=='none':
             # Temporarily adjust centre positions by dithering
-            details_table['x_center_pix'] += x_offset
-            details_table['y_center_pix'] += y_offset
+            details_table[datf.gal_x] += x_offset
+            details_table[datf.gal_y] += y_offset
     
             output_tables(detections_table, dither_file_name_base,
                           mv.detections_file_tail, options)
@@ -953,8 +953,8 @@ def generate_image(image, options):
                           mv.details_file_tail, options)
     
             # Undo dithering adjustment
-            details_table['x_center_pix'] -= x_offset
-            details_table['y_center_pix'] -= y_offset
+            details_table[datf.gal_x] -= x_offset
+            details_table[datf.gal_y] -= y_offset
 
         logger.info("Finished printing dither " + str(di) + ".")
 
