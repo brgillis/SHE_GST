@@ -947,10 +947,8 @@ def generate_image(image, options):
             details_table[datf.gal_x] += x_offset
             details_table[datf.gal_y] += y_offset
     
-            output_tables(detections_table, dither_file_name_base,
-                          mv.detections_file_tail, options)
-            output_tables(details_table, dither_file_name_base,
-                          mv.details_file_tail, options)
+            output_tables(detections_table, dither_file_name_base + mv.detections_file_tail, options)
+            output_tables(details_table, dither_file_name_base + mv.details_file_tail, options)
     
             # Undo dithering adjustment
             details_table[datf.gal_x] -= x_offset
