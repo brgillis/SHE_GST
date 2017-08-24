@@ -994,10 +994,8 @@ def generate_image(image, options):
             galsim.fits.write(combined_image, combined_file_name, clobber=True)
     
         # Output the details file for it
-        output_tables(combined_detections_table, combined_file_name_base,
-                      mv.detections_file_tail, options)
-        output_tables(combined_details_table, combined_file_name_base,
-                      mv.details_file_tail, options)
+        output_tables(combined_detections_table, combined_file_name_base + mv.detections_file_tail, options)
+        output_tables(combined_details_table, combined_file_name_base + mv.details_file_tail, options)
 
         logger.info("Finished printing combined image.")
 
