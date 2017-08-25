@@ -32,9 +32,9 @@ from astropy.table import Table
 import galsim
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from SHE_GST_GalaxyImageGeneration.check_config import get_full_options
 from SHE_GST_GalaxyImageGeneration.combine_dithers import combine_dithers
 from SHE_GST_GalaxyImageGeneration.compress_image import compress_image
+from SHE_GST_GalaxyImageGeneration.config.check_config import get_full_options
 from SHE_GST_GalaxyImageGeneration.cutouts import make_cutout_image
 from SHE_GST_GalaxyImageGeneration.dither_schemes import get_dither_scheme
 from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
