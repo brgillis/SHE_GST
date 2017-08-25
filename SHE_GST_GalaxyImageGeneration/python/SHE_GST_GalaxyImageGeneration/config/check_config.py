@@ -26,6 +26,7 @@ from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_option_values,
                                                                  allowed_survey_settings,
                                                                  generation_levels)
+from SHE_GST_IceBRGpy.logging import getLogger
 
 def get_full_options(options,image):
     """
@@ -37,6 +38,10 @@ def get_full_options(options,image):
         
         @param full_options <dict>
     """
+
+    logger = getLogger(mv.logger_name)
+    
+    logger.debug("# Entering get_full_options method.")
     
     # Start with a copy of the options dictionary
     full_options = deepcopy(options)
@@ -54,12 +59,16 @@ def get_full_options(options,image):
     # Add allowed survey settings, with both level and setting possibilities
     for allowed_survey_setting in allowed_survey_settings:
 
-        full_options[allowed_survey_setting + "_level"] = image.get_generation_level('allowed_survey_setting')
+        logger.debug("Getting generation level: " + allowed_survey_setting + "_level")
+        full_options[allowed_survey_setting + "_level"] = image.get_generation_level(allowed_survey_setting)
         
-        param_settings = image.get_param('allowed_survey_setting').get_params()
+        logger.debug("Getting survey setting: " + allowed_survey_setting + "_level")
+        param_settings = image.get_param(allowed_survey_setting).get_params()
         full_options[allowed_survey_setting + "_setting"] = param_settings.name() + " " + param_settings.get_parameters_string()
     
     return full_options
+    
+    logger.debug("# Exiting get_full_options method.")
     
 def check_options(options):
     for name in options:
