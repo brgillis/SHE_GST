@@ -32,6 +32,7 @@ from astropy.table import Table
 import galsim
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
+from SHE_GST_GalaxyImageGeneration.check_config import get_full_options
 from SHE_GST_GalaxyImageGeneration.combine_dithers import combine_dithers
 from SHE_GST_GalaxyImageGeneration.compress_image import compress_image
 from SHE_GST_GalaxyImageGeneration.cutouts import make_cutout_image
@@ -840,8 +841,9 @@ def generate_image(image, options):
         detections_table = None
         details_table = None
     else:
-        detections_table = initialise_detections_table(image, options)
-        details_table = initialise_details_table(image, options)
+        full_options = get_full_options(options,image)
+        detections_table = initialise_detections_table(image, full_options)
+        details_table = initialise_details_table(image, full_options)
 
     # Print the galaxies and psfs
     p_bulge_psf_image = []
@@ -859,7 +861,10 @@ def generate_image(image, options):
 
     # Get the initial noise deviate
     if not options['suppress_noise']:
-        base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
+        if options['noise_seed'] != 0:
+            base_deviate = galsim.BaseDeviate(options['noise_seed'])
+        else:
+            base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
 
     # For each dither
     for di, (x_offset, y_offset) in zip(range(num_dithers), get_dither_scheme(options['dithering_scheme'])):

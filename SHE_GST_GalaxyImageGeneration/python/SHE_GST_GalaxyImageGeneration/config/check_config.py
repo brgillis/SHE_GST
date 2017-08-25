@@ -20,11 +20,47 @@
     the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 """
 
+from copy import deepcopy
+
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_option_values,
-                                                            generation_levels)
+                                                                 allowed_survey_settings,
+                                                                 generation_levels)
 
+def get_full_options(options,image):
+    """
+        @brief Get a dictionary containing a full description of the model for this image.
+        
+        @param options <dict> Options dictionary
+        
+        @param image <SSImage> image object containing realization of the physical model
+        
+        @param full_options <dict>
+    """
+    
+    # Start with a copy of the options dictionary
+    full_options = deepcopy(options)
+    
+    # Delete options which don't affect images
+    del (full_options['details_only'],
+         full_options['details_output_format'],
+         full_options['num_parallel_threads'],
+         full_options['output_folder'],
+         full_options['output_file_name_base'],
+         full_options['psf_file_name_base'],
+         full_options['seed'], # stored separately
+         )
+    
+    # Add allowed survey settings, with both level and setting possibilities
+    for allowed_survey_setting in allowed_survey_settings:
 
+        full_options[allowed_survey_setting + "_level"] = image.get_generation_level('allowed_survey_setting')
+        
+        param_settings = image.get_param('allowed_survey_setting').get_params()
+        full_options[allowed_survey_setting + "_setting"] = param_settings.name() + " " + param_settings.get_parameters_string()
+    
+    return full_options
+    
 def check_options(options):
     for name in options:
         # Check if it's an allowed value
