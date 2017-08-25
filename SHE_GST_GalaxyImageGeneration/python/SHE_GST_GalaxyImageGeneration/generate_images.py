@@ -748,14 +748,14 @@ def print_galaxies_and_psfs(image,
     return galaxies
 
 
-def add_image_header_info(image, gain, stamp_size_px):
+def add_image_header_info(image, gain, stamp_size, full_options):
     """
         @brief Adds various information to the image's header.
 
         @param image
             <galsim.Image> Galsim image object.
-        @param gain
-            <float> Gain of the image
+        @param full_options
+            <dict> Full options dictionary
     """
     
     logger = getLogger(mv.logger_name)
@@ -775,10 +775,17 @@ def add_image_header_info(image, gain, stamp_size_px):
         image.header[mv.galsim_version_label] = '<1.2'
         
     # Gain
-    image.header["CCDGAIN"] = (gain,'e-/ADU') # Bug in GalSim currentl prevents comments from working
+    image.header["CCDGAIN"] = (gain,'e-/ADU')
     
     # Stamp size
-    image.header["STAMP_PX"] = stamp_size_px
+    image.header["STAMP_PX"] = stamp_size
+    
+    # Model hash
+    image.header["MHASH"] = hash(frozenset(full_options))
+    
+    # Seeds
+    image.header["MSEED"] = image.get_full_seed()
+    image.header["NSEED"] = full_options["noise_seed"]
     
     logger.debug("Exiting add_image_header_info method.")
     
@@ -892,7 +899,7 @@ def generate_image(image, options):
             dither += sky_level_unsubtracted_pixel
                 
             # Add a header containing version info
-            add_image_header_info(dither,options['gain'],stamp_size_pix)
+            add_image_header_info(dither,options['gain'],stamp_size_pix,full_options)
 
             if not options['suppress_noise']:
                 
@@ -990,7 +997,7 @@ def generate_image(image, options):
                 combined_stamp_size_pix = 2*stamp_size_pix
             else:
                 raise Exception("Unrecognized dithering scheme: " + options['dithering_scheme'])
-            add_image_header_info(combined_image,options['gain'],combined_stamp_size_pix)
+            add_image_header_info(combined_image,options['gain'],combined_stamp_size_pix,full_options)
     
             # Output the new image
             combined_file_name = combined_file_name_base + '.fits'
@@ -1009,7 +1016,7 @@ def generate_image(image, options):
         for psf_image in p_psf_image:
             logger.debug("Printing "+label+" psf image")
             
-            add_image_header_info(psf_image,1.,options['psf_stamp_size'])
+            add_image_header_info(psf_image,1.,options['psf_stamp_size'],full_options)
         
             # Get the base name for this combined image
             psf_file_name = psf_file_name_base + label + '.fits'
