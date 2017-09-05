@@ -966,9 +966,9 @@ def generate_image(image, options):
                 dither = dither_and_flag[0]
                 flag = dither_and_flag[1]
             
-                dither_file_name = get_allowed_filename( "GST-SCI-"+str(di)+flag, model_hash, extension=".fits")
-                noise_file_name = get_allowed_filename( "GST-RMS-"+str(di)+flag, model_hash, extension=".fits")
-                mask_file_name = get_allowed_filename( "GST-MSK-"+str(di)+flag, model_hash, extension=".fits")
+                dither_file_name = get_allowed_filename( "GST_SCI_"+str(di)+flag, model_hash, extension=".fits")
+                noise_file_name = get_allowed_filename( "GST_RMS_"+str(di)+flag, model_hash, extension=".fits")
+                mask_file_name = get_allowed_filename( "GST_MSK_"+str(di)+flag, model_hash, extension=".fits")
                     
                 galsim.fits.write(dither, join(options['output_folder'],dither_file_name), clobber=True)
                 galsim.fits.write(noisemaps[di], join(options['output_folder'],noise_file_name), clobber=True)
@@ -988,11 +988,13 @@ def generate_image(image, options):
             details_table[datf.gal_x] += x_offset
             details_table[datf.gal_y] += y_offset
             
-            detections_file_name = get_allowed_filename( "GST-DTC-"+str(di), model_hash, extension=".fits" )
-            details_file_name = get_allowed_filename( "GST-DAL-"+str(di), model_hash, extension=".fits" )
+            detections_file_name = get_allowed_filename( "GST_DTC_"+str(di), model_hash, extension="" )
+            details_file_name = get_allowed_filename( "GST_DAL_"+str(di), model_hash, extension="" )
     
-            output_tables(detections_table, join(options['output_folder'],detections_file_name), options)
-            output_tables(details_table, join(options['output_folder'],details_file_name), options)
+            output_tables(detections_table, join(options['output_folder'],detections_file_name),
+                          options['details_output_format'])
+            output_tables(details_table, join(options['output_folder'],details_file_name),
+                          options['details_output_format'])
     
             # Undo dithering adjustment
             details_table[datf.gal_x] -= x_offset
@@ -1013,7 +1015,7 @@ def generate_image(image, options):
             logger.debug("Printing "+label+" psf image " + str(i))
         
             # Get the base name for this combined image
-            psf_file_name = get_allowed_filename("GST-PSF-"+tag+str(i), model_hash, extension=".fits" )
+            psf_file_name = get_allowed_filename("GST_PSF_"+tag+str(i), model_hash, extension=".fits" )
         
             # Output the new image
             galsim.fits.write(psf_image, join(options['output_folder'],psf_file_name), clobber=True)
