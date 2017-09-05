@@ -53,7 +53,7 @@ def load_psf_model_from_sed_z(sed, z=0.0, data_dir=mv.default_data_dir):
 
     z_str = "%0.2f" % z
 
-    model_filename = join(data_dir, sed_names[sed] + ".fits_0.000_0.804_" + z_str + ".fits")
+    model_filename = join(data_dir, "psf_models", sed_names[sed] + ".fits_0.000_0.804_" + z_str + ".fits")
     
     return load_psf_model_from_file(model_filename, scale=mv.psf_model_scale,
                                     offset=mv.default_psf_center_offset)
