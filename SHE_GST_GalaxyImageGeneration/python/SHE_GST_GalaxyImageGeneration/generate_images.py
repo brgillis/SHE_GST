@@ -52,6 +52,8 @@ from SHE_PPT.detections_table_format import initialise_detections_table
 from SHE_PPT.file_io import get_allowed_filename
 from SHE_PPT.table_utility import add_row, output_tables
 from SHE_PPT.utility import hash_any
+from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
+                                  model_seed_label,noise_seed_label)
 
 import numpy as np
     
@@ -750,7 +752,7 @@ def print_galaxies_and_psfs(image,
     return galaxies
 
 
-def add_image_header_info(image, gain, stamp_size, full_options):
+def add_image_header_info(image, gain, stamp_size, full_options, model_seed):
     """
         @brief Adds various information to the image's header.
 
@@ -777,17 +779,17 @@ def add_image_header_info(image, gain, stamp_size, full_options):
         image.header[mv.galsim_version_label] = '<1.2'
         
     # Gain
-    image.header["CCDGAIN"] = (gain,'e-/ADU')
+    image.header[gain_label] = (gain,'e-/ADU')
     
     # Stamp size
-    image.header["STAMP_PX"] = stamp_size
+    image.header[stamp_size_label] = stamp_size
     
     # Model hash
-    image.header["MHASH"] = hash(frozenset(full_options))
+    image.header[model_hash_label] = hash(frozenset(full_options),format="base64")
     
     # Seeds
-    image.header["MSEED"] = image.get_full_seed()
-    image.header["NSEED"] = full_options["noise_seed"]
+    image.header[model_seed_label] = model_seed
+    image.header[noise_seed_label] = full_options["noise_seed"]
     
     logger.debug("Exiting add_image_header_info method.")
     
@@ -816,9 +818,6 @@ def generate_image(image, options):
     centre_offset = -0.5
 
     # Setup
-
-    file_name_base = join(options['output_folder'], options['output_file_name_base'] + '_')
-    psf_file_name_base = join(options['output_folder'], options['psf_file_name_base'] + '_')
     
     image.autofill_children()
 
@@ -864,8 +863,6 @@ def generate_image(image, options):
                                        p_bulge_psf_image, p_disk_psf_image,
                                        full_x_size, full_y_size, pixel_scale,
                                        detections_table, details_table)
-
-    image_ID = image.get_full_ID()
 
     sky_level_subtracted = image.get_param_value('subtracted_background')
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
@@ -919,7 +916,7 @@ def generate_image(image, options):
             dither += sky_level_unsubtracted_pixel
                 
             # Add a header containing version info
-            add_image_header_info(dither,options['gain'],stamp_size_pix,full_options)
+            add_image_header_info(dither,options['gain'],stamp_size_pix,full_options,image.get_full_seed())
 
             if not options['suppress_noise']:
                 
@@ -991,8 +988,8 @@ def generate_image(image, options):
             details_table[datf.gal_x] += x_offset
             details_table[datf.gal_y] += y_offset
             
-            detections_file_name = get_allowed_filename( "GST-DTC-"+str[di], model_hash, extension=".fits")
-            details_file_name = get_allowed_filename( "GST-DAL-"+str[di], model_hash, extension=".fits")
+            detections_file_name = get_allowed_filename( "GST-DTC-"+str[di], model_hash, extension=".fits" )
+            details_file_name = get_allowed_filename( "GST-DAL-"+str[di], model_hash, extension=".fits" )
     
             output_tables(detections_table, detections_file_name, options)
             output_tables(details_table, details_file_name, options)
@@ -1006,14 +1003,14 @@ def generate_image(image, options):
     logger.info("Finished printing image " + str(image.get_local_ID()) + ".")
     
     # Output the psf images
-    for label, p_psf_image in (("bulge", p_bulge_psf_image), ("disk", p_disk_psf_image) ):
+    for tag, label, p_psf_image in (("B","bulge", p_bulge_psf_image), ("D","disk", p_disk_psf_image) ):
         for psf_image in p_psf_image:
             logger.debug("Printing "+label+" psf image")
             
-            add_image_header_info(psf_image,1.,options['psf_stamp_size'],full_options)
+            add_image_header_info(psf_image,1.,options['psf_stamp_size'],full_options,image.get_full_seed())
         
             # Get the base name for this combined image
-            psf_file_name = psf_file_name_base + label + '.fits'
+            psf_file_name = get_allowed_filename("GST-PSF-"+tag, model_hash, extension=".fits" )
         
             # Output the new image
             galsim.fits.write(psf_image, psf_file_name, clobber=True)
