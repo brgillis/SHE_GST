@@ -966,9 +966,9 @@ def generate_image(image, options):
                 dither = dither_and_flag[0]
                 flag = dither_and_flag[1]
             
-                dither_file_name = get_allowed_filename( "GST-SCI-"+str[di]+flag, model_hash, extension=".fits")
-                noise_file_name = get_allowed_filename( "GST-RMS-"+str[di]+flag, model_hash, extension=".fits")
-                mask_file_name = get_allowed_filename( "GST-MSK-"+str[di]+flag, model_hash, extension=".fits")
+                dither_file_name = get_allowed_filename( "GST-SCI-"+str(di)+flag, model_hash, extension=".fits")
+                noise_file_name = get_allowed_filename( "GST-RMS-"+str(di)+flag, model_hash, extension=".fits")
+                mask_file_name = get_allowed_filename( "GST-MSK-"+str(di)+flag, model_hash, extension=".fits")
                     
                 galsim.fits.write(dither, dither_file_name, clobber=True)
                 galsim.fits.write(noisemaps[di], noise_file_name, clobber=True)
@@ -988,8 +988,8 @@ def generate_image(image, options):
             details_table[datf.gal_x] += x_offset
             details_table[datf.gal_y] += y_offset
             
-            detections_file_name = get_allowed_filename( "GST-DTC-"+str[di], model_hash, extension=".fits" )
-            details_file_name = get_allowed_filename( "GST-DAL-"+str[di], model_hash, extension=".fits" )
+            detections_file_name = get_allowed_filename( "GST-DTC-"+str(di), model_hash, extension=".fits" )
+            details_file_name = get_allowed_filename( "GST-DAL-"+str(di), model_hash, extension=".fits" )
     
             output_tables(detections_table, detections_file_name, options)
             output_tables(details_table, details_file_name, options)
