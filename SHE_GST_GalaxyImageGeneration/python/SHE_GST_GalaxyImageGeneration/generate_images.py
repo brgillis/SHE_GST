@@ -1000,7 +1000,9 @@ def generate_image(image, options):
             # Undo dithering adjustment
             details_table[datf.gal_x] -= x_offset
             details_table[datf.gal_y] -= y_offset
-            logger.info("Finished printing tables for dither " + str(di) + ".")
+            logger.info("Finished printing tables for dither " + str(di) + ": \n" +
+                        join(options['output_folder'],detections_file_name) + "\n" +
+                        join(options['output_folder'],details_file_name) + "\n")
 
         logger.info("Finished printing dither " + str(di) + ".")
 
