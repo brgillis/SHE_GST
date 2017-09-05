@@ -48,7 +48,7 @@ from SHE_GST_IceBRGpy.logging import getLogger
 from SHE_GST_IceBRGpy.rebin import rebin
 
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
-from SHE_PPT.detections_table_format import initialise_detections_table
+from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
 from SHE_PPT.file_io import get_allowed_filename
 from SHE_PPT.table_utility import add_row, output_tables
 from SHE_PPT.utility import hash_any
@@ -737,13 +737,13 @@ def print_galaxies_and_psfs(image,
         if is_target_gal and not options['details_only']:
             
             # Add to detections table only if it's a target galaxy
-            add_row(detections_table,
-                    ID=galaxy.get_full_ID(),
-                    x_center_pix=int(xc + xp_sp_shift),
-                    y_center_pix=int(yc + yp_sp_shift),
-                    psf_x_center_pix=psf_xc,
-                    psf_y_center_pix=psf_yc,
-                    )
+            detections_table.add_row(vals={
+                    detf.ID: galaxy.get_full_ID(),
+                    detf.gal_x: int(xc + xp_sp_shift),
+                    detf.gal_y: int(yc + yp_sp_shift),
+                    detf.psf_x: psf_xc,
+                    detf.psf_y: psf_yc,
+                    })
             
             del final_disk, disk_psf_profile
 
