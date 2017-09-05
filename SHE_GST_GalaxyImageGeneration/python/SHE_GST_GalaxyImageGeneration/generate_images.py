@@ -920,7 +920,7 @@ def generate_image(image, options):
 
             if not options['suppress_noise']:
                 
-                noisemaps[di] = get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel*np.ones_like(dither.array),
+                noisemaps[di] *= get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel*np.ones_like(dither.array),
                                                         sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
                                                         read_noise_count=options['read_noise'],
                                                         pixel_scale=pixel_scale,
