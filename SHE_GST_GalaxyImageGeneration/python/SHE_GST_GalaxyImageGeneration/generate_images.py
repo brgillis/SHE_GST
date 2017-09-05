@@ -970,15 +970,15 @@ def generate_image(image, options):
                 noise_file_name = get_allowed_filename( "GST-RMS-"+str(di)+flag, model_hash, extension=".fits")
                 mask_file_name = get_allowed_filename( "GST-MSK-"+str(di)+flag, model_hash, extension=".fits")
                     
-                galsim.fits.write(dither, options['output_folder']+dither_file_name, clobber=True)
-                galsim.fits.write(noisemaps[di], options['output_folder']+noise_file_name, clobber=True)
-                galsim.fits.write(maskmaps[di], options['output_folder']+mask_file_name, clobber=True)
+                galsim.fits.write(dither, join(options['output_folder'],dither_file_name), clobber=True)
+                galsim.fits.write(noisemaps[di], join(options['output_folder'],noise_file_name), clobber=True)
+                galsim.fits.write(maskmaps[di], join(options['output_folder'],mask_file_name), clobber=True)
         
                 # Compress the image if necessary
                 if options['compress_images'] >= 1:
-                    compress_image(options['output_folder']+dither_file_name, lossy=(options['compress_images'] >= 2))
-                    compress_image(options['output_folder']+noise_file_name, lossy=(options['compress_images'] >= 2))
-                    compress_image(options['output_folder']+mask_file_name, lossy=(options['compress_images'] >= 2))
+                    compress_image(join(options['output_folder'],dither_file_name), lossy=(options['compress_images'] >= 2))
+                    compress_image(join(options['output_folder'],noise_file_name), lossy=(options['compress_images'] >= 2))
+                    compress_image(join(options['output_folder'],mask_file_name), lossy=(options['compress_images'] >= 2))
 
 
         # Output the datafile if necessary
@@ -991,8 +991,8 @@ def generate_image(image, options):
             detections_file_name = get_allowed_filename( "GST-DTC-"+str(di), model_hash, extension=".fits" )
             details_file_name = get_allowed_filename( "GST-DAL-"+str(di), model_hash, extension=".fits" )
     
-            output_tables(detections_table, options['output_folder']+detections_file_name, options)
-            output_tables(details_table, options['output_folder']+details_file_name, options)
+            output_tables(detections_table, join(options['output_folder'],detections_file_name), options)
+            output_tables(details_table, join(options['output_folder'],details_file_name), options)
     
             # Undo dithering adjustment
             details_table[datf.gal_x] -= x_offset
@@ -1016,7 +1016,7 @@ def generate_image(image, options):
             psf_file_name = get_allowed_filename("GST-PSF-"+tag+str(i), model_hash, extension=".fits" )
         
             # Output the new image
-            galsim.fits.write(psf_image, options['output_folder']+psf_file_name, clobber=True)
+            galsim.fits.write(psf_image, join(options['output_folder'],psf_file_name), clobber=True)
         
             logger.info("Finished printing "+label+" psf image " + str(i))
 
