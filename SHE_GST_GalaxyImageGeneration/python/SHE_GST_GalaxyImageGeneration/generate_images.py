@@ -785,7 +785,7 @@ def add_image_header_info(image, gain, stamp_size, full_options, model_seed):
     image.header[stamp_size_label] = stamp_size
     
     # Model hash
-    image.header[model_hash_label] = hash(frozenset(full_options),format="base64")
+    image.header[model_hash_label] = hash_any(frozenset(full_options),format="base64")
     
     # Seeds
     image.header[model_seed_label] = model_seed
