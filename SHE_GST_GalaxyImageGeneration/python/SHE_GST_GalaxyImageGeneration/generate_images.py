@@ -984,7 +984,6 @@ def generate_image(image, options):
         # Output the datafile if necessary
 
         if not options['details_output_format']=='none':
-            logger.info("Printing tables for dither " + str(di) + ".")
             # Temporarily adjust centre positions by dithering
             details_table[datf.gal_x] += x_offset
             details_table[datf.gal_y] += y_offset
@@ -1000,9 +999,7 @@ def generate_image(image, options):
             # Undo dithering adjustment
             details_table[datf.gal_x] -= x_offset
             details_table[datf.gal_y] -= y_offset
-            logger.info("Finished printing tables for dither " + str(di) + ": \n" +
-                        join(options['output_folder'],detections_file_name) + "\n" +
-                        join(options['output_folder'],details_file_name) + "\n")
+            logger.info("Finished printing tables for dither " + str(di))
 
         logger.info("Finished printing dither " + str(di) + ".")
 
