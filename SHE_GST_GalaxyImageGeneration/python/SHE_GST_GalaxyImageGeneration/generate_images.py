@@ -1004,18 +1004,21 @@ def generate_image(image, options):
     
     # Output the psf images
     for tag, label, p_psf_image in (("B","bulge", p_bulge_psf_image), ("D","disk", p_disk_psf_image) ):
-        for psf_image in p_psf_image:
-            logger.debug("Printing "+label+" psf image")
-            
-            add_image_header_info(psf_image,1.,options['psf_stamp_size'],full_options,image.get_full_seed())
+        
+        psf_image = p_psf_image[0]    
+        add_image_header_info(psf_image,1.,options['psf_stamp_size'],full_options,image.get_full_seed())
+        
+        # For now, just make multiple copies of the one psf image
+        for i in range(num_dithers):
+            logger.debug("Printing "+label+" psf image " + str(i))
         
             # Get the base name for this combined image
-            psf_file_name = get_allowed_filename("GST-PSF-"+tag, model_hash, extension=".fits" )
+            psf_file_name = get_allowed_filename("GST-PSF-"+tag+str(i), model_hash, extension=".fits" )
         
             # Output the new image
             galsim.fits.write(psf_image, options['output_folder']+psf_file_name, clobber=True)
         
-            logger.info("Finished printing "+label+" psf image.")
+            logger.info("Finished printing "+label+" psf image " + str(i))
 
     # We no longer need this image's children, so clear it to save memory
     image.clear()
