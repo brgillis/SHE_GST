@@ -101,7 +101,7 @@ def generate_images(survey, options):
         survey.set_seed(options['seed'])
 
     # Create empty image objects for the survey
-    survey.fill_images()
+    survey.fill_image_groups()
     image_groups = survey.get_image_groups()
 
     # Multiprocessing doesn't currently work, so print a warning if it's requested
@@ -139,6 +139,8 @@ def generate_image_group(image_group, options):
     Returns:
         None
     """
+    
+    image_group.fill_images()
     
     # Get the model hash so we can set up filenames
     full_options = get_full_options(options,image_group)
