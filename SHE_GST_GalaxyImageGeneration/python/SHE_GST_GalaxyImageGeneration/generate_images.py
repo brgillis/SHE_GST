@@ -309,7 +309,7 @@ def print_galaxies_and_psfs(image,
                 new_galaxy = field.add_galaxy()
 
                 bad_type = True
-is_target_galaxy
+                
                 while bad_type:
                     new_galaxy.clear()
                     new_galaxy.generate_parameters()
