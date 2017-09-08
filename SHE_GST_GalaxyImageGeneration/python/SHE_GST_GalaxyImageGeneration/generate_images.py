@@ -186,11 +186,19 @@ def generate_image_group(image_group, options):
             
             # Details table
             dal_hdu = table_to_hdu(details_tables[i])
-            fits.append( join(options['output_folder'],details_table_filenames[i]), dal_hdu)
+            f = fits.open(join(options['output_folder'],details_table_filenames[i]), mode='append')
+            try:
+                f.append(dal_hdu)
+            finally:
+                f.close()
             
             # Detections table
             dtc_hdu = table_to_hdu(detections_tables[i])
-            fits.append( join(options['output_folder'],detections_table_filenames[i]), dtc_hdu)
+            f = fits.open(join(options['output_folder'],detections_table_filenames[i]), mode='append')
+            try:
+                f.append(dtc_hdu)
+            finally:
+                f.close()
             
             # PSF image
             fits.append( join(options['output_folder'],psf_image_filenames[i]), psf_images[i].array, fits.header.Header(psf_images[i].header.items()))
