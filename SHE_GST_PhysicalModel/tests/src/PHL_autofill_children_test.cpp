@@ -38,6 +38,7 @@
 #include "SHE_GST_PhysicalModel/levels/Field.hpp"
 #include "SHE_GST_PhysicalModel/levels/Galaxy.hpp"
 #include "SHE_GST_PhysicalModel/levels/Image.hpp"
+#include "SHE_GST_PhysicalModel/levels/ImageGroup.hpp"
 #include "SHE_GST_PhysicalModel/levels/Survey.hpp"
 #include "SHE_GST_PhysicalModel/default_values.hpp"
 
