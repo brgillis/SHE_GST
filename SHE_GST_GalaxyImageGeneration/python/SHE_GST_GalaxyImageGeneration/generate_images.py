@@ -404,6 +404,8 @@ def print_galaxies_and_psfs(image,
     if ncols == 0:
         ncols = 1
     nrows = int(np.ceil(num_target_galaxies / ncols))
+    if nrows == 0:
+        nrows = 1
     
     # Indices to keep track of row and column we're drawing galaxy/psf to
     icol = -1
