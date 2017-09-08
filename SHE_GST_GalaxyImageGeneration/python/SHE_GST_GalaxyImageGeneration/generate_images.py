@@ -27,6 +27,7 @@ from __future__ import division
 from multiprocessing import cpu_count, Pool
 from os.path import join
 from copy import deepcopy
+from collections import OrderedDict
 
 from astropy.table import Table
 from astropy.io import fits
@@ -172,21 +173,21 @@ def generate_image_group(image_group, options):
          details_tables, detections_tables, psf_images) = generate_image(image,options)
         
         # Append to the fits file for each dither
-        for i in num_dithers:
+        for i in range(num_dithers):
             
             # Science image
-            im_hdu = fits.ImageHDU(image_dithers[i].array)
-            im_hdr = image_dithers[i].header
+            im_hdu = fits.ImageHDU(image_dithers[i][0][0].array)
+            im_hdr = OrderedDict(image_dithers[i][0][0].header.items())
             fits.append( image_filenames[i], im_hdu, im_hdr)
             
             # Noisemap
             rms_hdu = fits.ImageHDU(noisemaps[i].array)
-            rms_hdr = noisemaps[i].header
+            rms_hdr = OrderedDict(noisemaps[i].header.items())
             fits.append( image_filenames[i], rms_hdu, rms_hdr)
             
             # Maskmap
             flg_hdu = fits.ImageHDU(maskmaps[i].array)
-            flg_hdr = maskmaps[i].header
+            flg_hdr = OrderedDict(maskmaps[i].header.items())
             fits.append( image_filenames[i], flg_hdu, flg_hdr)
             
             # Details table
@@ -199,7 +200,7 @@ def generate_image_group(image_group, options):
             
             # PSF image
             psf_hdu = fits.ImageHDU(psf_images[i].array)
-            psf_hdr = psf_images[i].header
+            psf_hdr = OrderedDict(psf_images[i].header.items())
             fits.append( psf_image_filenames[i], psf_hdu, psf_hdr)
             
     return
@@ -1078,8 +1079,6 @@ def generate_image(image, options):
             # Temporarily adjust centre positions by dithering
             details_table[datf.gal_x] += x_offset
             details_table[datf.gal_y] += y_offset
-            detections_table[detf.gal_x] = np.vectorize(round)(details_table[datf.gal_x])
-            detections_table[detf.gal_y] = np.vectorize(round)(details_table[datf.gal_y])
             
             detections_tables.append(deepcopy(detections_table))
             details_tables.append(deepcopy(details_table))
@@ -1087,8 +1086,6 @@ def generate_image(image, options):
             # Undo dithering adjustment
             details_table[datf.gal_x] -= x_offset
             details_table[datf.gal_y] -= y_offset
-            detections_table[detf.gal_x] = np.vectorize(round)(details_table[datf.gal_x])
-            detections_table[detf.gal_y] = np.vectorize(round)(details_table[datf.gal_y])
 
         logger.info("Finished printing dither " + str(di) + ".")
 
