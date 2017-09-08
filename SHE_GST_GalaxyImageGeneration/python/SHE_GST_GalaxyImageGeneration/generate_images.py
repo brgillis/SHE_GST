@@ -27,7 +27,6 @@ from __future__ import division
 from multiprocessing import cpu_count, Pool
 from os.path import join
 from copy import deepcopy
-from collections import OrderedDict
 
 from astropy.table import Table
 from astropy.io import fits
@@ -176,32 +175,25 @@ def generate_image_group(image_group, options):
         for i in range(num_dithers):
             
             # Science image
-            im_hdu = fits.ImageHDU(image_dithers[i][0][0].array)
-            im_hdr = OrderedDict(image_dithers[i][0][0].header.items())
-            fits.append( image_filenames[i], im_hdu, im_hdr)
+            fits.append( join(options['output_folder'],image_filenames[i]), image_dithers[i][0][0].array,
+                         fits.header.Header(image_dithers[i][0][0].header.items()))
             
             # Noisemap
-            rms_hdu = fits.ImageHDU(noisemaps[i].array)
-            rms_hdr = OrderedDict(noisemaps[i].header.items())
-            fits.append( image_filenames[i], rms_hdu, rms_hdr)
+            fits.append( join(options['output_folder'],image_filenames[i]), noisemaps[i].array, fits.header.Header(noisemaps[i].header.items()))
             
             # Maskmap
-            flg_hdu = fits.ImageHDU(maskmaps[i].array)
-            flg_hdr = OrderedDict(maskmaps[i].header.items())
-            fits.append( image_filenames[i], flg_hdu, flg_hdr)
+            fits.append( join(options['output_folder'],image_filenames[i]), maskmaps[i].array, fits.header.Header(maskmaps[i].header.items()))
             
             # Details table
             dal_hdu = table_to_hdu(details_tables[i])
-            fits.append( details_table_filenames[i], dal_hdu)
+            fits.append( join(options['output_folder'],details_table_filenames[i]), dal_hdu)
             
             # Detections table
             dtc_hdu = table_to_hdu(detections_tables[i])
-            fits.append( detections_table_filenames[i], dtc_hdu)
+            fits.append( join(options['output_folder'],detections_table_filenames[i]), dtc_hdu)
             
             # PSF image
-            psf_hdu = fits.ImageHDU(psf_images[i].array)
-            psf_hdr = OrderedDict(psf_images[i].header.items())
-            fits.append( psf_image_filenames[i], psf_hdu, psf_hdr)
+            fits.append( join(options['output_folder'],psf_image_filenames[i]), psf_images[i].array, fits.header.Header(psf_images[i].header.items()))
             
     return
 
