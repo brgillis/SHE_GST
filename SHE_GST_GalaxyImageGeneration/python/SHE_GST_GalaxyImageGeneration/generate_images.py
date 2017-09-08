@@ -154,7 +154,7 @@ def generate_image_group(image_group, options):
     psf_image_filenames = []
     
     # Get the filenames and open the files for writing
-    for i in num_dithers:
+    for i in range(num_dithers):
         for filename_list, tag in ((image_filenames,"EXP"),
                                    (details_table_filenames,"DAL"),
                                    (detections_table_filenames,"DTC"),
