@@ -44,9 +44,7 @@ def run_from_config_file(func, config_file_name, *args, **kwargs):
 
     survey, options = set_up_from_config_file(config_file_name)
 
-    run_from_survey_and_options(func, survey, options, *args, **kwargs)
-
-    return
+    return run_from_survey_and_options(func, survey, options, *args, **kwargs)
 
 def run_from_args(func, cline_args, *args, **kwargs):
 
@@ -65,11 +63,11 @@ def run_from_args(func, cline_args, *args, **kwargs):
     # Apply cline-args
     apply_args(survey, options, cline_args)
 
-    run_from_survey_and_options(func, survey, options, *args, **kwargs)
+    results = run_from_survey_and_options(func, survey, options, *args, **kwargs)
     
     logger.debug("# Exiting run_from_args method.")
 
-    return
+    return results
 
 def run_from_config_file_and_args(func, config_file_name, cline_args, *args, **kwargs):
 
@@ -78,9 +76,8 @@ def run_from_config_file_and_args(func, config_file_name, cline_args, *args, **k
     # Apply cline-args
     apply_args(survey, options, cline_args)
 
-    run_from_survey_and_options(func, survey, options, *args, **kwargs)
-
-    return
+    return run_from_survey_and_options(func, survey, options, *args, **kwargs)
+    
 
 def run_from_survey_and_options(func, survey, options, *args, **kwargs):
 
@@ -126,10 +123,10 @@ def run_from_survey_and_options(func, survey, options, *args, **kwargs):
             pass
 
     # We have the input we want, now run the program
-    func(survey, options, *args, **kwargs)
+    results = func(survey, options, *args, **kwargs)
 
     # Save fftw wisdom
     if have_pyfftw:
         pickle.dump(pyfftw.export_wisdom(), open(mv.fftw_wisdom_filename, "wb"))
 
-    return
+    return results

@@ -6,17 +6,17 @@
 
  **********************************************************************
 
- Copyright (C) 2012-2020 Euclid Science Ground Segment      
+ Copyright (C) 2012-2020 Euclid Science Ground Segment
 
- This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General    
- Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)    
- any later version.    
+ This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)
+ any later version.
 
- This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied    
- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more    
- details.    
+ This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details.
 
- You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
+ You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
  the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 \**********************************************************************/
@@ -32,12 +32,14 @@ namespace SHE_GST_PhysicalModel { namespace dv {
 
 constexpr const int_t survey_level = 0;
 
-constexpr const flt_t num_images = 1;
+constexpr const flt_t num_image_groups = 1;
 constexpr const flt_t pixel_scale = 0.1; // arcsec/pixel
 
 // ImageGroup-level
 
 constexpr const int_t image_group_level = 1;
+
+constexpr const flt_t num_images = 1;
 
 // Image-level
 
