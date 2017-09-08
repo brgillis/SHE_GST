@@ -151,14 +151,16 @@ def generate_image_group(image_group, options):
     image_filenames = []
     details_table_filenames = []
     detections_table_filenames = []
-    psf_image_filenames = []
+    bulge_psf_image_filenames = []
+    disk_psf_image_filenames = []
     
     # Get the filenames and open the files for writing
     for i in range(num_dithers):
         for filename_list, tag in ((image_filenames,"EXP"),
                                    (details_table_filenames,"DAL"),
                                    (detections_table_filenames,"DTC"),
-                                   (psf_image_filenames,"PSF"),):
+                                   (bulge_psf_image_filenames,"PSF-B"),
+                                   (disk_psf_image_filenames,"PSF-D"),):
         
             # Get the filename
             filename = get_allowed_filename( "GST_"+tag+"_D"+str(i), model_hash, extension=".fits")
@@ -200,8 +202,9 @@ def generate_image_group(image_group, options):
             finally:
                 f.close()
             
-            # PSF image
-            fits.append( join(options['output_folder'],psf_image_filenames[i]), psf_images[i].array, fits.header.Header(psf_images[i].header.items()))
+            # PSF images
+            fits.append( join(options['output_folder'],bulge_psf_image_filenames[i]), psf_images[i][0].array)
+            fits.append( join(options['output_folder'],disk_psf_image_filenames[i]), psf_images[i][1].array)
             
     return
 
@@ -1052,25 +1055,6 @@ def generate_image(image, options):
             else:
                 noisemaps[di] *= 0
                 dithers[di] = [(dithers[di], '')]
-    
-            for dither_and_flag in dithers[di]:
-                    
-                dither = dither_and_flag[0]
-                flag = dither_and_flag[1]
-            
-                dither_file_name = get_allowed_filename( "GST_SCI_"+str(di)+flag, model_hash, extension=".fits")
-                noise_file_name = get_allowed_filename( "GST_RMS_"+str(di)+flag, model_hash, extension=".fits")
-                mask_file_name = get_allowed_filename( "GST_FLG_"+str(di)+flag, model_hash, extension=".fits")
-                    
-                galsim.fits.write(dither, join(options['output_folder'],dither_file_name), clobber=True)
-                galsim.fits.write(noisemaps[di], join(options['output_folder'],noise_file_name), clobber=True)
-                galsim.fits.write(maskmaps[di], join(options['output_folder'],mask_file_name), clobber=True)
-        
-                # Compress the image if necessary
-                if options['compress_images'] >= 1:
-                    compress_image(join(options['output_folder'],dither_file_name), lossy=(options['compress_images'] >= 2))
-                    compress_image(join(options['output_folder'],noise_file_name), lossy=(options['compress_images'] >= 2))
-                    compress_image(join(options['output_folder'],mask_file_name), lossy=(options['compress_images'] >= 2))
 
 
         # Set up the datafiles if necessary
@@ -1096,7 +1080,7 @@ def generate_image(image, options):
     # For now, just make multiple copies of the one psf image
     for _ in range(num_dithers):
     
-        psf_images.append((deepcopy(p_bulge_psf_image[0]),deepcopy(p_disk_psf_image)))
+        psf_images.append((deepcopy(p_bulge_psf_image[0]),deepcopy(p_disk_psf_image[0])))
 
     # We no longer need this image's children, so clear it to save memory
     image.clear()
