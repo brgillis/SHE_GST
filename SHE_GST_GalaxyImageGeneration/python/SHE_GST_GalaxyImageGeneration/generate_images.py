@@ -1078,8 +1078,8 @@ def generate_image(image, options):
             # Temporarily adjust centre positions by dithering
             details_table[datf.gal_x] += x_offset
             details_table[datf.gal_y] += y_offset
-            detections_table[detf.gal_x] = round(details_table[datf.gal_x])
-            detections_table[detf.gal_y] = round(details_table[datf.gal_y])
+            detections_table[detf.gal_x] = np.vectorize(round)(details_table[datf.gal_x])
+            detections_table[detf.gal_y] = np.vectorize(round)(details_table[datf.gal_y])
             
             detections_tables.append(deepcopy(detections_table))
             details_tables.append(deepcopy(details_table))
@@ -1087,8 +1087,8 @@ def generate_image(image, options):
             # Undo dithering adjustment
             details_table[datf.gal_x] -= x_offset
             details_table[datf.gal_y] -= y_offset
-            detections_table[detf.gal_x] = round(details_table[datf.gal_x])
-            detections_table[detf.gal_y] = round(details_table[datf.gal_y])
+            detections_table[detf.gal_x] = np.vectorize(round)(details_table[datf.gal_x])
+            detections_table[detf.gal_y] = np.vectorize(round)(details_table[datf.gal_y])
 
         logger.info("Finished printing dither " + str(di) + ".")
 
