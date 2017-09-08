@@ -404,6 +404,8 @@ def print_galaxies_and_psfs(image,
 
     # Figure out how to set up the grid for galaxy/psf stamps, making it as square as possible
     ncols = int(np.ceil(np.sqrt(num_target_galaxies)))
+    if ncols == 0:
+        ncols = 1
     nrows = int(np.ceil(num_target_galaxies / ncols))
     
     # Indices to keep track of row and column we're drawing galaxy/psf to
