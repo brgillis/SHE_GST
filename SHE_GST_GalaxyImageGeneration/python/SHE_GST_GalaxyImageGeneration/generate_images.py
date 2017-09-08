@@ -29,6 +29,7 @@ from os.path import join
 from copy import deepcopy
 
 from astropy.table import Table
+from astropy.io import fits
 import galsim
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
@@ -50,10 +51,11 @@ from SHE_GST_IceBRGpy.rebin import rebin
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
 from SHE_PPT.file_io import get_allowed_filename
-from SHE_PPT.table_utility import add_row, output_tables
+from SHE_PPT.table_utility import add_row, output_tables, table_to_hdu
 from SHE_PPT.utility import hash_any
 from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
-                                  model_seed_label,noise_seed_label)
+                                  model_seed_label,noise_seed_label,extname_label,
+                                  sci_tag,noisemap_tag,mask_tag)
 
 import numpy as np
     
@@ -69,12 +71,12 @@ try:
 except ImportError as _e:
     from scipy.signal import fftconvolve as convolve
 
-class generate_image_with_options_caller(object):
+class generate_image_group_with_options_caller(object):
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
     def __call__(self, x):
-        return generate_image(x, *self.args, **self.kwargs)
+        return generate_image_group(x, *self.args, **self.kwargs)
 
 def generate_images(survey, options):
     """
@@ -100,7 +102,7 @@ def generate_images(survey, options):
 
     # Create empty image objects for the survey
     survey.fill_images()
-    images = survey.get_images()
+    image_groups = survey.get_image_groups()
 
     # Multiprocessing doesn't currently work, so print a warning if it's requested
 
@@ -113,17 +115,91 @@ def generate_images(survey, options):
 
     # If we just have one thread, we'll just use a simply function call to ease debugging
     if options['num_parallel_threads'] == 1:
-        for image in images:
-            generate_image(image, options)
+        for image_group in image_groups:
+            generate_image_group(image_group, options)
     else:
         if options['num_parallel_threads'] <= 0:
             options['num_parallel_threads'] += cpu_count()
 
         pool = Pool(processes=cpu_count(), maxtasksperchild=1)
-        pool.map(generate_image_with_options_caller(options), images, chunksize=1)
+        pool.map(generate_image_group_with_options_caller(options), image_group, chunksize=1)
         
     logger.debug("Exiting generate_images method.")
 
+    return
+
+def generate_image_group(image_group, options):
+    """
+    Generate a FOV and save it in a multi-extension FITS file.
+    
+    Args:
+        image_group: <SHE_GST_PhysicalModel.ImageGroup> Physical model for the image group
+        options: <dict> Options dictionary
+        
+    Returns:
+        None
+    """
+    
+    # Get the model hash so we can set up filenames
+    full_options = get_full_options(options,image_group)
+    model_hash = hash_any(frozenset(full_options),format="base64")
+    
+    num_dithers = len(get_dither_scheme(options['dithering_scheme']))
+    
+    image_filenames = []
+    details_table_filenames = []
+    detections_table_filenames = []
+    psf_image_filenames = []
+    
+    # Get the filenames and open the files for writing
+    for i in num_dithers:
+        for filename_list, tag in ((image_filenames,"EXP"),
+                                   (details_table_filenames,"DAL"),
+                                   (detections_table_filenames,"DTC"),
+                                   (psf_image_filenames,"PSF"),):
+        
+            # Get the filename
+            filename = get_allowed_filename( "GST_"+tag+"_D"+str(i), model_hash, extension=".fits")
+            filename_list.append(filename)
+            
+    # Generate each image, then append it and its data to the fits files
+    for image in image_group.get_image_descendants():
+        
+        # Generate the data
+        (image_dithers, noisemaps, maskmaps,
+         details_tables, detections_tables, psf_images) = generate_image(image,options)
+        
+        # Append to the fits file for each dither
+        for i in num_dithers:
+            
+            # Science image
+            im_hdu = fits.ImageHDU(image_dithers[i].array)
+            im_hdr = image_dithers[i].header
+            fits.append( image_filenames[i], im_hdu, im_hdr)
+            
+            # Noisemap
+            rms_hdu = fits.ImageHDU(noisemaps[i].array)
+            rms_hdr = noisemaps[i].header
+            fits.append( image_filenames[i], rms_hdu, rms_hdr)
+            
+            # Maskmap
+            flg_hdu = fits.ImageHDU(maskmaps[i].array)
+            flg_hdr = maskmaps[i].header
+            fits.append( image_filenames[i], flg_hdu, flg_hdr)
+            
+            # Details table
+            dal_hdu = table_to_hdu(details_tables[i])
+            fits.append( details_table_filenames[i], dal_hdu)
+            
+            # Detections table
+            dtc_hdu = table_to_hdu(detections_tables[i])
+            fits.append( detections_table_filenames[i], dtc_hdu)
+            
+            # PSF image
+            psf_hdu = fits.ImageHDU(psf_images[i].array)
+            psf_hdr = psf_images[i].header
+            fits.append( psf_image_filenames[i], psf_hdu, psf_hdr)
+            
     return
 
 def print_galaxies_and_psfs(image,
@@ -752,11 +828,12 @@ def print_galaxies_and_psfs(image,
     return galaxies
 
 
-def add_image_header_info(image, gain, stamp_size, full_options, model_seed):
+def add_image_header_info(gs_image, gain, stamp_size, full_options, model_seed,
+                          extname):
     """
         @brief Adds various information to the image's header.
 
-        @param image
+        @param gs_image
             <galsim.Image> Galsim image object.
         @param full_options
             <dict> Full options dictionary
@@ -766,30 +843,33 @@ def add_image_header_info(image, gain, stamp_size, full_options, model_seed):
     logger.debug("Entering add_image_header_info method.")
 
     # Add a header attribute if needed
-    if not hasattr(image, "header"):
-        image.header = galsim.FitsHeader()
+    if not hasattr(gs_image, "header"):
+        gs_image.header = galsim.FitsHeader()
 
     # SHE_GST_PhysicalModel package version label
-    image.header[mv.version_label] = mv.version_str
+    gs_image.header[mv.version_label] = mv.version_str
 
     # Galsim version label
     if hasattr(galsim, "__version__"):
-        image.header[mv.galsim_version_label] = galsim.__version__
+        gs_image.header[mv.galsim_version_label] = galsim.__version__
     else:
-        image.header[mv.galsim_version_label] = '<1.2'
+        gs_image.header[mv.galsim_version_label] = '<1.2'
         
     # Gain
-    image.header[gain_label] = (gain,'e-/ADU')
+    gs_image.header[gain_label] = (gain,'e-/ADU')
     
     # Stamp size
-    image.header[stamp_size_label] = stamp_size
+    gs_image.header[stamp_size_label] = stamp_size
     
     # Model hash
-    image.header[model_hash_label] = hash_any(frozenset(full_options),format="base64")
+    gs_image.header[model_hash_label] = hash_any(frozenset(full_options),format="base64")
     
     # Seeds
-    image.header[model_seed_label] = model_seed
-    image.header[noise_seed_label] = full_options["noise_seed"]
+    gs_image.header[model_seed_label] = model_seed
+    gs_image.header[noise_seed_label] = full_options["noise_seed"]
+    
+    # Extension name
+    gs_image.header[extname_label] = extname
     
     logger.debug("Exiting add_image_header_info method.")
     
@@ -875,6 +955,10 @@ def generate_image(image, options):
         else:
             base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
 
+    detections_tables = []
+    details_tables = []
+    psf_images = []
+
     # For each dither
     for di, (x_offset, y_offset) in zip(range(num_dithers), get_dither_scheme(options['dithering_scheme'])):
 
@@ -916,7 +1000,12 @@ def generate_image(image, options):
             dither += sky_level_unsubtracted_pixel
                 
             # Add a header containing version info
-            add_image_header_info(dither,options['gain'],stamp_size_pix,full_options,image.get_full_seed())
+            add_image_header_info(dither,options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+sci_tag)
+            add_image_header_info(noisemaps[di],options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+noisemap_tag)
+            add_image_header_info(maskmaps[di],options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+mask_tag)
 
             if not options['suppress_noise']:
                 
@@ -981,50 +1070,37 @@ def generate_image(image, options):
                     compress_image(join(options['output_folder'],mask_file_name), lossy=(options['compress_images'] >= 2))
 
 
-        # Output the datafile if necessary
+        # Set up the datafiles if necessary
 
         if not options['details_output_format']=='none':
             # Temporarily adjust centre positions by dithering
             details_table[datf.gal_x] += x_offset
             details_table[datf.gal_y] += y_offset
+            detections_table[detf.gal_x] = round(details_table[datf.gal_x])
+            detections_table[detf.gal_y] = round(details_table[datf.gal_y])
             
-            detections_file_name = get_allowed_filename( "GST_DTC_"+str(di), model_hash, extension="" )
-            details_file_name = get_allowed_filename( "GST_DAL_"+str(di), model_hash, extension="" )
-    
-            output_tables(detections_table, join(options['output_folder'],detections_file_name),
-                          options['details_output_format'])
-            output_tables(details_table, join(options['output_folder'],details_file_name),
-                          options['details_output_format'])
+            detections_tables.append(deepcopy(detections_table))
+            details_tables.append(deepcopy(details_table))
     
             # Undo dithering adjustment
             details_table[datf.gal_x] -= x_offset
             details_table[datf.gal_y] -= y_offset
-            logger.info("Finished printing tables for dither " + str(di))
+            detections_table[detf.gal_x] = round(details_table[datf.gal_x])
+            detections_table[detf.gal_y] = round(details_table[datf.gal_y])
 
         logger.info("Finished printing dither " + str(di) + ".")
 
     logger.info("Finished printing image " + str(image.get_local_ID()) + ".")
     
     # Output the psf images
-    for tag, label, p_psf_image in (("B","bulge", p_bulge_psf_image), ("D","disk", p_disk_psf_image) ):
         
-        psf_image = p_psf_image[0]    
-        add_image_header_info(psf_image,1.,options['psf_stamp_size'],full_options,image.get_full_seed())
-        
-        # For now, just make multiple copies of the one psf image
-        for i in range(num_dithers):
-            logger.debug("Printing "+label+" psf image " + str(i))
-        
-            # Get the base name for this combined image
-            psf_file_name = get_allowed_filename("GST_PSF_"+tag+str(i), model_hash, extension=".fits" )
-        
-            # Output the new image
-            galsim.fits.write(psf_image, join(options['output_folder'],psf_file_name), clobber=True)
-        
-            logger.info("Finished printing "+label+" psf image " + str(i))
+    # For now, just make multiple copies of the one psf image
+    for _ in range(num_dithers):
+    
+        psf_images.append((deepcopy(p_bulge_psf_image[0]),deepcopy(p_disk_psf_image)))
 
     # We no longer need this image's children, so clear it to save memory
     image.clear()
 
     logger.debug("Exiting generate_image method.")
-    return
+    return dithers, noisemaps, maskmaps, details_tables, detections_tables, psf_images
