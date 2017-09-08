@@ -48,8 +48,12 @@ from SHE_GST_IceBRGpy.logging import getLogger
 from SHE_GST_IceBRGpy.rebin import rebin
 
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
-from SHE_PPT.detections_table_format import initialise_detections_table
+from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
+from SHE_PPT.file_io import get_allowed_filename
 from SHE_PPT.table_utility import add_row, output_tables
+from SHE_PPT.utility import hash_any
+from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
+                                  model_seed_label,noise_seed_label)
 
 import numpy as np
     
@@ -733,13 +737,13 @@ def print_galaxies_and_psfs(image,
         if is_target_gal and not options['details_only']:
             
             # Add to detections table only if it's a target galaxy
-            add_row(detections_table,
-                    ID=galaxy.get_full_ID(),
-                    x_center_pix=int(xc + xp_sp_shift),
-                    y_center_pix=int(yc + yp_sp_shift),
-                    psf_x_center_pix=psf_xc,
-                    psf_y_center_pix=psf_yc,
-                    )
+            detections_table.add_row(vals={
+                    detf.ID: galaxy.get_full_ID(),
+                    detf.gal_x: int(xc + xp_sp_shift),
+                    detf.gal_y: int(yc + yp_sp_shift),
+                    detf.psf_x: psf_xc,
+                    detf.psf_y: psf_yc,
+                    })
             
             del final_disk, disk_psf_profile
 
@@ -748,7 +752,7 @@ def print_galaxies_and_psfs(image,
     return galaxies
 
 
-def add_image_header_info(image, gain, stamp_size, full_options):
+def add_image_header_info(image, gain, stamp_size, full_options, model_seed):
     """
         @brief Adds various information to the image's header.
 
@@ -775,17 +779,17 @@ def add_image_header_info(image, gain, stamp_size, full_options):
         image.header[mv.galsim_version_label] = '<1.2'
         
     # Gain
-    image.header["CCDGAIN"] = (gain,'e-/ADU')
+    image.header[gain_label] = (gain,'e-/ADU')
     
     # Stamp size
-    image.header["STAMP_PX"] = stamp_size
+    image.header[stamp_size_label] = stamp_size
     
     # Model hash
-    image.header["MHASH"] = hash(frozenset(full_options))
+    image.header[model_hash_label] = hash_any(frozenset(full_options),format="base64")
     
     # Seeds
-    image.header["MSEED"] = image.get_full_seed()
-    image.header["NSEED"] = full_options["noise_seed"]
+    image.header[model_seed_label] = model_seed
+    image.header[noise_seed_label] = full_options["noise_seed"]
     
     logger.debug("Exiting add_image_header_info method.")
     
@@ -814,9 +818,6 @@ def generate_image(image, options):
     centre_offset = -0.5
 
     # Setup
-
-    file_name_base = join(options['output_folder'], options['output_file_name_base'] + '_')
-    psf_file_name_base = join(options['output_folder'], options['psf_file_name_base'] + '_')
     
     image.autofill_children()
 
@@ -825,6 +826,9 @@ def generate_image(image, options):
 
     # Setup for the file
     dithers = []
+    noisemaps = []
+    maskmaps = []
+    model_hash = hash_any(frozenset(options.items()),format="base64")
 
     # Create the image object, using the appropriate method for the image type
     full_x_size = int(image.get_param_value("image_size_xp"))
@@ -860,8 +864,6 @@ def generate_image(image, options):
                                        full_x_size, full_y_size, pixel_scale,
                                        detections_table, details_table)
 
-    image_ID = image.get_full_ID()
-
     sky_level_subtracted = image.get_param_value('subtracted_background')
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
     sky_level_unsubtracted_pixel = image.get_param_value('unsubtracted_background') * pixel_scale ** 2
@@ -877,6 +879,14 @@ def generate_image(image, options):
     for di, (x_offset, y_offset) in zip(range(num_dithers), get_dither_scheme(options['dithering_scheme'])):
 
         logger.debug("Printing dither " + str(di) + ".")
+        
+        # Make mock noise and mask maps for this dither
+        if options['image_datatype'] == '32f':
+            noisemaps.append(galsim.ImageF(np.ones_like(dithers[di].array), scale=pixel_scale))
+        elif options['image_datatype'] == '64f':
+            noisemaps.append(galsim.ImageD(np.ones_like(dithers[di].array), scale=pixel_scale))
+            
+        maskmaps.append(galsim.ImageS(np.zeros_like(dithers[di].array, dtype=np.int16), scale=pixel_scale))
 
         # If we're using cutouts, make the cutout image now
         if options['mode'] == 'cutouts':
@@ -886,22 +896,35 @@ def generate_image(image, options):
                                             detections_table,
                                             details_table,
                                             centre_offset)
+            noisemaps[di] = make_cutout_image(noisemaps[di],
+                                              options,
+                                              galaxies,
+                                              detections_table,
+                                              details_table,
+                                              centre_offset)
+            maskmaps[di] = make_cutout_image(maskmaps[di],
+                                             options,
+                                             galaxies,
+                                             detections_table,
+                                             details_table,
+                                             centre_offset)
 
-        # Output the image
-        if num_dithers > 1:
-            dither_file_name_base = file_name_base + str(image_ID) + '_dither_' + str(di)
-        else:
-            dither_file_name_base = file_name_base + str(image_ID)
-
-        dither_file_name = dither_file_name_base + '.fits'
+        
         if not options['details_only']:
+            
             dither = dithers[di]
             dither += sky_level_unsubtracted_pixel
                 
             # Add a header containing version info
-            add_image_header_info(dither,options['gain'],stamp_size_pix,full_options)
+            add_image_header_info(dither,options['gain'],stamp_size_pix,full_options,image.get_full_seed())
 
             if not options['suppress_noise']:
+                
+                noisemaps[di] *= get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel*np.ones_like(dither.array),
+                                                        sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
+                                                        read_noise_count=options['read_noise'],
+                                                        pixel_scale=pixel_scale,
+                                                        gain=options['gain'])
                 
                 if options['stable_rng']:
                     var_array = get_var_ADU_per_pixel(pixel_value_ADU=dither.array,
@@ -935,21 +958,27 @@ def generate_image(image, options):
                 else:
                     raise Exception("Invalid value for noise_cancellation: " + str(options['noise_cancellation']))
             else:
-                    dithers[di] = [(dithers[di], '')]
+                noisemaps[di] *= 0
+                dithers[di] = [(dithers[di], '')]
     
             for dither_and_flag in dithers[di]:
                     
                 dither = dither_and_flag[0]
                 flag = dither_and_flag[1]
+            
+                dither_file_name = get_allowed_filename( "GST_SCI_"+str(di)+flag, model_hash, extension=".fits")
+                noise_file_name = get_allowed_filename( "GST_RMS_"+str(di)+flag, model_hash, extension=".fits")
+                mask_file_name = get_allowed_filename( "GST_FLG_"+str(di)+flag, model_hash, extension=".fits")
                     
-                dither_version_file_name = dither_file_name.replace(file_name_base + str(image_ID),
-                                                                    file_name_base + str(image_ID) + flag)
-                    
-                galsim.fits.write(dither, dither_version_file_name, clobber=True)
+                galsim.fits.write(dither, join(options['output_folder'],dither_file_name), clobber=True)
+                galsim.fits.write(noisemaps[di], join(options['output_folder'],noise_file_name), clobber=True)
+                galsim.fits.write(maskmaps[di], join(options['output_folder'],mask_file_name), clobber=True)
         
                 # Compress the image if necessary
                 if options['compress_images'] >= 1:
-                    compress_image(dither_version_file_name, lossy=(options['compress_images'] >= 2))
+                    compress_image(join(options['output_folder'],dither_file_name), lossy=(options['compress_images'] >= 2))
+                    compress_image(join(options['output_folder'],noise_file_name), lossy=(options['compress_images'] >= 2))
+                    compress_image(join(options['output_folder'],mask_file_name), lossy=(options['compress_images'] >= 2))
 
 
         # Output the datafile if necessary
@@ -958,73 +987,41 @@ def generate_image(image, options):
             # Temporarily adjust centre positions by dithering
             details_table[datf.gal_x] += x_offset
             details_table[datf.gal_y] += y_offset
+            
+            detections_file_name = get_allowed_filename( "GST_DTC_"+str(di), model_hash, extension="" )
+            details_file_name = get_allowed_filename( "GST_DAL_"+str(di), model_hash, extension="" )
     
-            output_tables(detections_table, dither_file_name_base + mv.detections_file_tail, options)
-            output_tables(details_table, dither_file_name_base + mv.details_file_tail, options)
+            output_tables(detections_table, join(options['output_folder'],detections_file_name),
+                          options['details_output_format'])
+            output_tables(details_table, join(options['output_folder'],details_file_name),
+                          options['details_output_format'])
     
             # Undo dithering adjustment
             details_table[datf.gal_x] -= x_offset
             details_table[datf.gal_y] -= y_offset
+            logger.info("Finished printing tables for dither " + str(di))
 
         logger.info("Finished printing dither " + str(di) + ".")
-
-    # If we have more than one dither, output the combined image
-    if num_dithers > 1 and not options['details_only']:
-
-        logger.debug("Printing combined image.")
-        
-        for _, flag in dithers[0]:
-
-            # Get the base name for this combined image
-            combined_file_name_base = file_name_base + str(image_ID) + flag + "_combined"
-    
-            # Get the proper dither list
-            dither_versions = []
-            if len(dithers[0])==1 or flag=='':
-                for dither_and_flag in dithers:
-                    dither_versions.append(dither_and_flag[0][0])
-            else:
-                for dither_and_flag in dithers:
-                    dither_versions.append(dither_and_flag[1][0])
-    
-            # Get the combined image and tables
-            combined_image, combined_detections_table, combined_details_table = combine_dithers(dithers=dither_versions,
-                                                                     dithering_scheme=options['dithering_scheme'],
-                                                                     detections_table=detections_table,
-                                                                     details_table=details_table,
-                                                                     copy_otable=False)
-            if options['dithering_scheme']=='2x2':
-                combined_stamp_size_pix = 2*stamp_size_pix
-            else:
-                raise Exception("Unrecognized dithering scheme: " + options['dithering_scheme'])
-            add_image_header_info(combined_image,options['gain'],combined_stamp_size_pix,full_options)
-    
-            # Output the new image
-            combined_file_name = combined_file_name_base + '.fits'
-            galsim.fits.write(combined_image, combined_file_name, clobber=True)
-    
-        # Output the details file for it
-        output_tables(combined_detections_table, combined_file_name_base + mv.detections_file_tail, options)
-        output_tables(combined_details_table, combined_file_name_base + mv.details_file_tail, options)
-
-        logger.info("Finished printing combined image.")
 
     logger.info("Finished printing image " + str(image.get_local_ID()) + ".")
     
     # Output the psf images
-    for label, p_psf_image in (("bulge", p_bulge_psf_image), ("disk", p_disk_psf_image) ):
-        for psf_image in p_psf_image:
-            logger.debug("Printing "+label+" psf image")
-            
-            add_image_header_info(psf_image,1.,options['psf_stamp_size'],full_options)
+    for tag, label, p_psf_image in (("B","bulge", p_bulge_psf_image), ("D","disk", p_disk_psf_image) ):
+        
+        psf_image = p_psf_image[0]    
+        add_image_header_info(psf_image,1.,options['psf_stamp_size'],full_options,image.get_full_seed())
+        
+        # For now, just make multiple copies of the one psf image
+        for i in range(num_dithers):
+            logger.debug("Printing "+label+" psf image " + str(i))
         
             # Get the base name for this combined image
-            psf_file_name = psf_file_name_base + label + '.fits'
+            psf_file_name = get_allowed_filename("GST_PSF_"+tag+str(i), model_hash, extension=".fits" )
         
             # Output the new image
-            galsim.fits.write(psf_image, psf_file_name, clobber=True)
+            galsim.fits.write(psf_image, join(options['output_folder'],psf_file_name), clobber=True)
         
-            logger.info("Finished printing "+label+" psf image.")
+            logger.info("Finished printing "+label+" psf image " + str(i))
 
     # We no longer need this image's children, so clear it to save memory
     image.clear()
