@@ -208,7 +208,8 @@ def generate_image_group(image_group, options):
             
     # Output listfiles of filenames
     write_listfile(join(options['output_folder'],"output_files.json"),
-                   [image_filenames,details_table_filenames,detections_table_filenames,psf_image_filenames])
+                   [image_filenames,details_table_filenames,detections_table_filenames,
+                    bulge_psf_image_filenames,disk_psf_image_filenames])
             
     return
 
