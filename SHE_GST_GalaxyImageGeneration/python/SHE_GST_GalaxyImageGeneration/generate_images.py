@@ -151,16 +151,14 @@ def generate_image_group(image_group, options):
     image_filenames = []
     details_table_filenames = []
     detections_table_filenames = []
-    bulge_psf_image_filenames = []
-    disk_psf_image_filenames = []
+    psf_image_filenames = []
     
     # Get the filenames and open the files for writing
     for i in range(num_dithers):
         for filename_list, tag in ((image_filenames,"EXP"),
                                    (details_table_filenames,"DAL"),
                                    (detections_table_filenames,"DTC"),
-                                   (bulge_psf_image_filenames,"PSF-B"),
-                                   (disk_psf_image_filenames,"PSF-D"),):
+                                   (psf_image_filenames,"PSF"),):
         
             # Get the filename
             filename = get_allowed_filename( "GST_"+tag+"_D"+str(i), model_hash, extension=".fits")
@@ -203,13 +201,15 @@ def generate_image_group(image_group, options):
                 f.close()
             
             # PSF images
-            fits.append( join(options['output_folder'],bulge_psf_image_filenames[i]), psf_images[i][0].array)
-            fits.append( join(options['output_folder'],disk_psf_image_filenames[i]), psf_images[i][1].array)
+            fits.append( join(options['output_folder'],psf_image_filenames[i]), psf_images[i][0].array,
+                         fits.header.Header(psf_images[i][0].header.items()))
+            fits.append( join(options['output_folder'],psf_image_filenames[i]), psf_images[i][1].array,
+                         fits.header.Header(psf_images[i][0].header.items()))
             
     # Output listfiles of filenames
     write_listfile(join(options['output_folder'],"output_files.json"),
                    [image_filenames,details_table_filenames,detections_table_filenames,
-                    bulge_psf_image_filenames,disk_psf_image_filenames])
+                    psf_image_filenames])
             
     return
 
@@ -1021,6 +1021,10 @@ def generate_image(image, options):
                                   extname=str(image.get_local_ID())+"."+noisemap_tag)
             add_image_header_info(maskmaps[di],options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+mask_tag)
+            add_image_header_info(p_bulge_psf_image[di],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+bulge_psf_tag)
+            add_image_header_info(p_disk_psf_image[di],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+disk_psf_tag)
 
             if not options['suppress_noise']:
                 
