@@ -968,7 +968,7 @@ def generate_image(image, options):
             
                 dither_file_name = get_allowed_filename( "GST_SCI_"+str(di)+flag, model_hash, extension=".fits")
                 noise_file_name = get_allowed_filename( "GST_RMS_"+str(di)+flag, model_hash, extension=".fits")
-                mask_file_name = get_allowed_filename( "GST_MSK_"+str(di)+flag, model_hash, extension=".fits")
+                mask_file_name = get_allowed_filename( "GST_FLG_"+str(di)+flag, model_hash, extension=".fits")
                     
                 galsim.fits.write(dither, join(options['output_folder'],dither_file_name), clobber=True)
                 galsim.fits.write(noisemaps[di], join(options['output_folder'],noise_file_name), clobber=True)
