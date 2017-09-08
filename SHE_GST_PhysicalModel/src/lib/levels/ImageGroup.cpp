@@ -38,6 +38,8 @@
 namespace SHE_GST_PhysicalModel
 {
 
+using namespace IceBRG;
+
 ImageGroup::ImageGroup(ParamHierarchyLevel * const & p_parent)
 : ParamHierarchyLevel(p_parent)
 {
