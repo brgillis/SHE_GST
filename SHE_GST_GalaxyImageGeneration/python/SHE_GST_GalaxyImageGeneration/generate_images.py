@@ -50,7 +50,7 @@ from SHE_GST_IceBRGpy.rebin import rebin
 
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
-from SHE_PPT.file_io import get_allowed_filename
+from SHE_PPT.file_io import get_allowed_filename, write_listfile
 from SHE_PPT.table_utility import add_row, output_tables, table_to_hdu
 from SHE_PPT.utility import hash_any
 from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
@@ -203,6 +203,10 @@ def generate_image_group(image_group, options):
             # PSF image
             fits.append( join(options['output_folder'],psf_image_filenames[i]), psf_images[i].array, fits.header.Header(psf_images[i].header.items()))
             
+    # Output listfiles of filenames
+    write_listfile(join(options['output_folder'],"output_files.json"),
+                   [image_filenames,details_table_filenames,detections_table_filenames,psf_image_filenames])
+            
     return
 
 def print_galaxies_and_psfs(image,
@@ -301,7 +305,7 @@ def print_galaxies_and_psfs(image,
                 new_galaxy = field.add_galaxy()
 
                 bad_type = True
-
+is_target_galaxy
                 while bad_type:
                     new_galaxy.clear()
                     new_galaxy.generate_parameters()
