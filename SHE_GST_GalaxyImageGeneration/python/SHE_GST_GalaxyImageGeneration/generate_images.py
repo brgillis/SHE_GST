@@ -164,6 +164,9 @@ def generate_image_group(image_group, options):
             filename = get_allowed_filename( "GST_"+tag+"_D"+str(i), model_hash, extension=".fits")
             filename_list.append(filename)
             
+            # Save an empty primary HDU
+            fits.PrimaryHDU().writeto(filename,clobber=True)
+            
     # Generate each image, then append it and its data to the fits files
     for image in image_group.get_image_descendants():
         
@@ -179,10 +182,12 @@ def generate_image_group(image_group, options):
                          fits.header.Header(image_dithers[i][0][0].header.items()))
             
             # Noisemap
-            fits.append( join(options['output_folder'],image_filenames[i]), noisemaps[i].array, fits.header.Header(noisemaps[i].header.items()))
+            fits.append( join(options['output_folder'],image_filenames[i]), noisemaps[i].array,
+                         fits.header.Header(noisemaps[i].header.items()))
             
             # Maskmap
-            fits.append( join(options['output_folder'],image_filenames[i]), maskmaps[i].array, fits.header.Header(maskmaps[i].header.items()))
+            fits.append( join(options['output_folder'],image_filenames[i]), maskmaps[i].array,
+                         fits.header.Header(maskmaps[i].header.items()))
             
             # Details table
             dal_hdu = table_to_hdu(details_tables[i])
