@@ -1025,9 +1025,9 @@ def generate_image(image, options):
                                   extname=str(image.get_local_ID())+"."+noisemap_tag)
             add_image_header_info(maskmaps[di],options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+mask_tag)
-            add_image_header_info(p_bulge_psf_image[di],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
+            add_image_header_info(p_bulge_psf_image[0],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+bulge_psf_tag)
-            add_image_header_info(p_disk_psf_image[di],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
+            add_image_header_info(p_disk_psf_image[0],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+disk_psf_tag)
 
             if not options['suppress_noise']:
