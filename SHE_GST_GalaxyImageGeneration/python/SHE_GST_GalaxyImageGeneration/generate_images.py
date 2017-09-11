@@ -166,6 +166,13 @@ def generate_image_group(image_group, options):
             
             # Save an empty primary HDU
             fits.PrimaryHDU().writeto(filename,clobber=True)
+
+    def append_hdu(filename, hdu):
+        f = fits.open(filename, mode='append')
+        try:
+            f.append(hdu)
+        finally:
+            f.close()
             
     # Generate each image, then append it and its data to the fits files
     for image in image_group.get_image_descendants():
@@ -178,16 +185,19 @@ def generate_image_group(image_group, options):
         for i in range(num_dithers):
             
             # Science image
-            fits.append( join(options['output_folder'],image_filenames[i]), image_dithers[i][0][0].array,
-                         fits.header.Header(image_dithers[i][0][0].header.items()))
+            im_hdu = fits.ImageHDU(data=image_dithers[i][0][0].array,
+                                   header=fits.header.Header(image_dithers[i][0][0].header.items()))
+            append_hdu( join(options['output_folder'],image_filenames[i]), im_hdu)
             
             # Noisemap
-            fits.append( join(options['output_folder'],image_filenames[i]), noisemaps[i].array,
-                         fits.header.Header(noisemaps[i].header.items()))
+            rms_hdu = fits.ImageHDU(data=noisemaps[i].array,
+                                    header=fits.header.Header(noisemaps[i].header.items()))
+            append_hdu( join(options['output_folder'],image_filenames[i]), rms_hdu)
             
             # Maskmap
-            fits.append( join(options['output_folder'],image_filenames[i]), maskmaps[i].array,
-                         fits.header.Header(maskmaps[i].header.items()))
+            flg_hdu = fits.ImageHDU(data=maskmaps[i].array,
+                                    header=fits.header.Header(maskmaps[i].header.items()))
+            append_hdu( join(options['output_folder'],image_filenames[i]), flg_hdu)
             
             # Details table
             dal_hdu = table_to_hdu(details_tables[i])
@@ -206,10 +216,13 @@ def generate_image_group(image_group, options):
                 f.close()
             
             # PSF images
-            fits.append( join(options['output_folder'],psf_image_filenames[i]), psf_images[i][0].array,
-                         fits.header.Header(psf_images[i][0].header.items()))
-            fits.append( join(options['output_folder'],psf_image_filenames[i]), psf_images[i][1].array,
-                         fits.header.Header(psf_images[i][0].header.items()))
+            bpsf_hdu = fits.ImageHDU(data=psf_images[i][0].array,
+                                     header=fits.header.Header(psf_images[i][0].header.items()))
+            append_hdu( join(options['output_folder'],psf_image_filenames[i]), bpsf_hdu)
+
+            dpsf_hdu = fits.ImageHDU(data=psf_images[i][1].array,
+                                     header=fits.header.Header(psf_images[i][1].header.items()))
+            append_hdu( join(options['output_folder'],psf_image_filenames[i]), dpsf_hdu)
             
     # Output listfiles of filenames
     write_listfile(join(options['output_folder'],"output_files.json"),
