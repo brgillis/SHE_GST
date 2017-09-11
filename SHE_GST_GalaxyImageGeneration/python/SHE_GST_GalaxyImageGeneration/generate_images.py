@@ -55,7 +55,7 @@ from SHE_PPT.table_utility import add_row, output_tables, table_to_hdu
 from SHE_PPT.utility import hash_any
 from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
                                   model_seed_label,noise_seed_label,extname_label,
-                                  sci_tag,noisemap_tag,mask_tag)
+                                  sci_tag,noisemap_tag,mask_tag,bulge_psf_tag,disk_psf_tag)
 
 import numpy as np
     
