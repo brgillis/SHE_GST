@@ -923,7 +923,6 @@ def generate_image(image, options):
     dithers = []
     noisemaps = []
     maskmaps = []
-    model_hash = hash_any(frozenset(options.items()),format="base64")
 
     # Create the image object, using the appropriate method for the image type
     full_x_size = int(image.get_param_value("image_size_xp"))
