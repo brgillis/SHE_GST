@@ -1059,16 +1059,21 @@ def generate_image(image, options):
             dither_shift = dither_scheme[di]
                 
             # Add a header containing version info
-            add_image_header_info(dither,options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+sci_tag, dither_shift=dither_shift)
-            add_image_header_info(noisemaps[di],options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+noisemap_tag, dither_shift=dither_shift)
-            add_image_header_info(maskmaps[di],options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+mask_tag, dither_shift=dither_shift)
-            add_image_header_info(p_bulge_psf_image[0],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+bulge_psf_tag)
-            add_image_header_info(p_disk_psf_image[0],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+disk_psf_tag)
+            add_image_header_info(dither, options['gain'], full_options, image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+sci_tag,
+                                  stamp_size=stamp_size_pix, dither_shift=dither_shift)
+            add_image_header_info(noisemaps[di],options['gain'],full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+noisemap_tag,
+                                  stamp_size=stamp_size_pix,  dither_shift=dither_shift)
+            add_image_header_info(maskmaps[di],options['gain'],full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+mask_tag,
+                                  stamp_size=stamp_size_pix,  dither_shift=dither_shift)
+            add_image_header_info(p_bulge_psf_image[0],options['gain'],full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+bulge_psf_tag,
+                                  stamp_size=options['psf_stamp_size'], )
+            add_image_header_info(p_disk_psf_image[0],options['gain'],full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+disk_psf_tag,
+                                  stamp_size=options['psf_stamp_size'], )
 
             if not options['suppress_noise']:
                 
