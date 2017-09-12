@@ -926,7 +926,7 @@ def add_image_header_info(gs_image,
     
     # Dithering shift
     gs_image.header[dither_dx_label] = dither_shift[0]
-    gs_image.header[dither_dy_label] = dither_shift[0]
+    gs_image.header[dither_dy_label] = dither_shift[1]
     
     logger.debug("Exiting add_image_header_info method.")
     
