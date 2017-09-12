@@ -54,7 +54,8 @@ from SHE_PPT.file_io import get_allowed_filename, write_listfile
 from SHE_PPT.table_utility import add_row, output_tables, table_to_hdu
 from SHE_PPT.utility import hash_any
 from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
-                                  model_seed_label,noise_seed_label,extname_label,
+                                  model_seed_label,noise_seed_label,extname_label,dither_dx_label,
+                                  dither_dy_label,
                                   sci_tag,noisemap_tag,mask_tag,bulge_psf_tag,disk_psf_tag)
 
 import numpy as np
@@ -861,15 +862,31 @@ def print_galaxies_and_psfs(image,
     return galaxies
 
 
-def add_image_header_info(gs_image, gain, stamp_size, full_options, model_seed,
-                          extname):
+def add_image_header_info(gs_image,
+                          gain,
+                          full_options,
+                          model_seed,
+                          extname,
+                          stamp_size=None,
+                          dither_shift=(0.,0.)):
     """
         @brief Adds various information to the image's header.
 
         @param gs_image
             <galsim.Image> Galsim image object.
+        @param gain
+            <float> Gain of the image
+        @param stamp_size
+            <int> Size of postage stamps in the image, if applicable
         @param full_options
             <dict> Full options dictionary
+        @param model_seed
+            <int> Seed used for the physical model
+        @param extname
+            <str> Name of the extension
+        @param dither_shift
+            <(float,float)> Shift for this dither.
+            
     """
     
     logger = getLogger(mv.logger_name)
@@ -892,7 +909,10 @@ def add_image_header_info(gs_image, gain, stamp_size, full_options, model_seed,
     gs_image.header[gain_label] = (gain,'e-/ADU')
     
     # Stamp size
-    gs_image.header[stamp_size_label] = stamp_size
+    if stamp_size is not None:
+        gs_image.header[stamp_size_label] = stamp_size
+    elif stamp_size_label in gs_image.header:
+        del gs_image.header[stamp_size_label]
     
     # Model hash
     gs_image.header[model_hash_label] = hash_any(frozenset(full_options),format="base64")
@@ -903,6 +923,10 @@ def add_image_header_info(gs_image, gain, stamp_size, full_options, model_seed,
     
     # Extension name
     gs_image.header[extname_label] = extname
+    
+    # Dithering shift
+    gs_image.header[dither_dx_label] = dither_shift[0]
+    gs_image.header[dither_dy_label] = dither_shift[0]
     
     logger.debug("Exiting add_image_header_info method.")
     
@@ -955,7 +979,7 @@ def generate_image(image, options):
             else:
                 raise Exception("Bad image type slipped through somehow.")
     if options['mode']=='field':
-        stamp_size_pix = 0
+        stamp_size_pix = None
     else:
         stamp_size_pix = options['stamp_size']
 
@@ -992,7 +1016,8 @@ def generate_image(image, options):
     psf_images = []
 
     # For each dither
-    for di, (x_offset, y_offset) in zip(range(num_dithers), get_dither_scheme(options['dithering_scheme'])):
+    dither_scheme = get_dither_scheme(options['dithering_scheme'])
+    for di, (x_offset, y_offset) in zip(range(num_dithers), dither_scheme):
 
         logger.debug("Printing dither " + str(di) + ".")
         
@@ -1030,14 +1055,16 @@ def generate_image(image, options):
             
             dither = dithers[di]
             dither += sky_level_unsubtracted_pixel
+            
+            dither_shift = dither_scheme[di]
                 
             # Add a header containing version info
             add_image_header_info(dither,options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+sci_tag)
+                                  extname=str(image.get_local_ID())+"."+sci_tag, dither_shift=dither_shift)
             add_image_header_info(noisemaps[di],options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+noisemap_tag)
+                                  extname=str(image.get_local_ID())+"."+noisemap_tag, dither_shift=dither_shift)
             add_image_header_info(maskmaps[di],options['gain'],stamp_size_pix,full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+mask_tag)
+                                  extname=str(image.get_local_ID())+"."+mask_tag, dither_shift=dither_shift)
             add_image_header_info(p_bulge_psf_image[0],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+bulge_psf_tag)
             add_image_header_info(p_disk_psf_image[0],options['gain'],options['psf_stamp_size'],full_options,image.get_full_seed(),
