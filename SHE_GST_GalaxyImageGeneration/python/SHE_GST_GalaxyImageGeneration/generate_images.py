@@ -1072,6 +1072,7 @@ def generate_image(image, options):
         segmentation_maps.append(make_segmentation_map(dithers[di],
                                                        detections_table,
                                                        threshold=0.1*noise_level))
+        
 
         # If we're using cutouts, make the cutout image now
         if options['mode'] == 'cutouts':
@@ -1117,6 +1118,9 @@ def generate_image(image, options):
                                   stamp_size=stamp_size_pix,  dither_shift=dither_shift)
             add_image_header_info(mask_maps[di],options['gain'],full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+mask_tag,
+                                  stamp_size=stamp_size_pix,  dither_shift=dither_shift)
+            add_image_header_info(segmentation_maps[di],options['gain'],full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+segmentation_tag,
                                   stamp_size=stamp_size_pix,  dither_shift=dither_shift)
             add_image_header_info(p_bulge_psf_image[0],options['gain'],full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+bulge_psf_tag,
