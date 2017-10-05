@@ -857,6 +857,7 @@ def print_galaxies_and_psfs(image,
             # Add to detections table only if it's a target galaxy
             psf_table.add_row(vals={
                     pstf.ID: galaxy.get_full_ID(),
+                    pstf.template: 0,
                     pstf.stamp_x: int(psf_xc) - psf_stamp_size_pix // 2,
                     pstf.stamp_y: int(psf_yc) - psf_stamp_size_pix // 2,
                     pstf.psf_x: int(psf_xc),
