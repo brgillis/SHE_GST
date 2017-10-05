@@ -205,7 +205,7 @@ def generate_image_group(image_group, options):
                                     header=fits.header.Header(mask_maps[i].header.items()))
             append_hdu( join(options['output_folder'],image_filenames[i]), flg_hdu)
             
-            # Noise map
+            # Segmentation map
             seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
                                     header=fits.header.Header(segmentation_maps[i].header.items()))
             append_hdu( join(options['output_folder'],segmentation_map_filenames[i]), seg_hdu)
