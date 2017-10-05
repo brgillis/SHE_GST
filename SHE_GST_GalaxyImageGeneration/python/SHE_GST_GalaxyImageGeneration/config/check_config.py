@@ -49,6 +49,7 @@ def get_full_options(options,image):
     # Delete options which don't affect images
     del (full_options['details_only'],
          full_options['details_output_format'],
+         full_options['dithering_scheme'],
          full_options['num_parallel_threads'],
          full_options['output_folder'],
          full_options['output_file_name_base'],
