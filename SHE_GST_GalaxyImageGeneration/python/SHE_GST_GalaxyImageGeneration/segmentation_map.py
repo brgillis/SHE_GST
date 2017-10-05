@@ -21,6 +21,7 @@
 """
 
 import numpy as np
+from copy import deepcopy
 import galsim
 
 from SHE_PPT.detections_table_format import tf as detf
@@ -33,6 +34,12 @@ def make_segmentation_map( noisefree_image,
         @TODO Docstring
     """
     
+    if detf.gal_mag in detections_table:
+        sorted_dtc_table = deepcopy(detections_table)
+        sorted_dtc_table.sort(detf.gal_mag)
+    else:
+        sorted_dtc_table = detections_table
+    
     segmentation_map = galsim.Image(np.ones_like(noisefree_image,dtype=np.int32),scale=noisefree_image.scale)
     
     y_image, x_image = np.indices(np.shape(noisefree_image.array))
@@ -42,11 +49,11 @@ def make_segmentation_map( noisefree_image,
     threshold_mask = np.ravel(noisefree_image.array) <= threshold
     claimed_mask = np.zeros_like(threshold_mask,dtype=bool)
     
-    for i in range(len(detections_table)):
+    for i in range(len(sorted_dtc_table)):
         
         # For each object, look for pixels near it above the threshold value
-        dx_image = x_image - detections_table[detf.gal_x][i]
-        dy_image = y_image - detections_table[detf.gal_x][i]
+        dx_image = x_image - sorted_dtc_table[detf.gal_x][i]
+        dy_image = y_image - sorted_dtc_table[detf.gal_x][i]
         
         r2_image = dx_image**2 + dy_image**2
         
@@ -57,7 +64,7 @@ def make_segmentation_map( noisefree_image,
         full_mask = np.logical_or(region_mask,claimed_threshold_mask)
         
         # Set the unmasked values to the object's ID
-        np.ma.masked_array(np.ravel(segmentation_map.array),full_mask)[~full_mask] *= detections_table[detf.ID][i]
+        np.ma.masked_array(np.ravel(segmentation_map.array),full_mask)[~full_mask] *= sorted_dtc_table[detf.ID][i]
         
         # Add those values to the claimed mask
         claimed_mask = np.logical_or(claimed_mask,~full_mask)
