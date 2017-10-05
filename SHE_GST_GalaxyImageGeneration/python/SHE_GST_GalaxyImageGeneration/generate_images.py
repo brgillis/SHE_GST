@@ -50,13 +50,14 @@ from SHE_GST_IceBRGpy.rebin import rebin
 
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
+from SHE_PPT.psf_table_format import initialise_psf_table, psf_table_format as pstf
 from SHE_PPT.file_io import get_allowed_filename, write_listfile
 from SHE_PPT.table_utility import add_row, output_tables, table_to_hdu
 from SHE_PPT.utility import hash_any
 from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
                                   model_seed_label,noise_seed_label,extname_label,dither_dx_label,
                                   dither_dy_label,
-                                  sci_tag,noisemap_tag,mask_tag,bulge_psf_tag,disk_psf_tag)
+                                  sci_tag,noisemap_tag,mask_tag,bulge_psf_tag,disk_psf_tag,psf_cat_tag)
 
 import numpy as np
     
@@ -180,7 +181,7 @@ def generate_image_group(image_group, options):
         
         # Generate the data
         (image_dithers, noisemaps, maskmaps,
-         details_tables, detections_tables, psf_images) = generate_image(image,options)
+         detections_tables, psf_tables, details_tables, psf_images) = generate_image(image,options)
         
         # Append to the fits file for each dither
         for i in range(num_dithers):
@@ -202,28 +203,24 @@ def generate_image_group(image_group, options):
             
             # Details table
             dal_hdu = table_to_hdu(details_tables[i])
-            f = fits.open(join(options['output_folder'],details_table_filenames[i]), mode='append')
-            try:
-                f.append(dal_hdu)
-            finally:
-                f.close()
-            
+            append_hdu(join(options['output_folder'],details_table_filenames[i]), dal_hdu)     
+                   
             # Detections table
             dtc_hdu = table_to_hdu(detections_tables[i])
-            f = fits.open(join(options['output_folder'],detections_table_filenames[i]), mode='append')
-            try:
-                f.append(dtc_hdu)
-            finally:
-                f.close()
+            append_hdu(join(options['output_folder'],detections_table_filenames[i]), dtc_hdu)
             
             # PSF images
+            
             bpsf_hdu = fits.ImageHDU(data=psf_images[i][0].array,
                                      header=fits.header.Header(psf_images[i][0].header.items()))
             append_hdu( join(options['output_folder'],psf_image_filenames[i]), bpsf_hdu)
-
+            
             dpsf_hdu = fits.ImageHDU(data=psf_images[i][1].array,
                                      header=fits.header.Header(psf_images[i][1].header.items()))
             append_hdu( join(options['output_folder'],psf_image_filenames[i]), dpsf_hdu)
+            
+            psfc_hdu = table_to_hdu(psf_tables[i])
+            append_hdu( join(options['output_folder'],psf_image_filenames[i]), psfc_hdu)
             
     # Output listfiles of filenames
     write_listfile(join(options['output_folder'],"output_files.json"),
@@ -243,6 +240,7 @@ def print_galaxies_and_psfs(image,
                             full_y_size,
                             pixel_scale,
                             detections_table,
+                            psf_table,
                             details_table):
     """
         @brief Prints galaxies onto a new image and stores details on them in the output table.
@@ -266,6 +264,9 @@ def print_galaxies_and_psfs(image,
         @param detections_table
             <astropy.Table> The table containing mock galaxy detections (ID and position),
                             to be filled
+        @param psf_table
+            <astropy.Table> The table containing PSF positions corresponding to mock galaxy
+                            detections, to be filled
         @param details_table
             <astropy.Table> The table containing details on each galaxy, to be filled.
 
@@ -851,8 +852,17 @@ def print_galaxies_and_psfs(image,
                     detf.ID: galaxy.get_full_ID(),
                     detf.gal_x: int(xc + xp_sp_shift),
                     detf.gal_y: int(yc + yp_sp_shift),
-                    detf.psf_x: psf_xc,
-                    detf.psf_y: psf_yc,
+                    })
+            
+            # Add to detections table only if it's a target galaxy
+            psf_table.add_row(vals={
+                    pstf.ID: galaxy.get_full_ID(),
+                    pstf.stamp_x: int(psf_xc) - psf_stamp_size_pix // 2,
+                    pstf.stamp_y: int(psf_yc) - psf_stamp_size_pix // 2,
+                    pstf.psf_x: int(psf_xc),
+                    pstf.psf_y: int(psf_yc),
+                    pstf.cal_time: "",
+                    pstf.field_time: "",
                     })
             
             del final_disk, disk_psf_profile
@@ -986,10 +996,12 @@ def generate_image(image, options):
     # Set up a table for output if necessary
     if options['details_output_format']=='none':
         detections_table = None
+        psf_table = None
         details_table = None
     else:
         full_options = get_full_options(options,image)
         detections_table = initialise_detections_table(image, full_options)
+        psf_table = initialise_detections_table(image, full_options)
         details_table = initialise_details_table(image, full_options)
 
     # Print the galaxies and psfs
@@ -998,7 +1010,7 @@ def generate_image(image, options):
     galaxies = print_galaxies_and_psfs(image, options, centre_offset, num_dithers, dithers,
                                        p_bulge_psf_image, p_disk_psf_image,
                                        full_x_size, full_y_size, pixel_scale,
-                                       detections_table, details_table)
+                                       detections_table, psf_table, details_table)
 
     sky_level_subtracted = image.get_param_value('subtracted_background')
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
@@ -1012,6 +1024,7 @@ def generate_image(image, options):
             base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
 
     detections_tables = []
+    psf_tables = []
     details_tables = []
     psf_images = []
 
@@ -1127,6 +1140,7 @@ def generate_image(image, options):
             details_table[datf.gal_y] += y_offset
             
             detections_tables.append(deepcopy(detections_table))
+            psf_tables.append(deepcopy(psf_table))
             details_tables.append(deepcopy(details_table))
     
             # Undo dithering adjustment
@@ -1148,4 +1162,4 @@ def generate_image(image, options):
     image.clear()
 
     logger.debug("Exiting generate_image method.")
-    return dithers, noisemaps, maskmaps, details_tables, detections_tables, psf_images
+    return dithers, noisemaps, maskmaps,  detections_tables, psf_tables, details_tables, psf_images
