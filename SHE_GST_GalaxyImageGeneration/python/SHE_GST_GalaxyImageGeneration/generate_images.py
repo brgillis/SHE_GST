@@ -1002,7 +1002,7 @@ def generate_image(image, options):
     else:
         full_options = get_full_options(options,image)
         detections_table = initialise_detections_table(image, full_options)
-        psf_table = initialise_detections_table(image, full_options)
+        psf_table = initialise_psf_table(image, full_options)
         details_table = initialise_details_table(image, full_options)
 
     # Print the galaxies and psfs
