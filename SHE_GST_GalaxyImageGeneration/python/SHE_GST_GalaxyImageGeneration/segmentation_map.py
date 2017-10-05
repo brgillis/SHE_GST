@@ -34,16 +34,16 @@ def make_segmentation_map( noisefree_image,
         @TODO Docstring
     """
     
-    if detf.gal_hlr not in detections_table:
+    if detf.gal_hlr not in detections_table.columns:
         raise ValueError(detf.gal_hlr + " must be in detections table for make_segmentation_map")
     
-    if detf.gal_mag in detections_table:
+    if detf.gal_mag in detections_table.columns:
         sorted_dtc_table = deepcopy(detections_table)
         sorted_dtc_table.sort(detf.gal_mag)
     else:
         raise ValueError(detf.gal_mag + " must be in detections table for make_segmentation_map")
-    
-    segmentation_map = galsim.Image(np.ones_like(noisefree_image,dtype=np.int32),scale=noisefree_image.scale)
+
+    segmentation_map = galsim.Image(np.ones_like(noisefree_image.array,dtype=np.int32),scale=noisefree_image.scale)
     
     y_image, x_image = np.indices(np.shape(noisefree_image.array))
     
@@ -58,7 +58,7 @@ def make_segmentation_map( noisefree_image,
         
         r2_image = dx_image**2 + dy_image**2
     
-        r2_max = (r_max_factor*sorted_dtc_table[detf.gal_hlr])**2
+        r2_max = (r_max_factor*sorted_dtc_table[detf.gal_hlr][i])**2
         
         region_mask = np.ravel(r2_image) > r2_max
         

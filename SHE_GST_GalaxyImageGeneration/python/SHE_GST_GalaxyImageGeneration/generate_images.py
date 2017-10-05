@@ -169,9 +169,6 @@ def generate_image_group(image_group, options):
             # Get the filename
             filename = get_allowed_filename( "GST_"+tag+"_D"+str(i), model_hash, extension=".fits")
             filename_list.append(filename)
-            
-            # Save an empty primary HDU
-            fits.PrimaryHDU().writeto(filename,clobber=True)
 
     def append_hdu(filename, hdu):
         f = fits.open(filename, mode='append')
