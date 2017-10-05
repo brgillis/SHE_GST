@@ -145,8 +145,8 @@ def generate_image_group(image_group, options):
     image_group.fill_images()
     
     # Get the model hash so we can set up filenames
-    full_options = get_full_options(options,image_group)
-    model_hash = hash_any(frozenset(full_options),format="base64")
+    full_options = get_full_options(options,image_group.get_image_descendants()[0])
+    model_hash = hash_any(frozenset(full_options.items()),format="base64")
     
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
     
@@ -926,7 +926,7 @@ def add_image_header_info(gs_image,
         del gs_image.header[stamp_size_label]
     
     # Model hash
-    gs_image.header[model_hash_label] = hash_any(frozenset(full_options),format="base64")
+    gs_image.header[model_hash_label] = hash_any(frozenset(full_options.items()),format="base64")
     
     # Seeds
     gs_image.header[model_seed_label] = model_seed
