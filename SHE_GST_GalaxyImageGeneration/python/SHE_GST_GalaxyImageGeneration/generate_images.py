@@ -1067,8 +1067,7 @@ def generate_image(image, options):
         mask_maps.append(galsim.ImageS(np.zeros_like(dithers[di].array, dtype=np.int16), scale=pixel_scale))
         
         segmentation_maps.append(make_segmentation_map(dithers[di],
-                                                       detections_table,
-                                                       threshold=0.1*noise_level))
+                                                       detections_table))
         
 
         # If we're using cutouts, make the cutout image now
