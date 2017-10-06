@@ -44,6 +44,7 @@ from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
 from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
+from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 
 from SHE_GST_IceBRGpy.logging import getLogger
 from SHE_GST_IceBRGpy.rebin import rebin
@@ -57,7 +58,8 @@ from SHE_PPT.utility import hash_any
 from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
                                   model_seed_label,noise_seed_label,extname_label,dither_dx_label,
                                   dither_dy_label,
-                                  sci_tag,noisemap_tag,mask_tag,bulge_psf_tag,disk_psf_tag,psf_cat_tag)
+                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
+                                  detections_tag, bulge_psf_tag,disk_psf_tag)
 
 import numpy as np
     
@@ -151,6 +153,7 @@ def generate_image_group(image_group, options):
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
     
     image_filenames = []
+    segmentation_map_filenames = []
     details_table_filenames = []
     detections_table_filenames = []
     psf_image_filenames = []
@@ -158,16 +161,14 @@ def generate_image_group(image_group, options):
     # Get the filenames and open the files for writing
     for i in range(num_dithers):
         for filename_list, tag in ((image_filenames,"EXP"),
-                                   (details_table_filenames,"DAL"),
-                                   (detections_table_filenames,"DTC"),
+                                   (segmentation_map_filenames,segmentation_tag),
+                                   (details_table_filenames,details_tag),
+                                   (detections_table_filenames,detections_tag),
                                    (psf_image_filenames,"PSF"),):
         
             # Get the filename
             filename = get_allowed_filename( "GST_"+tag+"_D"+str(i), model_hash, extension=".fits")
             filename_list.append(filename)
-            
-            # Save an empty primary HDU
-            fits.PrimaryHDU().writeto(filename,clobber=True)
 
     def append_hdu(filename, hdu):
         f = fits.open(filename, mode='append')
@@ -180,7 +181,7 @@ def generate_image_group(image_group, options):
     for image in image_group.get_image_descendants():
         
         # Generate the data
-        (image_dithers, noisemaps, maskmaps,
+        (image_dithers, noise_maps, mask_maps, segmentation_maps,
          detections_tables, psf_tables, details_tables, psf_images) = generate_image(image,options)
         
         # Append to the fits file for each dither
@@ -191,15 +192,20 @@ def generate_image_group(image_group, options):
                                    header=fits.header.Header(image_dithers[i][0][0].header.items()))
             append_hdu( join(options['output_folder'],image_filenames[i]), im_hdu)
             
-            # Noisemap
-            rms_hdu = fits.ImageHDU(data=noisemaps[i].array,
-                                    header=fits.header.Header(noisemaps[i].header.items()))
+            # Noise map
+            rms_hdu = fits.ImageHDU(data=noise_maps[i].array,
+                                    header=fits.header.Header(noise_maps[i].header.items()))
             append_hdu( join(options['output_folder'],image_filenames[i]), rms_hdu)
             
-            # Maskmap
-            flg_hdu = fits.ImageHDU(data=maskmaps[i].array,
-                                    header=fits.header.Header(maskmaps[i].header.items()))
+            # Mask map
+            flg_hdu = fits.ImageHDU(data=mask_maps[i].array,
+                                    header=fits.header.Header(mask_maps[i].header.items()))
             append_hdu( join(options['output_folder'],image_filenames[i]), flg_hdu)
+            
+            # Segmentation map
+            seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
+                                    header=fits.header.Header(segmentation_maps[i].header.items()))
+            append_hdu( join(options['output_folder'],segmentation_map_filenames[i]), seg_hdu)
             
             # Details table
             dal_hdu = table_to_hdu(details_tables[i])
@@ -852,6 +858,9 @@ def print_galaxies_and_psfs(image,
                     detf.ID: galaxy.get_full_ID(),
                     detf.gal_x: int(xc + xp_sp_shift),
                     detf.gal_y: int(yc + yp_sp_shift),
+                    detf.gal_hlr: bulge_fraction*bulge_size + (1-bulge_fraction)*disk_size,
+                    detf.gal_mag: galaxy.get_param_value('apparent_mag_vis'),
+                    detf.gal_mag_err: 0.,
                     })
             
             # Add to detections table only if it's a target galaxy
@@ -974,8 +983,9 @@ def generate_image(image, options):
 
     # Setup for the file
     dithers = []
-    noisemaps = []
-    maskmaps = []
+    noise_maps = []
+    mask_maps = []
+    segmentation_maps = []
 
     # Create the image object, using the appropriate method for the image type
     full_x_size = int(image.get_param_value("image_size_xp"))
@@ -1001,7 +1011,8 @@ def generate_image(image, options):
         details_table = None
     else:
         full_options = get_full_options(options,image)
-        detections_table = initialise_detections_table(image, full_options)
+        detections_table = initialise_detections_table(image, full_options,
+                                                       optional_columns=[detf.gal_hlr,detf.gal_mag,detf.gal_mag_err])
         psf_table = initialise_psf_table(image, full_options)
         details_table = initialise_details_table(image, full_options)
 
@@ -1037,11 +1048,29 @@ def generate_image(image, options):
         
         # Make mock noise and mask maps for this dither
         if options['image_datatype'] == '32f':
-            noisemaps.append(galsim.ImageF(np.ones_like(dithers[di].array), scale=pixel_scale))
+            noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), scale=pixel_scale))
         elif options['image_datatype'] == '64f':
-            noisemaps.append(galsim.ImageD(np.ones_like(dithers[di].array), scale=pixel_scale))
+            noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), scale=pixel_scale))
             
-        maskmaps.append(galsim.ImageS(np.zeros_like(dithers[di].array, dtype=np.int16), scale=pixel_scale))
+        if not options['suppress_noise']:
+            
+            noise_level = get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel,
+                                                    sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
+                                                    read_noise_count=options['read_noise'],
+                                                    pixel_scale=pixel_scale,
+                                                    gain=options['gain'])
+            noise_maps[di] *= noise_level
+            
+        else:
+            noise_maps[di] *= 0
+            
+        mask_maps.append(galsim.ImageS(np.zeros_like(dithers[di].array, dtype=np.int16), scale=pixel_scale))
+        
+        logger.info("Generating segmentation map " + str(di) + ".")
+        segmentation_maps.append(make_segmentation_map(dithers[di],
+                                                       detections_table,
+                                                       threshold=0.01*noise_level))
+        
 
         # If we're using cutouts, make the cutout image now
         if options['mode'] == 'cutouts':
@@ -1051,18 +1080,24 @@ def generate_image(image, options):
                                             detections_table,
                                             details_table,
                                             centre_offset)
-            noisemaps[di] = make_cutout_image(noisemaps[di],
+            noise_maps[di] = make_cutout_image(noise_maps[di],
+                                               options,
+                                               galaxies,
+                                               detections_table,
+                                               details_table,
+                                               centre_offset)
+            mask_maps[di] = make_cutout_image(mask_maps[di],
                                               options,
                                               galaxies,
                                               detections_table,
                                               details_table,
                                               centre_offset)
-            maskmaps[di] = make_cutout_image(maskmaps[di],
-                                             options,
-                                             galaxies,
-                                             detections_table,
-                                             details_table,
-                                             centre_offset)
+            segmentation_maps[di] = make_cutout_image(segmentation_maps[di],
+                                                      options,
+                                                      galaxies,
+                                                      detections_table,
+                                                      details_table,
+                                                      centre_offset)
 
         
         if not options['details_only']:
@@ -1076,11 +1111,14 @@ def generate_image(image, options):
             add_image_header_info(dither, options['gain'], full_options, image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+sci_tag,
                                   stamp_size=stamp_size_pix, dither_shift=dither_shift)
-            add_image_header_info(noisemaps[di],options['gain'],full_options,image.get_full_seed(),
+            add_image_header_info(noise_maps[di],options['gain'],full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+noisemap_tag,
                                   stamp_size=stamp_size_pix,  dither_shift=dither_shift)
-            add_image_header_info(maskmaps[di],options['gain'],full_options,image.get_full_seed(),
+            add_image_header_info(mask_maps[di],options['gain'],full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+mask_tag,
+                                  stamp_size=stamp_size_pix,  dither_shift=dither_shift)
+            add_image_header_info(segmentation_maps[di],options['gain'],full_options,image.get_full_seed(),
+                                  extname=str(image.get_local_ID())+"."+segmentation_tag,
                                   stamp_size=stamp_size_pix,  dither_shift=dither_shift)
             add_image_header_info(p_bulge_psf_image[0],options['gain'],full_options,image.get_full_seed(),
                                   extname=str(image.get_local_ID())+"."+bulge_psf_tag,
@@ -1091,7 +1129,7 @@ def generate_image(image, options):
 
             if not options['suppress_noise']:
                 
-                noisemaps[di] *= get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel*np.ones_like(dither.array),
+                noise_maps[di] *= get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel*np.ones_like(dither.array),
                                                         sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
                                                         read_noise_count=options['read_noise'],
                                                         pixel_scale=pixel_scale,
@@ -1129,7 +1167,7 @@ def generate_image(image, options):
                 else:
                     raise Exception("Invalid value for noise_cancellation: " + str(options['noise_cancellation']))
             else:
-                noisemaps[di] *= 0
+                noise_maps[di] *= 0
                 dithers[di] = [(dithers[di], '')]
 
 
@@ -1163,4 +1201,4 @@ def generate_image(image, options):
     image.clear()
 
     logger.debug("Exiting generate_image method.")
-    return dithers, noisemaps, maskmaps,  detections_tables, psf_tables, details_tables, psf_images
+    return dithers, noise_maps, mask_maps, segmentation_maps, detections_tables, psf_tables, details_tables, psf_images
