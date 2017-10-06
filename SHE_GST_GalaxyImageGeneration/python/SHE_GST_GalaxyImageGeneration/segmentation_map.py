@@ -49,6 +49,8 @@ def make_segmentation_map( noisefree_image,
     
     threshold_mask = np.ravel(noisefree_image.array) <= threshold
     claimed_mask = np.zeros_like(threshold_mask,dtype=bool)
+
+    r_max_factor_scaled = r_max_factor/noisefree_image.scale
     
     for i in range(len(sorted_dtc_table)):
         
@@ -58,7 +60,7 @@ def make_segmentation_map( noisefree_image,
         
         r2_image = dx_image**2 + dy_image**2
     
-        r2_max = (r_max_factor*sorted_dtc_table[detf.gal_hlr][i])**2
+        r2_max = (r_max_factor_scaled*sorted_dtc_table[detf.gal_hlr][i])**2
         
         region_mask = np.ravel(r2_image) > r2_max
         
