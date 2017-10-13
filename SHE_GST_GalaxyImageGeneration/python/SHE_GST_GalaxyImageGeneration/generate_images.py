@@ -52,7 +52,7 @@ from SHE_GST_IceBRGpy.rebin import rebin
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
 from SHE_PPT.psf_table_format import initialise_psf_table, psf_table_format as pstf
-from SHE_PPT.file_io import get_allowed_filename, write_listfile
+from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu
 from SHE_PPT.table_utility import add_row, output_tables, table_to_hdu
 from SHE_PPT.utility import hash_any
 from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
@@ -169,13 +169,6 @@ def generate_image_group(image_group, options):
             # Get the filename
             filename = get_allowed_filename( "GST_"+tag+"_D"+str(i), model_hash, extension=".fits")
             filename_list.append(filename)
-
-    def append_hdu(filename, hdu):
-        f = fits.open(filename, mode='append')
-        try:
-            f.append(hdu)
-        finally:
-            f.close()
             
     # Generate each image, then append it and its data to the fits files
     for image in image_group.get_image_descendants():
