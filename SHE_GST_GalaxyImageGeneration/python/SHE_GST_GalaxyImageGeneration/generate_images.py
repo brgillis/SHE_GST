@@ -45,8 +45,8 @@ from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 
 from SHE_GST_IceBRGpy.logging import getLogger
 
-from SHE_PPT.aocs_time_series_product import create_aocs_time_series_product
-from SHE_PPT.astrometry_product import create_astrometry_product
+from SHE_PPT import aocs_time_series_product
+from SHE_PPT import astrometry_product
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
 from SHE_PPT.psf_table_format import initialise_psf_table, psf_table_format as pstf
@@ -58,7 +58,11 @@ from SHE_PPT.magic_values import (gain_label,stamp_size_label,model_hash_label,
                                   dither_dy_label,
                                   sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
                                   detections_tag, bulge_psf_tag,disk_psf_tag)
-from SHE_PPT.mission_time_product import create_mission_time_product
+from SHE_PPT import mission_time_product
+
+aocs_time_series_product.init()
+astrometry_product.init()
+mission_time_product.init()
 
 import numpy as np
     
@@ -229,15 +233,15 @@ def generate_image_group(image_group, options):
             
             # Mock data products
             
-            mock_aocs_data_product = create_aocs_time_series_product()
+            mock_aocs_data_product = aocs_time_series_product.create_aocs_time_series_product()
             write_pickled_product(mock_aocs_data_product,
                                   join(options['output_folder'],aocs_time_series_filenames[i]))
             
-            mock_astrometry_data_product = create_astrometry_product()
+            mock_astrometry_data_product = astrometry_product.create_astrometry_product()
             write_pickled_product(mock_astrometry_data_product,
                                   join(options['output_folder'],astrometry_filenames[i]))
             
-            mock_mission_time_data_product = create_mission_time_product()
+            mock_mission_time_data_product = mission_time_product.create_mission_time_product()
             write_pickled_product(mock_mission_time_data_product,
                                   join(options['output_folder'],mission_time_filenames[i]))
             
