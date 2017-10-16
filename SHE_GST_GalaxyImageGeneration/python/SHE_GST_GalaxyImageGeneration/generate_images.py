@@ -28,38 +28,36 @@ from multiprocessing import cpu_count, Pool
 from os.path import join
 from copy import deepcopy
 
-from astropy.table import Table
 from astropy.io import fits
 import galsim
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from SHE_GST_GalaxyImageGeneration.combine_dithers import combine_dithers
-from SHE_GST_GalaxyImageGeneration.compress_image import compress_image
 from SHE_GST_GalaxyImageGeneration.config.check_config import get_full_options
 from SHE_GST_GalaxyImageGeneration.cutouts import make_cutout_image
 from SHE_GST_GalaxyImageGeneration.dither_schemes import get_dither_scheme
 from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
-                                             get_disk_galaxy_image,
-                                             is_target_galaxy, get_disk_galaxy_profile)
+                                                  get_disk_galaxy_profile, )
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
 from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 
 from SHE_GST_IceBRGpy.logging import getLogger
-from SHE_GST_IceBRGpy.rebin import rebin
 
+from SHE_PPT.aocs_time_series_product import create_aocs_time_series_product
+from SHE_PPT.astrometry_product import create_astrometry_product
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
 from SHE_PPT.psf_table_format import initialise_psf_table, psf_table_format as pstf
-from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu
-from SHE_PPT.table_utility import add_row, output_tables, table_to_hdu
+from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu, write_pickled_product
+from SHE_PPT.table_utility import add_row, table_to_hdu
 from SHE_PPT.utility import hash_any
-from SHE_PPT.magic_values import (gain_label,scale_label,stamp_size_label,model_hash_label,
+from SHE_PPT.magic_values import (gain_label,stamp_size_label,model_hash_label,
                                   model_seed_label,noise_seed_label,extname_label,dither_dx_label,
                                   dither_dy_label,
                                   sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
                                   detections_tag, bulge_psf_tag,disk_psf_tag)
+from SHE_PPT.mission_time_product import create_mission_time_product
 
 import numpy as np
     
@@ -68,12 +66,6 @@ default_gsparams = galsim.GSParams(folding_threshold=5e-3,
                                    kvalue_accuracy=1e-5,
                                    stepk_minimum_hlr=5,
                                    )
-
-try:
-    import pyfftw
-    from SHE_GST_IceBRGpy.convolve import fftw_convolve as convolve
-except ImportError as _e:
-    from scipy.signal import fftconvolve as convolve
 
 class generate_image_group_with_options_caller(object):
     def __init__(self, *args, **kwargs):
@@ -158,16 +150,23 @@ def generate_image_group(image_group, options):
     detections_table_filenames = []
     psf_image_filenames = []
     
-    # Get the filenames and open the files for writing
+    aocs_time_series_filenames = []
+    astrometry_filenames = []
+    mission_time_filenames = []
+    
+    # Get the filenames we'll need
     for i in range(num_dithers):
-        for filename_list, tag in ((image_filenames,"EXP"),
-                                   (segmentation_map_filenames,segmentation_tag),
-                                   (details_table_filenames,details_tag),
-                                   (detections_table_filenames,detections_tag),
-                                   (psf_image_filenames,"PSF"),):
+        for filename_list, tag, ext in ((image_filenames,"EXP","fits"),
+                                        (segmentation_map_filenames,segmentation_tag,"fits"),
+                                        (details_table_filenames,details_tag,"fits"),
+                                        (detections_table_filenames,detections_tag,"fits"),
+                                        (psf_image_filenames,"PSF","fits"),
+                                        (aocs_time_series_filenames,"AOCS","bin"),
+                                        (astrometry_filenames,"AST","bin"),
+                                        (mission_time_filenames,"MT","bin"),):
         
             # Get the filename
-            filename = get_allowed_filename( "GST_"+tag+"_D"+str(i), model_hash, extension=".fits")
+            filename = get_allowed_filename( "GST_"+tag+"_D"+str(i), model_hash, extension="."+ext)
             filename_list.append(filename)
             
     # Generate each image, then append it and its data to the fits files
@@ -180,51 +179,77 @@ def generate_image_group(image_group, options):
         # Append to the fits file for each dither
         for i in range(num_dithers):
             
+            outdir = options['output_folder']
+            
+            image_filename = join(outdir,image_filenames[i])
+            
             # Science image
             im_hdu = fits.ImageHDU(data=image_dithers[i][0][0].array,
                                    header=fits.header.Header(image_dithers[i][0][0].header.items()))
-            append_hdu( join(options['output_folder'],image_filenames[i]), im_hdu)
+            append_hdu( image_filename, im_hdu)
             
             # Noise map
             rms_hdu = fits.ImageHDU(data=noise_maps[i].array,
                                     header=fits.header.Header(noise_maps[i].header.items()))
-            append_hdu( join(options['output_folder'],image_filenames[i]), rms_hdu)
+            append_hdu( image_filename, rms_hdu)
             
             # Mask map
             flg_hdu = fits.ImageHDU(data=mask_maps[i].array,
                                     header=fits.header.Header(mask_maps[i].header.items()))
-            append_hdu( join(options['output_folder'],image_filenames[i]), flg_hdu)
+            append_hdu( image_filename, flg_hdu)
             
             # Segmentation map
             seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
                                     header=fits.header.Header(segmentation_maps[i].header.items()))
-            append_hdu( join(options['output_folder'],segmentation_map_filenames[i]), seg_hdu)
+            append_hdu( join(outdir,segmentation_map_filenames[i]), seg_hdu)
             
             # Details table
             dal_hdu = table_to_hdu(details_tables[i])
-            append_hdu(join(options['output_folder'],details_table_filenames[i]), dal_hdu)     
+            append_hdu(join(outdir,details_table_filenames[i]), dal_hdu)     
                    
             # Detections table
             dtc_hdu = table_to_hdu(detections_tables[i])
-            append_hdu(join(options['output_folder'],detections_table_filenames[i]), dtc_hdu)
+            append_hdu(join(outdir,detections_table_filenames[i]), dtc_hdu)
             
             # PSF images
             
+            psf_filename = join(outdir,psf_image_filenames[i])
+            
             bpsf_hdu = fits.ImageHDU(data=psf_images[i][0].array,
                                      header=fits.header.Header(psf_images[i][0].header.items()))
-            append_hdu( join(options['output_folder'],psf_image_filenames[i]), bpsf_hdu)
+            append_hdu( psf_filename, bpsf_hdu)
             
             dpsf_hdu = fits.ImageHDU(data=psf_images[i][1].array,
                                      header=fits.header.Header(psf_images[i][1].header.items()))
-            append_hdu( join(options['output_folder'],psf_image_filenames[i]), dpsf_hdu)
+            append_hdu( psf_filename, dpsf_hdu)
             
             psfc_hdu = table_to_hdu(psf_tables[i])
             append_hdu( join(options['output_folder'],psf_image_filenames[i]), psfc_hdu)
             
+            # Mock data products
+            
+            mock_aocs_data_product = create_aocs_time_series_product()
+            write_pickled_product(mock_aocs_data_product,
+                                  join(options['output_folder'],aocs_time_series_filenames[i]))
+            
+            mock_astrometry_data_product = create_astrometry_product()
+            write_pickled_product(mock_astrometry_data_product,
+                                  join(options['output_folder'],astrometry_filenames[i]))
+            
+            mock_mission_time_data_product = create_mission_time_product()
+            write_pickled_product(mock_mission_time_data_product,
+                                  join(options['output_folder'],mission_time_filenames[i]))
+            
+            
     # Output listfiles of filenames
-    write_listfile(join(options['output_folder'],"output_files.json"),
-                   [image_filenames,details_table_filenames,detections_table_filenames,
-                    segmentation_map_filenames, psf_image_filenames])
+    write_listfile(join(options['output_folder'],options['data_images']), image_filenames)
+    write_listfile(join(options['output_folder'],options['details_tables']), details_table_filenames)
+    write_listfile(join(options['output_folder'],options['detections_tables']), detections_table_filenames)
+    write_listfile(join(options['output_folder'],options['segmentation_images']), segmentation_map_filenames)
+    write_listfile(join(options['output_folder'],options['psf_images_and_tables']), psf_image_filenames)
+    write_listfile(join(options['output_folder'],options['aocs_time_series_products']), aocs_time_series_filenames)
+    write_listfile(join(options['output_folder'],options['astrometry_products']), astrometry_filenames)
+    write_listfile(join(options['output_folder'],options['mission_time_products']), mission_time_filenames)
             
     return
 
