@@ -36,7 +36,8 @@ from SHE_GST_GalaxyImageGeneration.config.check_config import get_full_options
 from SHE_GST_GalaxyImageGeneration.cutouts import make_cutout_image
 from SHE_GST_GalaxyImageGeneration.dither_schemes import get_dither_scheme
 from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
-                                                  get_disk_galaxy_profile, )
+                                                  get_disk_galaxy_profile,
+                                                  is_target_galaxy )
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
 from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
