@@ -82,8 +82,8 @@ def run_from_config_file_and_args(func, config_file_name, cline_args, *args, **k
 def run_from_survey_and_options(func, survey, options, *args, **kwargs):
 
     # Check if the folder path was given with a slash at the end. If so, trim it
-    if(options['output_folder'][-1] == '/'):
-        options['output_folder'] = options['output_folder'][0:-1]
+    if(options['workdir'][-1] == '/'):
+        options['workdir'] = options['workdir'][0:-1]
 
     logger = getLogger(mv.logger_name)
 
@@ -111,7 +111,7 @@ def run_from_survey_and_options(func, survey, options, *args, **kwargs):
         logger.debug("")
 
     # Ensure that the output folder exists
-    cmd = 'mkdir -p ' + options['output_folder']
+    cmd = 'mkdir -p ' + options['workdir']
     subprocess.call(cmd, shell=True)
 
     # Set up pyfftw

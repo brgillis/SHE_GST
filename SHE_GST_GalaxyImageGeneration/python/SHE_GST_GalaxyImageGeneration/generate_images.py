@@ -228,32 +228,32 @@ def generate_image_group(image_group, options):
             append_hdu( psf_filename, dpsf_hdu)
             
             psfc_hdu = table_to_hdu(psf_tables[i])
-            append_hdu( join(options['output_folder'],psf_image_filenames[i]), psfc_hdu)
+            append_hdu( join(options['workdir'],psf_image_filenames[i]), psfc_hdu)
             
             # Mock data products
             
             mock_aocs_data_product = aocs_time_series_product.create_aocs_time_series_product()
             write_pickled_product(mock_aocs_data_product,
-                                  join(options['output_folder'],aocs_time_series_filenames[i]))
+                                  join(options['workdir'],aocs_time_series_filenames[i]))
             
             mock_astrometry_data_product = astrometry_product.create_astrometry_product()
             write_pickled_product(mock_astrometry_data_product,
-                                  join(options['output_folder'],astrometry_filenames[i]))
+                                  join(options['workdir'],astrometry_filenames[i]))
             
             mock_mission_time_data_product = mission_time_product.create_mission_time_product()
             write_pickled_product(mock_mission_time_data_product,
-                                  join(options['output_folder'],mission_time_filenames[i]))
+                                  join(options['workdir'],mission_time_filenames[i]))
             
             
     # Output listfiles of filenames
-    write_listfile(join(options['output_folder'],options['data_images']), image_filenames)
-    write_listfile(join(options['output_folder'],options['details_tables']), details_table_filenames)
-    write_listfile(join(options['output_folder'],options['detections_tables']), detections_table_filenames)
-    write_listfile(join(options['output_folder'],options['segmentation_images']), segmentation_map_filenames)
-    write_listfile(join(options['output_folder'],options['psf_images_and_tables']), psf_image_filenames)
-    write_listfile(join(options['output_folder'],options['aocs_time_series_products']), aocs_time_series_filenames)
-    write_listfile(join(options['output_folder'],options['astrometry_products']), astrometry_filenames)
-    write_listfile(join(options['output_folder'],options['mission_time_products']), mission_time_filenames)
+    write_listfile(join(options['workdir'],options['data_images']), image_filenames)
+    write_listfile(join(options['workdir'],options['details_tables']), details_table_filenames)
+    write_listfile(join(options['workdir'],options['detections_tables']), detections_table_filenames)
+    write_listfile(join(options['workdir'],options['segmentation_images']), segmentation_map_filenames)
+    write_listfile(join(options['workdir'],options['psf_images_and_tables']), psf_image_filenames)
+    write_listfile(join(options['workdir'],options['aocs_time_series_products']), aocs_time_series_filenames)
+    write_listfile(join(options['workdir'],options['astrometry_products']), astrometry_filenames)
+    write_listfile(join(options['workdir'],options['mission_time_products']), mission_time_filenames)
             
     return
 

@@ -51,7 +51,7 @@ def get_full_options(options,image):
          full_options['details_output_format'],
          full_options['dithering_scheme'],
          full_options['num_parallel_threads'],
-         full_options['output_folder'],
+         full_options['workdir'],
          full_options['output_file_name_base'],
          full_options['psf_file_name_base'],
          full_options['seed'], # stored separately
