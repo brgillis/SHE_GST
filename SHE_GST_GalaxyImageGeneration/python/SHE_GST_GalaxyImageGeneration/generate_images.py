@@ -51,7 +51,7 @@ from SHE_PPT.detections_table_format import initialise_detections_table, detecti
 from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu, write_pickled_product
 from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
                                   model_seed_label, noise_seed_label, extname_label, dither_dx_label,
-                                  dither_dy_label,
+                                  dither_dy_label, scale_label,
                                   sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
                                   detections_tag, bulge_psf_tag, disk_psf_tag)
 from SHE_PPT.psf_table_format import initialise_psf_table, psf_table_format as pstf
@@ -440,7 +440,7 @@ def print_galaxies_and_psfs(image,
                 if new_rotation > 180: new_rotation -= 180
                 galaxy.set_param_params("rotation", "fixed", new_rotation)
 
-            # Now handle pairs
+            # Now handle pairs 
             galaxy_pairs_in_group = galaxy_group.get_galaxy_pairs()
             num_galaxy_pairs_in_group = len(galaxy_pairs_in_group)
 
@@ -969,6 +969,9 @@ def add_image_header_info(gs_image,
     # Dithering shift
     gs_image.header[dither_dx_label] = dither_shift[0]
     gs_image.header[dither_dy_label] = dither_shift[1]
+    
+    # Pixel scale
+    gs_image.header[scale_label] = gs_image.scale
     
     logger.debug("Exiting add_image_header_info method.")
     
