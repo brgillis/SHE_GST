@@ -27,9 +27,10 @@ from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options,
                                                                  allowed_fixed_params,
                                                                  allowed_survey_settings)
-from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_args
 from SHE_GST_GalaxyImageGeneration.generate_images import generate_images
+from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_args
 from SHE_GST_IceBRGpy.logging import getLogger
+
 
 def defineSpecificProgramOptions():
     """
@@ -68,7 +69,7 @@ def defineSpecificProgramOptions():
 
         settings = allowed_survey_setting + "_setting"
         parser.add_argument("--" + settings, type=str)
-    
+
     return parser
 
 

@@ -21,8 +21,8 @@
     the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 """
 
-import SHE_GST_PhysicalModel
 import SHE_GST_GalaxyImageGeneration.magic_values as mv
+import SHE_GST_PhysicalModel
 
 
 __all__ = ['load_default_configurations']
@@ -46,6 +46,7 @@ allowed_options = { 'aocs_time_series_products': ('mock_aocs_time_series_product
                     'euclid_psf': (True, str2bool),
                     'galaxies_per_group': (8, int),
                     'image_datatype': (mv.default_image_datatype, str),
+                    'logdir': (".", str),
                     'magnitude_limit': (mv.default_magnitude_limit, float),
                     'mission_time_products': ('mock_mission_time_products.json', str),
                     'mode': ('field', str),
@@ -57,7 +58,6 @@ allowed_options = { 'aocs_time_series_products': ('mock_aocs_time_series_product
                     'noise_seed': (0, int),
                     'num_parallel_threads': (-1, int),
                     'num_target_galaxies': (0, int),
-                    'output_folder': (mv.default_output_folder, str),
                     'output_file_name_base': ('simulated_image', str),
                     'psf_file_name_base': ('simulated_image_psfs', str),
                     'psf_images_and_tables': ('sim_psf_images_and_tables.json',str),
@@ -73,7 +73,8 @@ allowed_options = { 'aocs_time_series_products': ('mock_aocs_time_series_product
                     'stamp_size_factor': (4.5, float),
                     'suppress_noise': (False, str2bool),
                     'gain': (3.3, float),
-                    'read_noise': (5.4, float) }
+                    'read_noise': (5.4, float),
+                    'workdir': (".", str) }
 
 allowed_option_values = { 'compress_images': (0, 1, 2),
                           'details_output_format': ('none', 'fits', 'ascii', 'both'),

@@ -24,9 +24,9 @@
 
 from __future__ import division
 
+from copy import deepcopy
 from multiprocessing import cpu_count, Pool
 from os.path import join
-from copy import deepcopy
 
 from astropy.io import fits
 import galsim
@@ -37,34 +37,33 @@ from SHE_GST_GalaxyImageGeneration.cutouts import make_cutout_image
 from SHE_GST_GalaxyImageGeneration.dither_schemes import get_dither_scheme
 from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
                                                   get_disk_galaxy_profile,
-                                                  is_target_galaxy )
+                                                  is_target_galaxy)
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
 from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
-
 from SHE_GST_IceBRGpy.logging import getLogger
-
 from SHE_PPT import aocs_time_series_product
 from SHE_PPT import astrometry_product
+from SHE_PPT import mission_time_product
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
-from SHE_PPT.psf_table_format import initialise_psf_table, psf_table_format as pstf
 from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu, write_pickled_product
-from SHE_PPT.table_utility import add_row, table_to_hdu
-from SHE_PPT.utility import hash_any
-from SHE_PPT.magic_values import (gain_label,stamp_size_label,model_hash_label,
-                                  model_seed_label,noise_seed_label,extname_label,dither_dx_label,
+from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
+                                  model_seed_label, noise_seed_label, extname_label, dither_dx_label,
                                   dither_dy_label,
                                   sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
-                                  detections_tag, bulge_psf_tag,disk_psf_tag)
-from SHE_PPT import mission_time_product
+                                  detections_tag, bulge_psf_tag, disk_psf_tag)
+from SHE_PPT.psf_table_format import initialise_psf_table, psf_table_format as pstf
+from SHE_PPT.table_utility import add_row, table_to_hdu
+from SHE_PPT.utility import hash_any
+import numpy as np
+
 
 aocs_time_series_product.init()
 astrometry_product.init()
 mission_time_product.init()
 
-import numpy as np
     
 default_gsparams = galsim.GSParams(folding_threshold=5e-3,
                                    maxk_threshold=1e-3,
@@ -184,7 +183,7 @@ def generate_image_group(image_group, options):
         # Append to the fits file for each dither
         for i in range(num_dithers):
             
-            outdir = options['output_folder']
+            outdir = options['workdir']
             
             image_filename = join(outdir,image_filenames[i])
             
