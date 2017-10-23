@@ -56,7 +56,7 @@ allowed_options = { 'aocs_time_series_products': ('mock_aocs_time_series_product
                     'model_psf_y_offset': (mv.default_pixel_scale/mv.default_psf_scale_factor, float),
                     'noise_cancellation': ("false", str),
                     'noise_seed': (0, int),
-                    'num_parallel_threads': (-1, int),
+                    'num_parallel_threads': (1, int),
                     'num_target_galaxies': (0, int),
                     'output_file_name_base': ('simulated_image', str),
                     'psf_file_name_base': ('simulated_image_psfs', str),
