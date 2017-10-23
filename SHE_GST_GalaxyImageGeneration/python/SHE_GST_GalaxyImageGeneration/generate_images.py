@@ -1089,7 +1089,7 @@ def generate_image(image, options):
         else:
             noise_maps[di] *= 0
             
-        mask_maps.append(galsim.ImageS(np.zeros_like(dithers[di].array, dtype=np.int16), scale=pixel_scale))
+        mask_maps.append(galsim.ImageI(np.zeros_like(dithers[di].array, dtype=np.int16), scale=pixel_scale))
         
         logger.info("Generating segmentation map " + str(di) + ".")
         segmentation_maps.append(make_segmentation_map(dithers[di],
