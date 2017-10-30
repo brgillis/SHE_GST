@@ -46,6 +46,7 @@ from SHE_GST_IceBRGpy.logging import getLogger
 from SHE_PPT import aocs_time_series_product
 from SHE_PPT import astrometry_product
 from SHE_PPT import mission_time_product
+from SHE_PPT import mosaic_product
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
 from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu, write_pickled_product
@@ -63,6 +64,7 @@ import numpy as np
 aocs_time_series_product.init()
 astrometry_product.init()
 mission_time_product.init()
+mosaic_product.init()
 
     
 default_gsparams = galsim.GSParams(folding_threshold=5e-3,
@@ -149,6 +151,7 @@ def generate_image_group(image_group, options):
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
     
     image_filenames = []
+    mosaic_product_filenames = []
     segmentation_map_filenames = []
     details_table_filenames = []
     detections_table_filenames = []
@@ -161,6 +164,7 @@ def generate_image_group(image_group, options):
     # Get the filenames we'll need
     for i in range(num_dithers):
         for filename_list, tag, ext in ((image_filenames,"EXP","fits"),
+                                        (mosaic_product_filenames,"P"+segmentation_tag,"bin"),
                                         (segmentation_map_filenames,segmentation_tag,"fits"),
                                         (details_table_filenames,details_tag,"fits"),
                                         (detections_table_filenames,detections_tag,"fits"),
@@ -203,6 +207,15 @@ def generate_image_group(image_group, options):
             append_hdu( image_filename, flg_hdu)
             
             # Segmentation map
+            
+            mock_mosaic_product = mosaic_product.create_mosaic_product(instrument_name="VIS",
+                                                                        filter="VIS",
+                                                                        wcs_params=None,
+                                                                        zeropoint=0,
+                                                                        data_filename=segmentation_map_filenames[i],)
+            write_pickled_product(mock_mosaic_product,
+                                  join(options['workdir'],mosaic_product_filenames[i]))
+            
             seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
                                     header=fits.header.Header(segmentation_maps[i].header.items()))
             append_hdu( join(outdir,segmentation_map_filenames[i]), seg_hdu)
