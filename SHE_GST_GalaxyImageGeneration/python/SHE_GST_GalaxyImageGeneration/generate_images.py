@@ -152,6 +152,7 @@ def generate_image_group(image_group, options):
     
     image_filenames = []
     mosaic_product_filenames = []
+    mosaic_product_listfilenames = []
     segmentation_map_filenames = []
     details_table_filenames = []
     detections_table_filenames = []
@@ -164,7 +165,8 @@ def generate_image_group(image_group, options):
     # Get the filenames we'll need
     for i in range(num_dithers):
         for filename_list, tag, ext in ((image_filenames,"EXP","fits"),
-                                        (mosaic_product_filenames,"P"+segmentation_tag,"bin"),
+                                        (mosaic_product_filenames,"P_"+segmentation_tag,"bin"),
+                                        (mosaic_product_filenames,"LF_"+segmentation_tag,"json"),
                                         (segmentation_map_filenames,segmentation_tag,"fits"),
                                         (details_table_filenames,details_tag,"fits"),
                                         (detections_table_filenames,detections_tag,"fits"),
@@ -214,7 +216,8 @@ def generate_image_group(image_group, options):
                                                                         zeropoint=0,
                                                                         data_filename=segmentation_map_filenames[i],)
             write_pickled_product(mock_mosaic_product,
-                                  join(options['workdir'],mosaic_product_filenames[i]))
+                                  join(options['workdir'],mosaic_product_filenames[i]),
+                                  join(options['workdir'],mosaic_product_listfilenames[i]))
             
             seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
                                     header=fits.header.Header(segmentation_maps[i].header.items()))
