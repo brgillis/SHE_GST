@@ -152,6 +152,7 @@ def generate_image_group(image_group, options):
     
     image_filenames = []
     mosaic_product_filenames = []
+    mosaic_product_sub_filenames = []
     mosaic_product_listfilenames = []
     segmentation_map_filenames = []
     details_table_filenames = []
@@ -215,6 +216,9 @@ def generate_image_group(image_group, options):
                                                                         wcs_params=None,
                                                                         zeropoint=0,
                                                                         data_filename=segmentation_map_filenames[i],)
+            
+            mosaic_product_sub_filenames.append(mock_mosaic_product.get_all_filenames())
+            
             write_pickled_product(mock_mosaic_product,
                                   join(options['workdir'],mosaic_product_filenames[i]),
                                   join(options['workdir'],mosaic_product_listfilenames[i]))
@@ -262,10 +266,12 @@ def generate_image_group(image_group, options):
             
             
     # Output listfiles of filenames
+    all_mosaic_product_filenames = [mosaic_product_filenames,mosaic_product_sub_filenames]
+    
     write_listfile(join(options['workdir'],options['data_images']), image_filenames)
     write_listfile(join(options['workdir'],options['details_tables']), details_table_filenames)
     write_listfile(join(options['workdir'],options['detections_tables']), detections_table_filenames)
-    write_listfile(join(options['workdir'],options['segmentation_images']), segmentation_map_filenames)
+    write_listfile(join(options['workdir'],options['segmentation_images']), all_mosaic_product_filenames)
     write_listfile(join(options['workdir'],options['psf_images_and_tables']), psf_image_filenames)
     write_listfile(join(options['workdir'],options['aocs_time_series_products']), aocs_time_series_filenames)
     write_listfile(join(options['workdir'],options['astrometry_products']), astrometry_filenames)
