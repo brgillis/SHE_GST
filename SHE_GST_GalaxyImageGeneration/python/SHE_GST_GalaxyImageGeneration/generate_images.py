@@ -166,7 +166,7 @@ def generate_image_group(image_group, options):
     for i in range(num_dithers):
         for filename_list, tag, ext in ((image_filenames,"EXP","fits"),
                                         (mosaic_product_filenames,"P_"+segmentation_tag,"bin"),
-                                        (mosaic_product_filenames,"LF_"+segmentation_tag,"json"),
+                                        (mosaic_product_listfilenames,"LF_"+segmentation_tag,"json"),
                                         (segmentation_map_filenames,segmentation_tag,"fits"),
                                         (details_table_filenames,details_tag,"fits"),
                                         (detections_table_filenames,detections_tag,"fits"),
