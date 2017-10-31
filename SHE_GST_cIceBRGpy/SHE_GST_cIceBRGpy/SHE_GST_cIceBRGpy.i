@@ -57,7 +57,15 @@ import_array();
 	
 	/* Utility/wrapper functions we need to add */
 	
-	void set_workdir( std::string const & new_workdir );
+	void set_workdir( std::string const & new_workdir )
+	{
+	    IceBRG::globals::workdir = new_workdir;
+	}
+	
+	std::string get_workdir()
+	{
+	    return IceBRG::globals::workdir;
+	}
 
 	template< typename T >
 	std::pair<int,int> rebin_wrap( T * p_image,
@@ -149,10 +157,8 @@ import_array();
 %include "SHE_GST_IceBRG_main/vector/rebin.hpp"
 
 	
-void set_workdir( std::string const & new_workdir )
-{
-    IceBRG::globals::workdir = new_workdir;
-}
+void set_workdir( std::string const & new_workdir );
+std::string get_workdir();
 
 template< typename T >
 std::pair<int,int>
