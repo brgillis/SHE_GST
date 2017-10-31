@@ -30,6 +30,7 @@ from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options
 from SHE_GST_GalaxyImageGeneration.generate_images import generate_images
 from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_args
 from SHE_GST_IceBRGpy.logging import getLogger
+import SHE_GST_cIceBRGpy
 
 
 def defineSpecificProgramOptions():
@@ -88,6 +89,9 @@ def mainMethod(args):
     logger.debug('#')
     logger.debug('# Entering GenGalaxyImages mainMethod()')
     logger.debug('#')
+    
+    # Set the work directory for C++ code
+    SHE_GST_cIceBRGpy.set_workdir(args.workdir)
 
     if(args.config_file is None and len(args.config_files)==0):
         logger.info('Using default configurations.')
