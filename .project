@@ -3,6 +3,7 @@
 	<name>SHE_GST</name>
 	<comment></comment>
 	<projects>
+		<project>SHE_PPT</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
