@@ -26,10 +26,17 @@ Bug Fixes
 New Features
 ------------
 
+- Now generates full set of mock data (image, PSF image, detections table, PSF table,
+  segmentation map, noisemap, mask, AOCS time series, astrometry, mission time) in
+  expected formats
+
 New config features
 -------------------
 
+- Allows specification of workdir and logdir, as expected by the pipeline runner. The
+  workdir will also be passed to the C++ code and used as the location of cache files
 
 Miscellaneous
 -------------
+
 - Re-licensed code to Euclid SGS under LGPL
