@@ -47,6 +47,7 @@ from SHE_PPT import mission_time_product
 from SHE_PPT import mosaic_product
 from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
 from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
+from SHE_PPT import detector
 from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu, write_pickled_product
 from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
                                   model_seed_label, noise_seed_label, extname_label, dither_dx_label,
@@ -1151,25 +1152,27 @@ def generate_image(image, options):
             dither += sky_level_unsubtracted_pixel
             
             dither_shift = dither_scheme[di]
+            
+            detector_id_str = detector.id_strings.flatten()[image.get_local_ID()]
                 
             # Add a header containing version info
             add_image_header_info(dither, options['gain'], full_options, image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+sci_tag,
+                                  extname=detector_id_str+"."+sci_tag,
                                   stamp_size=stamp_size_pix, dither_shift=dither_shift)
             add_image_header_info(noise_maps[di],options['gain'],full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+noisemap_tag,
+                                  extname=detector_id_str+"."+noisemap_tag,
                                   stamp_size=stamp_size_pix,  dither_shift=dither_shift)
             add_image_header_info(mask_maps[di],options['gain'],full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+mask_tag,
+                                  extname=detector_id_str+"."+mask_tag,
                                   stamp_size=stamp_size_pix,  dither_shift=dither_shift)
             add_image_header_info(segmentation_maps[di],options['gain'],full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+segmentation_tag,
+                                  extname=detector_id_str+"."+segmentation_tag,
                                   stamp_size=stamp_size_pix,  dither_shift=dither_shift)
             add_image_header_info(p_bulge_psf_image[0],options['gain'],full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+bulge_psf_tag,
+                                  extname=detector_id_str+"."+bulge_psf_tag,
                                   stamp_size=options['psf_stamp_size'], )
             add_image_header_info(p_disk_psf_image[0],options['gain'],full_options,image.get_full_seed(),
-                                  extname=str(image.get_local_ID())+"."+disk_psf_tag,
+                                  extname=detector_id_str+"."+disk_psf_tag,
                                   stamp_size=options['psf_stamp_size'], )
 
             if not options['suppress_noise']:
