@@ -899,6 +899,8 @@ def print_galaxies_and_psfs(image,
             # Add to detections table only if it's a target galaxy
             detections_table.add_row(vals={
                     detf.ID: galaxy.get_full_ID(),
+                    detf.gal_x: int(xc + xp_sp_shift),
+                    detf.gal_y: int(yc + yp_sp_shift),
                     detf.gal_x_world: int(xc + xp_sp_shift),
                     detf.gal_y_world: int(yc + yp_sp_shift),
                     detf.gal_hlr: bulge_fraction*bulge_size + (1-bulge_fraction)*disk_size,
@@ -1058,7 +1060,8 @@ def generate_image(image, options):
     else:
         full_options = get_full_options(options,image)
         detections_table = initialise_detections_table(image, full_options,
-                                                       optional_columns=[detf.gal_hlr,detf.gal_mag,detf.gal_mag_err])
+                                                       optional_columns=[detf.gal_x,detf.gal_y,
+                                                                         detf.gal_hlr,detf.gal_mag,detf.gal_mag_err])
         psf_table = initialise_psf_table(image, full_options)
         details_table = initialise_details_table(image, full_options)
 
