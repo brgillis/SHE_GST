@@ -24,7 +24,7 @@ import galsim
 
 import SHE_GST_GalaxyImageGeneration.magic_values as mv
 from SHE_GST_IceBRGpy.function_cache import lru_cache
-from SHE_GST_IceBRGpy.logging import getLogger
+from SHE_PPT.logging import getLogger
 import numpy as np
 
 __all__ = ['get_galaxy_profile']

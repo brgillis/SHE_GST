@@ -26,7 +26,7 @@ from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options
                                                                    allowed_survey_settings)
 from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_args
 from SHE_GST_GalaxyImageGeneration.generate_p_of_e import generate_p_of_e
-from SHE_GST_IceBRGpy.logging import getLogger
+from SHE_PPT.logging import getLogger
 
 def defineSpecificProgramOptions():
     """

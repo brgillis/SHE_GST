@@ -40,7 +40,7 @@ from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
 from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
-from SHE_GST_IceBRGpy.logging import getLogger
+from SHE_PPT.logging import getLogger
 from SHE_PPT import aocs_time_series_product
 from SHE_PPT import astrometry_product
 from SHE_PPT import mission_time_product

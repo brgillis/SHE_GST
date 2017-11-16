@@ -31,7 +31,7 @@ from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.p_of_e_io import output_p_of_e
 from SHE_GST_GalaxyImageGeneration.unweighted_moments import calculate_unweighted_ellipticity
-from SHE_GST_IceBRGpy.logging import getLogger
+from SHE_PPT.logging import getLogger
 import numpy as np
 
 

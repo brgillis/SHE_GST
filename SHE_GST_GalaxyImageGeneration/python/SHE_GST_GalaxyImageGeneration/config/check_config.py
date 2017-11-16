@@ -24,7 +24,7 @@ from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_option_values,
                                                                  allowed_survey_settings,
                                                                  generation_levels)
-from SHE_GST_IceBRGpy.logging import getLogger
+from SHE_PPT.logging import getLogger
 
 def get_full_options(options,image):
     """
