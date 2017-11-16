@@ -27,7 +27,7 @@ from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options
                                                             allowed_survey_settings,
                                                             generation_levels,
                                                             load_default_configurations)
-from SHE_GST_IceBRGpy.logging import getLogger
+from SHE_PPT.logging import getLogger
 
 __all__ = ['get_cfg_args','set_up_from_config_file','apply_args','clean_quotes']
 

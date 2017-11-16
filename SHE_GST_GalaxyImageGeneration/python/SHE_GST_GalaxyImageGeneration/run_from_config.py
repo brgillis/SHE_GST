@@ -27,7 +27,7 @@ from SHE_GST_GalaxyImageGeneration.config.parse_config import (set_up_from_confi
                                                                  load_default_configurations,
                                                                  get_cfg_args,
                                                                  apply_args)
-from SHE_GST_IceBRGpy.logging import getLogger
+from SHE_PPT.logging import getLogger
 
 
 try:

@@ -20,7 +20,7 @@
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from SHE_GST_IceBRGpy.logging import getLogger
+from SHE_PPT.logging import getLogger
 
 
 def bad_config_format():
