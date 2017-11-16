@@ -1156,7 +1156,8 @@ def generate_image(image, options):
             
             dither_shift = dither_scheme[di]
             
-            detector_id_str = detector.id_strings.flatten()[image.get_local_ID()]
+            detector_id_str = detector.get_id_string(image.get_local_ID() % 6 + 1, 
+                                                     image.get_local_ID() // 6 + 1)
                 
             # Add a header containing version info
             add_image_header_info(dither, options['gain'], full_options, image.get_full_seed(),
