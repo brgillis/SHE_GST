@@ -24,7 +24,7 @@ from __future__ import division
 
 from copy import deepcopy
 from multiprocessing import cpu_count, Pool
-from os.path import join
+from os.path import join, exists, remove
 
 from astropy.io import fits
 import galsim
@@ -182,6 +182,14 @@ def generate_image_group(image_group, options):
             filename_list[0].append(prod_filename)
             filename_list[1].append(filename)
             
+            # If either exists already, delete them
+            qualified_prod_filename = join(options['workdir'],prod_filename)
+            if exists(qualified_prod_filename):
+                remove(qualified_prod_filename)
+            qualified_filename = join(options['workdir'],filename)
+            if exists(qualified_filename):
+                remove(qualified_filename)
+            
     # Generate each image, then append it and its data to the fits files
     for image in image_group.get_image_descendants():
         
@@ -196,7 +204,7 @@ def generate_image_group(image_group, options):
             
             image_product = calibrated_frame_product.create_calibrated_frame_product(filename=image_product_filenames[1][i])
             write_pickled_product(image_product,
-                                  join(options['workdir'],image_product_filenames[0][i]))
+                                  join(outdir,image_product_filenames[0][i]))
             
             image_filename = image_product_filenames[1][0]
             qualified_image_filename = join(outdir,image_filename)
@@ -225,7 +233,7 @@ def generate_image_group(image_group, options):
                                                                         data_filename=mosaic_product_filenames[1][i],)
             
             write_pickled_product(mock_mosaic_product,
-                                  join(options['workdir'],mosaic_product_filenames[0][i]))
+                                  join(outdir,mosaic_product_filenames[0][i]))
             
             seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
                                     header=fits.header.Header(segmentation_maps[i].header.items()))
@@ -235,7 +243,7 @@ def generate_image_group(image_group, options):
             
             my_details_product = details_product.create_details_product(filename=details_product_filenames[1][i])
             write_pickled_product(my_details_product,
-                                  join(options['workdir'],details_product_filenames[0][i]))
+                                  join(outdir,details_product_filenames[0][i]))
             
             dal_hdu = table_to_hdu(details_tables[i])
             append_hdu(join(outdir,details_product_filenames[1][i]), dal_hdu)     
@@ -244,7 +252,7 @@ def generate_image_group(image_group, options):
             
             my_detections_product = detections_product.create_detections_product(filename=detections_product_filenames[1][i])
             write_pickled_product(my_detections_product,
-                                  join(options['workdir'],detections_product_filenames[0][i]))
+                                  join(outdir,detections_product_filenames[0][i]))
             
             dtc_hdu = table_to_hdu(detections_tables[i])
             append_hdu(join(outdir,detections_product_filenames[1][i]), dtc_hdu)
@@ -253,7 +261,7 @@ def generate_image_group(image_group, options):
             
             psf_product = psf_image_product.create_psf_image_product(filename=psf_image_product_filenames[1][i])
             write_pickled_product(psf_product,
-                                  join(options['workdir'],psf_image_product_filenames[0][i]))
+                                  join(outdir,psf_image_product_filenames[0][i]))
             
             psf_filename = join(outdir,psf_image_product_filenames[1][i])
             
@@ -272,11 +280,11 @@ def generate_image_group(image_group, options):
             
             mock_aocs_data_product = aocs_time_series_product.create_aocs_time_series_product()
             write_pickled_product(mock_aocs_data_product,
-                                  join(options['workdir'],aocs_time_series_product_filenames[0][i]))
+                                  join(outdir,aocs_time_series_product_filenames[0][i]))
             
             mock_mission_time_data_product = mission_time_product.create_mission_time_product()
             write_pickled_product(mock_mission_time_data_product,
-                                  join(options['workdir'],mission_time_product_filenames[0][i]))
+                                  join(outdir,mission_time_product_filenames[0][i]))
             
             
     # Output listfiles of filenames
