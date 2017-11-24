@@ -237,7 +237,7 @@ def generate_image_group(image_group, options):
             
             seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
                                     header=fits.header.Header(segmentation_maps[i].header.items()))
-            append_hdu( os.path.join(outdir,mosaic_product_filenames[0][i]), seg_hdu)
+            append_hdu( os.path.join(outdir,mosaic_product_filenames[1][i]), seg_hdu)
             
             # Details table
             
