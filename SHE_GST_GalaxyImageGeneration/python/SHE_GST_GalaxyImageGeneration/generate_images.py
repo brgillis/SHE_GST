@@ -206,7 +206,7 @@ def generate_image_group(image_group, options):
             write_pickled_product(image_product,
                                   os.path.join(outdir,image_product_filenames[0][i]))
             
-            image_filename = image_product_filenames[1][0]
+            image_filename = image_product_filenames[1][i]
             qualified_image_filename = os.path.join(outdir,image_filename)
             
             # Science image
