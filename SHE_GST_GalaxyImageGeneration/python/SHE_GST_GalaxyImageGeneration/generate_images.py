@@ -41,16 +41,9 @@ from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
 from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_PPT.logging import getLogger
-from SHE_PPT import aocs_time_series_product
-from SHE_PPT import calibrated_frame_product
-from SHE_PPT import details_product
-from SHE_PPT import detections_product
-from SHE_PPT import mission_time_product
-from SHE_PPT import mosaic_product
-from SHE_PPT import psf_image_product
-from SHE_PPT import stacked_frame_product
-from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
-from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
+from SHE_PPT import products
+from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
+from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
 from SHE_PPT import detector
 from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu, write_pickled_product
 from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
@@ -58,20 +51,20 @@ from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label
                                   dither_dy_label, scale_label,
                                   sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
                                   detections_tag, bulge_psf_tag, disk_psf_tag)
-from SHE_PPT.psf_table_format import initialise_psf_table, psf_table_format as pstf
+from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
 from SHE_PPT.table_utility import add_row, table_to_hdu
 from SHE_PPT.utility import hash_any
 import numpy as np
 
 
-aocs_time_series_product.init()
-calibrated_frame_product.init()
-details_product.init()
-detections_product.init()
-mission_time_product.init()
-mosaic_product.init()
-psf_image_product.init()
-stacked_frame_product.init()
+products.aocs_time_series.init()
+products.calibrated_frame.init()
+products.details.init()
+products.detections.init()
+products.mission_time.init()
+products.mosaic.init()
+products.psf_image.init()
+products.stacked_frame.init()
 
     
 default_gsparams = galsim.GSParams(folding_threshold=5e-3,
@@ -202,7 +195,7 @@ def generate_image_group(image_group, options):
             
             outdir = options['workdir']
             
-            image_product = calibrated_frame_product.create_calibrated_frame_product(filename=image_product_filenames[1][i])
+            image_product = products.calibrated_frame.create_calibrated_frame_product(filename=image_product_filenames[1][i])
             write_pickled_product(image_product,
                                   os.path.join(outdir,image_product_filenames[0][i]))
             
@@ -226,7 +219,7 @@ def generate_image_group(image_group, options):
             
             # Segmentation map
             
-            mock_mosaic_product = mosaic_product.create_mosaic_product(instrument_name="VIS",
+            mock_mosaic_product = products.mosaic.create_mosaic_product(instrument_name="VIS",
                                                                         filter="VIS",
                                                                         wcs_params=None,
                                                                         zeropoint=0,
@@ -241,7 +234,7 @@ def generate_image_group(image_group, options):
             
             # Details table
             
-            my_details_product = details_product.create_details_product(filename=details_product_filenames[1][i])
+            my_details_product = products.details.create_details_product(filename=details_product_filenames[1][i])
             write_pickled_product(my_details_product,
                                   os.path.join(outdir,details_product_filenames[0][i]))
             
@@ -250,7 +243,7 @@ def generate_image_group(image_group, options):
                    
             # Detections table
             
-            my_detections_product = detections_product.create_detections_product(filename=detections_product_filenames[1][i])
+            my_detections_product = products.detections.create_detections_product(filename=detections_product_filenames[1][i])
             write_pickled_product(my_detections_product,
                                   os.path.join(outdir,detections_product_filenames[0][i]))
             
@@ -259,7 +252,7 @@ def generate_image_group(image_group, options):
             
             # PSF images
             
-            psf_product = psf_image_product.create_psf_image_product(filename=psf_image_product_filenames[1][i])
+            psf_product = products.psf_image.create_psf_image_product(filename=psf_image_product_filenames[1][i])
             write_pickled_product(psf_product,
                                   os.path.join(outdir,psf_image_product_filenames[0][i]))
             
@@ -278,11 +271,11 @@ def generate_image_group(image_group, options):
             
             # Mock data products
             
-            mock_aocs_data_product = aocs_time_series_product.create_aocs_time_series_product()
+            mock_aocs_data_product = products.aocs_time_series.create_aocs_time_series_product()
             write_pickled_product(mock_aocs_data_product,
                                   os.path.join(outdir,aocs_time_series_product_filenames[0][i]))
             
-            mock_mission_time_data_product = mission_time_product.create_mission_time_product()
+            mock_mission_time_data_product = products.mission_time.create_mission_time_product()
             write_pickled_product(mock_mission_time_data_product,
                                   os.path.join(outdir,mission_time_product_filenames[0][i]))
             
