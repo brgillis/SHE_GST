@@ -42,8 +42,8 @@ from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_PPT.logging import getLogger
 from SHE_PPT import products
-from SHE_PPT.details_table_format import initialise_details_table, details_table_format as datf
-from SHE_PPT.detections_table_format import initialise_detections_table, detections_table_format as detf
+from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
+from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
 from SHE_PPT import detector
 from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu, write_pickled_product
 from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
@@ -51,7 +51,7 @@ from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label
                                   dither_dy_label, scale_label,
                                   sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
                                   detections_tag, bulge_psf_tag, disk_psf_tag)
-from SHE_PPT.psf_table_format import initialise_psf_table, psf_table_format as pstf
+from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
 from SHE_PPT.table_utility import add_row, table_to_hdu
 from SHE_PPT.utility import hash_any
 import numpy as np
