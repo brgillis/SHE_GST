@@ -21,5 +21,6 @@ installed in the directory /home/user/Work/Projects/SHE_GST.
 3) Dependencies
 
 - Elements build system
+- GalSim toolkit version >= 1.5
 - SHE_PPT project
 - Euclid data model bindings (in a future version)
