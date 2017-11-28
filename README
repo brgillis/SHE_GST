@@ -1,0 +1,25 @@
+SHE_GST (Shear Galaxy Simulations Toolkit)
+==========================================
+
+1) Description
+
+This project contains functionality to generate galaxy image simulations. This is separate from OU-SIM's simulations,
+as it contains less functionality in order to expedite the process (e.g., it doesn't simulate cosmic rays, and so also
+skips the step of detecting them).
+
+2) Installation
+
+This is an Elements project, and can be built, tested, and installed in a supported environment through running:
+
+make
+make test
+make install
+
+If this is planned to be used with the pipeline runner on a LODEEN instance, it is recommended this be built and
+installed in the directory /home/user/Work/Projects/SHE_GST.
+
+3) Dependencies
+
+- Elements build system
+- SHE_PPT project
+- Euclid data model bindings (in a future version)
