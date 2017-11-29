@@ -79,11 +79,11 @@ def write_configs_from_plan( plan_filename,
         # Try reading it in directly as a table
         simulation_plan_table = None
         try:
-            simulation_plan_table = Table.read(qualified_plan_filename)
+            simulation_plan_table = Table.read(qualified_plan_filename,format="fits")
         except Exception as _e2:
             # Not a known table format, maybe an ascii table?
             try:
-                simulation_plan_table = Table.read(qualified_plan_filename,format="ascii.commented_header")
+                simulation_plan_table = Table.read(qualified_plan_filename,format="ascii.ecsv")
             except IOError as _e3:
                 pass
         # If it's still none, we couldn't identify it, so raise the initial exception
