@@ -113,7 +113,7 @@ def write_configs_from_plan( plan_filename,
     render_backgrounds = simulation_plan_table[sptf.render_background]
     
     # Write up configs for the plan in each row of the table
-    for row_index in len(simulation_plan_table):
+    for row_index in range(len(simulation_plan_table)):
         
         desired_tag = tags[row_index]
         
