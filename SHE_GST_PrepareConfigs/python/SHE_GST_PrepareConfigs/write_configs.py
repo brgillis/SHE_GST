@@ -153,8 +153,7 @@ def write_configs_from_plan( plan_filename,
         noise_seeds = np.linspace(start=nseed_min,
                                   stop=nseed_max,
                                   num=(nseed_max-nseed_min)//nseed_step+1,
-                                  endpoint=True,
-                                  dtype=int)
+                                  endpoint=True)
         
         if len(model_seeds) != len(noise_seeds):
             raise ValueError("Plan gives different lengths for sets of model seeds and noise seeds.")
@@ -181,8 +180,8 @@ def write_configs_from_plan( plan_filename,
             
             write_config(filename = filename,
                          template_filename = qualified_template_filename,
-                         model_seed = model_seeds[i],
-                         noise_seed = noise_seeds[i],
+                         model_seed = int(model_seeds[i]),
+                         noise_seed = int(noise_seeds[i]),
                          suppress_noise = suppress_noise,
                          num_detectors = num_detectors,
                          num_galaxies = num_galaxies,
