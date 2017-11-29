@@ -20,7 +20,7 @@
 
 logger_name = "SHE_GST_PrepareConfigs"
 
-repstr_seed = "$REPLACEME_SEED"
+repstr_model_seed = "$REPLACEME_SEED"
 repstr_noise_seed = "$REPLACEME_NOISESEED"
 repstr_suppress_noise = "$REPLACEME_SUPPRESSNOISE"
 repstr_num_detectors = "$REPLACEME_NUMDETECTORS"
