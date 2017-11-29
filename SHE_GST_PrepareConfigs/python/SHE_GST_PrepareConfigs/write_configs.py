@@ -251,12 +251,12 @@ def write_config( filename,
     # Check validity of each variable, and add to input/output strings if not None
     add_replacement(mv.repstr_model_seed, model_seed, dtype=int)
     add_replacement(mv.repstr_noise_seed, noise_seed, dtype=int)
-    add_replacement(mv.repstr_suppress_noise, model_seed, dtype=bool)
-    add_replacement(mv.repstr_num_detectors, model_seed, dtype=int,
+    add_replacement(mv.repstr_suppress_noise, suppress_noise, dtype=bool)
+    add_replacement(mv.repstr_num_detectors, num_detectors, dtype=int,
                     inrange = lambda v : (v>=1) and (v<=36))
-    add_replacement(mv.repstr_num_galaxies, model_seed, dtype=int,
+    add_replacement(mv.repstr_num_galaxies, num_galaxies, dtype=int,
                     inrange = lambda v : (v>=1))
-    add_replacement(mv.repstr_render_background, model_seed, dtype=bool)
+    add_replacement(mv.repstr_render_background, render_background, dtype=bool)
     
     replace_multiple_in_file(template_filename, filename,
                              input_strings, output_strings)
