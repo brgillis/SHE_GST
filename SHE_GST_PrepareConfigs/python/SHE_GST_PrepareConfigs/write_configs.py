@@ -75,7 +75,7 @@ def write_configs_from_plan( plan_filename,
         if not isinstance(simulation_plan_prod, products.simulation_plan.DpdSheSimulationPlanProduct):
             raise IOError("Simulation plan product in " + qualified_plan_filename + " is of invalid type.")
         qualified_plan_filename = find_file(simulation_plan_prod.get_filename(),path=workdir)
-    except IOError as _e1:
+    except Exception as _e1:
         # Try reading it in directly as a table
         simulation_plan_table = None
         try:
