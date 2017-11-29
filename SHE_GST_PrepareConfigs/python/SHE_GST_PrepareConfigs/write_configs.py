@@ -140,8 +140,7 @@ def write_configs_from_plan( plan_filename,
         model_seeds = np.linspace(start=mseed_min,
                                   stop=mseed_max,
                                   num=(mseed_max-mseed_min)//mseed_step+1,
-                                  endpoint=True,
-                                  dtype=int)
+                                  endpoint=True)
         
         nseed_min = noise_seed_mins[row_index]
         nseed_max = noise_seed_maxes[row_index]
