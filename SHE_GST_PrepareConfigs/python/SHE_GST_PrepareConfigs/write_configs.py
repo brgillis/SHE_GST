@@ -175,7 +175,7 @@ def write_configs_from_plan( plan_filename,
             
             cfg_prod = products.simulation_config.create_simulation_config_product(filename)
             write_pickled_product(cfg_prod, os.path.join(workdir,prod_filename))
-            all_config_products.append(cfg_prod)
+            all_config_products.append(prod_filename)
             
             write_config(filename = filename,
                          template_filename = qualified_template_filename,
@@ -240,8 +240,7 @@ def write_config( filename,
     def add_replacement(replacement_tag, value, dtype, inrange = lambda v : True):
         if value is None:
             return
-        if not isinstance(value, dtype):
-            raise TypeError("Invalid replacement type for " + replacement_tag + ". Should be " + str(dtype) + "." )
+        value = dtype(value)
         if not inrange(value):
             raise ValueError("Replacement value for " + replacement_tag + " is out of range.")
         
