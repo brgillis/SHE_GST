@@ -23,9 +23,11 @@ import numpy as np
 import os
 
 from SHE_PPT.file_io import (get_allowed_filename, replace_multiple_in_file, 
-                             write_pickled_product, find_file)
+                             write_pickled_product, write_listfile, find_file,
+    read_pickled_product)
 from SHE_PPT import products
-from SHE_PPT.table_formats.simulation_plan import tf as sptf 
+from SHE_PPT.table_formats.simulation_plan import tf as sptf ,\
+    simulation_plan_table_format
 from SHE_PPT.table_utility import is_in_format
 
 products.simulation_config.init()
@@ -34,12 +36,59 @@ from SHE_GST_PrepareConfigs import magic_values as mv
 
 def write_configs_from_plan( plan_filename,
                              template_filename,
+                             listfile_filename,
                              workdir ):
+    """Writes out configuration files based on a template and plan.
+    
+    Parameters
+    ----------
+    plan_filename : str
+        Filename of the plan table or XML product
+    template_filename : str
+        Filename of the template configuration file
+    listfile_filename : str
+        Desired name of the listfile of config files
+    workdir : str
+        Work directory - where files will be generated
+        
+    Raises
+    ------
+    TypeError
+        One of the input variables is of invalid type
+    ValueError
+        num_detectors is outside of the range 1-36 or num_galaxies is < 1
+        
+    Returns
+    -------
+    None
+    
+    """
     
     qualified_plan_filename = find_file(plan_filename,path=workdir)
+    qualified_template_filename = find_file(template_filename,path=workdir)
     
     # Read in the plan table
-    simulation_plan_table = Table.read(qualified_plan_filename)
+    try:
+        # If it's a product, get the filename out of it
+        simulation_plan_prod = read_pickled_product(qualified_plan_filename)
+        if not isinstance(simulation_plan_prod, products.simulation_plan):
+            raise IOError("Simulation plan product in " + qualified_plan_filename + " is of invalid type.")
+        qualified_plan_filename = find_file(simulation_plan_prod.get_filename(),path=workdir)
+    except IOError as _e1:
+        # Try reading it in directly as a table
+        simulation_plan_table = None
+        try:
+            simulation_plan_table = Table.read(qualified_plan_filename)
+        except IOError as _e2:
+            # Not a known table format, maybe an ascii table?
+            try:
+                simulation_plan_table = Table.read(qualified_plan_filename,format="ascii.commented_header")
+            except IOError as _e3:
+                pass
+        # If it's still none, we couldn't identify it, so raise the initial exception
+        if simulation_plan_table is None:
+            raise 
+        
     if not is_in_format(simulation_plan_table, sptf):
         raise TypeError("Table stored in " + plan_filename + " is of invalid type.")
     
@@ -130,14 +179,17 @@ def write_configs_from_plan( plan_filename,
             all_config_products.append(cfg_prod)
             
             write_config(filename = filename,
-                         template_filename = template_filename,
+                         template_filename = qualified_template_filename,
                          model_seed = model_seeds[i],
                          noise_seed = noise_seeds[i],
                          suppress_noise = suppress_noise,
                          num_detectors = num_detectors,
                          num_galaxies = num_galaxies,
                          render_background = render_background)
-            
+    
+    # Write out the listfile of these files
+    write_listfile(os.path.join(workdir,listfile_filename), all_config_products)
+    
     return
         
 

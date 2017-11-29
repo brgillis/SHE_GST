@@ -22,6 +22,7 @@ import argparse
 from SHE_PPT.logging import getLogger
 
 from SHE_GST_PrepareConfigs import magic_values as mv
+from SHE_GST_PrepareConfigs.write_configs import write_configs_from_plan
 
 def defineSpecificProgramOptions():
     """
@@ -40,27 +41,19 @@ def defineSpecificProgramOptions():
 
     parser = argparse.ArgumentParser()
     
-    parser.add_argument("--config_template", default="AUX/SHE_GST_")
+    # Add program-specific arguments
+    parser.add_argument("--config_template", default="AUX/SHE_GST_PrepareConfigs/StampsTemplate.conf",
+                        "Template configuration file to use.")
+    
+    parser.add_argument("--simulation_plan", type=str,
+                        "Plan file for how to run simulations; can be either XML product or fits table.")
         
-    # Where to save a list of the files generated
-    parser.add_argument("--output_listfile", default="config_files.json", type=str,
+    parser.add_argument("--simulation_configs", default="config_files.json", type=str,
                         help="Filename to which to output list of generated config files.")
-        
-    # Add option to vary noise seed instead
-    parser.add_argument("--vary_noise", action="store_true",
-                        help='If set, will vary noise seed instead of model seed for images.')
     
-    # Add tag for file labeling
-    parser.add_argument("--tag", type=str, default="def",
-                        help='Tag to add to generated file names.')
-    
-    # Where to start the model seed
-    parser.add_argument("--model_seed_start", type=int, default=1,
-                        help="Where to start the model seed from.")
-    
-    # Where to start the noise seed
-    parser.add_argument("--noise_seed_start", type=int, default=0,
-                        help="Where to start the noise seed from. If zero, will follow model seed")
+    # Arguments needed by the pipeline runner
+    parser.add_argument('--workdir',type=str,default=".")
+    parser.add_argument('--logdir',type=str,default=".")
 
     logger.debug('# Exiting SHE_CTE_PrepareConfigs defineSpecificProgramOptions()')
 
@@ -83,7 +76,10 @@ def mainMethod(args):
     logger.debug('# Entering SHE_CTE_PrepareConfigs mainMethod()')
     logger.debug('#')
         
-    prepare_configs_from_args(args)
+    write_configs_from_plan(plan_filename = args.simulation_plan,
+                            template_filename = args.config_template,
+                            listfile_filename = args.simulation_configs,
+                            workdir = args.workdir)
 
     logger.debug('# Exiting SHE_CTE_PrepareConfigs mainMethod()')
 
