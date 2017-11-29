@@ -31,6 +31,7 @@ from SHE_PPT.table_formats.simulation_plan import tf as sptf ,\
 from SHE_PPT.table_utility import is_in_format
 
 products.simulation_config.init()
+products.simulation_plan.init()
 
 from SHE_GST_PrepareConfigs import magic_values as mv
 
@@ -71,7 +72,7 @@ def write_configs_from_plan( plan_filename,
     try:
         # If it's a product, get the filename out of it
         simulation_plan_prod = read_pickled_product(qualified_plan_filename)
-        if not isinstance(simulation_plan_prod, products.simulation_plan):
+        if not isinstance(simulation_plan_prod, products.simulation_plan.DpdSheSimulationPlanProduct):
             raise IOError("Simulation plan product in " + qualified_plan_filename + " is of invalid type.")
         qualified_plan_filename = find_file(simulation_plan_prod.get_filename(),path=workdir)
     except IOError as _e1:
