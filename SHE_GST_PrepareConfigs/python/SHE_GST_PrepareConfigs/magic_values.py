@@ -19,3 +19,10 @@
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 logger_name = "SHE_GST_PrepareConfigs"
+
+repstr_seed = "$REPLACEME_SEED"
+repstr_noise_seed = "$REPLACEME_NOISESEED"
+repstr_suppress_noise = "$REPLACEME_SUPPRESSNOISE"
+repstr_num_detectors = "$REPLACEME_NUMDETECTORS"
+repstr_num_galaxies = "$REPLACEME_NUMGALAXIES"
+repstr_render_background = "$REPLACEME_RENDERBACKGROUND"
