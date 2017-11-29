@@ -80,7 +80,7 @@ def write_configs_from_plan( plan_filename,
         simulation_plan_table = None
         try:
             simulation_plan_table = Table.read(qualified_plan_filename)
-        except IOError as _e2:
+        except Exception as _e2:
             # Not a known table format, maybe an ascii table?
             try:
                 simulation_plan_table = Table.read(qualified_plan_filename,format="ascii.commented_header")
