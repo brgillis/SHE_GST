@@ -42,11 +42,11 @@ def defineSpecificProgramOptions():
     parser = argparse.ArgumentParser()
     
     # Add program-specific arguments
-    parser.add_argument("--config_template", default="AUX/SHE_GST_PrepareConfigs/StampsTemplate.conf",
-                        "Template configuration file to use.")
-    
     parser.add_argument("--simulation_plan", type=str,
                         "Plan file for how to run simulations; can be either XML product or fits table.")
+    
+    parser.add_argument("--config_template", default="AUX/SHE_GST_PrepareConfigs/StampsTemplate.conf",
+                        "Template configuration file to use.")
         
     parser.add_argument("--simulation_configs", default="config_files.json", type=str,
                         help="Filename to which to output list of generated config files.")
