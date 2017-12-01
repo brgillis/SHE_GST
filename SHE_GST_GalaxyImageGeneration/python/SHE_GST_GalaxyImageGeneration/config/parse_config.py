@@ -18,7 +18,12 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import os
 from string import split
+
+from SHE_PPT.logging import getLogger
+from SHE_PPT import products
+from SHE_PPT.file_io import read_pickled_product
 
 import SHE_GST_PhysicalModel
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
@@ -27,15 +32,33 @@ from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options
                                                             allowed_survey_settings,
                                                             generation_levels,
                                                             load_default_configurations)
-from SHE_PPT.logging import getLogger
+
+products.simulation_config.init()
 
 __all__ = ['get_cfg_args','set_up_from_config_file','apply_args','clean_quotes']
 
-def get_cfg_args(config_filename):
+def get_cfg_args(config_filename,workdir="."):
     
     cfg_args = {}
+    
+    # The config file can be either an xml product which points to a file, or the file itself.
+    # We'll first check if it's a valid xml product
+    
+    possible_exception_str = IOError("Simulation configuration product in " + config_filename + " is of invalid type.")
+    
+    try:
+        config_prod = read_pickled_product(config_filename)
+        if not isinstance(config_prod, products.simulation_config.DpdSheSimulationConfigProduct):
+            raise IOError(possible_exception_str)
+        qualified_config_filename = os.path.join(workdir,config_prod.get_filename())
+    except Exception as e:
+        # Catch exceptions other than IOError for wrong product type
+        if possible_exception_str in str(e):
+            raise
+        # See if we can read it directly
+        qualified_config_filename = config_filename
 
-    with open(config_filename, 'r') as config_file:
+    with open(qualified_config_filename, 'r') as config_file:
         # Read in the file, except for comment lines
         for config_line in config_file:
             stripped_line = config_line.strip()
