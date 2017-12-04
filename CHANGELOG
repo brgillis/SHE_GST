@@ -1,6 +1,36 @@
 Changelog for SHE_GST Galaxy Simulations toolkit
 
---Versions prior to 1.1 not tracked in changelog--
+Changes from v1.2 to v1.3
+=========================
+
+API Changes
+-----------
+
+
+Dependency Changes
+------------------
+
+- Now depends on Elements 5.2.2
+- Now depends on SHE_PPT 0.2
+
+
+Deprecated Features
+-------------------
+
+Bug Fixes
+---------
+
+New Features
+------------
+
+New config features
+-------------------
+
+Miscellaneous
+-------------
+
+- Upgraded to use python 3
+
 
 Changes from v1.1 to v1.2
 =========================
@@ -41,3 +71,5 @@ Miscellaneous
 
 - Re-licensed code to Euclid SGS under LGPL
 - Added README
+
+--Versions prior to 1.1 not tracked in changelog--
