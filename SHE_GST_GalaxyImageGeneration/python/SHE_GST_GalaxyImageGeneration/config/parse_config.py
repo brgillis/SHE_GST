@@ -175,7 +175,7 @@ def apply_args(survey, options, args):
     return
 
 def clean_quotes(s):
-    if not isinstance(s, basestring): return s
+    if not isinstance(s, str): return s
 
     if s[0] == "'" and s[-1] == "'":
         s = s[1:-1]

@@ -24,7 +24,7 @@
 
 import collections
 import functools
-from itertools import ifilterfalse
+from itertools import filterfalse
 from heapq import nsmallest
 from operator import itemgetter
 
@@ -89,7 +89,7 @@ def lru_cache(maxsize=100):
             if len(queue) > maxqueue:
                 refcount.clear()
                 queue_appendleft(sentinel)
-                for key in ifilterfalse(refcount.__contains__,
+                for key in filterfalse(refcount.__contains__,
                                         iter(queue_pop, sentinel)):
                     queue_appendleft(key)
                     refcount[key] = 1
@@ -141,7 +141,7 @@ def lfu_cache(maxsize=100):
                 # purge least frequently used cache entry
                 if len(cache) > maxsize:
                     for key, _ in nsmallest(maxsize // 10,
-                                            use_count.iteritems(),
+                                            iter(use_count.items()),
                                             key=itemgetter(1)):
                         del cache[key], use_count[key]
 

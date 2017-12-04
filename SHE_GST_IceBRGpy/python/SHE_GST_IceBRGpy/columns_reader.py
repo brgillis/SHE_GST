@@ -67,14 +67,14 @@ class columns_reader(object):
             try:
                 data_table = ascii.read(filename)
             except:
-                print("ERROR: Table " + filename + " cannot be read.")
+                print(("ERROR: Table " + filename + " cannot be read."))
                 return
             
             if sort_by is not None:
                 data_table.sort(sort_by)
             
             self._read_in_data_ = []
-            for col_i in xrange(self.num_cols()):
+            for col_i in range(self.num_cols()):
                 self._read_in_data_.append((np.array(data_table[self._col_names_[col_i]])+self._offsets_[col_i])*self._factors_[col_i])
             
             self._cols_changed_ = False
@@ -95,7 +95,7 @@ class columns_reader(object):
         return self._read_in_data_
     
     def indices(self):
-        return self._indices_from_keys_.values()
+        return list(self._indices_from_keys_.values())
     
     def indices_from_keys(self):
         return self._indices_from_keys_
