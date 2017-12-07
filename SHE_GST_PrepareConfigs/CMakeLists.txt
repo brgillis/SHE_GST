@@ -1,5 +1,5 @@
 # Declare this directory as an Elements module
-elements_subdir(SHE_CTE_PipelineUtility)
+elements_subdir(SHE_GST_PrepareConfigs)
 
 # Declare Elements module dependencies
 elements_depends_on_subdirs(ElementsKernel)
