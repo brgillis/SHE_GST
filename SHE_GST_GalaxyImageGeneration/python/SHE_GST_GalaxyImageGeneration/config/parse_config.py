@@ -43,7 +43,7 @@ def get_cfg_args(config_filename,workdir="."):
     # The config file can be either an xml product which points to a file, or the file itself.
     # We'll first check if it's a valid xml product
     
-    possible_exception_str = IOError("Simulation configuration product in " + config_filename + " is of invalid type.")
+    possible_exception_str = "Simulation configuration product in " + config_filename + " is of invalid type."
     
     try:
         config_prod = read_pickled_product(config_filename)
