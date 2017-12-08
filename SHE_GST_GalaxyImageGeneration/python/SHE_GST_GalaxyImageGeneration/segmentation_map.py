@@ -41,7 +41,7 @@ def make_segmentation_map( noisefree_image,
     else:
         raise ValueError(detf.gal_mag + " must be in detections table for make_segmentation_map")
 
-    segmentation_map = galsim.Image(np.ones_like(noisefree_image.array,dtype=np.int32),scale=noisefree_image.scale)
+    segmentation_map = galsim.Image(-np.ones_like(noisefree_image.array,dtype=np.int32),scale=noisefree_image.scale)
     
     y_image, x_image = np.indices(np.shape(noisefree_image.array))
     
@@ -67,12 +67,9 @@ def make_segmentation_map( noisefree_image,
         full_mask = np.logical_or(region_mask,claimed_threshold_mask)
         
         # Set the unmasked values to the object's ID
-        np.ma.masked_array(np.ravel(segmentation_map.array),full_mask)[~full_mask] *= sorted_dtc_table[detf.ID][i]
+        segmentation_map.array[~full_mask] = sorted_dtc_table[detf.ID][i]
         
         # Add those values to the claimed mask
         claimed_mask = np.logical_or(claimed_mask,~full_mask)
-        
-    # Set all unclaimed values to -1
-    np.ma.masked_array(np.ravel(segmentation_map.array),claimed_mask)[~claimed_mask] *= -1
     
     return segmentation_map
