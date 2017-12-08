@@ -23,7 +23,7 @@ from os.path import join
 import galsim
 
 import SHE_GST_GalaxyImageGeneration.magic_values as mv
-from SHE_GST_IceBRGpy.function_cache import lru_cache
+from functools import lru_cache
 import numpy as np
 from SHE_PPT.file_io import find_file
 
