@@ -770,8 +770,8 @@ def print_galaxies_and_psfs(image,
         
                 # Get centers, correcting by 1.5 - 1 since Galsim is offset by 1, .5 to move from
                 # corner of pixel to center
-                psf_xc = psf_bounds.center().x
-                psf_yc = psf_bounds.center().y
+                psf_xc = psf_bounds.center.x
+                psf_yc = psf_bounds.center.y
         
                 # Draw the PSF image
                 if (not single_output_psf) or (icol+irow==0):
@@ -856,8 +856,8 @@ def print_galaxies_and_psfs(image,
             # corner of pixel to center
             x_centre_offset = x_shift
             y_centre_offset = y_shift
-            xc = bounds.center().x + centre_offset + x_centre_offset
-            yc = bounds.center().y + centre_offset + y_centre_offset
+            xc = bounds.center.x + centre_offset + x_centre_offset
+            yc = bounds.center.y + centre_offset + y_centre_offset
 
             # Draw the image
             for gal_image, (x_offset, y_offset) in zip(gal_images, get_dither_scheme(options['dithering_scheme'])):
