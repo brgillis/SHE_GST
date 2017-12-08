@@ -67,7 +67,7 @@ def make_segmentation_map( noisefree_image,
         full_mask = np.logical_or(region_mask,claimed_threshold_mask)
         
         # Set the unmasked values to the object's ID
-        segmentation_map.array[~full_mask] = sorted_dtc_table[detf.ID][i]
+        segmentation_map.array.ravel()[~full_mask] = sorted_dtc_table[detf.ID][i]
         
         # Add those values to the claimed mask
         claimed_mask = np.logical_or(claimed_mask,~full_mask)
