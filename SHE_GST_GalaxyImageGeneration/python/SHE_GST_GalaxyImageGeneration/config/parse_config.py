@@ -41,7 +41,7 @@ def get_cfg_args(config_filename,workdir="."):
     cfg_args = {}
     
     # Find the file first
-    qualified_config_filename = find_file(config_filename,workdir=workdir)
+    qualified_config_filename = find_file(config_filename,path=workdir)
     
     # The config file can be either an xml product which points to a file, or the file itself.
     # We'll first check if it's a valid xml product
@@ -53,7 +53,7 @@ def get_cfg_args(config_filename,workdir="."):
         if not isinstance(config_prod, products.simulation_config.DpdSheSimulationConfigProduct):
             raise IOError(possible_exception_str)
         # It's a product, so get the file it points to in the workdir
-        qualified_config_filename = find_file(config_prod.get_filename(),workdir=workdir)
+        qualified_config_filename = find_file(config_prod.get_filename(),path=workdir)
     except Exception as e:
         # Catch exceptions other than IOError for wrong product type
         if possible_exception_str in str(e):
