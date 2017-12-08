@@ -607,7 +607,8 @@ def print_galaxies_and_psfs(image,
                                                 data_dir=options['data_dir'],
                                                 model_psf_file_name=options['model_psf_file_name'],
                                                 model_psf_scale=options['model_psf_scale'],
-                                                model_psf_offset=model_psf_offset)
+                                                model_psf_offset=model_psf_offset,
+                                                workdir=options['workdir'])
             if options['chromatic_psf']:
                 disk_psf_profile = get_psf_profile(n=gal_n,
                                                    z=gal_z,
@@ -616,7 +617,8 @@ def print_galaxies_and_psfs(image,
                                                    data_dir=options['data_dir'],
                                                    model_psf_file_name=options['model_psf_file_name'],
                                                    model_psf_scale=options['model_psf_scale'],
-                                                   model_psf_offset=model_psf_offset)
+                                                   model_psf_offset=model_psf_offset,
+                                                   workdir=options['workdir'])
             else:
                     disk_psf_profile = bulge_psf_profile
 

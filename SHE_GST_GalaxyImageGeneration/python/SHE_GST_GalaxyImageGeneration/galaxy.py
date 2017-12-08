@@ -26,6 +26,7 @@ import SHE_GST_GalaxyImageGeneration.magic_values as mv
 from SHE_GST_IceBRGpy.function_cache import lru_cache
 from SHE_PPT.logging import getLogger
 import numpy as np
+from SHE_PPT.file_io import find_file
 
 __all__ = ['get_galaxy_profile']
 
@@ -42,7 +43,7 @@ def is_target_galaxy(galaxy, options):
     return galaxy.get_param_value('apparent_mag_vis') <= options['magnitude_limit']
 
 @lru_cache()
-def load_galaxy_model_from_file(n, bulge=True, data_dir=mv.default_data_dir):
+def load_galaxy_model_from_file(n, bulge=True, data_dir=mv.default_data_dir, workdir="."):
 
     n_str = "%0.2f" % n
 
@@ -50,8 +51,12 @@ def load_galaxy_model_from_file(n, bulge=True, data_dir=mv.default_data_dir):
         model_filename = mv.bulge_model_head + n_str + mv.galaxy_model_tail
     else:
         model_filename = mv.disk_model_head + n_str + mv.galaxy_model_tail
+        
+    filename_in_path = join(data_dir, mv.galaxy_model_path, model_filename)
+    
+    qualified_filename = find_file(filename_in_path,workdir)
 
-    model = np.loadtxt(join(data_dir, mv.galaxy_model_path, model_filename))
+    model = np.loadtxt(qualified_filename)
 
     x = model[:, 0]
     y = model[:, 1]
@@ -64,11 +69,12 @@ def load_galaxy_model_from_file(n, bulge=True, data_dir=mv.default_data_dir):
 
     return x, y, z, I
 
-def load_galaxy_model(n, bulge=True, data_dir=mv.default_data_dir):
+def load_galaxy_model(n, bulge=True, data_dir=mv.default_data_dir, workdir="."):
     diffs = np.abs(allowed_ns - n)
     i_best = np.argmin(diffs)
 
-    return load_galaxy_model_from_file(allowed_ns[i_best], bulge, data_dir=data_dir)
+    return load_galaxy_model_from_file(allowed_ns[i_best], bulge, data_dir=data_dir,
+                                       workdir=workdir)
 
 def rotate(x, y, theta_deg):
 
@@ -145,7 +151,8 @@ def get_bulge_galaxy_profile(sersic_index,
                              g_shear=0.,
                              beta_deg_shear=0.,
                              data_dir=mv.default_data_dir,
-                             gsparams=galsim.GSParams()):
+                             gsparams=galsim.GSParams(),
+                             workdir="."):
     n = discretize(sersic_index)
 
     gal_profile = galsim.Sersic(n=n,
@@ -202,9 +209,10 @@ def get_disk_galaxy_image(sersic_index,
                           xp_sp_shift=0,
                           yp_sp_shift=0,
                           subsampling_factor=1,
-                          height_ratio=0.1):
+                          height_ratio=0.1,
+                          workdir="."):
 
-    gal_x, gal_y, gal_z, gal_I = load_galaxy_model(sersic_index, False, data_dir)
+    gal_x, gal_y, gal_z, gal_I = load_galaxy_model(sersic_index, False, data_dir, workdir=workdir)
     
     # Adjust for the height ratio
     gal_z *= height_ratio/0.1
