@@ -22,7 +22,7 @@ import os
 
 from SHE_PPT.logging import getLogger
 from SHE_PPT import products
-from SHE_PPT.file_io import read_pickled_product
+from SHE_PPT.file_io import read_pickled_product, find_file
 
 import SHE_GST_PhysicalModel
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
@@ -40,22 +40,26 @@ def get_cfg_args(config_filename,workdir="."):
     
     cfg_args = {}
     
+    # Find the file first
+    qualified_config_filename = find_file(config_filename,workdir=workdir)
+    
     # The config file can be either an xml product which points to a file, or the file itself.
     # We'll first check if it's a valid xml product
     
     possible_exception_str = "Simulation configuration product in " + config_filename + " is of invalid type."
     
     try:
-        config_prod = read_pickled_product(config_filename)
+        config_prod = read_pickled_product(qualified_config_filename)
         if not isinstance(config_prod, products.simulation_config.DpdSheSimulationConfigProduct):
             raise IOError(possible_exception_str)
-        qualified_config_filename = os.path.join(workdir,config_prod.get_filename())
+        # It's a product, so get the file it points to in the workdir
+        qualified_config_filename = find_file(config_prod.get_filename(),workdir=workdir)
     except Exception as e:
         # Catch exceptions other than IOError for wrong product type
         if possible_exception_str in str(e):
             raise
         # See if we can read it directly
-        qualified_config_filename = config_filename
+        pass
 
     with open(qualified_config_filename, 'r') as config_file:
         # Read in the file, except for comment lines
