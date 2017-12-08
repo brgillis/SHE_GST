@@ -57,7 +57,7 @@ def load_psf_model_from_sed_z(sed, z=0.0, data_dir=mv.default_data_dir, workdir=
     qualified_filename = find_file(model_filename,workdir)
     
     return load_psf_model_from_file(qualified_filename, scale=mv.psf_model_scale,
-                                    offset=mv.default_psf_center_offset, workdir=workdir)
+                                    offset=mv.default_psf_center_offset)
 
 @lru_cache()
 def load_psf_model_from_file(file_name, scale, offset):
