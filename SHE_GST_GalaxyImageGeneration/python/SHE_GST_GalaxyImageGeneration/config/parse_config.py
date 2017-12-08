@@ -19,7 +19,6 @@
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import os
-from string import split
 
 from SHE_PPT.logging import getLogger
 from SHE_PPT import products
@@ -80,10 +79,10 @@ def set_up_from_config_file(config_file_name):
 def parse_line(line, args):
 
     # Split by comments
-    no_comments_line = split(line, sep='#')[0]
+    no_comments_line = line.split(sep='#')[0]
 
     # Split by =
-    eq_split_line = split(no_comments_line, sep='=')
+    eq_split_line = no_comments_line.split(sep='=')
 
     # Check if this looks good
     if len(eq_split_line) != 2:
