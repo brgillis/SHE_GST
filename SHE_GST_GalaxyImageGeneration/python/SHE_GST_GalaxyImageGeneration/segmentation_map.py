@@ -22,7 +22,7 @@ import numpy as np
 from copy import deepcopy
 import galsim
 
-from SHE_PPT.detections_table_format import tf as detf
+from SHE_PPT.table_formats.detections import tf as detf
 
 def make_segmentation_map( noisefree_image,
                            detections_table,
