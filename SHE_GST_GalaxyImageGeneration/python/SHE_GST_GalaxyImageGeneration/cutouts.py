@@ -25,8 +25,8 @@ import galsim
 from SHE_GST_GalaxyImageGeneration.galaxy import is_target_galaxy
 import numpy as np
 
-from SHE_PPT.details_table_format import details_table_format as datf
-from SHE_PPT.detections_table_format import detections_table_format as detf
+from SHE_PPT.table_formats.details import tf as datf
+from SHE_PPT.table_formats.detections import tf as detf
 
 def make_cutout_image(image,
                       options,
