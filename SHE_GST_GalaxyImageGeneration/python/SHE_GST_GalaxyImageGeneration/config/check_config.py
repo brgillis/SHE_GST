@@ -87,12 +87,12 @@ def check_survey_settings(survey):
 
     if survey.get_param_value("num_images") < mv.min_num_images:
         survey.set_param_param("num_images", "fixed", mv.min_num_images)
-        print "WARNING: Adjusted number of images to minimum of " + str(mv.min_num_images) + "."
+        print("WARNING: Adjusted number of images to minimum of " + str(mv.min_num_images) + ".")
 
     if survey.get_param_value("pixel_scale") < mv.min_pixel_scale:
         survey.set_param_param("pixel_scale", "fixed", mv.min_pixel_scale)
-        print "WARNING: Adjusted pixel_scale to minimum of " + str(mv.min_pixel_scale) + "."
-        print "Check you're using units of arcsec/pixel!"
+        print("WARNING: Adjusted pixel_scale to minimum of " + str(mv.min_pixel_scale) + ".")
+        print("Check you're using units of arcsec/pixel!")
 
     return
 

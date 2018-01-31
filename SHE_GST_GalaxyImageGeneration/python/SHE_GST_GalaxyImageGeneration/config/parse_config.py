@@ -18,7 +18,11 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from string import split
+import os
+
+from SHE_PPT.logging import getLogger
+from SHE_PPT import products
+from SHE_PPT.file_io import read_pickled_product, find_file
 
 import SHE_GST_PhysicalModel
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
@@ -27,15 +31,37 @@ from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options
                                                             allowed_survey_settings,
                                                             generation_levels,
                                                             load_default_configurations)
-from SHE_PPT.logging import getLogger
+
+products.simulation_config.init()
 
 __all__ = ['get_cfg_args','set_up_from_config_file','apply_args','clean_quotes']
 
-def get_cfg_args(config_filename):
+def get_cfg_args(config_filename,workdir="."):
     
     cfg_args = {}
+    
+    # Find the file first
+    qualified_config_filename = find_file(config_filename,path=workdir)
+    
+    # The config file can be either an xml product which points to a file, or the file itself.
+    # We'll first check if it's a valid xml product
+    
+    possible_exception_str = "Simulation configuration product in " + config_filename + " is of invalid type."
+    
+    try:
+        config_prod = read_pickled_product(qualified_config_filename)
+        if not isinstance(config_prod, products.simulation_config.DpdSheSimulationConfigProduct):
+            raise IOError(possible_exception_str)
+        # It's a product, so get the file it points to in the workdir
+        qualified_config_filename = find_file(config_prod.get_filename(),path=workdir)
+    except Exception as e:
+        # Catch exceptions other than IOError for wrong product type
+        if possible_exception_str in str(e):
+            raise
+        # See if we can read it directly
+        pass
 
-    with open(config_filename, 'r') as config_file:
+    with open(qualified_config_filename, 'r') as config_file:
         # Read in the file, except for comment lines
         for config_line in config_file:
             stripped_line = config_line.strip()
@@ -57,10 +83,10 @@ def set_up_from_config_file(config_file_name):
 def parse_line(line, args):
 
     # Split by comments
-    no_comments_line = split(line, sep='#')[0]
+    no_comments_line = line.split(sep='#')[0]
 
     # Split by =
-    eq_split_line = split(no_comments_line, sep='=')
+    eq_split_line = no_comments_line.split(sep='=')
 
     # Check if this looks good
     if len(eq_split_line) != 2:
@@ -152,7 +178,7 @@ def apply_args(survey, options, args):
     return
 
 def clean_quotes(s):
-    if not isinstance(s, basestring): return s
+    if not isinstance(s, str): return s
 
     if s[0] == "'" and s[-1] == "'":
         s = s[1:-1]

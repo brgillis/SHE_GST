@@ -57,7 +57,7 @@ default_psf_size = 0.085
 
 default_truncation_radius_factor = 4.5
 
-default_data_dir = "./data"
+default_data_dir = "AUX/SHE_GST_GalaxyImageGeneration"
 
 # mag_vis_zeropoint = 25.50087633632 # From ETC
 # mag_vis_zeropoint = 25.4534 # From Sami's sims' config file

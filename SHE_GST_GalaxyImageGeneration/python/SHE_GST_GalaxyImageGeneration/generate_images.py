@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from __future__ import division
+
 
 from copy import deepcopy
 from multiprocessing import cpu_count, Pool
@@ -146,7 +146,7 @@ def generate_image_group(image_group, options):
     
     # Get the model hash so we can set up filenames
     full_options = get_full_options(options,image_group.get_image_descendants()[0])
-    model_hash = hash_any(frozenset(full_options.items()),format="base64")
+    model_hash = hash_any(frozenset(list(full_options.items())),format="base64")
     
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
     
@@ -204,17 +204,17 @@ def generate_image_group(image_group, options):
             
             # Science image
             im_hdu = fits.ImageHDU(data=image_dithers[i][0][0].array,
-                                   header=fits.header.Header(image_dithers[i][0][0].header.items()))
+                                   header=fits.header.Header(list(image_dithers[i][0][0].header.items())))
             append_hdu( qualified_image_filename, im_hdu)
             
             # Noise map
             rms_hdu = fits.ImageHDU(data=noise_maps[i].array,
-                                    header=fits.header.Header(noise_maps[i].header.items()))
+                                    header=fits.header.Header(list(noise_maps[i].header.items())))
             append_hdu( qualified_image_filename, rms_hdu)
             
             # Mask map
             flg_hdu = fits.ImageHDU(data=mask_maps[i].array,
-                                    header=fits.header.Header(mask_maps[i].header.items()))
+                                    header=fits.header.Header(list(mask_maps[i].header.items())))
             append_hdu( qualified_image_filename, flg_hdu)
             
             # Segmentation map
@@ -229,7 +229,7 @@ def generate_image_group(image_group, options):
                                   os.path.join(outdir,mosaic_product_filenames[0][i]))
             
             seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
-                                    header=fits.header.Header(segmentation_maps[i].header.items()))
+                                    header=fits.header.Header(list(segmentation_maps[i].header.items())))
             append_hdu( os.path.join(outdir,mosaic_product_filenames[1][i]), seg_hdu)
             
             # Details table
@@ -259,11 +259,11 @@ def generate_image_group(image_group, options):
             psf_filename = os.path.join(outdir,psf_image_product_filenames[1][i])
             
             bpsf_hdu = fits.ImageHDU(data=psf_images[i][0].array,
-                                     header=fits.header.Header(psf_images[i][0].header.items()))
+                                     header=fits.header.Header(list(psf_images[i][0].header.items())))
             append_hdu( psf_filename, bpsf_hdu)
             
             dpsf_hdu = fits.ImageHDU(data=psf_images[i][1].array,
-                                     header=fits.header.Header(psf_images[i][1].header.items()))
+                                     header=fits.header.Header(list(psf_images[i][1].header.items())))
             append_hdu( psf_filename, dpsf_hdu)
             
             psfc_hdu = table_to_hdu(psf_tables[i])
@@ -607,7 +607,8 @@ def print_galaxies_and_psfs(image,
                                                 data_dir=options['data_dir'],
                                                 model_psf_file_name=options['model_psf_file_name'],
                                                 model_psf_scale=options['model_psf_scale'],
-                                                model_psf_offset=model_psf_offset)
+                                                model_psf_offset=model_psf_offset,
+                                                workdir=options['workdir'])
             if options['chromatic_psf']:
                 disk_psf_profile = get_psf_profile(n=gal_n,
                                                    z=gal_z,
@@ -616,7 +617,8 @@ def print_galaxies_and_psfs(image,
                                                    data_dir=options['data_dir'],
                                                    model_psf_file_name=options['model_psf_file_name'],
                                                    model_psf_scale=options['model_psf_scale'],
-                                                   model_psf_offset=model_psf_offset)
+                                                   model_psf_offset=model_psf_offset,
+                                                   workdir=options['workdir'])
             else:
                     disk_psf_profile = bulge_psf_profile
 
@@ -768,8 +770,8 @@ def print_galaxies_and_psfs(image,
         
                 # Get centers, correcting by 1.5 - 1 since Galsim is offset by 1, .5 to move from
                 # corner of pixel to center
-                psf_xc = psf_bounds.center().x
-                psf_yc = psf_bounds.center().y
+                psf_xc = psf_bounds.center.x
+                psf_yc = psf_bounds.center.y
         
                 # Draw the PSF image
                 if (not single_output_psf) or (icol+irow==0):
@@ -847,15 +849,15 @@ def print_galaxies_and_psfs(image,
             bounds = galsim.BoundsI(xl, xh, yl, yh)
 
             gal_images = []
-            for di in xrange(num_dithers):
+            for di in range(num_dithers):
                 gal_images.append(dithers[di][bounds])
 
             # Get centers, correcting by 1.5 - 1 since Galsim is offset by 1, .5 to move from
             # corner of pixel to center
             x_centre_offset = x_shift
             y_centre_offset = y_shift
-            xc = bounds.center().x + centre_offset + x_centre_offset
-            yc = bounds.center().y + centre_offset + y_centre_offset
+            xc = bounds.center.x + centre_offset + x_centre_offset
+            yc = bounds.center.y + centre_offset + y_centre_offset
 
             # Draw the image
             for gal_image, (x_offset, y_offset) in zip(gal_images, get_dither_scheme(options['dithering_scheme'])):
@@ -993,7 +995,7 @@ def add_image_header_info(gs_image,
         del gs_image.header[stamp_size_label]
     
     # Model hash
-    gs_image.header[model_hash_label] = hash_any(frozenset(full_options.items()),format="base64")
+    gs_image.header[model_hash_label] = hash_any(frozenset(list(full_options.items())),format="base64")
     
     # Seeds
     gs_image.header[model_seed_label] = model_seed
@@ -1053,7 +1055,7 @@ def generate_image(image, options):
     full_y_size = int(image.get_param_value("image_size_yp"))
     pixel_scale = image.get_param_value("pixel_scale")
     if not options['details_only']:
-        for _ in xrange(num_dithers):
+        for _ in range(num_dithers):
             if options['image_datatype'] == '32f':
                 dithers.append(galsim.ImageF(full_x_size , full_y_size, scale=pixel_scale))
             elif options['image_datatype'] == '64f':
@@ -1104,7 +1106,7 @@ def generate_image(image, options):
 
     # For each dither
     dither_scheme = get_dither_scheme(options['dithering_scheme'])
-    for di, (x_offset, y_offset) in zip(range(num_dithers), dither_scheme):
+    for di, (x_offset, y_offset) in zip(list(range(num_dithers)), dither_scheme):
 
         logger.debug("Printing dither " + str(di) + ".")
         
