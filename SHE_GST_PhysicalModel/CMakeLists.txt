@@ -10,6 +10,9 @@ elements_depends_on_subdirs(SHE_GST_IceBRG_physics)
 find_package(Boost)
 find_package(Eigen3)
 
+# Use proper include directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 # Instruction for creating a C++ library
 elements_add_library(_SHE_GST_PhysicalModel src/lib/*.cpp src/lib/*/*.cpp
                      LINK_LIBRARIES ElementsKernel Boost Eigen3 SHE_GST_IceBRG_main

@@ -37,7 +37,7 @@ def main(argv):
 
     run_from_config_file(config_file_name)
 
-    print 'Execution complete.'
+    print('Execution complete.')
 
 
 if __name__ == "__main__":
