@@ -89,6 +89,8 @@ def mainMethod(args):
     logger.debug('#')
     
     # Set the work directory for C++ code
+    if args.workdir is None:
+        args.workdir = "."
     SHE_GST_cIceBRGpy.set_workdir(args.workdir)
 
     if(args.config_file is None and len(args.config_files)==0):
