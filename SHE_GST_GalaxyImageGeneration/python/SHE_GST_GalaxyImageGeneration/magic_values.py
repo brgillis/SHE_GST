@@ -6,17 +6,17 @@
     Magic values for the SHE_GST_GalaxyImageGeneration module
 """
 
-# Copyright (C) 2012-2020 Euclid Science Ground Segment      
-#        
-# This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General    
-# Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)    
-# any later version.    
-#        
-# This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied    
-# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more    
-# details.    
-#        
-# You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
+# Copyright (C) 2012-2020 Euclid Science Ground Segment
+#
+# This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
+# Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 # Version info
@@ -49,10 +49,10 @@ default_num_images = 1
 default_gain = 3.3
 default_pixel_scale = 0.1
 default_psf_scale_factor = 5
-default_psf_center_offset = (-0.5,-2.5)
+default_psf_center_offset = ( -0.5, -2.5 )
 default_read_noise = 5.4
 default_sky_level = 32570.
-default_exp_time = 565. # seconds
+default_exp_time = 565.  # seconds
 default_psf_size = 0.085
 
 default_truncation_radius_factor = 4.5
@@ -61,8 +61,8 @@ default_data_dir = "AUX/SHE_GST_GalaxyImageGeneration"
 
 # mag_vis_zeropoint = 25.50087633632 # From ETC
 # mag_vis_zeropoint = 25.4534 # From Sami's sims' config file
-mag_vis_zeropoint = 25.6527 # From Lance's code
-mag_i_zeropoint = 25.3884 # From Lance's code
+mag_vis_zeropoint = 25.6527  # From Lance's code
+mag_i_zeropoint = 25.3884  # From Lance's code
 
 galsim_sersic_index_min = 0.3
 galsim_sersic_index_max = 6.2
@@ -81,7 +81,7 @@ galaxy_model_tail = ".dat"
 galaxy_model_path = "galaxy_models"
 
 psf_model_path = "psf_models"
-psf_model_scale = 0.02 # arcsec/pixel
+psf_model_scale = 0.02  # arcsec/pixel
 
 fftw_wisdom_filename = ".fftw_wisdom"
 
