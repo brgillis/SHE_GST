@@ -21,7 +21,7 @@
 import pytest
 
 from SHE_GST_GalaxyImageGeneration.config.parse_config import get_cfg_args
-from SHE_PPT.file_io import (find_file, read_listfile)
+from SHE_PPT.file_io import (find_file, read_listfile, get_data_filename)
 
 
 class TestWriteConfigs:
@@ -76,3 +76,50 @@ class TestWriteConfigs:
         assert cfg_args["render_background"] == render_background
 
         return
+    
+    def test_write_configs_from_plan(self):
+        
+        listfile_filename = "test_listfile.junk"
+        template_filename = find_file("AUX/SHE_GST_PrepareConfigs/StampsTemplate.conf")
+        plan_filename = find_file("AUX/SHE_GST_PrepareConfigs/test_simulation_plan.ecsv")
+
+        write_configs_from_plan(plan_filename,
+                             template_filename,
+                             listfile_filename,
+                             workdir=".")
+        
+        config_filenames = read_listfile(listfile_filename)
+        
+        assert len(config_filenames) == 20
+        
+        for i in range(10):
+            
+            # Check first set of 10
+            config_p_filename = config_filenames[i]
+            config_filename = get_data_filename(config_p_filename, workdir=".")
+            
+            cfg_args = get_cfg_args(config_filename, workdir=".")
+        
+            assert cfg_args["model_seed"] == i+1
+            assert cfg_args["noise_seed"] == i+1
+            assert cfg_args["suppress_noise"] == False
+            assert cfg_args["num_detectors"] == 36
+            assert cfg_args["num_galaxies"] == 1024
+            assert cfg_args["render_background"] == True
+            
+            # Check second set of 10
+            config_p_filename = config_filenames[i+10]
+            config_filename = get_data_filename(config_p_filename, workdir=".")
+            
+            cfg_args = get_cfg_args(config_filename, workdir=".")
+        
+            assert cfg_args["model_seed"] == i+1
+            assert cfg_args["noise_seed"] == i+1
+            assert cfg_args["suppress_noise"] == True
+            assert cfg_args["num_detectors"] == 36
+            assert cfg_args["num_galaxies"] == 1024
+            assert cfg_args["render_background"] == False
+            
+        return
+            
+            
