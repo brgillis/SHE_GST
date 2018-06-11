@@ -74,7 +74,5 @@ class TestWriteConfigs:
         assert cfg_args["num_detectors"] == num_detectors
         assert cfg_args["num_galaxies"] == num_galaxies
         assert cfg_args["render_background"] == render_background
-        
-        return
 
         return
