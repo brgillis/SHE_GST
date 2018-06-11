@@ -70,12 +70,14 @@ class TestWriteConfigs:
         # Load the config and see if it matches our expectations
         cfg_args = get_cfg_args(filename, workdir=".")
         
+        import pdb; pdb.set_trace()
+        
         assert cfg_args["seed"] == model_seed
         assert cfg_args["noise_seed"] == noise_seed
         assert cfg_args["suppress_noise"] == suppress_noise
         assert cfg_args["num_images"] == num_detectors
         assert cfg_args["num_target_galaxies"] == num_galaxies
-        assert cfg_args["render_background"] == render_background
+        assert cfg_args["render_background_galaxies"] == render_background
 
         return
     
@@ -102,12 +104,12 @@ class TestWriteConfigs:
             
             cfg_args = get_cfg_args(config_filename, workdir=".")
         
-            assert cfg_args["model_seed"] == i+1
+            assert cfg_args["seed"] == i+1
             assert cfg_args["noise_seed"] == i+1
             assert cfg_args["suppress_noise"] == False
-            assert cfg_args["num_detectors"] == 36
-            assert cfg_args["num_galaxies"] == 1024
-            assert cfg_args["render_background"] == True
+            assert cfg_args["num_images"] == 36
+            assert cfg_args["num_target_galaxies"] == 1024
+            assert cfg_args["render_background_galaxies"] == True
             
             # Check second set of 10
             config_p_filename = config_filenames[i+10]
@@ -115,12 +117,12 @@ class TestWriteConfigs:
             
             cfg_args = get_cfg_args(config_filename, workdir=".")
         
-            assert cfg_args["model_seed"] == i+1
+            assert cfg_args["seed"] == i+1
             assert cfg_args["noise_seed"] == i+1
             assert cfg_args["suppress_noise"] == True
-            assert cfg_args["num_detectors"] == 36
-            assert cfg_args["num_galaxies"] == 1024
-            assert cfg_args["render_background"] == False
+            assert cfg_args["num_images"] == 36
+            assert cfg_args["num_target_galaxies"] == 1024
+            assert cfg_args["render_background_galaxies"] == False
             
         return
             
