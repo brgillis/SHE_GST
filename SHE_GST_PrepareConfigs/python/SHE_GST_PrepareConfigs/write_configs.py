@@ -236,7 +236,7 @@ def write_config( filename,
     input_strings = []
     output_strings = []
     
-    def add_replacement(replacement_tag, value, dtype, inrange = lambda v : True):
+    def add_replacement(replacement_tag, value, dtype, inrange = lambda _v : True):
         if value is None:
             return
         value = dtype(value)
