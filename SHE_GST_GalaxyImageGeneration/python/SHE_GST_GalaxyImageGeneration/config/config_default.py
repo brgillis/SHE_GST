@@ -27,74 +27,74 @@ __all__ = ['load_default_configurations']
 
 # Some default values for configurations
 
-def str2bool( v ):
-    return v.lower() in ( "yes", "true", "t", "1" )
+def str2bool(v):
+    return v.lower() in ("yes", "true", "t", "1")
 
-allowed_options = { 'aocs_time_series_products': ( 'mock_aocs_time_series_products.json', str ),
-                    'astrometry_products': ( 'mock_astrometry_products.json', str ),
-                    'chromatic_psf': ( True, str2bool ),
-                    'compress_images': ( 0, int ),
-                    'data_dir': ( mv.default_data_dir, str ),
-                    'data_images': ( 'sim_data_images.json', str ),
-                    'details_only': ( False, str2bool ),
-                    'details_output_format': ( 'fits', str ),
-                    'details_tables': ( 'sim_details_tables.json', str ),
-                    'detections_tables': ( 'mock_detections_tables.json', str ),
-                    'dithering_scheme': ( 'none', str ),
-                    'euclid_psf': ( True, str2bool ),
-                    'galaxies_per_group': ( 8, int ),
-                    'image_datatype': ( mv.default_image_datatype, str ),
-                    'logdir': ( ".", str ),
-                    'magnitude_limit': ( mv.default_magnitude_limit, float ),
-                    'mission_time_products': ( 'mock_mission_time_products.json', str ),
-                    'mode': ( 'field', str ),
-                    'model_psf_file_name': ( None, str ),
-                    'model_psf_scale': ( mv.default_pixel_scale / mv.default_psf_scale_factor, float ),
-                    'model_psf_x_offset': ( mv.default_pixel_scale / mv.default_psf_scale_factor, float ),
-                    'model_psf_y_offset': ( mv.default_pixel_scale / mv.default_psf_scale_factor, float ),
-                    'noise_cancellation': ( "false", str ),
-                    'noise_seed': ( 0, int ),
-                    'num_parallel_threads': ( 1, int ),
-                    'num_target_galaxies': ( 0, int ),
-                    'output_file_name_base': ( 'simulated_image', str ),
-                    'psf_file_name_base': ( 'simulated_image_psfs', str ),
-                    'psf_images_and_tables': ( 'sim_psf_images_and_tables.json', str ),
-                    'psf_stamp_size': ( 256, int ),
-                    'psf_scale_factor': ( mv.default_psf_scale_factor, int ),
-                    'render_background_galaxies': ( True, str2bool ),
-                    'seed': ( mv.default_random_seed, int ),
-                    'segmentation_images': ( 'mock_segmentation_images.json', str ),
-                    'shape_noise_cancellation': ( False, str2bool ),
-                    'single_psf': ( False, str2bool ),
-                    'stable_rng': ( False, str2bool ),
-                    'stamp_size': ( 256, int ),
-                    'stamp_size_factor': ( 4.5, float ),
-                    'suppress_noise': ( False, str2bool ),
-                    'gain': ( 3.3, float ),
-                    'read_noise': ( 5.4, float ),
-                    'workdir': ( ".", str ) }
+allowed_options = { 'aocs_time_series_products': ('mock_aocs_time_series_products.json', str),
+                    'astrometry_products': ('mock_astrometry_products.json', str),
+                    'chromatic_psf': (True, str2bool),
+                    'compress_images': (0, int),
+                    'data_dir': (mv.default_data_dir, str),
+                    'data_images': ('sim_data_images.json', str),
+                    'details_only': (False, str2bool),
+                    'details_output_format': ('fits', str),
+                    'details_tables': ('sim_details_tables.json', str),
+                    'detections_tables': ('mock_detections_tables.json', str),
+                    'dithering_scheme': ('none', str),
+                    'euclid_psf': (True, str2bool),
+                    'galaxies_per_group': (8, int),
+                    'image_datatype': (mv.default_image_datatype, str),
+                    'logdir': (".", str),
+                    'magnitude_limit': (mv.default_magnitude_limit, float),
+                    'mission_time_products': ('mock_mission_time_products.json', str),
+                    'mode': ('field', str),
+                    'model_psf_file_name': (None, str),
+                    'model_psf_scale': (mv.default_pixel_scale / mv.default_psf_scale_factor, float),
+                    'model_psf_x_offset': (mv.default_pixel_scale / mv.default_psf_scale_factor, float),
+                    'model_psf_y_offset': (mv.default_pixel_scale / mv.default_psf_scale_factor, float),
+                    'noise_cancellation': ("false", str),
+                    'noise_seed': (0, int),
+                    'num_parallel_threads': (1, int),
+                    'num_target_galaxies': (0, int),
+                    'output_file_name_base': ('simulated_image', str),
+                    'psf_file_name_base': ('simulated_image_psfs', str),
+                    'psf_images_and_tables': ('sim_psf_images_and_tables.json', str),
+                    'psf_stamp_size': (256, int),
+                    'psf_scale_factor': (mv.default_psf_scale_factor, int),
+                    'render_background_galaxies': (True, str2bool),
+                    'seed': (mv.default_random_seed, int),
+                    'segmentation_images': ('mock_segmentation_images.json', str),
+                    'shape_noise_cancellation': (False, str2bool),
+                    'single_psf': (False, str2bool),
+                    'stable_rng': (False, str2bool),
+                    'stamp_size': (256, int),
+                    'stamp_size_factor': (4.5, float),
+                    'suppress_noise': (False, str2bool),
+                    'gain': (3.3, float),
+                    'read_noise': (5.4, float),
+                    'workdir': (".", str) }
 
-allowed_option_values = { 'compress_images': ( 0, 1, 2 ),
-                          'details_output_format': ( 'none', 'fits', 'ascii', 'both' ),
-                          'dithering_scheme': ( 'none', '2x2' ),
-                          'image_type': ( '32f', '64f' ),
-                          'mode': ( 'field', 'stamps', 'cutouts' ),
-                          'noise_cancellation': ( 'true', 'false', 'both' )}
+allowed_option_values = { 'compress_images': (0, 1, 2),
+                          'details_output_format': ('none', 'fits', 'ascii', 'both'),
+                          'dithering_scheme': ('none', '2x2'),
+                          'image_type': ('32f', '64f'),
+                          'mode': ('field', 'stamps', 'cutouts'),
+                          'noise_cancellation': ('true', 'false', 'both')}
 
-allowed_fixed_params = ( 'num_images',
+allowed_fixed_params = ('num_images',
                         'num_clusters',
                         'num_background_galaxies',
                         'num_fields',
                         'num_galaxies',
                         'pixel_scale',
                         'image_size_xp',
-                        'image_size_yp' )
+                        'image_size_yp')
 
-allowed_settings = ( 'level',
+allowed_settings = ('level',
                      'params',
-                     'setting' )
+                     'setting')
 
-allowed_survey_settings = ( # Survey level
+allowed_survey_settings = (# Survey level
 
                             'num_images',
                             'pixel_scale',
@@ -192,9 +192,9 @@ def load_default_configurations():
     survey = SHE_GST_PhysicalModel.Survey()
 
     # Set some defaults for the survey
-    survey.set_param_params( 'num_images', 'fixed', mv.default_num_images )
-    survey.set_param_params( 'pixel_scale', 'fixed', mv.default_pixel_scale )
-    survey.set_param_params( 'subtracted_background', 'fixed', mv.default_sky_level )
-    survey.set_param_params( 'unsubtracted_background', 'fixed', 0. )
+    survey.set_param_params('num_images', 'fixed', mv.default_num_images)
+    survey.set_param_params('pixel_scale', 'fixed', mv.default_pixel_scale)
+    survey.set_param_params('subtracted_background', 'fixed', mv.default_sky_level)
+    survey.set_param_params('unsubtracted_background', 'fixed', 0.)
 
     return survey, options

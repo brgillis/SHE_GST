@@ -30,11 +30,11 @@ from SHE_PPT.details_table_format import details_table_format as datf
 from SHE_PPT.detections_table_format import detections_table_format as detf
 
 
-def combine_dithers( dithers,
+def combine_dithers(dithers,
                     dithering_scheme,
                     detections_table = None,
                     details_table = None,
-                    copy_otable = False ):
+                    copy_otable = False):
     """
         @brief Combine the dithered images in a list, according to the specific plan for a
             given dithering scheme.
@@ -53,8 +53,8 @@ def combine_dithers( dithers,
     # Set up the output table we'll modify, depending on whether or not we want to copy
     # the passed output table.
     if copy_otable:
-        combined_detections_table = copy.deepcopy( detections_table )
-        combined_details_table = copy.deepcopy( details_table )
+        combined_detections_table = copy.deepcopy(detections_table)
+        combined_details_table = copy.deepcopy(details_table)
     else:
         combined_detections_table = detections_table
         combined_details_table = details_table
@@ -64,7 +64,7 @@ def combine_dithers( dithers,
 
         # Check we have the right number of dithers
         num_dithers = 4
-        assert len( dithers ) == num_dithers
+        assert len(dithers) == num_dithers
 
         # For this scheme, the offsets are (in x,y):
         # 0: (0.0,0.0) (Lower-left)
@@ -78,26 +78,26 @@ def combine_dithers( dithers,
         ur_data = dithers[3].array
 
         # Initialize the combined image
-        dither_shape = np.shape( ll_data )
-        combined_shape = ( 2 * dither_shape[0], 2 * dither_shape[1] )
-        combined_data = np.zeros( shape = combined_shape, dtype = ll_data.dtype )
+        dither_shape = np.shape(ll_data)
+        combined_shape = (2 * dither_shape[0], 2 * dither_shape[1])
+        combined_data = np.zeros(shape = combined_shape, dtype = ll_data.dtype)
 
         # We'll use strides to represent each corner of the combined image
         base_strides = combined_data.strides
-        dither_strides = ( 2 * base_strides[0], 2 * base_strides[1] )
+        dither_strides = (2 * base_strides[0], 2 * base_strides[1])
 
-        lower_left_corners = as_strided( combined_data[:-1, :-1],
+        lower_left_corners = as_strided(combined_data[:-1, :-1],
                                         shape = dither_shape,
-                                        strides = dither_strides )
-        lower_right_corners = as_strided( combined_data[:-1, 1:],
+                                        strides = dither_strides)
+        lower_right_corners = as_strided(combined_data[:-1, 1:],
                                         shape = dither_shape,
-                                        strides = dither_strides )
-        upper_left_corners = as_strided( combined_data[1:, :-1],
+                                        strides = dither_strides)
+        upper_left_corners = as_strided(combined_data[1:, :-1],
                                         shape = dither_shape,
-                                        strides = dither_strides )
-        upper_right_corners = as_strided( combined_data[1:, 1:],
+                                        strides = dither_strides)
+        upper_right_corners = as_strided(combined_data[1:, 1:],
                                         shape = dither_shape,
-                                        strides = dither_strides )
+                                        strides = dither_strides)
 
         # We'll combine four arrays for each corner of the dithering (remeber x-y ordering swap!)
         # We use roll here to shift by 1 pixel left/down. Since it's all initially zero, we can use +=
@@ -106,28 +106,28 @@ def combine_dithers( dithers,
                               lr_data + \
                               ul_data + \
                               ur_data
-        lower_right_corners += np.roll( ll_data, -1, axis = 1 ) + \
+        lower_right_corners += np.roll(ll_data, -1, axis = 1) + \
                                lr_data + \
-                               np.roll( ul_data, -1, axis = 1 ) + \
+                               np.roll(ul_data, -1, axis = 1) + \
                                ur_data
-        upper_left_corners += np.roll( ll_data, -1, axis = 0 ) + \
-                              np.roll( lr_data, -1, axis = 0 ) + \
+        upper_left_corners += np.roll(ll_data, -1, axis = 0) + \
+                              np.roll(lr_data, -1, axis = 0) + \
                               ul_data + \
                               ur_data
-        upper_right_corners += np.roll( np.roll( ll_data, -1, axis = 1 ), -1, axis = 0 ) + \
-                               np.roll( lr_data, -1, axis = 0 ) + \
-                               np.roll( ul_data, -1, axis = 1 ) + \
+        upper_right_corners += np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0) + \
+                               np.roll(lr_data, -1, axis = 0) + \
+                               np.roll(ul_data, -1, axis = 1) + \
                                ur_data
 
         # Discard the final row and column of the combined image, which will contain junk values
         combined_data = combined_data[0:-1, 0:-1]
 
         # Make a Galsim image from this data
-        combined_image = galsim.Image( combined_data, scale = dithers[0].scale / 2 )
+        combined_image = galsim.Image(combined_data, scale = dithers[0].scale / 2)
 
         # Now that we have the image, let's modify the output table
-        for ( combined_otable, tf ) in ( ( combined_detections_table, detf ),
-                                          ( combined_details_table, datf ) ):
+        for (combined_otable, tf) in ((combined_detections_table, detf),
+                                          (combined_details_table, datf)):
             if combined_otable is not None:
                 combined_otable[tf.gal_x] *= 2
                 combined_otable[tf.gal_x] -= 0.5
@@ -147,6 +147,6 @@ def combine_dithers( dithers,
                     combined_otable.meta[tf.meta_unsubtracted_sky_level] = 4 * old_unsubtracted_sky_level[0], old_unsubtracted_sky_level[1]
 
     else:
-        raise Exception( "Unrecognized dithering scheme: " + dithering_scheme )
+        raise Exception("Unrecognized dithering scheme: " + dithering_scheme)
 
     return combined_image, combined_detections_table, combined_details_table

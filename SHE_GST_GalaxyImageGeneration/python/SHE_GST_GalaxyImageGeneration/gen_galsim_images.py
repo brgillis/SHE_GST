@@ -27,18 +27,18 @@ from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_config_file
 from SHE_GST_GalaxyImageGeneration.utility import timing
 
 
-def main( argv ):
+def main(argv):
 
     # Check that a configuration file name was passed at command line
-    if( len( argv ) ) <= 1:
+    if(len(argv)) <= 1:
         config_file_name = ""
     else:
         config_file_name = argv[1]
 
-    run_from_config_file( config_file_name )
+    run_from_config_file(config_file_name)
 
-    print( 'Execution complete.' )
+    print('Execution complete.')
 
 
 if __name__ == "__main__":
-    main( sys.argv )
+    main(sys.argv)

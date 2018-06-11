@@ -44,44 +44,44 @@ seds = {4.0:'sbc',
         1.8:'sb3',
         }
 
-allowed_ns = np.array( ( 1.8, 2.0, 2.56, 2.71, 3.0, 3.5, 4.0 ) )
-allowed_zs = np.array( ( 0., 0.5, 1.0, 1.5, 2.0 ) )
+allowed_ns = np.array((1.8, 2.0, 2.56, 2.71, 3.0, 3.5, 4.0))
+allowed_zs = np.array((0., 0.5, 1.0, 1.5, 2.0))
 
 @lru_cache()
-def load_psf_model_from_sed_z( sed,
+def load_psf_model_from_sed_z(sed,
                                z = 0.0,
                                data_dir = mv.default_data_dir,
-                               gsparams=galsim.GSParams(),
-                               workdir = "." ):
+                               gsparams = galsim.GSParams(),
+                               workdir = "."):
 
     z_str = "%0.2f" % z
 
-    model_filename = join( data_dir, "psf_models", sed_names[sed] + ".fits_0.000_0.804_" + z_str + ".fits" )
+    model_filename = join(data_dir, "psf_models", sed_names[sed] + ".fits_0.000_0.804_" + z_str + ".fits")
 
-    qualified_filename = find_file( model_filename, workdir )
+    qualified_filename = find_file(model_filename, workdir)
 
-    return load_psf_model_from_file( qualified_filename,
+    return load_psf_model_from_file(qualified_filename,
                                      scale = mv.psf_model_scale,
                                      offset = mv.default_psf_center_offset,
-                                     gsparams = gsparams )
+                                     gsparams = gsparams)
 
 @lru_cache()
-def load_psf_model_from_file( file_name,
+def load_psf_model_from_file(file_name,
                               scale,
                               offset,
-                              gsparams = galsim.GSParams() ):
+                              gsparams = galsim.GSParams()):
 
-    model = galsim.fits.read( file_name )
+    model = galsim.fits.read(file_name)
 
-    return galsim.InterpolatedImage( model,
+    return galsim.InterpolatedImage(model,
                                      scale = scale,
                                      offset = offset,
-                                     gsparams = gsparams )
+                                     gsparams = gsparams)
 
 @lru_cache()
 def get_background_psf_profile(gsparams = galsim.GSParams()):
 
-    prof = galsim.OpticalPSF( lam = 725,  # nm
+    prof = galsim.OpticalPSF(lam = 725,  # nm
                              diam = 1.2,  # m
                              defocus = 0,
                              obscuration = 0.33,
@@ -91,7 +91,7 @@ def get_background_psf_profile(gsparams = galsim.GSParams()):
 
     return prof
 
-def get_psf_profile( n,
+def get_psf_profile(n,
                      z,
                      bulge,
                      use_background_psf = False,
@@ -100,22 +100,22 @@ def get_psf_profile( n,
                      model_psf_scale = mv.psf_model_scale,
                      model_psf_offset = mv.default_psf_center_offset,
                      gsparams = galsim.GSParams(),
-                     workdir = "." ):
+                     workdir = "."):
 
     if use_background_psf:
-        return get_background_psf_profile(gsparams=gsparams)
+        return get_background_psf_profile(gsparams = gsparams)
 
     if model_psf_file_name is not None:
-        return load_psf_model_from_file( model_psf_file_name, model_psf_scale, model_psf_offset, gsparams=gsparams )
+        return load_psf_model_from_file(model_psf_file_name, model_psf_scale, model_psf_offset, gsparams = gsparams)
 
-    diffs = np.abs( allowed_zs - z )
-    zi_best = np.argmin( diffs )
+    diffs = np.abs(allowed_zs - z)
+    zi_best = np.argmin(diffs)
 
-    if( bulge ):
+    if(bulge):
         sed = 'ell'
     else:
-        diffs = np.abs( allowed_ns - n )
-        ni_best = np.argmin( diffs )
+        diffs = np.abs(allowed_ns - n)
+        ni_best = np.argmin(diffs)
         sed = seds[allowed_ns[ni_best]]
 
-    return load_psf_model_from_sed_z( sed, allowed_zs[zi_best], gsparams=gsparams, data_dir = data_dir )
+    return load_psf_model_from_sed_z(sed, allowed_zs[zi_best], gsparams = gsparams, data_dir = data_dir)
