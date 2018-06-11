@@ -70,8 +70,6 @@ class TestWriteConfigs:
         # Load the config and see if it matches our expectations
         cfg_args = get_cfg_args(filename, workdir=".")
         
-        import pdb; pdb.set_trace()
-        
         assert cfg_args["seed"] == model_seed
         assert cfg_args["noise_seed"] == noise_seed
         assert cfg_args["suppress_noise"] == suppress_noise
