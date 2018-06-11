@@ -41,7 +41,7 @@ class TestWriteConfigs:
     def teardown_class(cls):
 
         # Delete all potentially created files:
-        for testfilepath in os.path.list("."):
+        for testfilepath in os.listdir("."):
             if ".junk" in testfilepath:
                 os.remove(testfilepath)
 
@@ -70,11 +70,11 @@ class TestWriteConfigs:
         # Load the config and see if it matches our expectations
         cfg_args = get_cfg_args(filename, workdir=".")
         
-        assert cfg_args["model_seed"] == model_seed
+        assert cfg_args["seed"] == model_seed
         assert cfg_args["noise_seed"] == noise_seed
         assert cfg_args["suppress_noise"] == suppress_noise
-        assert cfg_args["num_detectors"] == num_detectors
-        assert cfg_args["num_galaxies"] == num_galaxies
+        assert cfg_args["num_images"] == num_detectors
+        assert cfg_args["num_target_galaxies"] == num_galaxies
         assert cfg_args["render_background"] == render_background
 
         return
