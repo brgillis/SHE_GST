@@ -51,7 +51,7 @@ from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label
                                   model_seed_label, noise_seed_label, extname_label, dither_dx_label,
                                   dither_dy_label, scale_label,
                                   sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
-                                  detections_tag, bulge_psf_tag, disk_psf_tag)
+                                  detections_tag, bulge_psf_tag, disk_psf_tag, background_tag)
 from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
 from SHE_PPT.table_utility import add_row, table_to_hdu
 from SHE_PPT.utility import hash_any
@@ -130,6 +130,19 @@ def generate_images(survey, options):
 
     return
 
+class ProductFilenames(object):
+    
+    def __init__(self, is_image=False):
+        self.prod_filenames = []
+        self.data_filenames = []
+        
+        if is_image:
+            self.psf_filenames = []
+            self.flg_filenames = []
+            self.wgt_filenames = []
+        
+        return
+
 def generate_image_group(image_group, options):
     """
     Generate a FOV and save it in a multi-extension FITS file.
@@ -150,57 +163,67 @@ def generate_image_group(image_group, options):
 
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
 
-    image_product_filenames = ([], [])
-    mosaic_product_filenames = ([], [])
-    details_product_filenames = ([], [])
-    detections_product_filenames = ([], [])
-    psf_image_product_filenames = ([], [])
-
-    aocs_time_series_product_filenames = ([], [])
-    mission_time_product_filenames = ([], [])
+    image_filenames = ProductFilenames()
+    detections_filenames = ProductFilenames()
+    details_filenames = ProductFilenames()
+    mosaic_filenames = ProductFilenames()
+    psf_image_filenames = ProductFilenames()
 
     # Get the filenames we'll need
     for i in range(num_dithers):
-        for filename_list, tag in ((image_product_filenames, "EXP"),
-                                   (mosaic_product_filenames, segmentation_tag),
-                                   (details_product_filenames, details_tag),
-                                   (detections_product_filenames, detections_tag),
-                                   (psf_image_product_filenames, "PSF"),
-                                   (aocs_time_series_product_filenames, "AOCS"),
-                                   (mission_time_product_filenames, "MT"),):
+        for filename_list, tag in ((image_filenames, sci_tag),
+                                   (detections_filenames, detections_tag),
+                                   (details_filenames, details_tag),
+                                   (mosaic_filenames, segmentation_tag),
+                                   (psf_image_filenames, "PSF"),):
 
-            # Get the filenames
-            prod_filename = get_allowed_filename("GST_P_" + tag + "_D" + str(i), model_hash, extension = ".xml")
-            filename = get_allowed_filename("GST_" + tag + "_D" + str(i), model_hash, extension = ".fits")
-            filename_list[0].append(prod_filename)
-            filename_list[1].append(filename)
+            # For products that aren't lists, don't include the dither label
+            if tag in (detections_tag, details_tag):
+                dither_tag = ""
+            else:
+                dither_tag = "_D" + str(i)
+                
+            subfilenames_lists_labels_exts = [(filename_list.product_filenames,"GST_P",".xml"),
+                                              (filename_list.data_filenames,"GST",".fits"),]
+            
+            # For the VIS image, also add other subfilenames
+            if tag==sci_tag:
+                subfilenames_lists_labels_exts.append((filename_list.psf_filenames,"GST_VPSF",".fits"))
+                subfilenames_lists_labels_exts.append((filename_list.flg_filenames,"GST_FLG",".fits"))
+                subfilenames_lists_labels_exts.append((filename_list.wgt_filenames,"GST_WGT",".fits"))
+                
+            for (subfilename_list, label, extension) in subfilenames_lists_labels_exts:
+                
+                filename = get_allowed_filename(label + "_" + tag + dither_tag, model_hash, extension = extension)
+                subfilename_list.append(filename)
 
-            # If either exists already, delete them
-            qualified_prod_filename = os.path.join(options['workdir'], prod_filename)
-            if os.path.exists(qualified_prod_filename):
-                os.remove(qualified_prod_filename)
-            qualified_filename = os.path.join(options['workdir'], filename)
-            if os.path.exists(qualified_filename):
-                os.remove(qualified_filename)
-
+                # If it exists already, delete it
+                qualified_filename = os.path.join(options['workdir'], filename)
+                if os.path.exists(qualified_filename):
+                    os.remove(qualified_filename)
+                
     # Generate each image, then append it and its data to the fits files
     for image in image_group.get_image_descendants():
 
         # Generate the data
         (image_dithers, noise_maps, mask_maps, segmentation_maps,
-         detections_tables, psf_tables, details_tables, psf_images) = generate_image(image, options)
+         detections_table, psf_tables, details_table, psf_images) = generate_image(image, options)
 
         # Append to the fits file for each dither
         for i in range(num_dithers):
 
             outdir = options['workdir']
 
-            image_product = products.calibrated_frame.create_calibrated_frame_product(filename = image_product_filenames[1][i])
-            write_pickled_product(image_product,
-                                  os.path.join(outdir, image_product_filenames[0][i]))
+            image_product = products.calibrated_frame.create_dpd_vis_calibrated_frame()
+            image_product.set_data_filename(image_filenames.data_filenames[i])
+            image_product.set_psf_filename(image_filenames.psf_filenames[i])
+            image_product.set_flg_filename(image_filenames.flg_filenames[i])
+            image_product.set_wgt_filename(image_filenames.wgt_filenames[i])
+            
+            write_xml_product(image_product,
+                                  os.path.join(outdir, image_filenames.product_filenames[i]))
 
-            image_filename = image_product_filenames[1][i]
-            qualified_image_filename = os.path.join(outdir, image_filename)
+            qualified_image_filename = os.path.join(outdir, image_product.get_data_filename())
 
             # Science image
             im_hdu = fits.ImageHDU(data = image_dithers[i][0][0].array,
@@ -219,44 +242,22 @@ def generate_image_group(image_group, options):
 
             # Segmentation map
 
-            mock_mosaic_product = products.mosaic.create_mosaic_product(instrument_name = "VIS",
-                                                                        filter = "VIS",
-                                                                        wcs_params = None,
-                                                                        zeropoint = 0,
-                                                                        data_filename = mosaic_product_filenames[1][i],)
+            mock_mosaic_product = products.mosaic.create_mosaic_product(data_filename = mosaic_filenames.data_filenames[i])
 
-            write_pickled_product(mock_mosaic_product,
-                                  os.path.join(outdir, mosaic_product_filenames[0][i]))
+            write_xml_product(mock_mosaic_product,
+                              os.path.join(outdir, mosaic_filenames.product_filenames[i]))
 
             seg_hdu = fits.ImageHDU(data = segmentation_maps[i].array,
                                     header = fits.header.Header(list(segmentation_maps[i].header.items())))
-            append_hdu(os.path.join(outdir, mosaic_product_filenames[1][i]), seg_hdu)
-
-            # Details table
-
-            my_details_product = products.details.create_details_product(filename = details_product_filenames[1][i])
-            write_pickled_product(my_details_product,
-                                  os.path.join(outdir, details_product_filenames[0][i]))
-
-            dal_hdu = table_to_hdu(details_tables[i])
-            append_hdu(os.path.join(outdir, details_product_filenames[1][i]), dal_hdu)
-
-            # Detections table
-
-            my_detections_product = products.detections.create_detections_product(filename = detections_product_filenames[1][i])
-            write_pickled_product(my_detections_product,
-                                  os.path.join(outdir, detections_product_filenames[0][i]))
-
-            dtc_hdu = table_to_hdu(detections_tables[i])
-            append_hdu(os.path.join(outdir, detections_product_filenames[1][i]), dtc_hdu)
+            append_hdu(os.path.join(outdir, mosaic_filenames.data_filenames[i]), seg_hdu)
 
             # PSF images
 
-            psf_product = products.psf_image.create_psf_image_product(filename = psf_image_product_filenames[1][i])
+            psf_product = products.psf_image.create_psf_image_product(filename = psf_image_filenames.data_filenames[i])
             write_pickled_product(psf_product,
-                                  os.path.join(outdir, psf_image_product_filenames[0][i]))
+                                  os.path.join(outdir, psf_image_filenames.product_filenames[i]))
 
-            psf_filename = os.path.join(outdir, psf_image_product_filenames[1][i])
+            psf_filename = os.path.join(outdir, psf_image_filenames.data_filenames[i])
 
             bpsf_hdu = fits.ImageHDU(data = psf_images[i][0].array,
                                      header = fits.header.Header(list(psf_images[i][0].header.items())))
@@ -269,25 +270,29 @@ def generate_image_group(image_group, options):
             psfc_hdu = table_to_hdu(psf_tables[i])
             append_hdu(psf_filename, psfc_hdu)
 
-            # Mock data products
+        # Details table
 
-            mock_aocs_data_product = products.aocs_time_series.create_aocs_time_series_product()
-            write_pickled_product(mock_aocs_data_product,
-                                  os.path.join(outdir, aocs_time_series_product_filenames[0][i]))
+        my_details_product = products.details.create_details_product(filename = details_filenames.data_filenames[0])
+        write_pickled_product(my_details_product,
+                              os.path.join(outdir, details_filenames.product_filenames[0]))
 
-            mock_mission_time_data_product = products.mission_time.create_mission_time_product()
-            write_pickled_product(mock_mission_time_data_product,
-                                  os.path.join(outdir, mission_time_product_filenames[0][i]))
+        dal_hdu = table_to_hdu(details_table)
+        append_hdu(os.path.join(outdir, details_filenames.data_filenames[i]), dal_hdu)
+
+        # Detections table
+
+        my_detections_product = products.detections.create_detections_product(filename = detections_filenames.data_filenames[0])
+        write_xml_product(my_detections_product,
+                          os.path.join(outdir, detections_filenames.product_filenames[0]))
+
+        dtc_hdu = table_to_hdu(detections_table)
+        append_hdu(os.path.join(outdir, detections_filenames.data_filenames[i]), dtc_hdu)
 
 
     # Output listfiles of filenames
-    write_listfile(os.path.join(options['workdir'], options['data_images']), image_product_filenames[0])
-    write_listfile(os.path.join(options['workdir'], options['details_tables']), details_product_filenames[0])
-    write_listfile(os.path.join(options['workdir'], options['detections_tables']), detections_product_filenames[0])
-    write_listfile(os.path.join(options['workdir'], options['segmentation_images']), mosaic_product_filenames[0])
-    write_listfile(os.path.join(options['workdir'], options['psf_images_and_tables']), psf_image_product_filenames[0])
-    write_listfile(os.path.join(options['workdir'], options['aocs_time_series_products']), aocs_time_series_product_filenames[0])
-    write_listfile(os.path.join(options['workdir'], options['mission_time_products']), mission_time_product_filenames[0])
+    write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames[0])
+    write_listfile(os.path.join(options['workdir'], options['segmentation_images']), mosaic_filenames[0])
+    write_listfile(os.path.join(options['workdir'], options['psf_images_and_tables']), psf_image_filenames[0])
 
     return
 
