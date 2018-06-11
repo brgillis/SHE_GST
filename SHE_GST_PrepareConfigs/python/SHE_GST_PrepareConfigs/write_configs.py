@@ -177,7 +177,7 @@ def write_configs_from_plan( plan_filename,
             write_pickled_product(cfg_prod, os.path.join(workdir,prod_filename))
             all_config_products.append(prod_filename)
             
-            write_config(filename = filename,
+            write_config(filename = os.path.join(workdir,filename),
                          template_filename = qualified_template_filename,
                          model_seed = int(model_seeds[i]),
                          noise_seed = int(noise_seeds[i]),
