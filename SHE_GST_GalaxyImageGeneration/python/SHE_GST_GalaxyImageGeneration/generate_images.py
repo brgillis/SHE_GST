@@ -45,7 +45,8 @@ from SHE_PPT import products
 from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
 from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
 from SHE_PPT import detector
-from SHE_PPT.file_io import get_allowed_filename, write_listfile, append_hdu, write_pickled_product
+from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
+                             write_xml_product)
 from SHE_PPT.magic_values import ( gain_label, stamp_size_label, model_hash_label,
                                   model_seed_label, noise_seed_label, extname_label, dither_dx_label,
                                   dither_dy_label, scale_label,
@@ -61,17 +62,16 @@ products.aocs_time_series.init()
 products.calibrated_frame.init()
 products.details.init()
 products.detections.init()
-products.mission_time.init()
 products.mosaic.init()
 products.psf_image.init()
 products.stacked_frame.init()
 
 
 default_gsparams = galsim.GSParams( folding_threshold = 5e-3,
-                                   maxk_threshold = 1e-3,
-                                   kvalue_accuracy = 1e-5,
-                                   stepk_minimum_hlr = 5,
-                                   )
+                                    maxk_threshold = 1e-3,
+                                    kvalue_accuracy = 1e-5,
+                                    stepk_minimum_hlr = 5,
+                                  )
 
 class generate_image_group_with_options_caller( object ):
     def __init__( self, *args, **kwargs ):
@@ -608,6 +608,7 @@ def print_galaxies_and_psfs( image,
                                                 model_psf_file_name = options['model_psf_file_name'],
                                                 model_psf_scale = options['model_psf_scale'],
                                                 model_psf_offset = model_psf_offset,
+                                                gsparams = default_gsparams,
                                                 workdir = options['workdir'] )
             if options['chromatic_psf']:
                 disk_psf_profile = get_psf_profile( n = gal_n,
@@ -618,6 +619,7 @@ def print_galaxies_and_psfs( image,
                                                    model_psf_file_name = options['model_psf_file_name'],
                                                    model_psf_scale = options['model_psf_scale'],
                                                    model_psf_offset = model_psf_offset,
+                                                   gsparams = default_gsparams,
                                                    workdir = options['workdir'] )
             else:
                     disk_psf_profile = bulge_psf_profile
@@ -738,12 +740,13 @@ def print_galaxies_and_psfs( image,
                                                 beta_deg_ell = rotation,
                                                 g_shear = g_shear,
                                                 beta_deg_shear = beta_shear,
+                                                gsparams = default_gsparams,
                                                 data_dir = options['data_dir'] )
 
                 # Convolve the galaxy, psf, and pixel profile to determine the final (well,
                 # before noise) pixelized image
                 final_bulge = galsim.Convolve( [bulge_gal_profile, bulge_psf_profile],
-                                              gsparams = default_gsparams )
+                                               gsparams = default_gsparams )
 
                 # Try to get a disk galaxy profile if the galsim version supports it
                 disk_gal_profile = get_disk_galaxy_profile( half_light_radius = disk_size,
@@ -752,11 +755,12 @@ def print_galaxies_and_psfs( image,
                                                            flux = gal_I * ( 1 - bulge_fraction ),
                                                            g_shear = g_shear,
                                                            beta_deg_shear = beta_shear,
-                                                           height_ratio = disk_height_ratio )
+                                                           height_ratio = disk_height_ratio,
+                                                           gsparams = default_gsparams )
 
                 final_disk = galsim.Convolve( [disk_gal_profile, disk_psf_profile,
                                               galsim.Pixel( scale = pixel_scale )],
-                                          gsparams = default_gsparams )
+                                              gsparams = default_gsparams )
 
                 # Now draw the PSFs for this galaxy onto those images
 

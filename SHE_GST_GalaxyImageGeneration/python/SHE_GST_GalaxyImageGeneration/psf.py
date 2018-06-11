@@ -48,7 +48,11 @@ allowed_ns = np.array( ( 1.8, 2.0, 2.56, 2.71, 3.0, 3.5, 4.0 ) )
 allowed_zs = np.array( ( 0., 0.5, 1.0, 1.5, 2.0 ) )
 
 @lru_cache()
-def load_psf_model_from_sed_z( sed, z = 0.0, data_dir = mv.default_data_dir, workdir = "." ):
+def load_psf_model_from_sed_z( sed,
+                               z = 0.0,
+                               data_dir = mv.default_data_dir,
+                               gsparams=galsim.GSParams(),
+                               workdir = "." ):
 
     z_str = "%0.2f" % z
 
@@ -56,39 +60,53 @@ def load_psf_model_from_sed_z( sed, z = 0.0, data_dir = mv.default_data_dir, wor
 
     qualified_filename = find_file( model_filename, workdir )
 
-    return load_psf_model_from_file( qualified_filename, scale = mv.psf_model_scale,
-                                    offset = mv.default_psf_center_offset )
+    return load_psf_model_from_file( qualified_filename,
+                                     scale = mv.psf_model_scale,
+                                     offset = mv.default_psf_center_offset,
+                                     gsparams = gsparams )
 
 @lru_cache()
-def load_psf_model_from_file( file_name, scale, offset ):
+def load_psf_model_from_file( file_name,
+                              scale,
+                              offset,
+                              gsparams = galsim.GSParams() ):
 
     model = galsim.fits.read( file_name )
 
-    return galsim.InterpolatedImage( model, scale = scale,
-                                    offset = offset )
+    return galsim.InterpolatedImage( model,
+                                     scale = scale,
+                                     offset = offset,
+                                     gsparams = gsparams )
 
 @lru_cache()
-def get_background_psf_profile():
+def get_background_psf_profile(gsparams = galsim.GSParams()):
 
     prof = galsim.OpticalPSF( lam = 725,  # nm
                              diam = 1.2,  # m
                              defocus = 0,
                              obscuration = 0.33,
                              nstruts = 3,
+                             gsparams = gsparams,
                              )
 
     return prof
 
-def get_psf_profile( n, z, bulge, use_background_psf = False, data_dir = mv.default_data_dir,
-                    model_psf_file_name = None, model_psf_scale = mv.psf_model_scale,
-                    model_psf_offset = mv.default_psf_center_offset,
-                    workdir = "." ):
+def get_psf_profile( n,
+                     z,
+                     bulge,
+                     use_background_psf = False,
+                     data_dir = mv.default_data_dir,
+                     model_psf_file_name = None,
+                     model_psf_scale = mv.psf_model_scale,
+                     model_psf_offset = mv.default_psf_center_offset,
+                     gsparams = galsim.GSParams(),
+                     workdir = "." ):
 
     if use_background_psf:
-        return get_background_psf_profile()
+        return get_background_psf_profile(gsparams=gsparams)
 
     if model_psf_file_name is not None:
-        return load_psf_model_from_file( model_psf_file_name, model_psf_scale, model_psf_offset )
+        return load_psf_model_from_file( model_psf_file_name, model_psf_scale, model_psf_offset, gsparams=gsparams )
 
     diffs = np.abs( allowed_zs - z )
     zi_best = np.argmin( diffs )
@@ -100,4 +118,4 @@ def get_psf_profile( n, z, bulge, use_background_psf = False, data_dir = mv.defa
         ni_best = np.argmin( diffs )
         sed = seds[allowed_ns[ni_best]]
 
-    return load_psf_model_from_sed_z( sed, allowed_zs[zi_best], data_dir = data_dir )
+    return load_psf_model_from_sed_z( sed, allowed_zs[zi_best], gsparams=gsparams, data_dir = data_dir )
