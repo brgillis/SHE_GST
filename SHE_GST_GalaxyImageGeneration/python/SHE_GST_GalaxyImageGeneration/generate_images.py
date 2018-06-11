@@ -137,8 +137,7 @@ class ProductFilenames(object):
         self.data_filenames = []
         
         if is_image:
-            self.psf_filenames = []
-            self.flg_filenames = []
+            self.bkg_filenames = []
             self.wgt_filenames = []
         
         return
@@ -163,7 +162,7 @@ def generate_image_group(image_group, options):
 
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
 
-    image_filenames = ProductFilenames()
+    image_filenames = ProductFilenames(is_image=True)
     detections_filenames = ProductFilenames()
     details_filenames = ProductFilenames()
     mosaic_filenames = ProductFilenames()
@@ -188,8 +187,7 @@ def generate_image_group(image_group, options):
             
             # For the VIS image, also add other subfilenames
             if tag==sci_tag:
-                subfilenames_lists_labels_exts.append((filename_list.psf_filenames,"GST_VPSF",".fits"))
-                subfilenames_lists_labels_exts.append((filename_list.flg_filenames,"GST_FLG",".fits"))
+                subfilenames_lists_labels_exts.append((filename_list.bkg_filenames,"GST_BKG",".fits"))
                 subfilenames_lists_labels_exts.append((filename_list.wgt_filenames,"GST_WGT",".fits"))
                 
             for (subfilename_list, label, extension) in subfilenames_lists_labels_exts:
@@ -206,7 +204,7 @@ def generate_image_group(image_group, options):
     for image in image_group.get_image_descendants():
 
         # Generate the data
-        (image_dithers, noise_maps, mask_maps, segmentation_maps,
+        (image_dithers, noise_maps, mask_maps, bkg_maps, wgt_maps, segmentation_maps,
          detections_table, psf_tables, details_table, psf_images) = generate_image(image, options)
 
         # Append to the fits file for each dither
@@ -216,7 +214,6 @@ def generate_image_group(image_group, options):
 
             image_product = products.calibrated_frame.create_dpd_vis_calibrated_frame()
             image_product.set_data_filename(image_filenames.data_filenames[i])
-            image_product.set_psf_filename(image_filenames.psf_filenames[i])
             image_product.set_flg_filename(image_filenames.flg_filenames[i])
             image_product.set_wgt_filename(image_filenames.wgt_filenames[i])
             
@@ -239,6 +236,16 @@ def generate_image_group(image_group, options):
             flg_hdu = fits.ImageHDU(data = mask_maps[i].array,
                                     header = fits.header.Header(list(mask_maps[i].header.items())))
             append_hdu(qualified_image_filename, flg_hdu)
+
+            # Background map
+            bkg_hdu = fits.ImageHDU(data = bkg_maps[i].array,
+                                    header = fits.header.Header(list(bkg_maps[i].header.items())))
+            append_hdu(os.path.join(outdir, image_filenames.bkg_filenames[i]), bkg_hdu)
+
+            # Weight map
+            wgt_hdu = fits.ImageHDU(data = wgt_maps[i].array,
+                                    header = fits.header.Header(list(wgt_maps[i].header.items())))
+            append_hdu(os.path.join(outdir, image_filenames.wgt_filenames[i]), wgt_hdu)
 
             # Segmentation map
 
