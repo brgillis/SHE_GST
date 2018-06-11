@@ -24,7 +24,7 @@ import os
 
 from SHE_PPT.file_io import (get_allowed_filename, replace_multiple_in_file, 
                              write_pickled_product, write_listfile, find_file,
-    read_pickled_product)
+                             read_pickled_product, get_data_filename)
 from SHE_PPT import products
 from SHE_PPT.table_formats.simulation_plan import tf as sptf ,\
     simulation_plan_table_format
@@ -65,33 +65,25 @@ def write_configs_from_plan( plan_filename,
     
     """
     
-    qualified_plan_filename = find_file(plan_filename,path=workdir)
+    qualified_plan_filename = find_file(get_data_filename(plan_filename,workdir),workdir)
     qualified_template_filename = find_file(template_filename,path=workdir)
     
     # Read in the plan table
+    simulation_plan_table = None
     try:
-        # If it's a product, get the filename out of it
-        simulation_plan_prod = read_pickled_product(qualified_plan_filename)
-        if not isinstance(simulation_plan_prod, products.simulation_plan.DpdSheSimulationPlanProduct):
-            raise IOError("Simulation plan product in " + qualified_plan_filename + " is of invalid type.")
-        qualified_plan_filename = find_file(simulation_plan_prod.get_filename(),path=workdir)
-    except Exception as _e1:
-        # Try reading it in directly as a table
-        simulation_plan_table = None
+        simulation_plan_table = Table.read(qualified_plan_filename,format="fits")
+    except Exception as _e2:
+        # Not a known table format, maybe an ascii table?
         try:
-            simulation_plan_table = Table.read(qualified_plan_filename,format="fits")
-        except Exception as _e2:
-            # Not a known table format, maybe an ascii table?
-            try:
-                simulation_plan_table = Table.read(qualified_plan_filename,format="ascii.ecsv")
-            except IOError as _e3:
-                pass
-        # If it's still none, we couldn't identify it, so raise the initial exception
-        if simulation_plan_table is None:
-            raise 
+            simulation_plan_table = Table.read(qualified_plan_filename,format="ascii.ecsv")
+        except IOError as _e3:
+            pass
+    # If it's still none, we couldn't identify it, so raise the initial exception
+    if simulation_plan_table is None:
+        raise TypeError("Unknown file format for simulation plan table in " + qualified_plan_filename)
         
     if not is_in_format(simulation_plan_table, sptf):
-        raise TypeError("Table stored in " + plan_filename + " is of invalid type.")
+        raise TypeError("Table stored in " + qualified_plan_filename + " is of invalid type.")
     
     # Keep a list of all configuration files generated
     all_config_products = []
@@ -125,6 +117,7 @@ def write_configs_from_plan( plan_filename,
             test_tag = desired_tag + "_" + str(i)
             while test_tag not in tags_used:
                 i += 1
+                test_tag = desired_tag + "_" + str(i)
             tags_used.add(test_tag)
             tag = test_tag
             
@@ -134,8 +127,11 @@ def write_configs_from_plan( plan_filename,
         mseed_max = model_seed_maxes[row_index]
         mseed_step = model_seed_steps[row_index]
         
-        if mseed_step == 0:
-            raise ValueError("Model seed step cannot be zero.")
+        if mseed_step <= 0:
+            raise ValueError("Model seed step cannot be <= zero.")
+        
+        if mseed_max < mseed_min:
+            raise ValueError("Model seed max cannot be less than model seed min")
         
         model_seeds = np.linspace(start=mseed_min,
                                   stop=mseed_max,
@@ -148,6 +144,9 @@ def write_configs_from_plan( plan_filename,
         
         if mseed_step == 0:
             raise ValueError("Noise seed step cannot be zero.")
+        
+        if nseed_max < nseed_min:
+            raise ValueError("Nois seed max cannot be less than noise seed min")
         
         noise_seeds = np.linspace(start=nseed_min,
                                   stop=nseed_max,
