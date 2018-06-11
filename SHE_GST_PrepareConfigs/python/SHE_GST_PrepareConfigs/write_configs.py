@@ -75,7 +75,7 @@ def write_configs_from_plan( plan_filename,
     except Exception as _e2:
         # Not a known table format, maybe an ascii table?
         try:
-            simulation_plan_table = Table.read(qualified_plan_filename,format="ascii.ecsv")
+            simulation_plan_table = Table.read(qualified_plan_filename,format="ascii")
         except IOError as _e3:
             pass
     # If it's still none, we couldn't identify it, so raise the initial exception
