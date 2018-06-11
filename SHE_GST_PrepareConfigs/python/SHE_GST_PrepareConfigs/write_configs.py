@@ -82,8 +82,9 @@ def write_configs_from_plan( plan_filename,
     if simulation_plan_table is None:
         raise TypeError("Unknown file format for simulation plan table in " + qualified_plan_filename)
         
-    if not is_in_format(simulation_plan_table, sptf):
-        raise TypeError("Table stored in " + qualified_plan_filename + " is of invalid type.")
+    # FIXME - fix is_in_format so strict=False won't care about different int types
+#     if not is_in_format(simulation_plan_table, sptf):
+#         raise TypeError("Table stored in " + qualified_plan_filename + " is of invalid type.")
     
     # Keep a list of all configuration files generated
     all_config_products = []
