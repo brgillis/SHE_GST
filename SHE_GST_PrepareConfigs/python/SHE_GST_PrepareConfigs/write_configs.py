@@ -75,15 +75,16 @@ def write_configs_from_plan( plan_filename,
     except Exception as _e2:
         # Not a known table format, maybe an ascii table?
         try:
-            simulation_plan_table = Table.read(qualified_plan_filename,format="ascii.ecsv")
+            simulation_plan_table = Table.read(qualified_plan_filename,format="ascii")
         except IOError as _e3:
             pass
     # If it's still none, we couldn't identify it, so raise the initial exception
     if simulation_plan_table is None:
         raise TypeError("Unknown file format for simulation plan table in " + qualified_plan_filename)
         
-    if not is_in_format(simulation_plan_table, sptf):
-        raise TypeError("Table stored in " + qualified_plan_filename + " is of invalid type.")
+    # FIXME - fix is_in_format so strict=False won't care about different int types
+#     if not is_in_format(simulation_plan_table, sptf):
+#         raise TypeError("Table stored in " + qualified_plan_filename + " is of invalid type.")
     
     # Keep a list of all configuration files generated
     all_config_products = []
@@ -176,7 +177,7 @@ def write_configs_from_plan( plan_filename,
             write_pickled_product(cfg_prod, os.path.join(workdir,prod_filename))
             all_config_products.append(prod_filename)
             
-            write_config(filename = filename,
+            write_config(filename = os.path.join(workdir,filename),
                          template_filename = qualified_template_filename,
                          model_seed = int(model_seeds[i]),
                          noise_seed = int(noise_seeds[i]),
@@ -245,16 +246,22 @@ def write_config( filename,
         
         input_strings.append(replacement_tag)
         output_strings.append(str(value))
+        
+    def str2bool(v):
+        if str(v).lower() == 'true':
+            return True
+        else:
+            return False
     
     # Check validity of each variable, and add to input/output strings if not None
     add_replacement(mv.repstr_model_seed, model_seed, dtype=int)
     add_replacement(mv.repstr_noise_seed, noise_seed, dtype=int)
-    add_replacement(mv.repstr_suppress_noise, suppress_noise, dtype=bool)
+    add_replacement(mv.repstr_suppress_noise, suppress_noise, dtype=str2bool)
     add_replacement(mv.repstr_num_detectors, num_detectors, dtype=int,
                     inrange = lambda v : (v>=1) and (v<=36))
     add_replacement(mv.repstr_num_galaxies, num_galaxies, dtype=int,
                     inrange = lambda v : (v>=1))
-    add_replacement(mv.repstr_render_background, render_background, dtype=bool)
+    add_replacement(mv.repstr_render_background, render_background, dtype=str2bool)
     
     replace_multiple_in_file(template_filename, filename,
                              input_strings, output_strings)
