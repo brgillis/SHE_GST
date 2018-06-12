@@ -143,22 +143,22 @@ class ProductFilenames(object):
         
         return
 
-def generate_image_group(image_group, options):
+def generate_image_group(image_group_phl, options):
     """
     Generate a FOV and save it in a multi-extension FITS file.
 
     Args:
-        image_group: <SHE_GST_PhysicalModel.ImageGroup> Physical model for the image group
+        image_group_phl: <SHE_GST_PhysicalModel.ImageGroup> Physical model for the image_phl group
         options: <dict> Options dictionary
 
     Returns:
         None
     """
 
-    image_group.fill_images()
+    image_group_phl.fill_images()
 
     # Get the model hash so we can set up filenames
-    full_options = get_full_options(options, image_group.get_image_descendants()[0])
+    full_options = get_full_options(options, image_group_phl.get_image_descendants()[0])
     model_hash = hash_any(frozenset(list(full_options.items())), format = "base64")
 
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
@@ -186,7 +186,7 @@ def generate_image_group(image_group, options):
             subfilenames_lists_labels_exts = [(filename_list.product_filenames,"GST_P",".xml"),
                                               (filename_list.data_filenames,"GST",".fits"),]
             
-            # For the VIS image, also add other subfilenames
+            # For the VIS image_phl, also add other subfilenames
             if tag==sci_tag:
                 subfilenames_lists_labels_exts.append((filename_list.bkg_filenames,"GST_BKG",".fits"))
                 subfilenames_lists_labels_exts.append((filename_list.wgt_filenames,"GST_WGT",".fits"))
@@ -201,15 +201,15 @@ def generate_image_group(image_group, options):
                 if os.path.exists(qualified_filename):
                     os.remove(qualified_filename)
                 
-    # Generate each image, then append it and its data to the fits files
-    for image in image_group.get_image_descendants():
+    # Generate each image_phl, then append it and its data to the fits files
+    for image_phl in image_group_phl.get_image_descendants():
         
-        # Set up the WCS for this image
-        wcs = get_wcs_from_image_phl(image)
+        # Set up the WCS for this image_phl
+        wcs = get_wcs_from_image_phl(image_phl)
 
         # Generate the data
         (image_dithers, noise_maps, mask_maps, bkg_maps, wgt_maps, segmentation_maps,
-         detections_table, psf_tables, details_table, psf_images) = generate_image(image, options, wcs)
+         detections_table, psf_tables, details_table, psf_images) = generate_image(image_phl, options, wcs)
 
         # Append to the fits file for each dither
         for i in range(num_dithers):
@@ -226,7 +226,7 @@ def generate_image_group(image_group, options):
 
             qualified_image_filename = os.path.join(outdir, image_product.get_data_filename())
 
-            # Science image
+            # Science image_phl
             im_hdu = fits.ImageHDU(data = image_dithers[i][0][0].array,
                                    header = fits.header.Header(list(image_dithers[i][0][0].header.items())))
             append_hdu(qualified_image_filename, im_hdu)
@@ -931,12 +931,14 @@ def print_galaxies_and_psfs(image,
                      is_target_galaxy = is_target_gal)
 
         if is_target_gal and not options['details_only']:
+            
+            xy_world = wcs.toWorld(galsim.PositionD(xc+xp_sp_shift,yc+yp_sp_shift))
 
             # Add to detections table only if it's a target galaxy
             detections_table.add_row(vals = {
                     detf.ID: galaxy.get_full_ID(),
-                    detf.gal_x_world: int(xc + xp_sp_shift),
-                    detf.gal_y_world: int(yc + yp_sp_shift),
+                    detf.gal_x_world: xy_world.x,
+                    detf.gal_y_world: xy_world.y,
                     detf.StarFlag: False,
                     detf.DeblendingFlag: False,
                     })
