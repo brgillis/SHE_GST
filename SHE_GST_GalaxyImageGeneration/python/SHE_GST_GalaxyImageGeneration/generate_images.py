@@ -681,7 +681,6 @@ def print_galaxies(image,
         g_ell = galaxy.get_param_value('bulge_ellipticity')
 
         bulge_fraction = galaxy.get_param_value('bulge_fraction')
-        n = galaxy.get_param_value('sersic_index')
 
         bulge_size = galaxy.get_param_value('apparent_size_bulge')
         disk_size = galaxy.get_param_value('apparent_size_disk')
@@ -690,7 +689,7 @@ def print_galaxies(image,
         if not options['details_only']:
             if is_target_gal:
 
-                bulge_gal_profile = get_bulge_galaxy_profile(sersic_index = n,
+                bulge_gal_profile = get_bulge_galaxy_profile(sersic_index = gal_n,
                                                 half_light_radius = bulge_size,
                                                 flux = gal_intensity * bulge_fraction,
                                                 g_ell = g_ell,
@@ -724,13 +723,14 @@ def print_galaxies(image,
             else:
                 # Just use a single sersic profile for background galaxies
                 # to make them more of a compromise between bulges and disks
-                gal_profile = get_bulge_galaxy_profile(sersic_index = n,
+                gal_profile = get_bulge_galaxy_profile(sersic_index = gal_n,
                                                 half_light_radius = bulge_size,
                                                 flux = gal_intensity,
                                                 g_ell = 2.*g_ell,
                                                 beta_deg_ell = rotation,
                                                 g_shear = g_shear,
                                                 beta_deg_shear = beta_shear,
+                                                gsparams = default_gsparams,
                                                 data_dir = options['data_dir'])
 
                 # Convolve the galaxy, psf, and pixel profile to determine the final
@@ -816,19 +816,20 @@ def print_galaxies(image,
                                                  - y_centre_offset + y_offset + xp_sp_shift),
                                          add_to_image = True)
 
-
-
+            
+        xy_world = wcs.toWorld(galsim.PositionD(xc+xp_sp_shift,yc+yp_sp_shift))
 
         # Record all data used for this galaxy in the output table
         if (not options['details_output_format'] == 'none') and (is_target_gal or (options['mode'] == 'field')):
             add_row(details_table,
                      ID = galaxy.get_full_ID(),
-                     x_center_pix = xc + xp_sp_shift,
-                     y_center_pix = yc + yp_sp_shift,
+                     ra = xy_world.x,
+                     dec = xy_world.y,
                      hlr_bulge_arcsec = bulge_size,
                      hlr_disk_arcsec = disk_size,
+                     z = gal_z,
                      magnitude = galaxy.get_param_value('apparent_mag_vis'),
-                     sersic_index = n,
+                     sersic_index = gal_n,
                      bulge_ellipticity = g_ell,
                      bulge_axis_ratio = galaxy.get_param_value('bulge_axis_ratio'),
                      bulge_fraction = bulge_fraction,
@@ -841,8 +842,6 @@ def print_galaxies(image,
                      is_target_galaxy = is_target_gal)
 
         if is_target_gal and not options['details_only']:
-            
-            xy_world = wcs.toWorld(galsim.PositionD(xc+xp_sp_shift,yc+yp_sp_shift))
 
             # Add to detections table only if it's a target galaxy
             detections_table.add_row(vals = {
