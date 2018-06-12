@@ -20,7 +20,10 @@
 
 import pytest
 
+import numpy as np
 from numpy.testing import assert_almost_equal
+
+from SHE_GST_GalaxyImageGeneration.wcs import get_offset_wcs, get_wcs_from_image_phl
 
 class TestWCS:
     """
@@ -30,6 +33,37 @@ class TestWCS:
     
     @classmethod
     def setup_class(cls):
+        
+        cls.pixel_scale = 0.05
+        cls.full_x_size = 1024
+        cls.full_y_size = 1024
+        
+        cls.xi1 = 0
+        cls.yi1 = 0
+        
+        cls.xi2 = 1
+        cls.yi2 = 0
+        
+        cls.xi3 = 0
+        cls.yi3 = 1
+        
+        cls.test_wcs1 = get_offset_wcs(pixel_scale = cls.pixel_scale,
+                                       x_i = cls.xi1,
+                                       y_i = cls.yi1,
+                                       full_x_size = cls.full_x_size,
+                                       full_y_size = cls.full_y_size)
+        
+        cls.test_wcs2 = get_offset_wcs(pixel_scale = cls.pixel_scale,
+                                       x_i = cls.xi1,
+                                       y_i = cls.yi1,
+                                       full_x_size = cls.full_x_size,
+                                       full_y_size = cls.full_y_size)
+        
+        cls.test_wcs3 = get_offset_wcs(pixel_scale = cls.pixel_scale,
+                                       x_i = cls.xi1,
+                                       y_i = cls.yi1,
+                                       full_x_size = cls.full_x_size,
+                                       full_y_size = cls.full_y_size)
 
         return
 
@@ -38,7 +72,22 @@ class TestWCS:
 
         return
     
-    def test_get_wcs(self):
+    def test_get_wcs_basic(self):
+        
+        x_step = 1000
+        y_step = 1000
+            
+        expected_dist = np.sqrt(x_step**2+y_step**2)*self.pixel_scale
+        
+        # Test that each wcs behaves as expected
+        for wcs in (self.test_wcs1, self.test_wcs2, self.test_wcs3):
+            
+            u0, v0 = wcs.toWorld(0, 0)
+            u1, v1 = wcs.toWorld(x_step, y_step)
+            
+            dist = np.sqrt((u1-u0)**2+(v1-v0)**2)
+            
+            assert_almost_equal(expected_dist,dist)
         
         return
     
