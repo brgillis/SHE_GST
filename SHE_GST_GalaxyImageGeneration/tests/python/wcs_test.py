@@ -87,7 +87,7 @@ class TestWCS:
             uv0 = wcs.toWorld(galsim.PositionD(0, 0))
             uv1 = wcs.toWorld(galsim.PositionD(x_step, y_step))
             
-            dist = np.sqrt((uv1.x-uv0.x)**2+(uv1.x-uv0.y)**2)
+            dist = np.sqrt((uv1.x-uv0.x)**2+(uv1.y-uv0.y)**2)
             
             assert_almost_equal(expected_dist,dist)
         
