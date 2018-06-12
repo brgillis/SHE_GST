@@ -21,6 +21,7 @@
 import pytest
 
 import numpy as np
+import galsim
 from numpy.testing import assert_almost_equal
 
 from SHE_GST_GalaxyImageGeneration.wcs import get_offset_wcs, get_wcs_from_image_phl
@@ -82,10 +83,10 @@ class TestWCS:
         # Test that each wcs behaves as expected
         for wcs in (self.test_wcs1, self.test_wcs2, self.test_wcs3):
             
-            u0, v0 = wcs.toWorld(0, 0)
-            u1, v1 = wcs.toWorld(x_step, y_step)
+            uv0 = wcs.toWorld(galsim.PositionD(0, 0))
+            uv1 = wcs.toWorld(galsim.PositionD(x_step, y_step))
             
-            dist = np.sqrt((u1-u0)**2+(v1-v0)**2)
+            dist = np.sqrt((uv1.x-uv0.x)**2+(uv1.x-uv0.y)**2)
             
             assert_almost_equal(expected_dist,dist)
         

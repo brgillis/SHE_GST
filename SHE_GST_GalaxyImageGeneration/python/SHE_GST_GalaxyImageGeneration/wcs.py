@@ -53,7 +53,7 @@ def get_offset_wcs(pixel_scale,
     y_offset = y_i * (full_y_size+image_gap_y_pix)
     
     #TODO: Test if offset should be negative here
-    wcs = galsim.wcs.OffsetWCS(pixel_scale=pixel_scale,offset=galsim.PositionD(x_offset,y_offset))
+    wcs = galsim.wcs.OffsetWCS(scale=pixel_scale,origin=galsim.PositionD(x_offset,y_offset))
     
     return wcs
     
