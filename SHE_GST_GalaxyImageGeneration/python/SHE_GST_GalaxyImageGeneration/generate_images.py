@@ -1064,6 +1064,8 @@ def generate_image(image, options):
     dithers = []
     noise_maps = []
     mask_maps = []
+    wgt_maps = []
+    bkg_maps = []
     segmentation_maps = []
 
     # Create the image object, using the appropriate method for the image type
@@ -1090,9 +1092,7 @@ def generate_image(image, options):
         details_table = None
     else:
         full_options = get_full_options(options, image)
-        detections_table = initialise_detections_table(image, full_options,
-                                                       optional_columns = [detf.gal_x, detf.gal_y,
-                                                                         detf.gal_hlr, detf.gal_mag, detf.gal_mag_err])
+        detections_table = initialise_detections_table(image, full_options)
         psf_table = initialise_psf_table(image, full_options)
         details_table = initialise_details_table(image, full_options)
 
@@ -1115,22 +1115,24 @@ def generate_image(image, options):
         else:
             base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
 
-    detections_tables = []
     psf_tables = []
-    details_tables = []
     psf_images = []
 
     # For each dither
     dither_scheme = get_dither_scheme(options['dithering_scheme'])
-    for di, (x_offset, y_offset) in zip(list(range(num_dithers)), dither_scheme):
+    for di in range(num_dithers):
 
         logger.debug("Printing dither " + str(di) + ".")
 
         # Make mock noise and mask maps for this dither
         if options['image_datatype'] == '32f':
             noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), scale = pixel_scale))
+            wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), scale = pixel_scale))
+            bkg_maps.append(galsim.ImageF(np.zeros_like(dithers[di].array), scale = pixel_scale))
         elif options['image_datatype'] == '64f':
             noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), scale = pixel_scale))
+            wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), scale = pixel_scale))
+            bkg_maps.append(galsim.ImageD(np.zeros_like(dithers[di].array), scale = pixel_scale))
 
         if not options['suppress_noise']:
 
@@ -1140,9 +1142,13 @@ def generate_image(image, options):
                                                     pixel_scale = pixel_scale,
                                                     gain = options['gain'])
             noise_maps[di] *= noise_level
+            
+            wgt_maps[di][noise_maps[di]>0] /= noise_maps[di][noise_maps[di]>0]**2
+            wgt_maps[di][noise_maps[di]<=0] *= 0
 
         else:
             noise_maps[di] *= 0
+            # Leave wgt map as all 1
 
         mask_maps.append(galsim.ImageI(np.zeros_like(dithers[di].array, dtype = np.int16), scale = pixel_scale))
 
@@ -1254,20 +1260,8 @@ def generate_image(image, options):
                 dithers[di] = [(dithers[di], '')]
 
 
-        # Set up the datafiles if necessary
-
-        if not options['details_output_format'] == 'none':
-            # Temporarily adjust centre positions by dithering
-            details_table[datf.gal_x] += x_offset
-            details_table[datf.gal_y] += y_offset
-
-            detections_tables.append(deepcopy(detections_table))
-            psf_tables.append(deepcopy(psf_table))
-            details_tables.append(deepcopy(details_table))
-
-            # Undo dithering adjustment
-            details_table[datf.gal_x] -= x_offset
-            details_table[datf.gal_y] -= y_offset
+        # Set up the datafiles as necessary
+        psf_tables.append(deepcopy(psf_table))
 
         logger.info("Finished printing dither " + str(di) + ".")
 
@@ -1284,4 +1278,5 @@ def generate_image(image, options):
     image.clear()
 
     logger.debug("Exiting generate_image method.")
-    return dithers, noise_maps, mask_maps, segmentation_maps, detections_tables, psf_tables, details_tables, psf_images
+    return (dithers, noise_maps, mask_maps, wgt_maps, bkg_maps, segmentation_maps,
+            detections_table, psf_tables, details_table, psf_images)
