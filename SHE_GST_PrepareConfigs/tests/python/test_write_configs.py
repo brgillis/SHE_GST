@@ -84,7 +84,7 @@ class TestWriteConfigs:
         
         listfile_filename = os.path.join(self.workdir,"test_listfile.junk")
         template_filename = find_file("AUX/SHE_GST_PrepareConfigs/StampsTemplate.conf")
-        plan_filename = find_file("AUX/SHE_GST_PrepareConfigs/test_simulation_plan.ecsv")
+        plan_filename = find_file("AUX/SHE_GST_PrepareConfigs/test_simulation_plan.fits")
 
         write_configs_from_plan(plan_filename,
                                 template_filename,
