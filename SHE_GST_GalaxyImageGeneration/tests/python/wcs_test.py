@@ -96,9 +96,9 @@ class TestWCS:
     def test_wcs_difference(self):
         
         # Set up coordinates of the corners
-        c00 = galsim.PositionD(1,1)
-        c10 = galsim.PositionD(self.full_x_size,1)
-        c01 = galsim.PositionD(1,self.full_y_size)
+        c00 = galsim.PositionD(0,0)
+        c10 = galsim.PositionD(self.full_x_size,0)
+        c01 = galsim.PositionD(0,self.full_y_size)
         c11 = galsim.PositionD(self.full_x_size,self.full_y_size)
     
         # Get transformed coordinates of each corner for each wcs
