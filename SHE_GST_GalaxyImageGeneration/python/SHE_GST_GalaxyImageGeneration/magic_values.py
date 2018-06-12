@@ -97,3 +97,6 @@ fits_header_subtracted_sky_level_label = "S_SKYLV"
 fits_header_unsubtracted_sky_level_label = "US_SKYLV"
 fits_header_read_noise_label = "RD_NOISE"
 fits_header_gain_label = "CCDGAIN"
+
+image_gap_x_pix = 50
+image_gap_y_pix = 50

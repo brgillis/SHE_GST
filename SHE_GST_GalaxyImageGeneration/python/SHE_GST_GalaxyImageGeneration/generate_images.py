@@ -56,6 +56,7 @@ from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as 
 from SHE_PPT.table_utility import add_row, table_to_hdu
 from SHE_PPT.utility import hash_any
 import numpy as np
+from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
 
 
 products.aocs_time_series.init()
@@ -202,10 +203,13 @@ def generate_image_group(image_group, options):
                 
     # Generate each image, then append it and its data to the fits files
     for image in image_group.get_image_descendants():
+        
+        # Set up the WCS for this image
+        wcs = get_wcs_from_image_phl(image)
 
         # Generate the data
         (image_dithers, noise_maps, mask_maps, bkg_maps, wgt_maps, segmentation_maps,
-         detections_table, psf_tables, details_table, psf_images) = generate_image(image, options)
+         detections_table, psf_tables, details_table, psf_images) = generate_image(image, options, wcs)
 
         # Append to the fits file for each dither
         for i in range(num_dithers):
@@ -305,6 +309,7 @@ def generate_image_group(image_group, options):
 
 def print_galaxies_and_psfs(image,
                             options,
+                            wcs,
                             centre_offset,
                             num_dithers,
                             dithers,
@@ -930,13 +935,10 @@ def print_galaxies_and_psfs(image,
             # Add to detections table only if it's a target galaxy
             detections_table.add_row(vals = {
                     detf.ID: galaxy.get_full_ID(),
-                    detf.gal_x: int(xc + xp_sp_shift),
-                    detf.gal_y: int(yc + yp_sp_shift),
                     detf.gal_x_world: int(xc + xp_sp_shift),
                     detf.gal_y_world: int(yc + yp_sp_shift),
-                    detf.gal_hlr: bulge_fraction * bulge_size + (1 - bulge_fraction) * disk_size,
-                    detf.gal_mag: galaxy.get_param_value('apparent_mag_vis'),
-                    detf.gal_mag_err: 0.,
+                    detf.StarFlag: False,
+                    detf.DeblendingFlag: False,
                     })
 
             # Add to detections table only if it's a target galaxy
@@ -1031,7 +1033,7 @@ def add_image_header_info(gs_image,
 
     return
 
-def generate_image(image, options):
+def generate_image(image, options, wcs):
     """
         @brief Creates a single image of galaxies
 
@@ -1092,14 +1094,15 @@ def generate_image(image, options):
         details_table = None
     else:
         full_options = get_full_options(options, image)
-        detections_table = initialise_detections_table(image, full_options)
+        detections_table = initialise_detections_table(image, full_options,
+                                                       optional_columns=[detf.StarFlag,detf.DeblendingFlag])
         psf_table = initialise_psf_table(image, full_options)
         details_table = initialise_details_table(image, full_options)
 
     # Print the galaxies and psfs
     p_bulge_psf_image = []
     p_disk_psf_image = []
-    galaxies = print_galaxies_and_psfs(image, options, centre_offset, num_dithers, dithers,
+    galaxies = print_galaxies_and_psfs(image, options, wcs, centre_offset, num_dithers, dithers,
                                        p_bulge_psf_image, p_disk_psf_image,
                                        full_x_size, full_y_size, pixel_scale,
                                        detections_table, psf_table, details_table)
