@@ -117,10 +117,10 @@ class TestWCS:
             
         # Check that the gaps are correct
         
-        assert_almost_equal( wcs2_trans[0].x - wcs1_trans[1].x , image_gap_x_pix )
-        assert_almost_equal( wcs2_trans[2].x - wcs1_trans[3].x , image_gap_x_pix )
+        assert_almost_equal( wcs2_trans[0].x - wcs1_trans[1].x , image_gap_x_pix * self.pixel_scale )
+        assert_almost_equal( wcs2_trans[2].x - wcs1_trans[3].x , image_gap_x_pix * self.pixel_scale )
         
-        assert_almost_equal( wcs3_trans[0].y - wcs1_trans[2].y , image_gap_x_pix * self.pixel_scale )
-        assert_almost_equal( wcs3_trans[1].y - wcs1_trans[3].y , image_gap_x_pix * self.pixel_scale )
+        assert_almost_equal( wcs3_trans[0].y - wcs1_trans[2].y , image_gap_y_pix * self.pixel_scale )
+        assert_almost_equal( wcs3_trans[1].y - wcs1_trans[3].y , image_gap_y_pix * self.pixel_scale )
         
         return
