@@ -346,6 +346,9 @@ def generate_image_group(image_group_phl, options):
     write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames.product_filenames)
     write_listfile(os.path.join(options['workdir'], options['segmentation_images']), mosaic_filenames.product_filenames)
     write_listfile(os.path.join(options['workdir'], options['psf_images']), psf_filenames.product_filenames)
+    
+    # Remove the now-unneeded PSF archive file
+    os.remove(os.path.join(workdir,psf_archive_filename))
 
     return
 
