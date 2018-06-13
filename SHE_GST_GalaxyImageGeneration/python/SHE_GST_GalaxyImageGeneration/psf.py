@@ -20,13 +20,14 @@
 
 from os.path import join
 
+from astropy.io import fits
 import galsim
-
 import SHE_GST_GalaxyImageGeneration.magic_values as mv
 from functools import lru_cache
 import numpy as np
 from SHE_PPT.file_io import find_file
 
+# Magic values for this module
 
 sed_names = {'ell':'el_cb2004a_001',
              'sbc':'sbc_cb2004a_001',
@@ -46,6 +47,10 @@ seds = {4.0:'sbc',
 
 allowed_ns = np.array((1.8, 2.0, 2.56, 2.71, 3.0, 3.5, 4.0))
 allowed_zs = np.array((0., 0.5, 1.0, 1.5, 2.0))
+
+gal_id_label = "GAL_ID"
+exposure_index_label = "EX_INDEX"
+scale_label = "GS_SCALE"
 
 @lru_cache()
 def load_psf_model_from_sed_z(sed,
@@ -119,3 +124,64 @@ def get_psf_profile(n,
         sed = seds[allowed_ns[ni_best]]
 
     return load_psf_model_from_sed_z(sed, allowed_zs[zi_best], gsparams = gsparams, data_dir = data_dir)
+
+def create_psf_hdu(psf_profile,
+                   galaxy_id,
+                   exposure_index,
+                   stamp_size=mv.default_psf_stamp_size,
+                   scale=mv.default_pixel_scale/mv.default_psf_scale_factor):
+    """Creates an HDU of an image of a PSF profile.
+    """
+    
+    # Draw the profile onto an image of the proper size
+    psf_image = galsim.ImageF(stamp_size,stamp_size, scale=scale)
+    psf_profile.drawImage(psf_image)
+    
+    # Set up an image HDU with this image
+    psf_hdu = fits.ImageHDU(data=psf_image.array)
+    
+    # Add needed keywords to the header of this HDU
+    psf_hdu.header[gal_id_label] = galaxy_id
+    psf_hdu.header[exposure_index_label] = exposure_index
+    psf_hdu.header[scale_label] = scale
+    
+    # Return
+    return psf_hdu
+    
+def add_psf_to_archive(psf_profile,
+                       archive_filename,
+                       galaxy_id,
+                       exposure_index,
+                       stamp_size=mv.default_psf_stamp_size,
+                       scale=mv.default_pixel_scale/mv.default_psf_scale_factor,
+                       workdir="."):
+    """Creates a PSF HDU and saves it to an archive file.
+    """
+    
+    # Create the HDU
+    psf_hdu = create_psf_hdu(psf_profile=psf_profile,
+                             galaxy_id=galaxy_id,
+                             exposure_index=exposure_index,
+                             stamp_size=stamp_size,
+                             scale=scale)
+    
+    # Append the HDU to the archive
+    
+    qualified_archive_filename = join(workdir,archive_filename)
+    fits.append(qualified_archive_filename,psf_hdu.data,psf_hdu.header)
+    
+    return
+
+def get_psf_from_archive(archive_hdulist,
+                         galaxy_id,
+                         exposure_index):
+    
+    for hdu in archive_hdulist:
+        if hdu.header[gal_id_label] == galaxy_id and hdu.header[exposure_index]==exposure_index:
+            
+            psf_image = galsim.ImageF(hdu.data,scale=hdu.header[scale_label])
+            
+            return psf_image
+        
+    raise ValueError("PSF for galaxy " + str(galaxy_id) + " for exposure " + str(exposure_index) +
+                     " not found in PSF archive.")
