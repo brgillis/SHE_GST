@@ -39,7 +39,7 @@ from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
                                                   is_target_galaxy)
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
-from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile
+from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile, sort_psfs_from_archive
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_PPT.logging import getLogger
 from SHE_PPT import products
@@ -210,7 +210,7 @@ def generate_image_group(image_group_phl, options):
     # Set up XML products we're outputting
     for i in range(num_dithers):
 
-        outdir = options['workdir']
+        workdir = options['workdir']
 
         # Image product
 
@@ -220,14 +220,14 @@ def generate_image_group(image_group_phl, options):
         image_product.set_wgt_filename(image_filenames.wgt_filenames[i])
         
         write_xml_product(image_product,
-                              os.path.join(outdir, image_filenames.product_filenames[i]))
+                              os.path.join(workdir, image_filenames.product_filenames[i]))
 
         # Segmentation map
 
         mock_mosaic_product = products.mosaic.create_mosaic_product(data_filename = mosaic_filenames.data_filenames[i])
 
         write_xml_product(mock_mosaic_product,
-                          os.path.join(outdir, mosaic_filenames.product_filenames[i]))
+                          os.path.join(workdir, mosaic_filenames.product_filenames[i]))
         
         # PSF catalogue and images
         
@@ -239,13 +239,13 @@ def generate_image_group(image_group_phl, options):
 
         details_product = products.details.create_details_product(filename = details_filenames.data_filenames[0])
         write_pickled_product(details_product,
-                              os.path.join(outdir, details_filenames.product_filenames[0]))
+                              os.path.join(workdir, details_filenames.product_filenames[0]))
 
         # Detections table
 
         my_detections_product = products.detections.create_detections_product(filename = detections_filenames.data_filenames[0])
         write_xml_product(my_detections_product,
-                          os.path.join(outdir, detections_filenames.product_filenames[0]))
+                          os.path.join(workdir, detections_filenames.product_filenames[0]))
         
     # end for i in range(num_dithers):
     
@@ -267,9 +267,9 @@ def generate_image_group(image_group_phl, options):
         # Append to the fits file for each dither
         for i in range(num_dithers):
 
-            outdir = options['workdir']
+            workdir = options['workdir']
 
-            qualified_image_filename = os.path.join(outdir, image_product.get_data_filename())
+            qualified_image_filename = os.path.join(workdir, image_product.get_data_filename())
 
             # Science image
             im_hdu = fits.ImageHDU(data = image_dithers[i][0][0].array,
@@ -289,18 +289,18 @@ def generate_image_group(image_group_phl, options):
             # Background map
             bkg_hdu = fits.ImageHDU(data = bkg_maps[i].array,
                                     header = fits.header.Header(list(bkg_maps[i].header.items())))
-            append_hdu(os.path.join(outdir, image_filenames.bkg_filenames[i]), bkg_hdu)
+            append_hdu(os.path.join(workdir, image_filenames.bkg_filenames[i]), bkg_hdu)
 
             # Weight map
             wgt_hdu = fits.ImageHDU(data = wgt_maps[i].array,
                                     header = fits.header.Header(list(wgt_maps[i].header.items())))
-            append_hdu(os.path.join(outdir, image_filenames.wgt_filenames[i]), wgt_hdu)
+            append_hdu(os.path.join(workdir, image_filenames.wgt_filenames[i]), wgt_hdu)
 
             # Segmentation map
 
             seg_hdu = fits.ImageHDU(data = segmentation_maps[i].array,
                                     header = fits.header.Header(list(segmentation_maps[i].header.items())))
-            append_hdu(os.path.join(outdir, mosaic_filenames.data_filenames[i]), seg_hdu)
+            append_hdu(os.path.join(workdir, mosaic_filenames.data_filenames[i]), seg_hdu)
             
             # PSF catalogue and images
             
@@ -324,11 +324,11 @@ def generate_image_group(image_group_phl, options):
 
     combined_details_table = table.vstack(details_tables)
     dal_hdu = table_to_hdu(combined_details_table)
-    append_hdu(os.path.join(outdir, details_filenames.data_filenames[0]), dal_hdu)
+    append_hdu(os.path.join(workdir, details_filenames.data_filenames[0]), dal_hdu)
 
     combined_detections_table = table.vstack(detections_tables)
     dtc_hdu = table_to_hdu(combined_detections_table)
-    append_hdu(os.path.join(outdir, detections_filenames.data_filenames[0]), dtc_hdu)
+    append_hdu(os.path.join(workdir, detections_filenames.data_filenames[0]), dtc_hdu)
 
     combined_psf_tables = []
     
@@ -340,7 +340,7 @@ def generate_image_group(image_group_phl, options):
                                psf_filenames.data_filenames[i],
                                psf_archive_filename,
                                i,
-                               workdir=outdir)
+                               workdir=workdir)
 
     # Output listfiles of filenames
     write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames.product_filenames)
