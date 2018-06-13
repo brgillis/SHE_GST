@@ -22,10 +22,13 @@ import pytest
 
 import numpy as np
 import galsim
-from numpy.testing import assert_almost_equal, assert_all_close
+from numpy.testing import assert_almost_equal, assert_allclose
+from astropy.io import fits
+from os.path import join
 
 from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, get_background_psf_profile,
-                                               add_psf_to_archive, get_psf_from_archive)
+                                               add_psf_to_archive, get_psf_from_archive,
+                                               load_psf_model_from_sed_z)
 
 class TestPST:
     """
@@ -39,8 +42,8 @@ class TestPST:
         cls.pixel_scale = 0.01
         cls.stamp_size = 128
         
-        cls.z0 = 0
-        cls.n0 = 1
+        cls.z = 0
+        cls.n = 1
 
         return
 
@@ -90,11 +93,13 @@ class TestPST:
         psf11 = get_psf_profile(self.n, self.z, bulge=True)
         
         add_psf_to_archive(psf00, archive_filename, galaxy_id=0, exposure_index=0,
-                           stamp_size=self.stamp_size, scale=self.scale, workdir=self.workdir)
+                           stamp_size=self.stamp_size, scale=self.pixel_scale, workdir=self.workdir)
         add_psf_to_archive(psf10, archive_filename, galaxy_id=1, exposure_index=0,
-                           stamp_size=self.stamp_size, scale=self.scale, workdir=self.workdir)
+                           stamp_size=self.stamp_size, scale=self.pixel_scale, workdir=self.workdir)
         add_psf_to_archive(psf11, archive_filename, galaxy_id=1, exposure_index=1,
-                           stamp_size=self.stamp_size, scale=self.scale, workdir=self.workdir)
+                           stamp_size=self.stamp_size, scale=self.pixel_scale, workdir=self.workdir)
+        
+        archive_hdulist = fits.open(join(self.workdir,archive_filename),mode='denywrite',memmap=True)
         
         # Read each of these back
         psf00_r = get_psf_from_archive(archive_hdulist, galaxy_id=0, exposure_index=0)
@@ -109,16 +114,19 @@ class TestPST:
             
         # Check that each of the ones we did read in is correct
         
-        psf00_i = galsim.ImageF(self.stamp_size,self.stamp_size,scale=self.scale)
+        psf00_i = galsim.ImageF(self.stamp_size,self.stamp_size,scale=self.pixel_scale)
         psf00.drawImage(psf00_i)
-        assert_all_close(psf00_i,psf00_r)
+        assert_allclose(psf00_i.array,psf00_r.array)
+        assert_almost_equal(psf00_i.scale,psf00_r.scale)
         
-        psf10_i = galsim.ImageF(self.stamp_size,self.stamp_size,scale=self.scale)
+        psf10_i = galsim.ImageF(self.stamp_size,self.stamp_size,scale=self.pixel_scale)
         psf10.drawImage(psf10_i)
-        assert_all_close(psf10_i,psf10_r)
+        assert_allclose(psf10_i.array,psf10_r.array)
+        assert_almost_equal(psf10_i.scale,psf11_r.scale)
         
-        psf11_i = galsim.ImageF(self.stamp_size,self.stamp_size,scale=self.scale)
+        psf11_i = galsim.ImageF(self.stamp_size,self.stamp_size,scale=self.pixel_scale)
         psf11.drawImage(psf11_i)
-        assert_all_close(psf11_i,psf11_r)
+        assert_allclose(psf11_i.array,psf11_r.array)
+        assert_almost_equal(psf10_i.scale,psf11_r.scale)
         
         

@@ -177,7 +177,7 @@ def get_psf_from_archive(archive_hdulist,
                          exposure_index):
     
     for hdu in archive_hdulist:
-        if hdu.header[gal_id_label] == galaxy_id and hdu.header[exposure_index]==exposure_index:
+        if hdu.header[gal_id_label] == galaxy_id and hdu.header[exposure_index_label]==exposure_index:
             
             psf_image = galsim.ImageF(hdu.data,scale=hdu.header[scale_label])
             
