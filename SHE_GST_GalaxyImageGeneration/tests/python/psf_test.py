@@ -35,13 +35,13 @@ class TestPST:
 
 
     """
-    
+
     @classmethod
     def setup_class(cls):
-        
+
         cls.pixel_scale = 0.01
         cls.stamp_size = 128
-        
+
         cls.z = 0
         cls.n = 1
 
@@ -51,82 +51,81 @@ class TestPST:
     def teardown_class(cls):
 
         return
-    
-    @pytest.fixture(autouse=True)
+
+    @pytest.fixture(autouse = True)
     def setup(self, tmpdir):
         self.workdir = tmpdir.strpath
-        
+
     def test_get_psf_profile(self):
         """ Some generic tests of get_psf_profile.
         """
-        
+
         # Test that we get the expected foreground galaxy
-        
-        fg1 = get_psf_profile(self.n, self.z, bulge=False)
-        fg2 = load_psf_model_from_sed_z("sb3",0)
-        
+
+        fg1 = get_psf_profile(self.n, self.z, bulge = False)
+        fg2 = load_psf_model_from_sed_z("sb3", 0)
+
         assert fg1 == fg2
-        
+
         # Make sure we get the expected background PSF when we request it.
-        
-        bkg1 = get_psf_profile(self.n, self.z, bulge=False, use_background_psf=True)
+
+        bkg1 = get_psf_profile(self.n, self.z, bulge = False, use_background_psf = True)
         bkg2 = get_background_psf_profile()
-        
-        assert bkg1==bkg2
-        
+
+        assert bkg1 == bkg2
+
         # Make sure we get different PSFs for the bulge and disk
-        
-        chrom_d = get_psf_profile(self.n,self.z, bulge=False)
-        chrom_b = get_psf_profile(self.n,self.z, bulge=True)
-        
+
+        chrom_d = get_psf_profile(self.n, self.z, bulge = False)
+        chrom_b = get_psf_profile(self.n, self.z, bulge = True)
+
         assert chrom_d != chrom_b
-        
+
         return
-        
+
     def test_psf_archive(self):
-        
+
         archive_filename = "psf_archive.fits"
-        
+
         # Create some psfs and add them to the archive
         psf00 = get_background_psf_profile()
-        psf10 = get_psf_profile(self.n, self.z, bulge=False)
-        psf11 = get_psf_profile(self.n, self.z, bulge=True)
-        
-        add_psf_to_archive(psf00, archive_filename, galaxy_id=0, exposure_index=0,
-                           stamp_size=self.stamp_size, scale=self.pixel_scale, workdir=self.workdir)
-        add_psf_to_archive(psf10, archive_filename, galaxy_id=1, exposure_index=0,
-                           stamp_size=self.stamp_size, scale=self.pixel_scale, workdir=self.workdir)
-        add_psf_to_archive(psf11, archive_filename, galaxy_id=1, exposure_index=1,
-                           stamp_size=self.stamp_size, scale=self.pixel_scale, workdir=self.workdir)
-        
-        archive_hdulist = fits.open(join(self.workdir,archive_filename),mode='denywrite',memmap=True)
-        
+        psf10 = get_psf_profile(self.n, self.z, bulge = False)
+        psf11 = get_psf_profile(self.n, self.z, bulge = True)
+
+        add_psf_to_archive(psf00, archive_filename, galaxy_id = 0, exposure_index = 0,
+                           stamp_size = self.stamp_size, scale = self.pixel_scale, workdir = self.workdir)
+        add_psf_to_archive(psf10, archive_filename, galaxy_id = 1, exposure_index = 0,
+                           stamp_size = self.stamp_size, scale = self.pixel_scale, workdir = self.workdir)
+        add_psf_to_archive(psf11, archive_filename, galaxy_id = 1, exposure_index = 1,
+                           stamp_size = self.stamp_size, scale = self.pixel_scale, workdir = self.workdir)
+
+        archive_hdulist = fits.open(join(self.workdir, archive_filename), mode = 'denywrite', memmap = True)
+
         # Read each of these back
-        psf00_r = get_psf_from_archive(archive_hdulist, galaxy_id=0, exposure_index=0)
-        psf10_r = get_psf_from_archive(archive_hdulist, galaxy_id=1, exposure_index=0)
-        psf11_r = get_psf_from_archive(archive_hdulist, galaxy_id=1, exposure_index=1)
-        
+        psf00_r = get_psf_from_archive(archive_hdulist, galaxy_id = 0, exposure_index = 0)
+        psf10_r = get_psf_from_archive(archive_hdulist, galaxy_id = 1, exposure_index = 0)
+        psf11_r = get_psf_from_archive(archive_hdulist, galaxy_id = 1, exposure_index = 1)
+
         # Test that we get an exception if searching for a psf that doesn't exist
         with pytest.raises(ValueError):
-            get_psf_from_archive(archive_hdulist, galaxy_id=0, exposure_index=1)
+            get_psf_from_archive(archive_hdulist, galaxy_id = 0, exposure_index = 1)
         with pytest.raises(ValueError):
-            get_psf_from_archive(archive_hdulist, galaxy_id=2, exposure_index=0)
-            
+            get_psf_from_archive(archive_hdulist, galaxy_id = 2, exposure_index = 0)
+
         # Check that each of the ones we did read in is correct
-        
-        psf00_i = galsim.ImageF(self.stamp_size,self.stamp_size,scale=self.pixel_scale)
+
+        psf00_i = galsim.ImageF(self.stamp_size, self.stamp_size, scale = self.pixel_scale)
         psf00.drawImage(psf00_i)
-        assert_allclose(psf00_i.array,psf00_r.array)
-        assert_almost_equal(psf00_i.scale,psf00_r.scale)
-        
-        psf10_i = galsim.ImageF(self.stamp_size,self.stamp_size,scale=self.pixel_scale)
+        assert_allclose(psf00_i.array, psf00_r.array)
+        assert_almost_equal(psf00_i.scale, psf00_r.scale)
+
+        psf10_i = galsim.ImageF(self.stamp_size, self.stamp_size, scale = self.pixel_scale)
         psf10.drawImage(psf10_i)
-        assert_allclose(psf10_i.array,psf10_r.array)
-        assert_almost_equal(psf10_i.scale,psf11_r.scale)
-        
-        psf11_i = galsim.ImageF(self.stamp_size,self.stamp_size,scale=self.pixel_scale)
+        assert_allclose(psf10_i.array, psf10_r.array)
+        assert_almost_equal(psf10_i.scale, psf11_r.scale)
+
+        psf11_i = galsim.ImageF(self.stamp_size, self.stamp_size, scale = self.pixel_scale)
         psf11.drawImage(psf11_i)
-        assert_allclose(psf11_i.array,psf11_r.array)
-        assert_almost_equal(psf10_i.scale,psf11_r.scale)
-        
-        
+        assert_allclose(psf11_i.array, psf11_r.array)
+        assert_almost_equal(psf10_i.scale, psf11_r.scale)
+

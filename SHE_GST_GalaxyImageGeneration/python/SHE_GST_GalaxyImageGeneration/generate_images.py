@@ -133,15 +133,15 @@ def generate_images(survey, options):
     return
 
 class ProductFilenames(object):
-    
-    def __init__(self, is_image=False):
+
+    def __init__(self, is_image = False):
         self.prod_filenames = []
         self.data_filenames = []
-        
+
         if is_image:
             self.bkg_filenames = []
             self.wgt_filenames = []
-        
+
         return
 
 def generate_image_group(image_group_phl, options):
@@ -164,16 +164,16 @@ def generate_image_group(image_group_phl, options):
 
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
 
-    image_filenames = ProductFilenames(is_image=True)
+    image_filenames = ProductFilenames(is_image = True)
     detections_filenames = ProductFilenames()
     details_filenames = ProductFilenames()
     mosaic_filenames = ProductFilenames()
     psf_filenames = ProductFilenames()
-    
+
     psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", str(image_group_phl.get_full_id()),
-                                                extension = "fits") 
-    
-    
+                                                extension = "fits")
+
+
 
     # Get the filenames we'll need
     for i in range(num_dithers):
@@ -188,17 +188,17 @@ def generate_image_group(image_group_phl, options):
                 dither_tag = ""
             else:
                 dither_tag = "_D" + str(i)
-                
-            subfilenames_lists_labels_exts = [(filename_list.product_filenames,"GST_P",".xml"),
-                                              (filename_list.data_filenames,"GST",".fits"),]
-            
+
+            subfilenames_lists_labels_exts = [(filename_list.product_filenames, "GST_P", ".xml"),
+                                              (filename_list.data_filenames, "GST", ".fits"), ]
+
             # For the VIS image, also add other subfilenames
-            if tag==sci_tag:
-                subfilenames_lists_labels_exts.append((filename_list.bkg_filenames,"GST_BKG",".fits"))
-                subfilenames_lists_labels_exts.append((filename_list.wgt_filenames,"GST_WGT",".fits"))
-                
+            if tag == sci_tag:
+                subfilenames_lists_labels_exts.append((filename_list.bkg_filenames, "GST_BKG", ".fits"))
+                subfilenames_lists_labels_exts.append((filename_list.wgt_filenames, "GST_WGT", ".fits"))
+
             for (subfilename_list, label, extension) in subfilenames_lists_labels_exts:
-                
+
                 filename = get_allowed_filename(label + "_" + tag + dither_tag, model_hash, extension = extension)
                 subfilename_list.append(filename)
 
@@ -206,7 +206,7 @@ def generate_image_group(image_group_phl, options):
                 qualified_filename = os.path.join(options['workdir'], filename)
                 if os.path.exists(qualified_filename):
                     os.remove(qualified_filename)
-                    
+
     # Set up XML products we're outputting
     for i in range(num_dithers):
 
@@ -218,7 +218,7 @@ def generate_image_group(image_group_phl, options):
         image_product.set_data_filename(image_filenames.data_filenames[i])
         image_product.set_flg_filename(image_filenames.flg_filenames[i])
         image_product.set_wgt_filename(image_filenames.wgt_filenames[i])
-        
+
         write_xml_product(image_product,
                               os.path.join(workdir, image_filenames.product_filenames[i]))
 
@@ -228,11 +228,11 @@ def generate_image_group(image_group_phl, options):
 
         write_xml_product(mock_mosaic_product,
                           os.path.join(workdir, mosaic_filenames.product_filenames[i]))
-        
+
         # PSF catalogue and images
-        
+
         psf_product = products.psf_image.create_dpd_she_psf_image(filename = psf_filenames.data_filenames[i])
-        
+
         write_xml_product(psf_product, psf_filenames.product_filenames[i])
 
         # Details table
@@ -246,17 +246,17 @@ def generate_image_group(image_group_phl, options):
         my_detections_product = products.detections.create_detections_product(filename = detections_filenames.data_filenames[0])
         write_xml_product(my_detections_product,
                           os.path.join(workdir, detections_filenames.product_filenames[0]))
-        
+
     # end for i in range(num_dithers):
-    
+
     # Set up combined tables
     details_tables = []
     detections_tables = []
     psf_tables = [[]] * num_dithers
-                
+
     # Generate each image_phl, then append it and its data to the fits files
     for image_phl in image_group_phl.get_image_descendants():
-        
+
         # Set up the WCS for this image_phl
         wcs = get_wcs_from_image_phl(image_phl)
 
@@ -301,25 +301,25 @@ def generate_image_group(image_group_phl, options):
             seg_hdu = fits.ImageHDU(data = segmentation_maps[i].array,
                                     header = fits.header.Header(list(segmentation_maps[i].header.items())))
             append_hdu(os.path.join(workdir, mosaic_filenames.data_filenames[i]), seg_hdu)
-            
+
             # PSF catalogue and images
-            
+
             num_rows = len(details_table[detf.ID])
             psf_table = initialise_psf_table(image_phl, options,
-                                             init_columns={pstf.ID:details_table[detf.ID],
+                                             init_columns = {pstf.ID:details_table[detf.ID],
                                                            pstf.template :-1 * np.ones(num_rows, dtype = np.int64),
                                                            pstf.bulge_index :-1 * np.ones(num_rows, dtype = np.int32),
                                                            pstf.disk_index :-1 * np.ones(num_rows, dtype = np.int32)})
-            
+
             psf_tables[i].append(psf_table)
 
         # Tables to combine
 
         details_tables.append(details_table)
         detections_tables.append(detections_table)
-        
+
     # end for image_phl in image_group_phl.get_image_descendants():
-    
+
     # Output combined tables
 
     combined_details_table = table.vstack(details_tables)
@@ -331,24 +331,24 @@ def generate_image_group(image_group_phl, options):
     append_hdu(os.path.join(workdir, detections_filenames.data_filenames[0]), dtc_hdu)
 
     combined_psf_tables = []
-    
+
     for i in range(num_dithers):
-        
+
         combined_psf_tables.append(table.vstack(psf_tables[i]))
-        
+
         sort_psfs_from_archive(combined_psf_tables[i],
                                psf_filenames.data_filenames[i],
                                psf_archive_filename,
                                i,
-                               workdir=workdir)
+                               workdir = workdir)
 
     # Output listfiles of filenames
     write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames.product_filenames)
     write_listfile(os.path.join(options['workdir'], options['segmentation_images']), mosaic_filenames.product_filenames)
     write_listfile(os.path.join(options['workdir'], options['psf_images']), psf_filenames.product_filenames)
-    
+
     # Remove the now-unneeded PSF archive file
-    os.remove(os.path.join(workdir,psf_archive_filename))
+    os.remove(os.path.join(workdir, psf_archive_filename))
 
     return
 
@@ -658,24 +658,24 @@ def print_galaxies(image,
                                                    workdir = options['workdir'])
             else:
                     disk_psf_profile = bulge_psf_profile
-                    
+
             # Save the profiles to the archive file
-            add_psf_to_archive(psf_profile=bulge_psf_profile,
-                               archive_filename=psf_archive_filename,
-                               galaxy_id=galaxy.get_full_ID(),
-                               exposure_index=di,
-                               type="bulge",
-                               stamp_size=options['psf_stamp_size'],
-                               scale=pixel_scale/options['psf_scale_factor'],
-                               workdir=options['workdir'])
-            add_psf_to_archive(psf_profile=disk_psf_profile,
-                               archive_filename=psf_archive_filename,
-                               galaxy_id=galaxy.get_full_ID(),
-                               exposure_index=di,
-                               type="disk",
-                               stamp_size=options['psf_stamp_size'],
-                               scale=pixel_scale/options['psf_scale_factor'],
-                               workdir=options['workdir'])
+            add_psf_to_archive(psf_profile = bulge_psf_profile,
+                               archive_filename = psf_archive_filename,
+                               galaxy_id = galaxy.get_full_ID(),
+                               exposure_index = di,
+                               type = "bulge",
+                               stamp_size = options['psf_stamp_size'],
+                               scale = pixel_scale / options['psf_scale_factor'],
+                               workdir = options['workdir'])
+            add_psf_to_archive(psf_profile = disk_psf_profile,
+                               archive_filename = psf_archive_filename,
+                               galaxy_id = galaxy.get_full_ID(),
+                               exposure_index = di,
+                               type = "disk",
+                               stamp_size = options['psf_stamp_size'],
+                               scale = pixel_scale / options['psf_scale_factor'],
+                               workdir = options['workdir'])
 
             # Get the position of the galaxy, depending on whether we're in field or stamp mode
 
@@ -902,8 +902,8 @@ def print_galaxies(image,
                                                  - y_centre_offset + y_offset + xp_sp_shift),
                                          add_to_image = True)
 
-            
-        xy_world = wcs.toWorld(galsim.PositionD(xc+xp_sp_shift,yc+yp_sp_shift))
+
+        xy_world = wcs.toWorld(galsim.PositionD(xc + xp_sp_shift, yc + yp_sp_shift))
 
         # Record all data used for this galaxy in the output table
         if (not options['details_output_format'] == 'none') and (is_target_gal or (options['mode'] == 'field')):
@@ -1083,7 +1083,7 @@ def generate_image(image,
     else:
         full_options = get_full_options(options, image)
         detections_table = initialise_detections_table(image, full_options,
-                                                       optional_columns=[detf.StarFlag,detf.DeblendingFlag])
+                                                       optional_columns = [detf.StarFlag, detf.DeblendingFlag])
         details_table = initialise_details_table(image, full_options)
 
     # Print the galaxies
@@ -1126,9 +1126,9 @@ def generate_image(image,
                                                     pixel_scale = pixel_scale,
                                                     gain = options['gain'])
             noise_maps[di] *= noise_level
-            
-            wgt_maps[di][noise_maps[di]>0] /= noise_maps[di][noise_maps[di]>0]**2
-            wgt_maps[di][noise_maps[di]<=0] *= 0
+
+            wgt_maps[di][noise_maps[di] > 0] /= noise_maps[di][noise_maps[di] > 0] ** 2
+            wgt_maps[di][noise_maps[di] <= 0] *= 0
 
         else:
             noise_maps[di] *= 0
@@ -1240,7 +1240,7 @@ def generate_image(image,
         logger.info("Finished printing dither " + str(di) + ".")
 
     logger.info("Finished printing image " + str(image.get_local_ID()) + ".")
-    
+
     # We no longer need this image's children, so clear it to save memory
     image.clear()
 

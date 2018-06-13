@@ -18,41 +18,41 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-def replace_in_file( input_filename, output_filename, input_string, output_string ):
+def replace_in_file(input_filename, output_filename, input_string, output_string):
     """ Replaces every occurence of $input_string in $input_filename with $output_string
         and prints the results to $output_filename.
-        
+
         Requires: input_filename <string>
                   output_filename <string>
                   input_string <string>
                   output_string <string>
-                  
+
         Returns: None
         Side-effects: $output_filename is created/overwritten
     """
 
-    with open( output_filename, "w" ) as fout:
-        with open( input_filename, "r" ) as fin:
+    with open(output_filename, "w") as fout:
+        with open(input_filename, "r") as fin:
             for line in fin:
-                fout.write( line.replace( input_string, output_string ) )
+                fout.write(line.replace(input_string, output_string))
 
-def replace_multiple_in_file( input_filename, output_filename, input_strings, output_strings ):
+def replace_multiple_in_file(input_filename, output_filename, input_strings, output_strings):
     """ Replaces every occurence of an input_string in input_filename with the corresponding
         output string and prints the results to $output_filename.
-        
+
         Requires: input_filename <string>
                   output_filename <string>
                   input_strings <iterable of strings>
                   output_strings <iterable of strings>
-                  
+
         Returns: None
         Side-effects: $output_filename is created/overwritten
     """
 
-    with open( output_filename, "w" ) as fout:
-        with open( input_filename, "r" ) as fin:
+    with open(output_filename, "w") as fout:
+        with open(input_filename, "r") as fin:
             for line in fin:
                 new_line = line
-                for input_string, output_string in zip( input_strings, output_strings ):
-                    new_line = new_line.replace( input_string, output_string )
-                fout.write( new_line )
+                for input_string, output_string in zip(input_strings, output_strings):
+                    new_line = new_line.replace(input_string, output_string)
+                fout.write(new_line)
