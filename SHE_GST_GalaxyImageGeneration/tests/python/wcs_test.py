@@ -1,4 +1,4 @@
-""" @file gain_test.py
+""" @file wcs_test.py
 
     Created 12 June 2018
 
