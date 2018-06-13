@@ -39,7 +39,7 @@ from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
                                                   is_target_galaxy)
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
-from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile, sort_psfs_from_archive
+from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile, sort_psfs_from_archive, add_psf_to_archive
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_PPT.logging import getLogger
 from SHE_PPT import products
@@ -359,7 +359,8 @@ def print_galaxies(image,
                     full_y_size,
                     pixel_scale,
                     detections_table,
-                    details_table):
+                    details_table,
+                    psf_archive_filename):
     """
         @brief Prints galaxies onto a new image and stores details on them in the output table.
 
@@ -654,6 +655,24 @@ def print_galaxies(image,
                                                    workdir = options['workdir'])
             else:
                     disk_psf_profile = bulge_psf_profile
+                    
+            # Save the profiles to the archive file
+            add_psf_to_archive(psf_profile=bulge_psf_profile,
+                               archive_filename=psf_archive_filename,
+                               galaxy_id=galaxy.get_full_ID(),
+                               exposure_index=di,
+                               type="bulge",
+                               stamp_size=options['psf_stamp_size'],
+                               scale=pixel_scale/options['psf_scale_factor'],
+                               workdir=options['workdir'])
+            add_psf_to_archive(psf_profile=disk_psf_profile,
+                               archive_filename=psf_archive_filename,
+                               galaxy_id=galaxy.get_full_ID(),
+                               exposure_index=di,
+                               type="disk",
+                               stamp_size=options['psf_stamp_size'],
+                               scale=pixel_scale/options['psf_scale_factor'],
+                               workdir=options['workdir'])
 
             # Get the position of the galaxy, depending on whether we're in field or stamp mode
 
@@ -997,7 +1016,10 @@ def add_image_header_info(gs_image,
     return
 
 # TODO: Add psf_archive_filename arg and use it
-def generate_image(image, options, wcs):
+def generate_image(image,
+                   options,
+                   wcs,
+                   psf_archive_filename):
     """
         @brief Creates a single image of galaxies
 
@@ -1064,7 +1086,7 @@ def generate_image(image, options, wcs):
     # Print the galaxies
     galaxies = print_galaxies(image, options, wcs, centre_offset, num_dithers, dithers,
                               full_x_size, full_y_size, pixel_scale,
-                              detections_table, details_table)
+                              detections_table, details_table, psf_archive_filename)
 
     sky_level_subtracted = image.get_param_value('subtracted_background')
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
