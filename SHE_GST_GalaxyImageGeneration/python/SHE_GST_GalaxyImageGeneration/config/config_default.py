@@ -67,6 +67,8 @@ allowed_options = { 'aocs_time_series_products': ('mock_aocs_time_series_product
                     'shape_noise_cancellation': (False, str2bool),
                     'single_psf': (False, str2bool),
                     'stable_rng': (False, str2bool),
+                    'stacked_data_image' : ("StackedDataImage.xml", str),
+                    'stacked_segmentation_image' : ("StackedSegmentationImage.xml", str),
                     'stamp_size': (256, int),
                     'stamp_size_factor': (4.5, float),
                     'suppress_noise': (False, str2bool),

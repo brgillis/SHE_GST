@@ -247,6 +247,9 @@ def combine_segmentation_dithers(segmentation_listfile_name,
     write_xml_product(p, stacked_segmentation_filename)
     
     return
+
+def combine_image_dithers(*args,**kwargs):
+    return
     
     
         
