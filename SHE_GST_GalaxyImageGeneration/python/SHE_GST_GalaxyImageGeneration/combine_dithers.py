@@ -27,6 +27,7 @@ import numpy as np
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
 from SHE_PPT import products
+from SHE_PPT import magic_values as ppt_mv
 from astropy.io import fits
 
 products.mosaic.init()
@@ -65,10 +66,10 @@ def combine_dithers(dithers,
         # 2: (0.0,0.5) (Upper-left)
         # 3: (0.5,0.5) (Upper-right)
 
-        ll_data = dithers[0].array
-        lr_data = dithers[1].array
-        ul_data = dithers[2].array
-        ur_data = dithers[3].array
+        ll_data = dithers[0]
+        lr_data = dithers[1]
+        ul_data = dithers[2]
+        ur_data = dithers[3]
 
         # Initialize the combined image
         dither_shape = np.shape(ll_data)
@@ -113,22 +114,22 @@ def combine_dithers(dithers,
                                     np.roll(ul_data, -1, axis = 1) +
                                     ur_data)
         elif mode == "MAX":
-            lower_left_corners = np.max(ll_data,
-                                        lr_data,
-                                        ul_data,
-                                        ur_data)
-            lower_right_corners = np.max(np.roll(ll_data, -1, axis = 1),
+            lower_left_corners = np.max((ll_data,
                                          lr_data,
-                                         np.roll(ul_data, -1, axis = 1),
-                                         ur_data)
-            upper_left_corners = np.max(np.roll(ll_data, -1, axis = 0),
-                                        np.roll(lr_data, -1, axis = 0),
-                                        ul_data,
-                                        ur_data)
-            upper_right_corners = np.max(np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0),
+                                         ul_data,
+                                         ur_data))
+            lower_right_corners = np.max((np.roll(ll_data, -1, axis = 1),
+                                          lr_data,
+                                          np.roll(ul_data, -1, axis = 1),
+                                          ur_data))
+            upper_left_corners = np.max((np.roll(ll_data, -1, axis = 0),
                                          np.roll(lr_data, -1, axis = 0),
-                                         np.roll(ul_data, -1, axis = 1),
-                                         ur_data)
+                                         ul_data,
+                                         ur_data))
+            upper_right_corners = np.max((np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0),
+                                          np.roll(lr_data, -1, axis = 0),
+                                          np.roll(ul_data, -1, axis = 1),
+                                          ur_data))
         if mode == "NOISE_SUM":
             lower_left_corners += (ll_data +
                                    lr_data +
@@ -152,14 +153,11 @@ def combine_dithers(dithers,
         
         if mode == "MEAN":
             combined_data /= num_dithers
-
-        # Make a Galsim image from this data
-        combined_image = galsim.Image(combined_data, scale = dithers[0].scale / 2)
         
     else:
         raise Exception("Unrecognized dithering scheme: " + dithering_scheme)
 
-    return combined_image
+    return combined_data
 
 def combine_segmentation_dithers(segmentation_listfile_name,
                                  stacked_segmentation_filename,
@@ -217,9 +215,9 @@ def combine_segmentation_dithers(segmentation_listfile_name,
     # Loop over hdus, combining them for each dither and adding to the full image
     x_offset = 0
     y_offset = 0
-    for x in max_len:
+    for x in range(max_len):
         dithers = []
-        for i in num_dithers:
+        for i in range(num_dithers):
             if x < len(segmentation_dithers[i]):
                 dithers.append(segmentation_dithers[i][x].data)
                 
@@ -241,9 +239,11 @@ def combine_segmentation_dithers(segmentation_listfile_name,
                                          segmentation_dithers[0][0].header['MHASH'],
                                          extension=".fits")
     data_hdu = fits.ImageHDU(data = full_image)
+    data_hdu.header[ppt_mv.model_hash_label] = segmentation_dithers[0][0].header[ppt_mv.model_hash_label]
+    data_hdu.header[ppt_mv.scale_label] = segmentation_dithers[0][0].header[ppt_mv.scale_label]/2
     append_hdu(os.path.join(workdir, data_filename), data_hdu)
     
-    p = products.stack_mosaic(data_filename)
+    p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
     write_xml_product(p, os.path.join(workdir,stacked_segmentation_filename))
     
     return
