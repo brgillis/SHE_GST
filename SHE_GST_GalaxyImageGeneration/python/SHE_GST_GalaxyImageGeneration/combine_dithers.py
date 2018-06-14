@@ -19,15 +19,18 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import copy
-
+import os
 import galsim
 from numpy.lib.stride_tricks import as_strided
 
 import numpy as np
+from SHE_GST_GalaxyImageGeneration import magic_values as mv
+from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
+from SHE_PPT import products
+from astropy.io import fits
 
-from SHE_PPT.details_table_format import details_table_format as datf
-from SHE_PPT.detections_table_format import detections_table_format as detf
+products.mosaic.init()
+products.stack_mosaic.init()
 
 
 def combine_dithers(dithers,
@@ -45,9 +48,9 @@ def combine_dithers(dithers,
         @returns Modified output table
     """
     
-    if mode not in ("SUM", "MEAN", "MAX"):
+    if mode not in ("SUM", "NOISE_SUM", "MEAN", "MAX"):
         raise ValueError("Invalid combine mode for combine_dithers: " + str(mode) + ". " +
-                         "Allowed modes are SUM, MEAN, and MAX.")
+                         "Allowed modes are SUM, NOISE_SUM, MEAN, and MAX.")
 
     # Check which dithering scheme we're using
     if dithering_scheme == '2x2':
@@ -126,6 +129,23 @@ def combine_dithers(dithers,
                                          np.roll(lr_data, -1, axis = 0),
                                          np.roll(ul_data, -1, axis = 1),
                                          ur_data)
+        if mode == "NOISE_SUM":
+            lower_left_corners += (ll_data +
+                                   lr_data +
+                                   ul_data +
+                                   ur_data)**2
+            lower_right_corners += (np.roll(ll_data, -1, axis = 1) +
+                                    lr_data +
+                                    np.roll(ul_data, -1, axis = 1) +
+                                    ur_data)**2
+            upper_left_corners += (np.roll(ll_data, -1, axis = 0) +
+                                   np.roll(lr_data, -1, axis = 0) +
+                                   ul_data +
+                                   ur_data)**2
+            upper_right_corners += (np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0) +
+                                    np.roll(lr_data, -1, axis = 0) +
+                                    np.roll(ul_data, -1, axis = 1) +
+                                    ur_data)**2
 
         # Discard the final row and column of the combined image, which will contain junk values
         combined_data = combined_data[0:-1, 0:-1]
@@ -140,3 +160,93 @@ def combine_dithers(dithers,
         raise Exception("Unrecognized dithering scheme: " + dithering_scheme)
 
     return combined_image
+
+def combine_segmentation_dithers(segmentation_listfile_name,
+                                 stacked_segmentation_filename,
+                                 dithering_scheme,
+                                 workdir):
+    
+    # Get the individual dithers
+    segmentation_product_filenames = read_listfile(os.path.join(workdir,
+                                                                segmentation_listfile_name))
+    
+    num_dithers = len(segmentation_product_filenames)
+    
+    # Get out the fits filenames and load them in memory-mapped mode
+    segmentation_dithers = []
+    max_len = 0
+    max_x_size = 0
+    max_y_size = 0
+    
+    for segmentation_product_filename in segmentation_product_filenames:
+        
+        p = read_xml_product(segmentation_product_filename,allow_pickled=True)
+        f = fits.open(p.get_data_filename(),memmap=True,mode="denywrite")
+        
+        if len(f) > max_len:
+            max_len = len(f)
+            
+        x_size = -mv.image_gap_x_pix
+        y_size = -mv.image_gap_y_pix
+        
+        for i in range(len(f)):
+            shape = f[i].data.shape
+            
+            if i < 6:
+                x_size += shape[0] + mv.image_gap_x_pix
+            
+            if i % 6 == 0:
+                y_size += shape[1] + mv.image_gap_y_pix
+        
+        if x_size > max_x_size:
+            max_x_size = x_size
+        if y_size > max_y_size:
+            max_y_size = y_size
+            
+        segmentation_dithers.append(f)
+        
+    # Create the image we'll need
+    if dithering_scheme=='2x2':
+        max_x_size = 2*max_x_size + 2
+        max_y_size = 2*max_y_size + 2
+        pixel_factor = 2
+        extra_pixels = 1
+    
+    full_image = np.zeros((max_x_size,max_y_size),dtype=np.int32)
+    
+    # Loop over hdus, combining them for each dither and adding to the full image
+    x_offset = 0
+    y_offset = 0
+    for x in max_len:
+        dithers = []
+        for i in num_dithers:
+            if x < len(segmentation_dithers[i]):
+                dithers.append(segmentation_dithers[i][x].data)
+                
+        detector_stack = combine_dithers(dithers,
+                                         dithering_scheme,
+                                         mode="MAX")
+        
+        full_image[x_offset:x_offset+detector_stack.shape[0],
+                   y_offset:y_offset+detector_stack.shape[1]] += detector_stack
+                   
+        if x % 6 != 5:
+            x_offset += detector_stack.shape[0] + pixel_factor*mv.image_gap_x_pix - extra_pixels
+        else:
+            x_offset = 0
+            y_offset += detector_stack.shape[1] + pixel_factor*mv.image_gap_y_pix - extra_pixels
+            
+    # Print out the stacked segmentation map
+    data_filename = get_allowed_filename("SEG_STACK",
+                                         segmentation_dithers[0][0].header['MHASH'],
+                                         extension=".fits")
+    data_hdu = fits.ImageHDU(data = full_image)
+    append_hdu(os.path.join(workdir, data_filename), data_hdu)
+    
+    p = products.stack_mosaic(data_filename)
+    write_xml_product(p, stacked_segmentation_filename)
+    
+    return
+    
+    
+        

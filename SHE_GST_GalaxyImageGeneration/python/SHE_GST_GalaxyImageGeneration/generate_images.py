@@ -31,6 +31,8 @@ from astropy.io import fits
 import galsim
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
+from SHE_GST_GalaxyImageGeneration.combine_dithers import (combine_image_dithers,
+                                                           combine_segmentation_dithers)
 from SHE_GST_GalaxyImageGeneration.config.check_config import get_full_options
 from SHE_GST_GalaxyImageGeneration.cutouts import make_cutout_image
 from SHE_GST_GalaxyImageGeneration.dither_schemes import get_dither_scheme
@@ -347,6 +349,20 @@ def generate_image_group(image_group_phl, options):
     write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames.prod_filenames)
     write_listfile(os.path.join(options['workdir'], options['segmentation_images']), mosaic_filenames.prod_filenames)
     write_listfile(os.path.join(options['workdir'], options['psf_images_and_tables']), psf_filenames.prod_filenames)
+    
+    # If we're dithering, create stacks
+    if num_dithers > 1:
+        
+        combine_image_dithers(options['data_images'],
+                              options['stacked_data_image'],
+                              options['dithering_scheme'],
+                              workdir=options['workdir'])
+        
+        
+        combine_segmentation_dithers(options['segmentation_images'],
+                                     options['stacked_segmentation_image'],
+                                     options['dithering_scheme'],
+                                     workdir=options['workdir'])
 
     # Remove the now-unneeded PSF archive file
     os.remove(os.path.join(workdir, psf_archive_filename))
