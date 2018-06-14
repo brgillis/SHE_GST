@@ -31,6 +31,8 @@ def get_seg_ID():
     while True:
         yield seg_ID
         seg_ID += 1
+        
+seg_ID_gen = get_seg_ID()
 
 def make_segmentation_map(noisefree_image,
                            detections_table,
@@ -49,6 +51,8 @@ def make_segmentation_map(noisefree_image,
         sorted_dtc_table.sort(detf.MagStarGal)
     else:
         raise ValueError(detf.MagStarGal + " must be in detections table for make_segmentation_map")
+    
+    detections_table.add_index(detf.ID)
 
     segmentation_map = galsim.Image(-np.ones_like(noisefree_image.array, dtype = np.int32), scale = noisefree_image.scale)
 
@@ -61,7 +65,7 @@ def make_segmentation_map(noisefree_image,
 
     for i in range(len(sorted_dtc_table)):
         
-        seg_ID = next(get_seg_ID())
+        seg_ID = next(seg_ID_gen)
 
         # For each object, look for pixels near it above the threshold value
         gal_xy = wcs.toImage(galsim.PositionD(float(sorted_dtc_table[detf.gal_x_world][i]),
@@ -84,7 +88,7 @@ def make_segmentation_map(noisefree_image,
         segmentation_map.array.ravel()[~full_mask] = seg_ID
         
         # Store this seg_ID in the table
-        sorted_dtc_table[detf.seg_ID][i] = seg_ID
+        detections_table.loc[sorted_dtc_table[detf.ID][i]][detf.seg_ID] = seg_ID
 
         # Add those values to the claimed mask
         claimed_mask = np.logical_or(claimed_mask, ~full_mask)
