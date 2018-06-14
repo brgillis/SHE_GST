@@ -216,7 +216,7 @@ def generate_image_group(image_group_phl, options):
 
         image_product = products.calibrated_frame.create_dpd_vis_calibrated_frame()
         image_product.set_data_filename(image_filenames.data_filenames[i])
-        image_product.set_flg_filename(image_filenames.flg_filenames[i])
+        image_product.set_bkg_filename(image_filenames.bkg_filenames[i])
         image_product.set_wgt_filename(image_filenames.wgt_filenames[i])
 
         write_xml_product(image_product,
