@@ -1004,8 +1004,6 @@ def add_image_header_info(gs_image,
 
     # Model hash
     gs_image.header[model_hash_label] = hash_any(full_options, format = "base64")
-    
-    import pdb; pdb.set_trace()
 
     # Seeds
     gs_image.header[model_seed_label] = model_seed
