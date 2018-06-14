@@ -32,32 +32,18 @@ from SHE_PPT.detections_table_format import detections_table_format as detf
 
 def combine_dithers(dithers,
                     dithering_scheme,
-                    detections_table = None,
-                    details_table = None,
-                    copy_otable = False):
+                    mode="SUM"):
     """
         @brief Combine the dithered images in a list, according to the specific plan for a
             given dithering scheme.
 
         @param dithers List of galsim Image objects of the same size/shape/dtype.
         @param dithering_scheme String representing the name of the dithering scheme
-        @param detections_table Output table to (possibly) modify for combined image
-        @param details_table Output table to (possibly) modify for combined image
-        @param copy_otable If False, output table will be modified in place. If True,
-            it will be copied. In either case, the modified table will be returned
+        @param mode How to combine dithers - SUM, MEAN, or MAX
 
         @returns Combined image
         @returns Modified output table
     """
-
-    # Set up the output table we'll modify, depending on whether or not we want to copy
-    # the passed output table.
-    if copy_otable:
-        combined_detections_table = copy.deepcopy(detections_table)
-        combined_details_table = copy.deepcopy(details_table)
-    else:
-        combined_detections_table = detections_table
-        combined_details_table = details_table
 
     # Check which dithering scheme we're using
     if dithering_scheme == '2x2':
@@ -102,51 +88,51 @@ def combine_dithers(dithers,
         # We'll combine four arrays for each corner of the dithering (remeber x-y ordering swap!)
         # We use roll here to shift by 1 pixel left/down. Since it's all initially zero, we can use +=
         # to assign the values we want to it
-        lower_left_corners += ll_data + \
-                              lr_data + \
-                              ul_data + \
-                              ur_data
-        lower_right_corners += np.roll(ll_data, -1, axis = 1) + \
-                               lr_data + \
-                               np.roll(ul_data, -1, axis = 1) + \
-                               ur_data
-        upper_left_corners += np.roll(ll_data, -1, axis = 0) + \
-                              np.roll(lr_data, -1, axis = 0) + \
-                              ul_data + \
-                              ur_data
-        upper_right_corners += np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0) + \
-                               np.roll(lr_data, -1, axis = 0) + \
-                               np.roll(ul_data, -1, axis = 1) + \
-                               ur_data
+        if mode == "SUM" or mode == "MEAN":
+            lower_left_corners += (ll_data +
+                                   lr_data +
+                                   ul_data +
+                                   ur_data)
+            lower_right_corners += (np.roll(ll_data, -1, axis = 1) +
+                                    lr_data +
+                                    np.roll(ul_data, -1, axis = 1) +
+                                    ur_data)
+            upper_left_corners += (np.roll(ll_data, -1, axis = 0) +
+                                   np.roll(lr_data, -1, axis = 0) +
+                                   ul_data +
+                                   ur_data)
+            upper_right_corners += (np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0) +
+                                    np.roll(lr_data, -1, axis = 0) +
+                                    np.roll(ul_data, -1, axis = 1) +
+                                    ur_data)
+        elif mode == "MAX":
+            lower_left_corners = np.max(ll_data,
+                                        lr_data,
+                                        ul_data,
+                                        ur_data)
+            lower_right_corners = np.max(np.roll(ll_data, -1, axis = 1),
+                                         lr_data,
+                                         np.roll(ul_data, -1, axis = 1),
+                                         ur_data)
+            upper_left_corners = np.max(np.roll(ll_data, -1, axis = 0),
+                                        np.roll(lr_data, -1, axis = 0),
+                                        ul_data,
+                                        ur_data)
+            upper_right_corners = np.max(np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0),
+                                         np.roll(lr_data, -1, axis = 0),
+                                         np.roll(ul_data, -1, axis = 1),
+                                         ur_data)
 
         # Discard the final row and column of the combined image, which will contain junk values
         combined_data = combined_data[0:-1, 0:-1]
+        
+        if mode == "MEAN":
+            combined_data /= num_dithers
 
         # Make a Galsim image from this data
         combined_image = galsim.Image(combined_data, scale = dithers[0].scale / 2)
-
-        # Now that we have the image, let's modify the output table
-        for (combined_otable, tf) in ((combined_detections_table, detf),
-                                          (combined_details_table, datf)):
-            if combined_otable is not None:
-                combined_otable[tf.gal_x] *= 2
-                combined_otable[tf.gal_x] -= 0.5
-                combined_otable[tf.gal_y] *= 2
-                combined_otable[tf.gal_y] -= 0.5
-
-                if tf.meta_read_noise in combined_otable.meta:
-                    old_read_noise = combined_otable.meta[tf.meta_read_noise]
-                    combined_otable.meta[tf.meta_read_noise] = 2 * old_read_noise[0], old_read_noise[1]
-
-                if tf.meta_subtracted_sky_level in combined_otable.meta:
-                    old_subtracted_sky_level = combined_otable.meta[tf.meta_subtracted_sky_level]
-                    combined_otable.meta[tf.meta_subtracted_sky_level] = 4 * old_subtracted_sky_level[0], old_subtracted_sky_level[1]
-
-                if tf.meta_unsubtracted_sky_level in combined_otable.meta:
-                    old_unsubtracted_sky_level = combined_otable.meta[tf.meta_unsubtracted_sky_level]
-                    combined_otable.meta[tf.meta_unsubtracted_sky_level] = 4 * old_unsubtracted_sky_level[0], old_unsubtracted_sky_level[1]
-
+        
     else:
         raise Exception("Unrecognized dithering scheme: " + dithering_scheme)
 
-    return combined_image, combined_detections_table, combined_details_table
+    return combined_image
