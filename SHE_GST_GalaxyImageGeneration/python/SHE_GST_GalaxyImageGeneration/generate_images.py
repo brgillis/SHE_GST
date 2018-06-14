@@ -233,7 +233,8 @@ def generate_image_group(image_group_phl, options):
 
         psf_product = products.psf_image.create_dpd_she_psf_image(filename = psf_filenames.data_filenames[i])
 
-        write_xml_product(psf_product, psf_filenames.prod_filenames[i])
+        write_xml_product(psf_product,
+                          os.path.join(workdir,psf_filenames.prod_filenames[i]))
 
         # Details table
 
