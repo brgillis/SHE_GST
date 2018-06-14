@@ -1128,8 +1128,8 @@ def generate_image(image,
                                                     gain = options['gain'])
             noise_maps[di] *= noise_level
 
-            wgt_maps[di][noise_maps[di] > 0] /= noise_maps[di][noise_maps[di] > 0] ** 2
-            wgt_maps[di][noise_maps[di] <= 0] *= 0
+            wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
+            wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
 
         else:
             noise_maps[di] *= 0
