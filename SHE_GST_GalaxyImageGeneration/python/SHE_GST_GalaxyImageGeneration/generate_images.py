@@ -187,7 +187,7 @@ def generate_image_group(image_group_phl, options):
             if tag in (detections_tag, details_tag):
                 dither_tag = ""
             else:
-                dither_tag = "_D" + str(i)
+                dither_tag = "_D" + str(i+1)
 
             subfilenames_lists_labels_exts = [(filename_list.prod_filenames, "GST_P", ".xml"),
                                               (filename_list.data_filenames, "GST", ".fits"), ]
@@ -1114,7 +1114,7 @@ def generate_image(image,
     dither_scheme = get_dither_scheme(options['dithering_scheme'])
     for di in range(num_dithers):
 
-        logger.debug("Printing dither " + str(di) + ".")
+        logger.debug("Printing dither " + str(di+1) + ".")
 
         # Make mock noise and mask maps for this dither
         if options['image_datatype'] == '32f':
@@ -1258,7 +1258,7 @@ def generate_image(image,
                 noise_maps[di] *= 0
                 dithers[di] = [(dithers[di], '')]
 
-        logger.info("Finished printing dither " + str(di) + ".")
+        logger.info("Finished printing dither " + str(di+1) + ".")
 
     logger.info("Finished printing image " + str(image.get_local_ID()) + ".")
 
