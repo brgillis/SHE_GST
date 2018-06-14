@@ -6,17 +6,17 @@
 
  **********************************************************************
 
- Copyright (C) 2012-2020 Euclid Science Ground Segment      
+ Copyright (C) 2012-2020 Euclid Science Ground Segment
 
- This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General    
- Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)    
- any later version.    
+ This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)
+ any later version.
 
- This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied    
- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more    
- details.    
+ This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details.
 
- You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
+ You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
  the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
  \**********************************************************************/
@@ -1038,13 +1038,15 @@ long_int_t ParamHierarchyLevel::get_full_ID() const
 	// Add the proper parent ID
 	if(_p_parent)
 	{
-		long_int_t parent_ID = _p_parent->get_local_ID();
+    long_int_t parent_ID = _p_parent->get_full_ID();
 
 		// Multiply the parent ID by 256^(num levels above this)
 		for( int i = _p_parent->get_hierarchy_level(); i<get_hierarchy_level(); ++i)
 		{
 			parent_ID *= 256;
 		}
+
+    ID += parent_ID;
 	}
 
     DEBUG_LOG() << "Exiting " << get_name() << "<ParamHierarchyLevel>::get_full_ID method successfully.";
