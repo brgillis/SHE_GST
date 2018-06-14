@@ -24,6 +24,14 @@ import galsim
 
 from SHE_PPT.table_formats.detections import tf as detf
 
+def get_seg_ID():
+    
+    seg_ID = 1
+    
+    while True:
+        yield seg_ID
+        seg_ID += 1
+
 def make_segmentation_map(noisefree_image,
                            detections_table,
                            wcs,
@@ -52,6 +60,8 @@ def make_segmentation_map(noisefree_image,
     r_max_factor_scaled = r_max_factor / noisefree_image.scale
 
     for i in range(len(sorted_dtc_table)):
+        
+        seg_ID = get_seg_ID()
 
         # For each object, look for pixels near it above the threshold value
         gal_xy = wcs.toImage(galsim.PositionD(float(sorted_dtc_table[detf.gal_x_world][i]),
@@ -70,8 +80,11 @@ def make_segmentation_map(noisefree_image,
 
         full_mask = np.logical_or(region_mask, claimed_threshold_mask)
 
-        # Set the unmasked values to the object's ID
-        segmentation_map.array.ravel()[~full_mask] = sorted_dtc_table[detf.ID][i]
+        # Set the unmasked values to the object's seg_ID
+        segmentation_map.array.ravel()[~full_mask] = seg_ID
+        
+        # Store this seg_ID in the table
+        sorted_dtc_table[detf.seg_ID][i] = seg_ID
 
         # Add those values to the claimed mask
         claimed_mask = np.logical_or(claimed_mask, ~full_mask)

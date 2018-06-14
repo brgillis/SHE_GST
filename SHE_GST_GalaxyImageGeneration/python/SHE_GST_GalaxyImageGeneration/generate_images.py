@@ -935,6 +935,7 @@ def print_galaxies(image,
             # Add to detections table only if it's a target galaxy
             detections_table.add_row(vals = {
                     detf.ID: galaxy.get_full_ID(),
+                    detf.seg_ID: -99,
                     detf.gal_x_world: xy_world.x,
                     detf.gal_y_world: xy_world.y,
                     detf.StarFlag: False,
@@ -1088,7 +1089,8 @@ def generate_image(image,
     else:
         full_options = get_full_options(options, image)
         detections_table = initialise_detections_table(image.get_parent(), full_options,
-                                                       optional_columns = [detf.StarFlag, detf.DeblendingFlag,
+                                                       optional_columns = [detf.seg_ID, 
+                                                                           detf.StarFlag, detf.DeblendingFlag,
                                                                            detf.Isoarea, detf.MagStarGal])
         details_table = initialise_details_table(image.get_parent(), full_options)
 
