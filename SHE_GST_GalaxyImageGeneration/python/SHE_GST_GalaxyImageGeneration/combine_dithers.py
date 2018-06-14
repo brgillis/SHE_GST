@@ -180,7 +180,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
     
     for segmentation_product_filename in segmentation_product_filenames:
         
-        p = read_xml_product(segmentation_product_filename,allow_pickled=True)
+        p = read_xml_product(os.path.join(workdir,segmentation_product_filename),allow_pickled=True)
         f = fits.open(p.get_data_filename(),memmap=True,mode="denywrite")
         
         if len(f) > max_len:
@@ -244,7 +244,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
     append_hdu(os.path.join(workdir, data_filename), data_hdu)
     
     p = products.stack_mosaic(data_filename)
-    write_xml_product(p, stacked_segmentation_filename)
+    write_xml_product(p, os.path.join(workdir,stacked_segmentation_filename))
     
     return
 
