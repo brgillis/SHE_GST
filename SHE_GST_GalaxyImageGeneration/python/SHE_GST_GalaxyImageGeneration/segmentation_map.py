@@ -26,20 +26,21 @@ from SHE_PPT.table_formats.detections import tf as detf
 
 def make_segmentation_map(noisefree_image,
                            detections_table,
+                           wcs,
                            threshold = 0,
                            r_max_factor = 5):
     """
         @TODO Docstring
     """
 
-    if detf.gal_hlr not in detections_table.columns:
-        raise ValueError(detf.gal_hlr + " must be in detections table for make_segmentation_map")
+    if detf.Isoarea not in detections_table.columns:
+        raise ValueError(detf.Isoarea + " must be in detections table for make_segmentation_map")
 
-    if detf.gal_mag in detections_table.columns:
+    if detf.MagStarGal in detections_table.columns:
         sorted_dtc_table = deepcopy(detections_table)
-        sorted_dtc_table.sort(detf.gal_mag)
+        sorted_dtc_table.sort(detf.MagStarGal)
     else:
-        raise ValueError(detf.gal_mag + " must be in detections table for make_segmentation_map")
+        raise ValueError(detf.MagStarGal + " must be in detections table for make_segmentation_map")
 
     segmentation_map = galsim.Image(-np.ones_like(noisefree_image.array, dtype = np.int32), scale = noisefree_image.scale)
 
@@ -53,12 +54,15 @@ def make_segmentation_map(noisefree_image,
     for i in range(len(sorted_dtc_table)):
 
         # For each object, look for pixels near it above the threshold value
-        dx_image = x_image - sorted_dtc_table[detf.gal_x][i]
-        dy_image = y_image - sorted_dtc_table[detf.gal_y][i]
+        gal_xy = wcs.toImage(galsim.PositionD(sorted_dtc_table[detf.gal_x_world][i],
+                                              sorted_dtc_table[detf.gal_y_world][i]))
+        
+        dx_image = x_image - gal_xy.x
+        dy_image = y_image - gal_xy.y
 
         r2_image = dx_image ** 2 + dy_image ** 2
 
-        r2_max = (r_max_factor_scaled * sorted_dtc_table[detf.gal_hlr][i]) ** 2
+        r2_max = r_max_factor_scaled**2 * sorted_dtc_table[detf.Isoarea][i]
 
         region_mask = np.ravel(r2_image) > r2_max
 

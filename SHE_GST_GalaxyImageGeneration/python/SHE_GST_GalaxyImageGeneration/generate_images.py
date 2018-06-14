@@ -1084,7 +1084,8 @@ def generate_image(image,
     else:
         full_options = get_full_options(options, image)
         detections_table = initialise_detections_table(image, full_options,
-                                                       optional_columns = [detf.StarFlag, detf.DeblendingFlag])
+                                                       optional_columns = [detf.StarFlag, detf.DeblendingFlag,
+                                                                           detf.Isoarea, detf.MagStarGal])
         details_table = initialise_details_table(image, full_options)
 
     # Print the galaxies
@@ -1140,6 +1141,7 @@ def generate_image(image,
         logger.info("Generating segmentation map " + str(di) + ".")
         segmentation_maps.append(make_segmentation_map(dithers[di],
                                                        detections_table,
+                                                       wcs,
                                                        threshold = 0.01 * noise_level))
 
 
