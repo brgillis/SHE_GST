@@ -1169,6 +1169,18 @@ def generate_image(image,
                                               detections_table,
                                               details_table,
                                               centre_offset)
+            bkg_maps[di] = make_cutout_image(bkg_maps[di],
+                                              options,
+                                              galaxies,
+                                              detections_table,
+                                              details_table,
+                                              centre_offset)
+            wgt_maps[di] = make_cutout_image(wgt_maps[di],
+                                              options,
+                                              galaxies,
+                                              detections_table,
+                                              details_table,
+                                              centre_offset)
             segmentation_maps[di] = make_cutout_image(segmentation_maps[di],
                                                       options,
                                                       galaxies,
@@ -1196,6 +1208,12 @@ def generate_image(image,
                                   stamp_size = stamp_size_pix, dither_shift = dither_shift)
             add_image_header_info(mask_maps[di], options['gain'], full_options, image.get_full_seed(),
                                   extname = detector_id_str + "." + mask_tag,
+                                  stamp_size = stamp_size_pix, dither_shift = dither_shift)
+            add_image_header_info(bkg_maps[di], options['gain'], full_options, image.get_full_seed(),
+                                  extname = detector_id_str,
+                                  stamp_size = stamp_size_pix, dither_shift = dither_shift)
+            add_image_header_info(wgt_maps[di], options['gain'], full_options, image.get_full_seed(),
+                                  extname = detector_id_str,
                                   stamp_size = stamp_size_pix, dither_shift = dither_shift)
             add_image_header_info(segmentation_maps[di], options['gain'], full_options, image.get_full_seed(),
                                   extname = detector_id_str + "." + segmentation_tag,
