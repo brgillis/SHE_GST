@@ -1087,10 +1087,10 @@ def generate_image(image,
         details_table = None
     else:
         full_options = get_full_options(options, image)
-        detections_table = initialise_detections_table(image, full_options,
+        detections_table = initialise_detections_table(image.get_parent(), full_options,
                                                        optional_columns = [detf.StarFlag, detf.DeblendingFlag,
                                                                            detf.Isoarea, detf.MagStarGal])
-        details_table = initialise_details_table(image, full_options)
+        details_table = initialise_details_table(image.get_parent(), full_options)
 
     # Print the galaxies
     galaxies = print_galaxies(image, options, wcs, centre_offset, num_dithers, dithers,
