@@ -306,7 +306,7 @@ def generate_image_group(image_group_phl, options):
             # PSF catalogue and images
 
             num_rows = len(details_table[datf.ID])
-            psf_table = initialise_psf_table(image_phl, options,
+            psf_table = initialise_psf_table(image_phl.get_parent(), options,
                                              init_columns = {pstf.ID:details_table[datf.ID],
                                                              pstf.template :-1 * np.ones(num_rows, dtype = np.int64),
                                                              pstf.bulge_index :-1 * np.ones(num_rows, dtype = np.int32),
@@ -346,7 +346,7 @@ def generate_image_group(image_group_phl, options):
     # Output listfiles of filenames
     write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames.prod_filenames)
     write_listfile(os.path.join(options['workdir'], options['segmentation_images']), mosaic_filenames.prod_filenames)
-    write_listfile(os.path.join(options['workdir'], options['psf_images']), psf_filenames.prod_filenames)
+    write_listfile(os.path.join(options['workdir'], options['psf_images_and_tables']), psf_filenames.prod_filenames)
 
     # Remove the now-unneeded PSF archive file
     os.remove(os.path.join(workdir, psf_archive_filename))
