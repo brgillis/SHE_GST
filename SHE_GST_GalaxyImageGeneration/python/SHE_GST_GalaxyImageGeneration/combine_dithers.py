@@ -44,6 +44,10 @@ def combine_dithers(dithers,
         @returns Combined image
         @returns Modified output table
     """
+    
+    if mode not in ("SUM", "MEAN", "MAX"):
+        raise ValueError("Invalid combine mode for combine_dithers: " + str(mode) + ". " +
+                         "Allowed modes are SUM, MEAN, and MAX.")
 
     # Check which dithering scheme we're using
     if dithering_scheme == '2x2':
