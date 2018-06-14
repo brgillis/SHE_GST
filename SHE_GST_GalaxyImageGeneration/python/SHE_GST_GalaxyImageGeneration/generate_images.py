@@ -305,12 +305,12 @@ def generate_image_group(image_group_phl, options):
 
             # PSF catalogue and images
 
-            num_rows = len(details_table[detf.ID])
+            num_rows = len(details_table[datf.ID])
             psf_table = initialise_psf_table(image_phl, options,
-                                             init_columns = {pstf.ID:details_table[detf.ID],
-                                                           pstf.template :-1 * np.ones(num_rows, dtype = np.int64),
-                                                           pstf.bulge_index :-1 * np.ones(num_rows, dtype = np.int32),
-                                                           pstf.disk_index :-1 * np.ones(num_rows, dtype = np.int32)})
+                                             init_columns = {pstf.ID:details_table[datf.ID],
+                                                             pstf.template :-1 * np.ones(num_rows, dtype = np.int64),
+                                                             pstf.bulge_index :-1 * np.ones(num_rows, dtype = np.int32),
+                                                             pstf.disk_index :-1 * np.ones(num_rows, dtype = np.int32)})
 
             psf_tables[i].append(psf_table)
 
