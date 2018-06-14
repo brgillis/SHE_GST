@@ -181,7 +181,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
     for segmentation_product_filename in segmentation_product_filenames:
         
         p = read_xml_product(os.path.join(workdir,segmentation_product_filename),allow_pickled=True)
-        f = fits.open(p.get_data_filename(),memmap=True,mode="denywrite")
+        f = fits.open(os.path.join(workdir,p.get_data_filename()),memmap=True,mode="denywrite")
         
         if len(f) > max_len:
             max_len = len(f)
