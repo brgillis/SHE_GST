@@ -171,7 +171,7 @@ def generate_image_group(image_group_phl, options):
     psf_filenames = ProductFilenames()
 
     psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", str(image_group_phl.get_full_ID()),
-                                                extension = "fits")
+                                                extension = ".fits")
 
 
 
