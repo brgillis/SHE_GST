@@ -54,8 +54,8 @@ def make_segmentation_map(noisefree_image,
     for i in range(len(sorted_dtc_table)):
 
         # For each object, look for pixels near it above the threshold value
-        gal_xy = wcs.toImage(galsim.PositionD(sorted_dtc_table[detf.gal_x_world][i],
-                                              sorted_dtc_table[detf.gal_y_world][i]))
+        gal_xy = wcs.toImage(galsim.PositionD(float(sorted_dtc_table[detf.gal_x_world][i]),
+                                              float(sorted_dtc_table[detf.gal_y_world][i])))
         
         dx_image = x_image - gal_xy.x
         dy_image = y_image - gal_xy.y

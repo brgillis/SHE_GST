@@ -929,6 +929,8 @@ def print_galaxies(image,
                      is_target_galaxy = is_target_gal)
 
         if is_target_gal and not options['details_only']:
+            
+            hlr = bulge_size*bulge_fraction + disk_size*(1-bulge_fraction)
 
             # Add to detections table only if it's a target galaxy
             detections_table.add_row(vals = {
@@ -937,6 +939,8 @@ def print_galaxies(image,
                     detf.gal_y_world: xy_world.y,
                     detf.StarFlag: False,
                     detf.DeblendingFlag: False,
+                    detf.Isoarea: np.pi*hlr**2,
+                    detf.MagStarGal: galaxy.get_param_value('apparent_mag_vis'),
                     })
 
             del final_disk, disk_psf_profile
