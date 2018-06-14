@@ -1126,21 +1126,15 @@ def generate_image(image,
             wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), scale = pixel_scale))
             bkg_maps.append(galsim.ImageD(np.zeros_like(dithers[di].array), scale = pixel_scale))
 
-        if not options['suppress_noise']:
+        noise_level = get_var_ADU_per_pixel(pixel_value_ADU = sky_level_unsubtracted_pixel,
+                                                sky_level_ADU_per_sq_arcsec = sky_level_subtracted,
+                                                read_noise_count = options['read_noise'],
+                                                pixel_scale = pixel_scale,
+                                                gain = options['gain'])
+        noise_maps[di] *= noise_level
 
-            noise_level = get_var_ADU_per_pixel(pixel_value_ADU = sky_level_unsubtracted_pixel,
-                                                    sky_level_ADU_per_sq_arcsec = sky_level_subtracted,
-                                                    read_noise_count = options['read_noise'],
-                                                    pixel_scale = pixel_scale,
-                                                    gain = options['gain'])
-            noise_maps[di] *= noise_level
-
-            wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
-            wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
-
-        else:
-            noise_maps[di] *= 0
-            # Leave wgt map as all 1
+        wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
+        wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
 
         mask_maps.append(galsim.ImageI(np.zeros_like(dithers[di].array, dtype = np.int16), scale = pixel_scale))
 
