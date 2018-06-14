@@ -170,7 +170,7 @@ def generate_image_group(image_group_phl, options):
     mosaic_filenames = ProductFilenames()
     psf_filenames = ProductFilenames()
 
-    psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", str(image_group_phl.get_full_id()),
+    psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", str(image_group_phl.get_full_ID()),
                                                 extension = "fits")
 
 
@@ -189,7 +189,7 @@ def generate_image_group(image_group_phl, options):
             else:
                 dither_tag = "_D" + str(i)
 
-            subfilenames_lists_labels_exts = [(filename_list.product_filenames, "GST_P", ".xml"),
+            subfilenames_lists_labels_exts = [(filename_list.prod_filenames, "GST_P", ".xml"),
                                               (filename_list.data_filenames, "GST", ".fits"), ]
 
             # For the VIS image, also add other subfilenames
@@ -220,32 +220,32 @@ def generate_image_group(image_group_phl, options):
         image_product.set_wgt_filename(image_filenames.wgt_filenames[i])
 
         write_xml_product(image_product,
-                              os.path.join(workdir, image_filenames.product_filenames[i]))
+                              os.path.join(workdir, image_filenames.prod_filenames[i]))
 
         # Segmentation map
 
         mock_mosaic_product = products.mosaic.create_mosaic_product(data_filename = mosaic_filenames.data_filenames[i])
 
         write_xml_product(mock_mosaic_product,
-                          os.path.join(workdir, mosaic_filenames.product_filenames[i]))
+                          os.path.join(workdir, mosaic_filenames.prod_filenames[i]))
 
         # PSF catalogue and images
 
         psf_product = products.psf_image.create_dpd_she_psf_image(filename = psf_filenames.data_filenames[i])
 
-        write_xml_product(psf_product, psf_filenames.product_filenames[i])
+        write_xml_product(psf_product, psf_filenames.prod_filenames[i])
 
         # Details table
 
         details_product = products.details.create_details_product(filename = details_filenames.data_filenames[0])
         write_pickled_product(details_product,
-                              os.path.join(workdir, details_filenames.product_filenames[0]))
+                              os.path.join(workdir, details_filenames.prod_filenames[0]))
 
         # Detections table
 
         my_detections_product = products.detections.create_detections_product(filename = detections_filenames.data_filenames[0])
         write_xml_product(my_detections_product,
-                          os.path.join(workdir, detections_filenames.product_filenames[0]))
+                          os.path.join(workdir, detections_filenames.prod_filenames[0]))
 
     # end for i in range(num_dithers):
 
@@ -343,9 +343,9 @@ def generate_image_group(image_group_phl, options):
                                workdir = workdir)
 
     # Output listfiles of filenames
-    write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames.product_filenames)
-    write_listfile(os.path.join(options['workdir'], options['segmentation_images']), mosaic_filenames.product_filenames)
-    write_listfile(os.path.join(options['workdir'], options['psf_images']), psf_filenames.product_filenames)
+    write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames.prod_filenames)
+    write_listfile(os.path.join(options['workdir'], options['segmentation_images']), mosaic_filenames.prod_filenames)
+    write_listfile(os.path.join(options['workdir'], options['psf_images']), psf_filenames.prod_filenames)
 
     # Remove the now-unneeded PSF archive file
     os.remove(os.path.join(workdir, psf_archive_filename))
