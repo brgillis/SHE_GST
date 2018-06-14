@@ -114,22 +114,23 @@ def combine_dithers(dithers,
                                     np.roll(ul_data, -1, axis = 1) +
                                     ur_data)
         elif mode == "MAX":
-            lower_left_corners = np.max((ll_data,
+            
+            lower_left_corners += np.max((ll_data,
                                          lr_data,
                                          ul_data,
-                                         ur_data))
-            lower_right_corners = np.max((np.roll(ll_data, -1, axis = 1),
+                                         ur_data),axis=0)
+            lower_right_corners += np.max((np.roll(ll_data, -1, axis = 1),
                                           lr_data,
                                           np.roll(ul_data, -1, axis = 1),
-                                          ur_data))
-            upper_left_corners = np.max((np.roll(ll_data, -1, axis = 0),
+                                          ur_data),axis=0)
+            upper_left_corners += np.max((np.roll(ll_data, -1, axis = 0),
                                          np.roll(lr_data, -1, axis = 0),
                                          ul_data,
-                                         ur_data))
-            upper_right_corners = np.max((np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0),
+                                         ur_data),axis=0)
+            upper_right_corners += np.max((np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0),
                                           np.roll(lr_data, -1, axis = 0),
                                           np.roll(ul_data, -1, axis = 1),
-                                          ur_data))
+                                          ur_data),axis=0)
         if mode == "NOISE_SUM":
             lower_left_corners += (ll_data +
                                    lr_data +
