@@ -328,8 +328,6 @@ def combine_image_dithers(image_listfile_name,
     max_x_size = pixel_factor*max_x_size - extra_pixels * (max_num_x - 1) 
     max_y_size = pixel_factor*max_y_size - extra_pixels * (max_num_y - 1)
     
-    import pdb; pdb.set_trace()
-    
     full_sci_image = np.zeros((max_x_size,max_y_size),dtype=np.float32)
     full_flg_image = np.ones((max_x_size,max_y_size),dtype=np.int32) * masked_off_image
     full_rms_image = np.zeros((max_x_size,max_y_size),dtype=np.float32)
