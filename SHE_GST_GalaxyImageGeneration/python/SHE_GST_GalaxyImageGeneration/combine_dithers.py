@@ -312,8 +312,8 @@ def combine_image_dithers(image_listfile_name,
         
     # Create the image we'll need
     if dithering_scheme=='2x2':
-        max_x_size = 2*max_x_size + 1
-        max_y_size = 2*max_y_size + 1
+        max_x_size = 2*max_x_size - 2
+        max_y_size = 2*max_y_size - 2
         pixel_factor = 2
     
     full_sci_image = np.zeros((max_x_size,max_y_size),dtype=np.float32)
