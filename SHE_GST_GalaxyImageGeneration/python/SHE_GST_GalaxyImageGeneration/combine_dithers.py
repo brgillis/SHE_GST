@@ -30,6 +30,7 @@ from SHE_PPT import products
 from SHE_PPT import magic_values as ppt_mv
 from astropy.io import fits
 from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag
+from SHE_PPT.mask import masked_off_image
 
 products.mosaic.init()
 products.stack_mosaic.init()
@@ -317,7 +318,7 @@ def combine_image_dithers(image_listfile_name,
         extra_pixels = 1
     
     full_sci_image = np.zeros((max_x_size,max_y_size),dtype=np.float32)
-    full_flg_image = np.zeros((max_x_size,max_y_size),dtype=np.int32)
+    full_flg_image = np.ones((max_x_size,max_y_size),dtype=np.int32) * masked_off_image
     full_rms_image = np.zeros((max_x_size,max_y_size),dtype=np.float32)
     
     # Loop over hdus, combining them for each dither and adding to the full image
@@ -354,7 +355,7 @@ def combine_image_dithers(image_listfile_name,
         full_sci_image[x_offset:x_offset+sci_stack.shape[0],
                        y_offset:y_offset+sci_stack.shape[1]] += sci_stack
         full_flg_image[x_offset:x_offset+flg_stack.shape[0],
-                       y_offset:y_offset+flg_stack.shape[1]] += flg_stack
+                       y_offset:y_offset+flg_stack.shape[1]] += flg_stack - masked_off_image
         full_rms_image[x_offset:x_offset+rms_stack.shape[0],
                        y_offset:y_offset+rms_stack.shape[1]] += rms_stack
                    
