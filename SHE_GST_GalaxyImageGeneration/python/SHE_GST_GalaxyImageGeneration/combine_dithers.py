@@ -29,7 +29,7 @@ from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filenam
 from SHE_PPT import products
 from SHE_PPT import magic_values as ppt_mv
 from astropy.io import fits
-from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag
+from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag
 
 products.mosaic.init()
 products.stack_mosaic.init()
@@ -163,10 +163,14 @@ def combine_dithers(dithers,
 def save_hdu(full_image,
              image_dithers,
              data_filename,
+             extname,
              workdir, ):
     
     hdu = fits.ImageHDU(data=full_image)
     hdu.header[ppt_mv.model_hash_label] = image_dithers[0][0].header[ppt_mv.model_hash_label]
+    hdu.header[ppt_mv.model_seed_label] = image_dithers[0][0].header[ppt_mv.model_seed_label]
+    hdu.header[ppt_mv.noise_seed_label] = image_dithers[0][0].header[ppt_mv.noise_seed_label]
+    hdu.header["EXTNAME"] = extname
     hdu.header[ppt_mv.scale_label] = image_dithers[0][0].header[ppt_mv.scale_label] / 2
     append_hdu(os.path.join(workdir, data_filename), hdu)
     
@@ -252,7 +256,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
                                          segmentation_dithers[0][0].header['MHASH'],
                                          extension=".fits")
     
-    save_hdu(full_image, segmentation_dithers, data_filename, workdir)
+    save_hdu(full_image, segmentation_dithers, data_filename, segmentation_tag, workdir)
     
     p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
     write_xml_product(p, os.path.join(workdir,stacked_segmentation_filename))
@@ -365,9 +369,9 @@ def combine_image_dithers(image_listfile_name,
                                          image_dithers[0][0].header['MHASH'],
                                          extension=".fits")
     
-    save_hdu( full_sci_image, image_dithers, data_filename, workdir )
-    save_hdu( full_flg_image, image_dithers, data_filename, workdir )
-    save_hdu( full_rms_image, image_dithers, data_filename, workdir )
+    save_hdu( full_sci_image, image_dithers, data_filename, sci_tag, workdir )
+    save_hdu( full_flg_image, image_dithers, data_filename, mask_tag, workdir )
+    save_hdu( full_rms_image, image_dithers, data_filename, noisemap_tag, workdir )
     
     p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
     write_xml_product(p, os.path.join(workdir,stacked_image_filename))
