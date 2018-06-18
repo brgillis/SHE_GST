@@ -252,7 +252,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
                                          segmentation_dithers[0][0].header['MHASH'],
                                          extension=".fits")
     
-    save_hdu(full_image, dithers, data_filename, workdir)
+    save_hdu(full_image, segmentation_dithers, data_filename, workdir)
     
     p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
     write_xml_product(p, os.path.join(workdir,stacked_segmentation_filename))
