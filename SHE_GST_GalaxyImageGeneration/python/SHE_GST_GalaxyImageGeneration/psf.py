@@ -137,7 +137,7 @@ def create_psf_hdu(psf_profile,
                    exposure_index,
                    stamp_size = mv.default_psf_stamp_size,
                    scale = mv.default_pixel_scale / mv.default_psf_scale_factor,
-                   type = "bulge"):
+                   psf_type = "bulge"):
     """Creates an HDU of an image of a PSF profile.
     """
 
@@ -152,7 +152,7 @@ def create_psf_hdu(psf_profile,
     psf_hdu.header[gal_id_label] = galaxy_id
     psf_hdu.header[exposure_index_label] = exposure_index
     psf_hdu.header[scale_label] = scale
-    psf_hdu.header[type_label] = type
+    psf_hdu.header[type_label] = psf_type
 
     # Return
     return psf_hdu
@@ -161,7 +161,7 @@ def add_psf_to_archive(psf_profile,
                        archive_filename,
                        galaxy_id,
                        exposure_index,
-                       type,
+                       psf_type,
                        stamp_size = mv.default_psf_stamp_size,
                        scale = mv.default_pixel_scale / mv.default_psf_scale_factor,
                        workdir = "."):
@@ -174,7 +174,7 @@ def add_psf_to_archive(psf_profile,
                              exposure_index = exposure_index,
                              stamp_size = stamp_size,
                              scale = scale,
-                             type = type)
+                             psf_type = psf_type)
 
     # Append the HDU to the archive
 
