@@ -366,6 +366,8 @@ def combine_image_dithers(image_listfile_name,
                                          extension=".fits")
     
     save_hdu( full_sci_image, image_dithers, data_filename, workdir )
+    save_hdu( full_flg_image, image_dithers, data_filename, workdir )
+    save_hdu( full_rms_image, image_dithers, data_filename, workdir )
     
     p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
     write_xml_product(p, os.path.join(workdir,stacked_image_filename))
