@@ -75,7 +75,7 @@ def combine_dithers(dithers,
 
         # Initialize the combined image
         dither_shape = np.shape(ll_data)
-        combined_shape = (2 * dither_shape[0] + 2, 2 * dither_shape[1] + 2)
+        combined_shape = (2 * dither_shape[0] - 2, 2 * dither_shape[1] - 2)
         combined_data = np.zeros(shape = combined_shape, dtype = ll_data.dtype)
 
         # We'll use strides to represent each corner of the combined image
@@ -146,9 +146,6 @@ def combine_dithers(dithers,
                                                       np.roll(lr_data, -1, axis = 0),
                                                       np.roll(ul_data, -1, axis = 1),
                                                       ur_data),axis=0)
-
-        # Discard the final row and column of the combined image, which will contain junk values
-        combined_data = combined_data[0:-1, 0:-1]
         
         if mode == "MEAN":
             combined_data /= num_dithers
@@ -181,6 +178,10 @@ def combine_segmentation_dithers(segmentation_listfile_name,
                                  stacked_segmentation_filename,
                                  dithering_scheme,
                                  workdir):
+    
+    if dithering_scheme=='2x2':
+        pixel_factor = 2
+        extra_pixels = 2
     
     # Get the individual dithers
     segmentation_product_filenames = read_listfile(os.path.join(workdir,
@@ -221,12 +222,8 @@ def combine_segmentation_dithers(segmentation_listfile_name,
             
         segmentation_dithers.append(f)
         
-    # Create the image we'll need
-    if dithering_scheme=='2x2':
-        max_x_size = 2*max_x_size + 2
-        max_y_size = 2*max_y_size + 2
-        pixel_factor = 2
-        extra_pixels = 2
+    max_x_size = pixel_factor*max_x_size + extra_pixels
+    max_y_size = pixel_factor*max_y_size + extra_pixels
     
     full_image = np.zeros((max_x_size,max_y_size),dtype=np.int32)
     
@@ -268,6 +265,10 @@ def combine_image_dithers(image_listfile_name,
                           stacked_image_filename,
                           dithering_scheme,
                           workdir):
+    
+    if dithering_scheme=='2x2':
+        pixel_factor = 2
+        extra_pixels = 2
     
     # Get the individual dithers
     image_product_filenames = read_listfile(os.path.join(workdir, image_listfile_name))
@@ -321,12 +322,9 @@ def combine_image_dithers(image_listfile_name,
         image_dithers.append(f)
         
     # Create the image we'll need
-    if dithering_scheme=='2x2':
-        pixel_factor = 2
-        extra_pixels = 1
         
-    max_x_size = pixel_factor*max_x_size - extra_pixels * (max_num_x - 1) 
-    max_y_size = pixel_factor*max_y_size - extra_pixels * (max_num_y - 1)
+    max_x_size = pixel_factor*max_x_size + extra_pixels
+    max_y_size = pixel_factor*max_y_size + extra_pixels
     
     full_sci_image = np.zeros((max_x_size,max_y_size),dtype=np.float32)
     full_flg_image = np.ones((max_x_size,max_y_size),dtype=np.int32) * masked_off_image
