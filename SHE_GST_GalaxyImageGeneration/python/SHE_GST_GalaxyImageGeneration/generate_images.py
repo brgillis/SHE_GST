@@ -975,8 +975,8 @@ def add_image_header_info(gs_image,
                           full_options,
                           model_seed,
                           extname,
-                          stamp_size = None,
-                          dither_shift = (0., 0.)):
+                          wcs,
+                          stamp_size = None,):
     """
         @brief Adds various information to the image's header.
 
@@ -1032,12 +1032,12 @@ def add_image_header_info(gs_image,
     # Extension name
     gs_image.header[extname_label] = extname
 
-    # Dithering shift
-    gs_image.header[dither_dx_label] = dither_shift[0]
-    gs_image.header[dither_dy_label] = dither_shift[1]
-
     # Pixel scale
     gs_image.header[scale_label] = gs_image.scale
+    
+    # WCS info
+    wcs.writeToFitsHeader(gs_image.header, gs_image.bounds)
+    
 
     logger.debug("Exiting add_image_header_info method.")
 
@@ -1217,22 +1217,22 @@ def generate_image(image,
             # Add a header containing version info
             add_image_header_info(dither, options['gain'], full_options, image.get_full_seed(),
                                   extname = detector_id_str + "." + sci_tag,
-                                  stamp_size = stamp_size_pix, dither_shift = dither_shift)
+                                  wcs = wcs_list[di], stamp_size = stamp_size_pix)
             add_image_header_info(noise_maps[di], options['gain'], full_options, image.get_full_seed(),
                                   extname = detector_id_str + "." + noisemap_tag,
-                                  stamp_size = stamp_size_pix, dither_shift = dither_shift)
+                                  wcs = wcs_list[di], stamp_size = stamp_size_pix)
             add_image_header_info(mask_maps[di], options['gain'], full_options, image.get_full_seed(),
                                   extname = detector_id_str + "." + mask_tag,
-                                  stamp_size = stamp_size_pix, dither_shift = dither_shift)
+                                  wcs = wcs_list[di], stamp_size = stamp_size_pix)
             add_image_header_info(bkg_maps[di], options['gain'], full_options, image.get_full_seed(),
                                   extname = detector_id_str,
-                                  stamp_size = stamp_size_pix, dither_shift = dither_shift)
+                                  wcs = wcs_list[di], stamp_size = stamp_size_pix)
             add_image_header_info(wgt_maps[di], options['gain'], full_options, image.get_full_seed(),
                                   extname = detector_id_str,
-                                  stamp_size = stamp_size_pix, dither_shift = dither_shift)
+                                  wcs = wcs_list[di], stamp_size = stamp_size_pix)
             add_image_header_info(segmentation_maps[di], options['gain'], full_options, image.get_full_seed(),
                                   extname = detector_id_str + "." + segmentation_tag,
-                                  stamp_size = stamp_size_pix, dither_shift = dither_shift)
+                                  wcs = wcs_list[di], stamp_size = stamp_size_pix)
 
             if not options['suppress_noise']:
 
