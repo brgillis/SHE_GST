@@ -68,14 +68,14 @@ def combine_dithers(dithers,
         # 2: (0.0,0.5) (Upper-left)
         # 3: (0.5,0.5) (Upper-right)
 
-        ll_data = dithers[0]
-        lr_data = dithers[1]
-        ul_data = dithers[2]
-        ur_data = dithers[3]
+        ll_data = np.pad(dithers[0],pad_width=((1,1),(1,1)),mode='constant')
+        lr_data = np.pad(dithers[1],pad_width=((1,1),(1,1)),mode='constant')
+        ul_data = np.pad(dithers[2],pad_width=((1,1),(1,1)),mode='constant')
+        ur_data = np.pad(dithers[3],pad_width=((1,1),(1,1)),mode='constant')
 
         # Initialize the combined image
         dither_shape = np.shape(ll_data)
-        combined_shape = (2 * dither_shape[0], 2 * dither_shape[1])
+        combined_shape = (2 * dither_shape[0] + 2, 2 * dither_shape[1] + 2)
         combined_data = np.zeros(shape = combined_shape, dtype = ll_data.dtype)
 
         # We'll use strides to represent each corner of the combined image
@@ -95,7 +95,7 @@ def combine_dithers(dithers,
                                         shape = dither_shape,
                                         strides = dither_strides)
 
-        # We'll combine four arrays for each corner of the dithering (remeber x-y ordering swap!)
+        # We'll combine four arrays for each corner of the dithering (remember x-y ordering swap!)
         # We use roll here to shift by 1 pixel left/down. Since it's all initially zero, we can use +=
         # to assign the values we want to it
         if mode == "SUM" or mode == "MEAN" or mode == "NOISE_SUM":
@@ -226,7 +226,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
         max_x_size = 2*max_x_size + 2
         max_y_size = 2*max_y_size + 2
         pixel_factor = 2
-        extra_pixels = 1
+        extra_pixels = 2
     
     full_image = np.zeros((max_x_size,max_y_size),dtype=np.int32)
     
