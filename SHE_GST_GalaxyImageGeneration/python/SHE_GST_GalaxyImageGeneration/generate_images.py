@@ -272,7 +272,7 @@ def generate_image_group(image_group_phl, options):
 
             workdir = options['workdir']
 
-            qualified_image_filename = os.path.join(workdir, image_product.get_data_filename())
+            qualified_image_filename = os.path.join(workdir, image_filenames.data_filenames[i])
 
             # Science image
             im_hdu = fits.ImageHDU(data = image_dithers[i][0][0].array,
