@@ -54,6 +54,23 @@ def combine_dithers(dithers,
     if mode not in ("SUM", "NOISE_SUM", "MEAN", "MAX", "BIT_OR"):
         raise ValueError("Invalid combine mode for combine_dithers: " + str(mode) + ". " +
                          "Allowed modes are SUM, NOISE_SUM, MEAN, MAX, and BIT_OR.")
+        
+        
+        
+    if mode == "SUM":
+        combine_operation = np.sum
+    elif mode == "NOISE_SUM":
+        def noise_sum(a,*args,**kwargs):
+            a2 = np.square(a)
+            sa2 = np.sum(a2,*args,**kwargs)
+            return np.sqrt(sa2)
+        combine_operation = noise_sum
+    elif mode == "MEAN":
+        combine_operation = np.mean
+    elif mode == "MAX":
+        combine_operation = np.max
+    elif mode == "BIT_OR":
+        combine_operation = np.bitwise_or.reduce
 
     # Check which dithering scheme we're using
     if dithering_scheme == '2x2':
@@ -98,59 +115,35 @@ def combine_dithers(dithers,
         # We'll combine four arrays for each corner of the dithering (remember x-y ordering swap!)
         # We use roll here to shift by 1 pixel left/down. Since it's all initially zero, we can use +=
         # to assign the values we want to it
-        if mode == "SUM" or mode == "MEAN" or mode == "NOISE_SUM":
             
-            if mode=="NOISE_SUM":
-                power = 2
-            else:
-                power = 1
-            
-            lower_left_corners += (ll_data +
-                                   lr_data +
-                                   ul_data +
-                                   ur_data)**power
-            lower_right_corners += (np.roll(ll_data, -1, axis = 1) +
-                                    lr_data +
-                                    np.roll(ul_data, -1, axis = 1) +
-                                    ur_data)**power
-            upper_left_corners += (np.roll(ll_data, -1, axis = 0) +
-                                   np.roll(lr_data, -1, axis = 0) +
-                                   ul_data +
-                                   ur_data)**power
-            upper_right_corners += (np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0) +
-                                    np.roll(lr_data, -1, axis = 0) +
-                                    np.roll(ul_data, -1, axis = 1) +
-                                    ur_data)**power
-        elif mode == "MAX" or mode== "BIT_OR":
-            
-            if mode == "MAX":
-                combine_operation = np.max
-            elif mode == "BIT_OR":
-                combine_operation = np.bitwise_or.reduce
-            else:
-                raise ValueError("Invalide mode: " + str(mode))
-            
-            lower_left_corners += combine_operation((ll_data,
-                                                     lr_data,
-                                                     ul_data,
-                                                     ur_data),axis=0)
-            lower_right_corners += combine_operation((np.roll(ll_data, -1, axis = 1),
-                                                      lr_data,
-                                                      np.roll(ul_data, -1, axis = 1),
-                                                      ur_data),axis=0)
-            upper_left_corners += combine_operation((np.roll(ll_data, -1, axis = 0),
-                                                     np.roll(lr_data, -1, axis = 0),
-                                                     ul_data,
-                                                     ur_data),axis=0)
-            upper_right_corners += combine_operation((np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0),
-                                                      np.roll(lr_data, -1, axis = 0),
-                                                      np.roll(ul_data, -1, axis = 1),
-                                                      ur_data),axis=0)
+        lower_left_corners += combine_operation((ll_data,
+                                                 lr_data,
+                                                 ul_data,
+                                                 ur_data),axis=0)
+        lower_right_corners += combine_operation((np.roll(ll_data, -1, axis = 1),
+                                                  lr_data,
+                                                  np.roll(ul_data, -1, axis = 1),
+                                                  ur_data),axis=0)
+        upper_left_corners += combine_operation((np.roll(ll_data, -1, axis = 0),
+                                                 np.roll(lr_data, -1, axis = 0),
+                                                 ul_data,
+                                                 ur_data),axis=0)
+        upper_right_corners += combine_operation((np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0),
+                                                  np.roll(lr_data, -1, axis = 0),
+                                                  np.roll(ul_data, -1, axis = 1),
+                                                  ur_data),axis=0)
+    elif dithering_scheme=='4':
         
-        if mode == "MEAN":
-            combined_data /= num_dithers
-        elif mode == "NOISE_SUM":
-            combined_data = np.sqrt(combined_data)
+        # Check we have the right number of dithers
+        num_dithers = 4
+        assert len(dithers) == num_dithers
+
+        # Initialize the combined image
+        dither_shape = np.shape(ll_data)
+        combined_shape = dither_shape
+        combined_data = np.zeros(shape = combined_shape, dtype = ll_data.dtype)
+            
+        combined_data += combine_operation(dithers,axis=0)
         
     else:
         raise Exception("Unrecognized dithering scheme: " + dithering_scheme)
