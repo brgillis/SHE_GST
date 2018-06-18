@@ -267,7 +267,7 @@ def combine_image_dithers(image_listfile_name,
     # Get the individual dithers
     image_product_filenames = read_listfile(os.path.join(workdir, image_listfile_name))
     
-    num_dithers = len(stacked_image_filename)
+    num_dithers = len(image_product_filenames)
     
     # Get out the fits filenames and load them in memory-mapped mode
     image_dithers = []
