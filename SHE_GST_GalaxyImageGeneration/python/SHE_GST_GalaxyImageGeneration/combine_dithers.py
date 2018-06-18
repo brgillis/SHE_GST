@@ -312,10 +312,9 @@ def combine_image_dithers(image_listfile_name,
         
     # Create the image we'll need
     if dithering_scheme=='2x2':
-        max_x_size = 2*max_x_size + 2
-        max_y_size = 2*max_y_size + 2
+        max_x_size = 2*max_x_size + 1
+        max_y_size = 2*max_y_size + 1
         pixel_factor = 2
-        extra_pixels = 1
     
     full_sci_image = np.zeros((max_x_size,max_y_size),dtype=np.float32)
     full_flg_image = np.ones((max_x_size,max_y_size),dtype=np.int32) * masked_off_image
@@ -360,10 +359,10 @@ def combine_image_dithers(image_listfile_name,
                        y_offset:y_offset+rms_stack.shape[1]] += rms_stack
                    
         if x % 6 != 5:
-            x_offset += sci_stack.shape[0] + pixel_factor*mv.image_gap_x_pix - extra_pixels
+            x_offset += sci_stack.shape[0] + pixel_factor*mv.image_gap_x_pix
         else:
             x_offset = 0
-            y_offset += sci_stack.shape[1] + pixel_factor*mv.image_gap_y_pix - extra_pixels
+            y_offset += sci_stack.shape[1] + pixel_factor*mv.image_gap_y_pix
             
     # Print out the stacked segmentation map
     data_filename = get_allowed_filename("IMAGE_STACK",
