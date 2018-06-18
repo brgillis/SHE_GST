@@ -24,52 +24,73 @@ import galsim
 
 from SHE_PPT.table_formats.detections import tf as detf
 
-def make_segmentation_map( noisefree_image,
+def get_seg_ID():
+    
+    seg_ID = 1
+    
+    while True:
+        yield seg_ID
+        seg_ID += 1
+        
+seg_ID_gen = get_seg_ID()
+
+def make_segmentation_map(noisefree_image,
                            detections_table,
+                           wcs,
                            threshold = 0,
-                           r_max_factor = 5 ):
+                           r_max_factor = 5):
     """
         @TODO Docstring
     """
 
-    if detf.gal_hlr not in detections_table.columns:
-        raise ValueError( detf.gal_hlr + " must be in detections table for make_segmentation_map" )
+    if detf.Isoarea not in detections_table.columns:
+        raise ValueError(detf.Isoarea + " must be in detections table for make_segmentation_map")
 
-    if detf.gal_mag in detections_table.columns:
-        sorted_dtc_table = deepcopy( detections_table )
-        sorted_dtc_table.sort( detf.gal_mag )
+    if detf.MagStarGal in detections_table.columns:
+        sorted_dtc_table = deepcopy(detections_table)
+        sorted_dtc_table.sort(detf.MagStarGal)
     else:
-        raise ValueError( detf.gal_mag + " must be in detections table for make_segmentation_map" )
+        raise ValueError(detf.MagStarGal + " must be in detections table for make_segmentation_map")
+    
+    detections_table.add_index(detf.ID)
 
-    segmentation_map = galsim.Image( -np.ones_like( noisefree_image.array, dtype = np.int32 ), scale = noisefree_image.scale )
+    segmentation_map = galsim.Image(-np.ones_like(noisefree_image.array, dtype = np.int32), scale = noisefree_image.scale)
 
-    y_image, x_image = np.indices( np.shape( noisefree_image.array ) )
+    y_image, x_image = np.indices(np.shape(noisefree_image.array))
 
-    threshold_mask = np.ravel( noisefree_image.array ) <= threshold
-    claimed_mask = np.zeros_like( threshold_mask, dtype = bool )
+    threshold_mask = np.ravel(noisefree_image.array) <= threshold
+    claimed_mask = np.zeros_like(threshold_mask, dtype = bool)
 
     r_max_factor_scaled = r_max_factor / noisefree_image.scale
 
-    for i in range( len( sorted_dtc_table ) ):
+    for i in range(len(sorted_dtc_table)):
+        
+        seg_ID = next(seg_ID_gen)
 
         # For each object, look for pixels near it above the threshold value
-        dx_image = x_image - sorted_dtc_table[detf.gal_x][i]
-        dy_image = y_image - sorted_dtc_table[detf.gal_y][i]
+        gal_xy = wcs.toImage(galsim.PositionD(float(sorted_dtc_table[detf.gal_x_world][i]),
+                                              float(sorted_dtc_table[detf.gal_y_world][i])))
+        
+        dx_image = x_image - gal_xy.x
+        dy_image = y_image - gal_xy.y
 
         r2_image = dx_image ** 2 + dy_image ** 2
 
-        r2_max = ( r_max_factor_scaled * sorted_dtc_table[detf.gal_hlr][i] ) ** 2
+        r2_max = r_max_factor_scaled**2 * sorted_dtc_table[detf.Isoarea][i]
 
-        region_mask = np.ravel( r2_image ) > r2_max
+        region_mask = np.ravel(r2_image) > r2_max
 
-        claimed_threshold_mask = np.logical_or( threshold_mask, claimed_mask )
+        claimed_threshold_mask = np.logical_or(threshold_mask, claimed_mask)
 
-        full_mask = np.logical_or( region_mask, claimed_threshold_mask )
+        full_mask = np.logical_or(region_mask, claimed_threshold_mask)
 
-        # Set the unmasked values to the object's ID
-        segmentation_map.array.ravel()[~full_mask] = sorted_dtc_table[detf.ID][i]
+        # Set the unmasked values to the object's seg_ID
+        segmentation_map.array.ravel()[~full_mask] = seg_ID
+        
+        # Store this seg_ID in the table
+        detections_table.loc[sorted_dtc_table[detf.ID][i]][detf.seg_ID] = seg_ID
 
         # Add those values to the claimed mask
-        claimed_mask = np.logical_or( claimed_mask, ~full_mask )
+        claimed_mask = np.logical_or(claimed_mask, ~full_mask)
 
     return segmentation_map

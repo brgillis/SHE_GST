@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-
 """
-    @file gen_galsim_images.py
+    @file import_test.py
 
-    Created Mar 2014
+    Created 21 Aug 2017
 
-    Executable module to run image generation routine.
+    Tests of various imports, to make sure galsim is installed and other parts of the project are
+    linked correctly.
 """
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
@@ -21,24 +20,25 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import sys
-
-from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_config_file
-from SHE_GST_GalaxyImageGeneration.utility import timing
+import unittest
 
 
-def main(argv):
+class ImportTestCase(unittest.TestCase):
 
-    # Check that a configuration file name was passed at command line
-    if(len(argv)) <= 1:
-        config_file_name = ""
-    else:
-        config_file_name = argv[1]
+    # External imports
 
-    run_from_config_file(config_file_name)
+    def testGalSimImport(self):
+        import galsim
 
-    print('Execution complete.')
+    # Internal python imports
 
+    def testSHE_GST_IceBRGpyImport(self):
+        import SHE_GST_IceBRGpy
 
-if __name__ == "__main__":
-    main(sys.argv)
+    # Internal C++ imports
+
+    def testcIceBRGpyImport(self):
+        import SHE_GST_cIceBRGpy
+
+    def testSHESIMImport(self):
+        import SHE_GST_PhysicalModel

@@ -29,31 +29,31 @@ def bad_config_format():
             configuration file.
     """
 
-    raise Exception( "ERROR: Improperly formatted configuration file. Please check"
-                    + "sample files and ensure it has one of the proper formats." )
+    raise Exception("ERROR: Improperly formatted configuration file. Please check"
+                    + "sample files and ensure it has one of the proper formats.")
 
 
-def old_config_version( ver ):
+def old_config_version(ver):
     """
         @brief A boilerplate alert that the config file version being used is old, and some default values
             will have to be assumed.
     """
 
-    logger = getLogger( mv.logger_name )
+    logger = getLogger(mv.logger_name)
 
-    logger.info( "Using configuration file for version " + ver +
+    logger.info("Using configuration file for version " + ver +
                 " of the script. This is an old version. Default values will be used for " +
-                "new parameters added in more recent versions." )
+                "new parameters added in more recent versions.")
     return
 
 
-def new_config_version( ver ):
+def new_config_version(ver):
     """
         @brief A boilerplate note that the config file version being used is up to date.
     """
 
-    logger = getLogger( mv.logger_name )
+    logger = getLogger(mv.logger_name)
 
-    logger.info( "Using configuration file for version " + ver + " of the script." +
-                "This is the most recent version - no default values need to be assumed." )
+    logger.info("Using configuration file for version " + ver + " of the script." +
+                "This is the most recent version - no default values need to be assumed.")
     return

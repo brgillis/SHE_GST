@@ -27,17 +27,17 @@ except ImportError as _e:
     from Release import cIceBRGpy
 
 
-def rebin( a, x_shift = 0, y_shift = 0, subsampling_factor = 5, conserve = False ):
+def rebin(a, x_shift = 0, y_shift = 0, subsampling_factor = 5, conserve = False):
     """ Rebins an array with a given offset and subsampling factor. Note that
         unless 'conserve' is set to True, the input array will be overwritten.
     """
 
     # If we want to conserve, do so by operating on a copy of the array
-    if( conserve ):
-        a = deepcopy( a )
+    if(conserve):
+        a = deepcopy(a)
     else:
         # Ensure it's contiguous
-        a = np.ascontiguousarray( a )
+        a = np.ascontiguousarray(a)
 
     # Use the proper function for the data type
     if a.dtype == 'float32':
@@ -53,13 +53,13 @@ def rebin( a, x_shift = 0, y_shift = 0, subsampling_factor = 5, conserve = False
     elif a.dtype == 'uint64':
         f = cIceBRGpy.rebin_ulong
     else:
-        raise Exception( "Unsupported data type for rebinning: " + str( a.dtype ) )
+        raise Exception("Unsupported data type for rebinning: " + str(a.dtype))
 
-    new_shape = f( a, x_shift, y_shift, subsampling_factor )
+    new_shape = f(a, x_shift, y_shift, subsampling_factor)
 
     # Resort the new array into the proper shape
-    new_size = np.product( new_shape )
+    new_size = np.product(new_shape)
 
-    rebinned_array = np.reshape( np.ravel( a )[0:new_size], new_shape )
+    rebinned_array = np.reshape(np.ravel(a)[0:new_size], new_shape)
 
     return rebinned_array

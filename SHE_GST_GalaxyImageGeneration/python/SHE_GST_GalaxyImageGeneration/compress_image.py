@@ -23,7 +23,7 @@ import subprocess
 import SHE_GST_GalaxyImageGeneration.magic_values as mv
 
 
-def compress_image( image_name, nx = None, lossy = False ):
+def compress_image(image_name, nx = None, lossy = False):
     """ Compresses an image using fpack.
 
         Requires: image_name <string>
@@ -34,7 +34,7 @@ def compress_image( image_name, nx = None, lossy = False ):
     """
 
     cmd = mv.rm_command + image_name + ".fz"
-    subprocess.call( cmd, shell = True )
+    subprocess.call(cmd, shell = True)
 
     if lossy:
         cmd = mv.fpack_lossy_command + image_name
@@ -42,8 +42,8 @@ def compress_image( image_name, nx = None, lossy = False ):
         if nx is None:
             cmd = mv.fpack_lossless_command + image_name
         else:
-            cmd = mv.fpack_lossless_command + "-t " + str( nx[0] ) + "," + str( nx[1] ) + " " + image_name
+            cmd = mv.fpack_lossless_command + "-t " + str(nx[0]) + "," + str(nx[1]) + " " + image_name
 
-    subprocess.call( cmd, shell = True )
+    subprocess.call(cmd, shell = True)
     cmd = mv.rm_command + image_name
-    subprocess.call( cmd, shell = True )
+    subprocess.call(cmd, shell = True)

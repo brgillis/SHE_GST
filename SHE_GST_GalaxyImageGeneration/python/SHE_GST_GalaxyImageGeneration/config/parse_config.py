@@ -26,22 +26,22 @@ from SHE_PPT.file_io import read_pickled_product, find_file
 
 import SHE_GST_PhysicalModel
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from SHE_GST_GalaxyImageGeneration.config.config_default import ( allowed_options,
+from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options,
                                                             allowed_fixed_params,
                                                             allowed_survey_settings,
                                                             generation_levels,
-                                                            load_default_configurations )
+                                                            load_default_configurations)
 
 products.simulation_config.init()
 
 __all__ = ['get_cfg_args', 'set_up_from_config_file', 'apply_args', 'clean_quotes']
 
-def get_cfg_args( config_filename, workdir = "." ):
+def get_cfg_args(config_filename, workdir = "."):
 
     cfg_args = {}
 
     # Find the file first
-    qualified_config_filename = find_file( config_filename, path = workdir )
+    qualified_config_filename = find_file(config_filename, path = workdir)
 
     # The config file can be either an xml product which points to a file, or the file itself.
     # We'll first check if it's a valid xml product
@@ -49,53 +49,53 @@ def get_cfg_args( config_filename, workdir = "." ):
     possible_exception_str = "Simulation configuration product in " + config_filename + " is of invalid type."
 
     try:
-        config_prod = read_pickled_product( qualified_config_filename )
-        if not isinstance( config_prod, products.simulation_config.DpdSheSimulationConfigProduct ):
-            raise IOError( possible_exception_str )
+        config_prod = read_pickled_product(qualified_config_filename)
+        if not isinstance(config_prod, products.simulation_config.DpdSheSimulationConfigProduct):
+            raise IOError(possible_exception_str)
         # It's a product, so get the file it points to in the workdir
-        qualified_config_filename = find_file( config_prod.get_filename(), path = workdir )
+        qualified_config_filename = find_file(config_prod.get_filename(), path = workdir)
     except Exception as e:
         # Catch exceptions other than IOError for wrong product type
-        if possible_exception_str in str( e ):
+        if possible_exception_str in str(e):
             raise
         # See if we can read it directly
         pass
 
-    with open( qualified_config_filename, 'r' ) as config_file:
+    with open(qualified_config_filename, 'r') as config_file:
         # Read in the file, except for comment lines
         for config_line in config_file:
             stripped_line = config_line.strip()
-            if ( config_line[0] != '#' ) and ( len( stripped_line ) > 0 ):
-                parse_line( stripped_line, cfg_args )
+            if (config_line[0] != '#') and (len(stripped_line) > 0):
+                parse_line(stripped_line, cfg_args)
 
     return cfg_args
 
-def set_up_from_config_file( config_file_name ):
+def set_up_from_config_file(config_file_name):
 
     survey, options = load_default_configurations()
 
     if config_file_name is not None:
-        cfg_args = get_cfg_args( config_file_name )
-        apply_args( survey, options, cfg_args )
+        cfg_args = get_cfg_args(config_file_name)
+        apply_args(survey, options, cfg_args)
 
     return survey, options
 
-def parse_line( line, args ):
+def parse_line(line, args):
 
     # Split by comments
-    no_comments_line = line.split( sep = '#' )[0]
+    no_comments_line = line.split(sep = '#')[0]
 
     # Split by =
-    eq_split_line = no_comments_line.split( sep = '=' )
+    eq_split_line = no_comments_line.split(sep = '=')
 
     # Check if this looks good
-    if len( eq_split_line ) != 2:
-        if len( eq_split_line ) < 2:
+    if len(eq_split_line) != 2:
+        if len(eq_split_line) < 2:
             # It's empty or only a comment, so ignore it
             return
         else:
             # More than one = outside of comments - it's malformatted
-            raise Exception( "Comment line is malformatted: '" + line + "'" )
+            raise Exception("Comment line is malformatted: '" + line + "'")
 
     option = eq_split_line[0].strip()
     setting_str = eq_split_line[1].strip()
@@ -104,49 +104,49 @@ def parse_line( line, args ):
     if option in allowed_options:
 
         # Convert to proper type and store in args
-        args[option] = allowed_options[option][1]( setting_str )
+        args[option] = allowed_options[option][1](setting_str)
 
     elif option in allowed_fixed_params:
 
         # Convert to float and store
-        args[option] = float( setting_str )
+        args[option] = float(setting_str)
 
-    elif option.replace( "_setting", "" ) in allowed_survey_settings:
+    elif option.replace("_setting", "") in allowed_survey_settings:
 
-        args[option] = str( setting_str )
+        args[option] = str(setting_str)
 
-    elif option.replace( "_level", "" ) in allowed_survey_settings:
+    elif option.replace("_level", "") in allowed_survey_settings:
         if setting_str not in generation_levels:
-            raise Exception( "Invalid generation level: " + setting_str )
-        args[option] = str( setting_str )
+            raise Exception("Invalid generation level: " + setting_str)
+        args[option] = str(setting_str)
     else:
-        raise Exception( "Unrecognized configuration option: " + option )
+        raise Exception("Unrecognized configuration option: " + option)
 
-def apply_args( survey, options, args ):
+def apply_args(survey, options, args):
 
-    logger = getLogger( mv.logger_name )
+    logger = getLogger(mv.logger_name)
 
-    logger.debug( "# Entering apply_args method." )
+    logger.debug("# Entering apply_args method.")
 
     # Make sure we have a dictionary
-    if not isinstance( args, dict ):
-        arg_lib = vars( args )
+    if not isinstance(args, dict):
+        arg_lib = vars(args)
     else:
         arg_lib = args
 
     # Check if each option was overriden in the args
     for option in allowed_options:
         if option in arg_lib:
-            logger.debug( "Applying option " + option + ": " + str( arg_lib[option] ) )
+            logger.debug("Applying option " + option + ": " + str(arg_lib[option]))
             if arg_lib[option] is not None:
-                options[option] = clean_quotes( arg_lib[option] )
+                options[option] = clean_quotes(arg_lib[option])
 
     # Add allowed fixed params
     for fixed_param in allowed_fixed_params:
         if fixed_param in arg_lib:
-            logger.debug( "Applying fixed param " + fixed_param + ": " + str( arg_lib[fixed_param] ) )
+            logger.debug("Applying fixed param " + fixed_param + ": " + str(arg_lib[fixed_param]))
             if arg_lib[fixed_param] is not None:
-                survey.set_param_params( fixed_param, 'fixed', clean_quotes( arg_lib[fixed_param] ) )
+                survey.set_param_params(fixed_param, 'fixed', clean_quotes(arg_lib[fixed_param]))
 
 
     # Add allowed survey settings, with both level and setting possibilities
@@ -154,31 +154,31 @@ def apply_args( survey, options, args ):
 
         generation_level_name = param_name + "_level"
         if generation_level_name in arg_lib:
-            logger.debug( "Applying generation level " + generation_level_name + ": " + str( arg_lib[generation_level_name] ) )
+            logger.debug("Applying generation level " + generation_level_name + ": " + str(arg_lib[generation_level_name]))
             if arg_lib[generation_level_name] is not None:
-                survey.set_generation_level( param_name,
-                                            generation_levels[clean_quotes( arg_lib[generation_level_name] )] )
+                survey.set_generation_level(param_name,
+                                            generation_levels[clean_quotes(arg_lib[generation_level_name])])
 
 
         settings_name = param_name + "_setting"
         if settings_name in arg_lib:
-            logger.debug( "Applying setting " + settings_name + ": " + str( arg_lib[settings_name] ) )
+            logger.debug("Applying setting " + settings_name + ": " + str(arg_lib[settings_name]))
             if arg_lib[settings_name] is not None:
 
-                split_params = clean_quotes( arg_lib[settings_name] ).split()
+                split_params = clean_quotes(arg_lib[settings_name]).split()
 
                 flt_args = []
                 for str_arg in split_params[1:]:
-                    flt_args.append( float( str_arg.strip() ) )
+                    flt_args.append(float(str_arg.strip()))
 
-                survey.set_param_params( param_name, split_params[0].strip(), *flt_args )
+                survey.set_param_params(param_name, split_params[0].strip(), *flt_args)
 
-    logger.debug( "# Exiting apply_args method." )
+    logger.debug("# Exiting apply_args method.")
 
     return
 
-def clean_quotes( s ):
-    if not isinstance( s, str ): return s
+def clean_quotes(s):
+    if not isinstance(s, str): return s
 
     if s[0] == "'" and s[-1] == "'":
         s = s[1:-1]

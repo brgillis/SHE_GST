@@ -1,11 +1,8 @@
-#!/usr/bin/env python
+""" @file gain_test.py
 
-"""
-    @file gen_galsim_images.py
+    Created 6 July 2017
 
-    Created Mar 2014
-
-    Executable module to run image generation routine.
+    Tests of functions dealing with gain calculations.
 """
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
@@ -21,24 +18,22 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import sys
+import unittest
+from numpy.testing import assert_almost_equal
+from SHE_GST_GalaxyImageGeneration.gain import get_ADU_from_count, get_count_from_ADU
 
-from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_config_file
-from SHE_GST_GalaxyImageGeneration.utility import timing
+class GainTestCase(unittest.TestCase):
 
+    def setUp(self):
+        self.count = 1000
+        self.gain = 2.5
+        self.ADU = 400
 
-def main(argv):
+    def test_get_ADU_from_count(self):
+        check_ADU = get_ADU_from_count(self.count, self.gain)
+        assert_almost_equal(check_ADU, self.ADU)
 
-    # Check that a configuration file name was passed at command line
-    if(len(argv)) <= 1:
-        config_file_name = ""
-    else:
-        config_file_name = argv[1]
+    def test_get_count_from_ADU(self):
+        check_count = get_count_from_ADU(self.ADU, self.gain)
+        assert_almost_equal(check_count, self.count)
 
-    run_from_config_file(config_file_name)
-
-    print('Execution complete.')
-
-
-if __name__ == "__main__":
-    main(sys.argv)

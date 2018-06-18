@@ -21,12 +21,12 @@
 import subprocess
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from SHE_GST_GalaxyImageGeneration.config.config_default import ( allowed_survey_settings,
-                                                                   generation_levels_inverse, )
-from SHE_GST_GalaxyImageGeneration.config.parse_config import ( set_up_from_config_file,
+from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_survey_settings,
+                                                                   generation_levels_inverse,)
+from SHE_GST_GalaxyImageGeneration.config.parse_config import (set_up_from_config_file,
                                                                  load_default_configurations,
                                                                  get_cfg_args,
-                                                                 apply_args )
+                                                                 apply_args)
 from SHE_PPT.logging import getLogger
 
 
@@ -38,93 +38,93 @@ except ImportError as _e:
     have_pyfftw = False
 
 
-def run_from_config_file( func, config_file_name, *args, **kwargs ):
+def run_from_config_file(func, config_file_name, *args, **kwargs):
 
-    survey, options = set_up_from_config_file( config_file_name )
+    survey, options = set_up_from_config_file(config_file_name)
 
-    return run_from_survey_and_options( func, survey, options, *args, **kwargs )
+    return run_from_survey_and_options(func, survey, options, *args, **kwargs)
 
-def run_from_args( func, cline_args, *args, **kwargs ):
+def run_from_args(func, cline_args, *args, **kwargs):
 
-    logger = getLogger( mv.logger_name )
-    logger.debug( "# Entering run_from_args method." )
+    logger = getLogger(mv.logger_name)
+    logger.debug("# Entering run_from_args method.")
 
     # Load defaults
     survey, options = load_default_configurations()
 
     # Apply arguments in extra config files specified
     for config_file_name in cline_args.config_files:
-        logger.debug( 'Applying arguments from config file: ' + config_file_name )
-        cfg_args = get_cfg_args( config_file_name, cline_args.workdir )
-        apply_args( survey, options, cfg_args )
+        logger.debug('Applying arguments from config file: ' + config_file_name)
+        cfg_args = get_cfg_args(config_file_name, cline_args.workdir)
+        apply_args(survey, options, cfg_args)
 
     # Apply cline-args
-    apply_args( survey, options, cline_args )
+    apply_args(survey, options, cline_args)
 
-    results = run_from_survey_and_options( func, survey, options, *args, **kwargs )
+    results = run_from_survey_and_options(func, survey, options, *args, **kwargs)
 
-    logger.debug( "# Exiting run_from_args method." )
+    logger.debug("# Exiting run_from_args method.")
 
     return results
 
-def run_from_config_file_and_args( func, config_file_name, cline_args, *args, **kwargs ):
+def run_from_config_file_and_args(func, config_file_name, cline_args, *args, **kwargs):
 
-    survey, options = set_up_from_config_file( config_file_name )
+    survey, options = set_up_from_config_file(config_file_name)
 
     # Apply cline-args
-    apply_args( survey, options, cline_args )
+    apply_args(survey, options, cline_args)
 
-    return run_from_survey_and_options( func, survey, options, *args, **kwargs )
+    return run_from_survey_and_options(func, survey, options, *args, **kwargs)
 
 
-def run_from_survey_and_options( func, survey, options, *args, **kwargs ):
+def run_from_survey_and_options(func, survey, options, *args, **kwargs):
 
     # Check if the folder path was given with a slash at the end. If so, trim it
-    if( options['workdir'][-1] == '/' ):
+    if(options['workdir'][-1] == '/'):
         options['workdir'] = options['workdir'][0:-1]
 
-    logger = getLogger( mv.logger_name )
+    logger = getLogger(mv.logger_name)
 
     # Print all options we're using to the logger
-    logger.debug( "# Running with the following options: #" )
-    logger.debug( "" )
+    logger.debug("# Running with the following options: #")
+    logger.debug("")
     for name in options:
-        logger.debug( name + ": " + str( options[name] ) )
-        logger.debug( "" )
+        logger.debug(name + ": " + str(options[name]))
+        logger.debug("")
 
     # Print survey settings and levels too
-    logger.debug( "# And using the following settings for the physical model: #" )
-    logger.debug( "" )
+    logger.debug("# And using the following settings for the physical model: #")
+    logger.debug("")
     for name in allowed_survey_settings:
 
-        gen_level = generation_levels_inverse[int( survey.get_generation_level( name ) )]
-        logger.debug( name + " generation level: " + gen_level )
+        gen_level = generation_levels_inverse[int(survey.get_generation_level(name))]
+        logger.debug(name + " generation level: " + gen_level)
 
-        param_params = survey.get_param( name ).get_params()
+        param_params = survey.get_param(name).get_params()
         pp_mode = param_params.name()
-        logger.debug( name + " generation mode: " + pp_mode )
+        logger.debug(name + " generation mode: " + pp_mode)
         pp_params = param_params.get_parameters_string()
-        logger.debug( name + " generation parameters: " + pp_params )
+        logger.debug(name + " generation parameters: " + pp_params)
 
-        logger.debug( "" )
+        logger.debug("")
 
     # Ensure that the output folder exists
     cmd = 'mkdir -p ' + options['workdir']
-    subprocess.call( cmd, shell = True )
+    subprocess.call(cmd, shell = True)
 
     # Set up pyfftw
     if have_pyfftw:
         pyfftw.interfaces.cache.enable()
         try:
-            pyfftw.import_wisdom( pickle.load( open( mv.fftw_wisdom_filename, "rb" ) ) )
+            pyfftw.import_wisdom(pickle.load(open(mv.fftw_wisdom_filename, "rb")))
         except IOError as _e:
             pass
 
     # We have the input we want, now run the program
-    results = func( survey, options, *args, **kwargs )
+    results = func(survey, options, *args, **kwargs)
 
     # Save fftw wisdom
     if have_pyfftw:
-        pickle.dump( pyfftw.export_wisdom(), open( mv.fftw_wisdom_filename, "wb" ) )
+        pickle.dump(pyfftw.export_wisdom(), open(mv.fftw_wisdom_filename, "wb"))
 
     return results

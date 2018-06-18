@@ -49,11 +49,11 @@ default_num_images = 1
 default_gain = 3.3
 default_pixel_scale = 0.1
 default_psf_scale_factor = 5
-default_psf_center_offset = ( -0.5, -2.5 )
+default_psf_stamp_size = 256
+default_psf_center_offset = (-0.5, -2.5)
 default_read_noise = 5.4
 default_sky_level = 32570.
 default_exp_time = 565.  # seconds
-default_psf_size = 0.085
 
 default_truncation_radius_factor = 4.5
 
@@ -97,3 +97,7 @@ fits_header_subtracted_sky_level_label = "S_SKYLV"
 fits_header_unsubtracted_sky_level_label = "US_SKYLV"
 fits_header_read_noise_label = "RD_NOISE"
 fits_header_gain_label = "CCDGAIN"
+
+# TODO check actual gaps
+image_gap_x_pix = 50
+image_gap_y_pix = 50

@@ -28,34 +28,34 @@ import numpy as np
 from SHE_PPT.table_formats.details import tf as datf
 from SHE_PPT.table_formats.detections import tf as detf
 
-def make_cutout_image( image,
+def make_cutout_image(image,
                       options,
                       galaxies,
                       detections_table = None,
                       details_table = None,
-                      centre_offset = 0 ):
+                      centre_offset = 0):
 
     # Get a list of only the target galaxies
     target_galaxies = []
     for galaxy in galaxies:
-        if is_target_galaxy( galaxy, options ):
-            target_galaxies.append( galaxy )
+        if is_target_galaxy(galaxy, options):
+            target_galaxies.append(galaxy)
 
     # Figure out how to set up the grid, making it as square as possible
-    num_target_galaxies = len( target_galaxies )
+    num_target_galaxies = len(target_galaxies)
 
-    ncols = int( np.ceil( np.sqrt( num_target_galaxies ) ) )
-    nrows = int( np.ceil( num_target_galaxies / ncols ) )
+    ncols = int(np.ceil(np.sqrt(num_target_galaxies)))
+    nrows = int(np.ceil(num_target_galaxies / ncols))
 
     stamp_size_pix = options['stamp_size']
 
     cutout_image_npix_x = ncols * stamp_size_pix
     cutout_image_npix_y = nrows * stamp_size_pix
 
-    cutout_image = galsim.Image( cutout_image_npix_x,
+    cutout_image = galsim.Image(cutout_image_npix_x,
                                 cutout_image_npix_y,
                                 dtype = image.dtype,
-                                scale = image.scale )
+                                scale = image.scale)
 
     # Add each target galaxy to the cutout image
 
@@ -73,18 +73,18 @@ def make_cutout_image( image,
             icol = 0
             irow += 1
             if irow >= nrows:
-                raise Exception( "More galaxies than expected when printing cutouts." )
+                raise Exception("More galaxies than expected when printing cutouts.")
 
         # Determine cutout's bounds
-        cutout_bounds = galsim.BoundsI( icol * stamp_size_pix + 1, ( icol + 1 ) * stamp_size_pix,
-                                       irow * stamp_size_pix + 1, ( irow + 1 ) * stamp_size_pix )
+        cutout_bounds = galsim.BoundsI(icol * stamp_size_pix + 1, (icol + 1) * stamp_size_pix,
+                                       irow * stamp_size_pix + 1, (irow + 1) * stamp_size_pix)
 
         # Determine galaxy's bounds
-        xp = galaxy.get_param_value( "xp" )
-        yp = galaxy.get_param_value( "yp" )
+        xp = galaxy.get_param_value("xp")
+        yp = galaxy.get_param_value("yp")
 
-        xp_i = int( xp )
-        yp_i = int( yp )
+        xp_i = int(xp)
+        yp_i = int(yp)
 
         x_sp_shift = xp - xp_i
         y_sp_shift = yp - yp_i
@@ -112,19 +112,19 @@ def make_cutout_image( image,
         yh += y_shift
         yl += y_shift
 
-        gal_bounds = galsim.BoundsI( xl, xh, yl, yh )
+        gal_bounds = galsim.BoundsI(xl, xh, yl, yh)
 
         # Add the galaxy's stamp to the cutout image
         cutout_image[cutout_bounds] += image[gal_bounds]
 
         # Adjust the galaxy's x and y centre coordinates in output tables if necessary
-        for ( otable, tf, dtype ) in ( ( detections_table, detf, int ),
-                                    ( details_table, datf, float ) ):
+        for (otable, tf, dtype) in ((detections_table, detf, int),
+                                    (details_table, datf, float)):
             if otable is not None:
-                index = ( otable[tf.ID] == galaxy.get_full_ID() )
-                otable[tf.gal_x][index] = dtype( icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift +
-                    x_sp_shift + centre_offset )
-                otable[tf.gal_y][index] = dtype( irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + \
-                    y_sp_shift + centre_offset )
+                index = (otable[tf.ID] == galaxy.get_full_ID())
+                otable[tf.gal_x][index] = dtype(icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift +
+                    x_sp_shift + centre_offset)
+                otable[tf.gal_y][index] = dtype(irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + \
+                    y_sp_shift + centre_offset)
 
     return cutout_image
