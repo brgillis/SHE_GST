@@ -160,6 +160,7 @@ def combine_dithers(dithers,
 
 def save_hdu(full_image,
              image_dithers,
+             wcs,
              data_filename,
              extname,
              workdir, ):
@@ -170,6 +171,9 @@ def save_hdu(full_image,
     hdu.header[ppt_mv.noise_seed_label] = image_dithers[0][0].header[ppt_mv.noise_seed_label]
     hdu.header["EXTNAME"] = extname
     hdu.header[ppt_mv.scale_label] = image_dithers[0][0].header[ppt_mv.scale_label] / 2
+    
+    wcs.writeToFitsHeader(hdu.header,galsim.Image(full_image).bounds)
+    
     append_hdu(os.path.join(workdir, data_filename), hdu)
     
     return
@@ -222,6 +226,11 @@ def combine_segmentation_dithers(segmentation_listfile_name,
             
         segmentation_dithers.append(f)
         
+    # Get the WCS from the first dither
+    first_wcs, first_origin = galsim.wcs.readFromFitsHeader(segmentation_dithers[0][0].header)
+    stack_wcs = galsim.wcs.OffsetWCS(scale=first_wcs.scale/2,
+                                     origin=first_origin/2)
+        
     max_x_size = pixel_factor*max_x_size + extra_pixels
     max_y_size = pixel_factor*max_y_size + extra_pixels
     
@@ -254,7 +263,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
                                          segmentation_dithers[0][0].header['MHASH'],
                                          extension=".fits")
     
-    save_hdu(full_image, segmentation_dithers, data_filename, segmentation_tag, workdir)
+    save_hdu(full_image, segmentation_dithers, stack_wcs, data_filename, segmentation_tag, workdir)
     
     p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
     write_xml_product(p, os.path.join(workdir,stacked_segmentation_filename))
@@ -321,6 +330,11 @@ def combine_image_dithers(image_listfile_name,
             
         image_dithers.append(f)
         
+    # Get the WCS from the first dither
+    first_wcs, first_origin = galsim.wcs.readFromFitsHeader(image_dithers[0][0].header)
+    stack_wcs = galsim.wcs.OffsetWCS(scale=first_wcs.scale/2,
+                                     origin=first_origin/2)
+        
     # Create the image we'll need
         
     max_x_size = pixel_factor*max_x_size + extra_pixels
@@ -379,9 +393,9 @@ def combine_image_dithers(image_listfile_name,
                                          image_dithers[0][0].header['MHASH'],
                                          extension=".fits")
     
-    save_hdu( full_sci_image, image_dithers, data_filename, sci_tag, workdir )
-    save_hdu( full_flg_image, image_dithers, data_filename, mask_tag, workdir )
-    save_hdu( full_rms_image, image_dithers, data_filename, noisemap_tag, workdir )
+    save_hdu( full_sci_image, image_dithers, stack_wcs, data_filename, sci_tag, workdir )
+    save_hdu( full_flg_image, image_dithers, stack_wcs, data_filename, mask_tag, workdir )
+    save_hdu( full_rms_image, image_dithers, stack_wcs, data_filename, noisemap_tag, workdir )
     
     p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
     write_xml_product(p, os.path.join(workdir,stacked_image_filename))
