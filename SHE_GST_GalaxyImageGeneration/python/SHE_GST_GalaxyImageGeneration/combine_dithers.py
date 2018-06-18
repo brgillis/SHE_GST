@@ -329,11 +329,11 @@ def combine_image_dithers(image_listfile_name,
                 assert image_dithers[i][3*x].header['EXTNAME'][-4:] == "." + sci_tag
                 sci_dithers.append(image_dithers[i][3*x].data)
                 
-                assert image_dithers[i][3*x+1].header['EXTNAME'][-4:] == "." + mask_tag
-                flg_dithers.append(image_dithers[i][3*x+1].data)
+                assert image_dithers[i][3*x+1].header['EXTNAME'][-4:] == "." + noisemap_tag
+                rms_dithers.append(image_dithers[i][3*x+1].data)
                 
-                assert image_dithers[i][3*x+2].header['EXTNAME'][-4:] == "." + noisemap_tag
-                rms_dithers.append(image_dithers[i][3*x+2].data)
+                assert image_dithers[i][3*x+2].header['EXTNAME'][-4:] == "." + mask_tag
+                flg_dithers.append(image_dithers[i][3*x+2].data)
                 
         sci_stack = combine_dithers(sci_dithers,
                                     dithering_scheme,
