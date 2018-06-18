@@ -175,10 +175,14 @@ def combine_segmentation_dithers(segmentation_listfile_name,
                                  stacked_segmentation_filename,
                                  dithering_scheme,
                                  workdir):
-    
     if dithering_scheme=='2x2':
         pixel_factor = 2
         extra_pixels = 2
+    elif dithering_scheme=='4':
+        pixel_factor = 1
+        extra_pixels = 0
+    else:
+        raise ValueError("Unknown dithering scheme: " + dithering_scheme)
     
     # Get the individual dithers
     segmentation_product_filenames = read_listfile(os.path.join(workdir,
@@ -271,6 +275,11 @@ def combine_image_dithers(image_listfile_name,
     if dithering_scheme=='2x2':
         pixel_factor = 2
         extra_pixels = 2
+    elif dithering_scheme=='4':
+        pixel_factor = 1
+        extra_pixels = 0
+    else:
+        raise ValueError("Unknown dithering scheme: " + dithering_scheme)
     
     # Get the individual dithers
     image_product_filenames = read_listfile(os.path.join(workdir, image_listfile_name))
