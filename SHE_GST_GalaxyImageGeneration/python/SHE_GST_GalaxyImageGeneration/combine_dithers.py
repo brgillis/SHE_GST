@@ -279,8 +279,8 @@ def combine_image_dithers(image_listfile_name,
     max_len = 0
     max_x_size = 0
     max_y_size = 0
-    num_x = 0
-    num_y = 0
+    max_num_x = 0
+    max_num_y = 0
     
     for image_product_filename in image_product_filenames:
         
@@ -292,6 +292,8 @@ def combine_image_dithers(image_listfile_name,
             
         x_size = -mv.image_gap_x_pix
         y_size = -mv.image_gap_y_pix
+        num_x = 0
+        num_y = 0
         
         for i in range(len(f)//3):
             
@@ -311,6 +313,10 @@ def combine_image_dithers(image_listfile_name,
             max_x_size = x_size
         if y_size > max_y_size:
             max_y_size = y_size
+        if num_x > max_num_x:
+            max_num_x = num_x
+        if num_y > max_num_y:
+            max_num_y = num_y
             
         image_dithers.append(f)
         
@@ -319,8 +325,10 @@ def combine_image_dithers(image_listfile_name,
         pixel_factor = 2
         extra_pixels = 1
         
-    max_x_size = pixel_factor*max_x_size - extra_pixels * (num_x - 1) 
-    max_y_size = pixel_factor*max_y_size - extra_pixels * (num_y - 1)
+    max_x_size = pixel_factor*max_x_size - extra_pixels * (max_num_x - 1) 
+    max_y_size = pixel_factor*max_y_size - extra_pixels * (max_num_y - 1)
+    
+    import pdb; pdb.set_trace()
     
     full_sci_image = np.zeros((max_x_size,max_y_size),dtype=np.float32)
     full_flg_image = np.ones((max_x_size,max_y_size),dtype=np.int32) * masked_off_image
