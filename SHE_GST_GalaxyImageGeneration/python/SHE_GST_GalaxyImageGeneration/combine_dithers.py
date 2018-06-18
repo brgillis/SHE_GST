@@ -139,7 +139,7 @@ def combine_dithers(dithers,
         assert len(dithers) == num_dithers
 
         # Initialize the combined image
-        dither_shape = np.shape(ll_data)
+        dither_shape = np.shape(dithers[0])
         combined_shape = dither_shape
         combined_data = np.zeros(shape = combined_shape, dtype = ll_data.dtype)
             
