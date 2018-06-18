@@ -30,7 +30,7 @@ from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, get_background_p
                                                add_psf_to_archive, get_psf_from_archive,
                                                load_psf_model_from_sed_z)
 
-class TestPST:
+class TestPSF:
     """
 
 
@@ -92,11 +92,11 @@ class TestPST:
         psf10 = get_psf_profile(self.n, self.z, bulge = False)
         psf11 = get_psf_profile(self.n, self.z, bulge = True)
 
-        add_psf_to_archive(psf00, archive_filename, galaxy_id = 0, exposure_index = 0,
+        add_psf_to_archive(psf00, archive_filename, galaxy_id = 0, exposure_index = 0, psf_type='bulge',
                            stamp_size = self.stamp_size, scale = self.pixel_scale, workdir = self.workdir)
-        add_psf_to_archive(psf10, archive_filename, galaxy_id = 1, exposure_index = 0,
+        add_psf_to_archive(psf10, archive_filename, galaxy_id = 1, exposure_index = 0, psf_type='bulge',
                            stamp_size = self.stamp_size, scale = self.pixel_scale, workdir = self.workdir)
-        add_psf_to_archive(psf11, archive_filename, galaxy_id = 1, exposure_index = 1,
+        add_psf_to_archive(psf11, archive_filename, galaxy_id = 1, exposure_index = 1, psf_type='bulge',
                            stamp_size = self.stamp_size, scale = self.pixel_scale, workdir = self.workdir)
 
         archive_hdulist = fits.open(join(self.workdir, archive_filename), mode = 'denywrite', memmap = True)

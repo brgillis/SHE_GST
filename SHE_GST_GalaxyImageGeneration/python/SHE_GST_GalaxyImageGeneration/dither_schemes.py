@@ -33,6 +33,13 @@ def get_dither_scheme(scheme_name):
         return ((0.0, 0.0),
                 (0.5, 0.0),
                 (0.0, 0.5),
-                (0.5, 0.5))
+                (0.5, 0.5),
+               )
+    elif scheme_name == '4':
+        return ((0.0, 0.0),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (0.0, 0.0),
+               )
     else:
         return ((0.0, 0.0),)

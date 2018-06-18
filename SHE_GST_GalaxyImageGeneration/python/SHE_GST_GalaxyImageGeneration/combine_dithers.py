@@ -54,6 +54,23 @@ def combine_dithers(dithers,
     if mode not in ("SUM", "NOISE_SUM", "MEAN", "MAX", "BIT_OR"):
         raise ValueError("Invalid combine mode for combine_dithers: " + str(mode) + ". " +
                          "Allowed modes are SUM, NOISE_SUM, MEAN, MAX, and BIT_OR.")
+        
+        
+        
+    if mode == "SUM":
+        combine_operation = np.sum
+    elif mode == "NOISE_SUM":
+        def noise_sum(a,*args,**kwargs):
+            a2 = np.square(a)
+            sa2 = np.sum(a2,*args,**kwargs)
+            return np.sqrt(sa2)
+        combine_operation = noise_sum
+    elif mode == "MEAN":
+        combine_operation = np.mean
+    elif mode == "MAX":
+        combine_operation = np.max
+    elif mode == "BIT_OR":
+        combine_operation = np.bitwise_or.reduce
 
     # Check which dithering scheme we're using
     if dithering_scheme == '2x2':
@@ -98,59 +115,35 @@ def combine_dithers(dithers,
         # We'll combine four arrays for each corner of the dithering (remember x-y ordering swap!)
         # We use roll here to shift by 1 pixel left/down. Since it's all initially zero, we can use +=
         # to assign the values we want to it
-        if mode == "SUM" or mode == "MEAN" or mode == "NOISE_SUM":
             
-            if mode=="NOISE_SUM":
-                power = 2
-            else:
-                power = 1
-            
-            lower_left_corners += (ll_data +
-                                   lr_data +
-                                   ul_data +
-                                   ur_data)**power
-            lower_right_corners += (np.roll(ll_data, -1, axis = 1) +
-                                    lr_data +
-                                    np.roll(ul_data, -1, axis = 1) +
-                                    ur_data)**power
-            upper_left_corners += (np.roll(ll_data, -1, axis = 0) +
-                                   np.roll(lr_data, -1, axis = 0) +
-                                   ul_data +
-                                   ur_data)**power
-            upper_right_corners += (np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0) +
-                                    np.roll(lr_data, -1, axis = 0) +
-                                    np.roll(ul_data, -1, axis = 1) +
-                                    ur_data)**power
-        elif mode == "MAX" or mode== "BIT_OR":
-            
-            if mode == "MAX":
-                combine_operation = np.max
-            elif mode == "BIT_OR":
-                combine_operation = np.bitwise_or.reduce
-            else:
-                raise ValueError("Invalide mode: " + str(mode))
-            
-            lower_left_corners += combine_operation((ll_data,
-                                                     lr_data,
-                                                     ul_data,
-                                                     ur_data),axis=0)
-            lower_right_corners += combine_operation((np.roll(ll_data, -1, axis = 1),
-                                                      lr_data,
-                                                      np.roll(ul_data, -1, axis = 1),
-                                                      ur_data),axis=0)
-            upper_left_corners += combine_operation((np.roll(ll_data, -1, axis = 0),
-                                                     np.roll(lr_data, -1, axis = 0),
-                                                     ul_data,
-                                                     ur_data),axis=0)
-            upper_right_corners += combine_operation((np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0),
-                                                      np.roll(lr_data, -1, axis = 0),
-                                                      np.roll(ul_data, -1, axis = 1),
-                                                      ur_data),axis=0)
+        lower_left_corners += combine_operation((ll_data,
+                                                 lr_data,
+                                                 ul_data,
+                                                 ur_data),axis=0)
+        lower_right_corners += combine_operation((np.roll(ll_data, -1, axis = 1),
+                                                  lr_data,
+                                                  np.roll(ul_data, -1, axis = 1),
+                                                  ur_data),axis=0)
+        upper_left_corners += combine_operation((np.roll(ll_data, -1, axis = 0),
+                                                 np.roll(lr_data, -1, axis = 0),
+                                                 ul_data,
+                                                 ur_data),axis=0)
+        upper_right_corners += combine_operation((np.roll(np.roll(ll_data, -1, axis = 1), -1, axis = 0),
+                                                  np.roll(lr_data, -1, axis = 0),
+                                                  np.roll(ul_data, -1, axis = 1),
+                                                  ur_data),axis=0)
+    elif dithering_scheme=='4':
         
-        if mode == "MEAN":
-            combined_data /= num_dithers
-        elif mode == "NOISE_SUM":
-            combined_data = np.sqrt(combined_data)
+        # Check we have the right number of dithers
+        num_dithers = 4
+        assert len(dithers) == num_dithers
+
+        # Initialize the combined image
+        dither_shape = np.shape(dithers[0])
+        combined_shape = dither_shape
+        combined_data = np.zeros(shape = combined_shape, dtype = dithers[0].dtype)
+            
+        combined_data += combine_operation(dithers,axis=0)
         
     else:
         raise Exception("Unrecognized dithering scheme: " + dithering_scheme)
@@ -161,6 +154,7 @@ def combine_dithers(dithers,
 def save_hdu(full_image,
              image_dithers,
              wcs,
+             pixel_factor,
              data_filename,
              extname,
              workdir, ):
@@ -170,7 +164,7 @@ def save_hdu(full_image,
     hdu.header[ppt_mv.model_seed_label] = image_dithers[0][0].header[ppt_mv.model_seed_label]
     hdu.header[ppt_mv.noise_seed_label] = image_dithers[0][0].header[ppt_mv.noise_seed_label]
     hdu.header["EXTNAME"] = extname
-    hdu.header[ppt_mv.scale_label] = image_dithers[0][0].header[ppt_mv.scale_label] / 2
+    hdu.header[ppt_mv.scale_label] = image_dithers[0][0].header[ppt_mv.scale_label] / pixel_factor
     
     wcs.writeToFitsHeader(hdu.header,galsim.Image(full_image).bounds)
     
@@ -182,10 +176,14 @@ def combine_segmentation_dithers(segmentation_listfile_name,
                                  stacked_segmentation_filename,
                                  dithering_scheme,
                                  workdir):
-    
     if dithering_scheme=='2x2':
         pixel_factor = 2
         extra_pixels = 2
+    elif dithering_scheme=='4':
+        pixel_factor = 1
+        extra_pixels = 0
+    else:
+        raise ValueError("Unknown dithering scheme: " + dithering_scheme)
     
     # Get the individual dithers
     segmentation_product_filenames = read_listfile(os.path.join(workdir,
@@ -228,8 +226,8 @@ def combine_segmentation_dithers(segmentation_listfile_name,
         
     # Get the WCS from the first dither
     first_wcs, first_origin = galsim.wcs.readFromFitsHeader(segmentation_dithers[0][0].header)
-    stack_wcs = galsim.wcs.OffsetWCS(scale=first_wcs.scale/2,
-                                     origin=first_origin/2)
+    stack_wcs = galsim.wcs.OffsetWCS(scale=first_wcs.scale/pixel_factor,
+                                     origin=first_origin/pixel_factor)
         
     max_x_size = pixel_factor*max_x_size + extra_pixels
     max_y_size = pixel_factor*max_y_size + extra_pixels
@@ -263,7 +261,8 @@ def combine_segmentation_dithers(segmentation_listfile_name,
                                          segmentation_dithers[0][0].header['MHASH'],
                                          extension=".fits")
     
-    save_hdu(full_image, segmentation_dithers, stack_wcs, data_filename, segmentation_tag, workdir)
+    save_hdu(full_image, segmentation_dithers, stack_wcs, pixel_factor,
+             data_filename, segmentation_tag, workdir)
     
     p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
     write_xml_product(p, os.path.join(workdir,stacked_segmentation_filename))
@@ -278,6 +277,11 @@ def combine_image_dithers(image_listfile_name,
     if dithering_scheme=='2x2':
         pixel_factor = 2
         extra_pixels = 2
+    elif dithering_scheme=='4':
+        pixel_factor = 1
+        extra_pixels = 0
+    else:
+        raise ValueError("Unknown dithering scheme: " + dithering_scheme)
     
     # Get the individual dithers
     image_product_filenames = read_listfile(os.path.join(workdir, image_listfile_name))
@@ -332,8 +336,8 @@ def combine_image_dithers(image_listfile_name,
         
     # Get the WCS from the first dither
     first_wcs, first_origin = galsim.wcs.readFromFitsHeader(image_dithers[0][0].header)
-    stack_wcs = galsim.wcs.OffsetWCS(scale=first_wcs.scale/2,
-                                     origin=first_origin/2)
+    stack_wcs = galsim.wcs.OffsetWCS(scale=first_wcs.scale/pixel_factor,
+                                     origin=first_origin/pixel_factor)
         
     # Create the image we'll need
         
@@ -393,9 +397,12 @@ def combine_image_dithers(image_listfile_name,
                                          image_dithers[0][0].header['MHASH'],
                                          extension=".fits")
     
-    save_hdu( full_sci_image, image_dithers, stack_wcs, data_filename, sci_tag, workdir )
-    save_hdu( full_flg_image, image_dithers, stack_wcs, data_filename, mask_tag, workdir )
-    save_hdu( full_rms_image, image_dithers, stack_wcs, data_filename, noisemap_tag, workdir )
+    save_hdu( full_sci_image, image_dithers, stack_wcs, pixel_factor,
+              data_filename, sci_tag, workdir )
+    save_hdu( full_flg_image, image_dithers, stack_wcs, pixel_factor,
+              data_filename, mask_tag, workdir )
+    save_hdu( full_rms_image, image_dithers, stack_wcs, pixel_factor,
+              data_filename, noisemap_tag, workdir )
     
     p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
     write_xml_product(p, os.path.join(workdir,stacked_image_filename))
