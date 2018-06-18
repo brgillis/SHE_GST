@@ -605,7 +605,6 @@ def print_galaxies(image,
             dithers[di] = galsim.Image(stamp_image_npix_x,
                                        stamp_image_npix_y,
                                        dtype = dithers[di].dtype,
-                                       scale = dithers[di].scale,
                                        wcs = wcs_list[di])
 
     if options['render_background_galaxies']:
@@ -1092,9 +1091,9 @@ def generate_image(image,
     if not options['details_only']:
         for di in range(num_dithers):
             if options['image_datatype'] == '32f':
-                dithers.append(galsim.ImageF(full_x_size , full_y_size, scale = pixel_scale, wcs=wcs_list[di]))
+                dithers.append(galsim.ImageF(full_x_size , full_y_size, wcs=wcs_list[di]))
             elif options['image_datatype'] == '64f':
-                dithers.append(galsim.ImageD(full_x_size , full_y_size, scale = pixel_scale, wcs=wcs_list[di]))
+                dithers.append(galsim.ImageD(full_x_size , full_y_size, wcs=wcs_list[di]))
             else:
                 raise Exception("Bad image type slipped through somehow.")
     if options['mode'] == 'field':
@@ -1138,19 +1137,13 @@ def generate_image(image,
 
         # Make mock noise and mask maps for this dither
         if options['image_datatype'] == '32f':
-            noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), scale = pixel_scale,
-                                            wcs = wcs_list[di]))
-            wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), scale = pixel_scale,
-                                            wcs = wcs_list[di]))
-            bkg_maps.append(galsim.ImageF(np.zeros_like(dithers[di].array), scale = pixel_scale,
-                                            wcs = wcs_list[di]))
+            noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs = wcs_list[di]))
+            wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs = wcs_list[di]))
+            bkg_maps.append(galsim.ImageF(np.zeros_like(dithers[di].array), wcs = wcs_list[di]))
         elif options['image_datatype'] == '64f':
-            noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), scale = pixel_scale,
-                                            wcs = wcs_list[di]))
-            wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), scale = pixel_scale,
-                                            wcs = wcs_list[di]))
-            bkg_maps.append(galsim.ImageD(np.zeros_like(dithers[di].array), scale = pixel_scale,
-                                            wcs = wcs_list[di]))
+            noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs = wcs_list[di]))
+            wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs = wcs_list[di]))
+            bkg_maps.append(galsim.ImageD(np.zeros_like(dithers[di].array), wcs = wcs_list[di]))
 
         noise_level = get_var_ADU_per_pixel(pixel_value_ADU = sky_level_unsubtracted_pixel,
                                                 sky_level_ADU_per_sq_arcsec = sky_level_subtracted,
@@ -1162,8 +1155,7 @@ def generate_image(image,
         wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
         wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
 
-        mask_maps.append(galsim.ImageI(np.zeros_like(dithers[di].array, dtype = np.int16), scale = pixel_scale,
-                                            wcs = wcs_list[di]))
+        mask_maps.append(galsim.ImageI(np.zeros_like(dithers[di].array, dtype = np.int16), wcs = wcs_list[di]))
 
         logger.info("Generating segmentation map " + str(di) + ".")
         segmentation_maps.append(make_segmentation_map(dithers[di],
