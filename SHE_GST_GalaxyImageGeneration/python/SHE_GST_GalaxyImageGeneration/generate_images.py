@@ -259,13 +259,16 @@ def generate_image_group(image_group_phl, options):
 
     # Generate each image_phl, then append it and its data to the fits files
     for image_phl in image_group_phl.get_image_descendants():
-
-        # Set up the WCS for this image_phl
-        wcs = get_wcs_from_image_phl(image_phl)
+        
+        wcs_list = []
+        
+        for i in range(num_dithers):
+            wcs_list.append(get_wcs_from_image_phl(image_phl,
+                                     dither_offset=get_dither_scheme(options['dithering_scheme'])[i]))
 
         # Generate the data
         (image_dithers, noise_maps, mask_maps, bkg_maps, wgt_maps, segmentation_maps,
-         detections_table, details_table) = generate_image(image_phl, options, wcs, psf_archive_filename)
+         detections_table, details_table) = generate_image(image_phl, options, wcs_list, psf_archive_filename)
 
         # Append to the fits file for each dither
         for i in range(num_dithers):
@@ -371,7 +374,7 @@ def generate_image_group(image_group_phl, options):
 
 def print_galaxies(image,
                     options,
-                    wcs,
+                    wcs_list,
                     centre_offset,
                     num_dithers,
                     dithers,
@@ -920,7 +923,7 @@ def print_galaxies(image,
                                          add_to_image = True)
 
 
-        xy_world = wcs.toWorld(galsim.PositionD(xc + xp_sp_shift, yc + yp_sp_shift))
+        xy_world = wcs_list[0].toWorld(galsim.PositionD(xc + xp_sp_shift, yc + yp_sp_shift))
 
         # Record all data used for this galaxy in the output table
         if (not options['details_output_format'] == 'none') and (is_target_gal or (options['mode'] == 'field')):
@@ -1043,7 +1046,7 @@ def add_image_header_info(gs_image,
 # TODO: Add psf_archive_filename arg and use it
 def generate_image(image,
                    options,
-                   wcs,
+                   wcs_list,
                    psf_archive_filename):
     """
         @brief Creates a single image of galaxies
@@ -1111,7 +1114,7 @@ def generate_image(image,
         details_table = initialise_details_table(image.get_parent(), full_options)
 
     # Print the galaxies
-    galaxies = print_galaxies(image, options, wcs, centre_offset, num_dithers, dithers,
+    galaxies = print_galaxies(image, options, wcs_list, centre_offset, num_dithers, dithers,
                               full_x_size, full_y_size, pixel_scale,
                               detections_table, details_table, psf_archive_filename)
 
@@ -1157,7 +1160,7 @@ def generate_image(image,
         logger.info("Generating segmentation map " + str(di) + ".")
         segmentation_maps.append(make_segmentation_map(dithers[di],
                                                        detections_table,
-                                                       wcs,
+                                                       wcs_list[di],
                                                        threshold = 0.01 * noise_level))
 
 

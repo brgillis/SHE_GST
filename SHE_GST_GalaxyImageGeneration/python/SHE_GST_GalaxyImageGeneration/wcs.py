@@ -22,7 +22,8 @@
 import galsim
 from SHE_GST_GalaxyImageGeneration.magic_values import image_gap_x_pix, image_gap_y_pix
 
-def get_wcs_from_image_phl(image_phl):
+def get_wcs_from_image_phl(image_phl,
+                           dither_offset=(0,0)):
     """Creates a galsim WCS from an image PHL.
     """
 
@@ -39,18 +40,20 @@ def get_wcs_from_image_phl(image_phl):
                           x_i,
                           y_i,
                           full_x_size,
-                          full_y_size)
+                          full_y_size,
+                          dither_offset)
 
 def get_offset_wcs(pixel_scale,
                    x_i,
                    y_i,
                    full_x_size,
-                   full_y_size):
+                   full_y_size,
+                   dither_offset=(0,0)):
     """Creates a galsim Offset WCS from required information.
     """
 
-    x_offset = x_i * (full_x_size + image_gap_x_pix)
-    y_offset = y_i * (full_y_size + image_gap_y_pix)
+    x_offset = x_i * (full_x_size + image_gap_x_pix) + dither_offset[0]
+    y_offset = y_i * (full_y_size + image_gap_y_pix) + dither_offset[1]
 
     # TODO: Check actual arrangement of CCDs
     wcs = galsim.wcs.OffsetWCS(scale = pixel_scale, origin = -galsim.PositionD(x_offset, y_offset))
