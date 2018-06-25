@@ -376,7 +376,7 @@ def generate_image_group(image_group_phl, options):
     return
 
 
-def print_galaxies(image,
+def print_galaxies(image_phl,
                    options,
                    wcs_list,
                    centre_offset,
@@ -391,7 +391,7 @@ def print_galaxies(image,
     """
         @brief Prints galaxies onto a new image and stores details on them in the output table.
 
-        @param image
+        @param image_phl
             <SHE_GST_PhysicalModel.Image> Image-level object which will generate galaxies to print
         @param options
             <dict> Options dictionary for this run
@@ -424,7 +424,7 @@ def print_galaxies(image,
     model_psf_offset = (options["model_psf_x_offset"], options["model_psf_y_offset"])
 
     # Get the galaxies we'll be drawing
-    galaxies = image.get_galaxy_descendants()
+    galaxies = image_phl.get_galaxy_descendants()
 
     background_galaxies = []
     target_galaxies = []
@@ -462,7 +462,7 @@ def print_galaxies(image,
             num_new_target_galaxies = 0
             num_new_background_galaxies = 0
 
-            field = image.get_field_descendants()[0]
+            field = image_phl.get_field_descendants()[0]
 
             while ((num_new_target_galaxies < num_extra_target_galaxies) or
                    (num_new_background_galaxies < num_extra_background_galaxies)):
@@ -513,6 +513,7 @@ def print_galaxies(image,
 
     # If shape noise cancellation is being applied, we'll need to arrange galaxy groups and pairs
     # manually
+    galaxy_group_IDs = {}
     if options['shape_noise_cancellation']:
 
         logger.debug("Implementing shape noise cancellation adjustments.")
@@ -524,8 +525,8 @@ def print_galaxies(image,
 
         # Set up galaxy groups and pairs
         for i in range(num_groups):
-            image.add_galaxy_group()
-        galaxy_groups = image.get_galaxy_group_descendants()
+            image_phl.add_galaxy_group()
+        galaxy_groups = image_phl.get_galaxy_group_descendants()
 
         for galaxy_group in galaxy_groups:
             for i in range(num_pairs_per_group):
@@ -541,6 +542,9 @@ def print_galaxies(image,
         # For each group, set the rotations as uniformly distributed
         logger.debug("Rotating galaxies in each group uniformly")
         for galaxy_group in galaxy_groups:
+
+            # Note the group id
+            group_ID = galaxy_group.get_full_ID()
 
             base_rotation = galaxy_group.get_param_value("rotation")
 
@@ -568,8 +572,14 @@ def print_galaxies(image,
                     new_rotation += 90.
                     if new_rotation > 180:
                         new_rotation -= 180
+                    # Note the group ID for this galaxy
+                    galaxy_group_IDs[galaxy.get_full_ID()] = group_ID
 
         logger.debug("Finished implementing shape noise cancellation")
+    else:
+        for galaxy in galaxies:
+            # Use the galaxy's own ID as the group ID
+            galaxy_group_IDs[galaxy.get_full_ID()] = galaxy.get_full_ID()
 
     # Figure out how to set up the grid for galaxy stamps, making it as square as possible
     ncols = int(np.ceil(np.sqrt(num_target_galaxies)))
@@ -811,7 +821,7 @@ def print_galaxies(image,
                                                              data_dir=options['data_dir'])
 
                 # Convolve the galaxy, psf, and pixel profile to determine the final (well,
-                # before noise) pixelized image
+                # before noise) pixelized image_phl
                 final_bulge = galsim.Convolve([bulge_gal_profile, bulge_psf_profile],
                                               gsparams=default_gsparams)
 
@@ -845,7 +855,7 @@ def print_galaxies(image,
                                                        data_dir=options['data_dir'])
 
                 # Convolve the galaxy, psf, and pixel profile to determine the final
-                # (well, before noise) pixelized image
+                # (well, before noise) pixelized image_phl
                 final_gal = galsim.Convolve([gal_profile, disk_psf_profile],
                                             gsparams=default_gsparams)
 
@@ -903,7 +913,7 @@ def print_galaxies(image,
             xc = bounds.center.x + centre_offset + x_centre_offset
             yc = bounds.center.y + centre_offset + y_centre_offset
 
-            # Draw the image
+            # Draw the image_phl
             for gal_image, (x_offset, y_offset) in zip(gal_images, get_dither_scheme(options['dithering_scheme'])):
 
                 if is_target_gal:
@@ -935,6 +945,7 @@ def print_galaxies(image,
             g2 = g_shear * np.sin(2 * beta_shear * np.pi / 180)
 
             details_table.add_row(vals={datf.ID: galaxy.get_full_ID(),
+                                        datf.group_ID: galaxy_group_IDs[galaxy.get_full_ID()],
                                         datf.ra: xy_world.x,
                                         datf.dec: xy_world.y,
                                         datf.hlr_bulge: bulge_size,
