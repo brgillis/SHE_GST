@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-def get_dither_scheme( scheme_name ):
+def get_dither_scheme(scheme_name):
     """
         @brief Gets the pixel shifts for a given dither scheme.
 
@@ -30,9 +30,16 @@ def get_dither_scheme( scheme_name ):
     """
 
     if scheme_name == '2x2':
-        return ( ( 0.0, 0.0 ),
-                ( 0.5, 0.0 ),
-                ( 0.0, 0.5 ),
-                ( 0.5, 0.5 ) )
+        return ((0.0, 0.0),
+                (0.5, 0.0),
+                (0.0, 0.5),
+                (0.5, 0.5),
+               )
+    elif scheme_name == '4':
+        return ((0.0, 0.0),
+                (0.0, 0.0),
+                (0.0, 0.0),
+                (0.0, 0.0),
+               )
     else:
-        return ( ( 0.0, 0.0 ), )
+        return ((0.0, 0.0),)

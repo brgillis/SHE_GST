@@ -1,5 +1,34 @@
 Changelog for SHE_GST Galaxy Simulations toolkit
 
+Changes from v1.4 to v1.6
+=========================
+
+API Changes
+-----------
+
+- Output data now matches how we expect to get data from SC4
+
+Dependency Changes
+------------------
+
+- Now depends on SHE_PPT 0.8
+
+Deprecated Features
+-------------------
+
+Bug Fixes
+---------
+
+New Features
+------------
+
+New config features
+-------------------
+
+Miscellaneous
+-------------
+
+
 Changes from v1.2 to v1.4
 =========================
 

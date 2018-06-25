@@ -22,7 +22,7 @@ from scipy.stats import norm
 import numpy as np
 
 
-def sn_pdf( x, a = 0., loc = 0., scale = 1. ):
+def sn_pdf(x, a = 0., loc = 0., scale = 1.):
     """ Skewed normal pdf.
 
         @param x The position at which to determine the pdf
@@ -31,10 +31,10 @@ def sn_pdf( x, a = 0., loc = 0., scale = 1. ):
         @param scale The scale of the distribution. Default 1.
     """
 
-    z = ( x - loc ) / scale
-    return 2. * norm.pdf( z ) * norm.cdf( a * z ) / scale
+    z = (x - loc) / scale
+    return 2. * norm.pdf(z) * norm.cdf(a * z) / scale
 
-def sn_mean( a = 0., loc = 0., scale = 1. ):
+def sn_mean(a = 0., loc = 0., scale = 1.):
     """ Get the mean of a skewed normal distribution
 
         @param a The "alpha" parameter for the distribution, which determines the skewness. Default 0.
@@ -42,51 +42,51 @@ def sn_mean( a = 0., loc = 0., scale = 1. ):
         @param scale The scale of the distribution. Default 1.
     """
 
-    return loc + scale * np.sqrt( 2. / np.pi ) * a / np.sqrt( 1. + np.square( a ) )
+    return loc + scale * np.sqrt(2. / np.pi) * a / np.sqrt(1. + np.square(a))
 
-def sn_variance( a = 0., scale = 1. ):
+def sn_variance(a = 0., scale = 1.):
     """ Get the variance of a skewed normal distribution
 
         @param a The "alpha" parameter for the distribution, which determines the skewness. Default 0.
         @param scale The scale of the distribution. Default 1.
     """
 
-    return np.square( scale ) * ( 1. - 2 * a * a / ( np.pi * ( 1 + a * a ) ) )
+    return np.square(scale) * (1. - 2 * a * a / (np.pi * (1 + a * a)))
 
-def sn_stddev( a = 0., scale = 1. ):
+def sn_stddev(a = 0., scale = 1.):
     """ Get the standard deviation of a skewed normal distribution
 
         @param a The "alpha" parameter for the distribution, which determines the skewness. Default 0.
         @param scale The scale of the distribution. Default 1.
     """
 
-    return np.sqrt( sn_variance( a = a, scale = scale ) )
+    return np.sqrt(sn_variance(a = a, scale = scale))
 
-def sn_scale( a = 0., stddev = 1. ):
+def sn_scale(a = 0., stddev = 1.):
     """ Get the scale of a skewed normal distribution from the stddev
 
         @param a The "alpha" parameter for the distribution, which determines the skewness. Default 0.
         @param std The standard deviation of the distribution. Default 1.
     """
 
-    return stddev / np.sqrt( 1. - 2 * a * a / ( np.pi * ( 1 + a * a ) ) )
+    return stddev / np.sqrt(1. - 2 * a * a / (np.pi * (1 + a * a)))
 
-def sn_skewness( a = 0. ):
+def sn_skewness(a = 0.):
     """ Get the skewness of a skewed normal distribution
 
         @param a The "alpha" parameter for the distribution, which determines the skewness. Default 0.
         @param scale The scale of the distribution. Default 1.
     """
 
-    d_square = a * a / ( 1. + a * a )
-    return ( 2. - np.pi / 2. ) * np.power( ( 2.*d_square / np.pi ) / ( 1. - 2.*d_square / np.pi ), 3. / 2. ) * np.sign( a )
+    d_square = a * a / (1. + a * a)
+    return (2. - np.pi / 2.) * np.power((2.*d_square / np.pi) / (1. - 2.*d_square / np.pi), 3. / 2.) * np.sign(a)
 
-def sn_kurtosis( a = 0. ):
+def sn_kurtosis(a = 0.):
     """ Get the kurtosis of a skewed normal distribution
 
         @param a The "alpha" parameter for the distribution, which determines the skewness. Default 0.
         @param scale The scale of the distribution. Default 1.
     """
 
-    d_square = a * a / ( 1. + a * a )
-    return 2.*( np.pi - 3. ) * np.square( ( 2.*d_square / np.pi ) / ( 1. - 2.*d_square / np.pi ) )
+    d_square = a * a / (1. + a * a)
+    return 2.*(np.pi - 3.) * np.square((2.*d_square / np.pi) / (1. - 2.*d_square / np.pi))
