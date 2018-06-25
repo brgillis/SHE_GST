@@ -513,6 +513,7 @@ def print_galaxies(image_phl,
 
     # If shape noise cancellation is being applied, we'll need to arrange galaxy groups and pairs
     # manually
+    galaxy_group_IDs = {}
     if options['shape_noise_cancellation']:
 
         logger.debug("Implementing shape noise cancellation adjustments.")
@@ -572,13 +573,13 @@ def print_galaxies(image_phl,
                     if new_rotation > 180:
                         new_rotation -= 180
                     # Note the group ID for this galaxy
-                    setattr(galaxy, "group_ID", group_ID)
+                    galaxy_group_IDs[galaxy.get_full_ID()] = group_ID
 
         logger.debug("Finished implementing shape noise cancellation")
     else:
         for galaxy in galaxies:
             # Use the galaxy's own ID as the group ID
-            setattr(galaxy, "group_ID", galaxy.get_full_ID())
+            galaxy_group_IDs[galaxy.get_full_ID()] = galaxy.get_full_ID()
 
     # Figure out how to set up the grid for galaxy stamps, making it as square as possible
     ncols = int(np.ceil(np.sqrt(num_target_galaxies)))
@@ -944,7 +945,7 @@ def print_galaxies(image_phl,
             g2 = g_shear * np.sin(2 * beta_shear * np.pi / 180)
 
             details_table.add_row(vals={datf.ID: galaxy.get_full_ID(),
-                                        datf.group_ID: galaxy.group_ID,
+                                        datf.group_ID: galaxy_group_IDs[galaxy.get_full_ID()],
                                         datf.ra: xy_world.x,
                                         datf.dec: xy_world.y,
                                         datf.hlr_bulge: bulge_size,
