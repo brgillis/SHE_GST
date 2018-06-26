@@ -143,6 +143,9 @@ def add_stable_noise(image,
                                                     var_array))
         return
 
+    # Get a Galsim Image of the var array so we can cutout stamps from it
+    var_image = galsim.Image(var_array)
+
     # Figure out how to set up the grid for galaxy stamps, making it as square as possible
     num_target_galaxies = len(image_phl.get_galaxy_descendants())
     ncols = int(np.ceil(np.sqrt(num_target_galaxies)))
@@ -187,9 +190,9 @@ def add_stable_noise(image,
 
             stamp_bounds = galsim.BoundsI(xmin=xp_l, xmax=xp_h, ymin=yp_l, ymax=yp_h)
             image_stamp = image.subImage(stamp_bounds)
-            var_array_stamp = var_array.subImage(stamp_bounds)
+            var_image_stamp = var_image.subImage(stamp_bounds)
 
             image_stamp.addNoise(galsim.VariableGaussianNoise(base_deviate,
-                                                              var_array_stamp))
+                                                              var_image_stamp))
 
     return
