@@ -283,8 +283,8 @@ def generate_image_group(image_group_phl, options):
             qualified_image_filename = os.path.join(workdir, image_filenames.data_filenames[i])
 
             # Science image
-            im_hdu = fits.ImageHDU(data=image_dithers[i][0].array,
-                                   header=fits.header.Header(list(image_dithers[i][0].header.items())))
+            im_hdu = fits.ImageHDU(data=image_dithers[i].array,
+                                   header=fits.header.Header(list(image_dithers[i].header.items())))
             append_hdu(qualified_image_filename, im_hdu)
 
             # Noise map
