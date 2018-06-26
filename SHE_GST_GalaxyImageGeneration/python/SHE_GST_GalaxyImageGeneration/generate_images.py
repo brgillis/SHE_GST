@@ -1250,13 +1250,13 @@ def generate_image(image,
                                   extname=detector_id_str + "." + segmentation_tag,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
 
-            if not options['suppress_noise']:
+            noise_maps[di] *= get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel * np.ones_like(dither.array),
+                                                    sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
+                                                    read_noise_count=options['read_noise'],
+                                                    pixel_scale=pixel_scale,
+                                                    gain=options['gain'])
 
-                noise_maps[di] *= get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel * np.ones_like(dither.array),
-                                                        sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
-                                                        read_noise_count=options['read_noise'],
-                                                        pixel_scale=pixel_scale,
-                                                        gain=options['gain'])
+            if not options['suppress_noise']:
 
                 if options['stable_rng']:
                     var_array = get_var_ADU_per_pixel(pixel_value_ADU=dither.array,
@@ -1272,25 +1272,9 @@ def generate_image(image,
                                             read_noise=options['read_noise'],
                                             sky_level=sky_level_subtracted_pixel)
 
-                # Set up noise inversion as necessary
-                if options['noise_cancellation'] == 'false':
-                    dither.addNoise(noise)
-                    dithers[di] = [(dither, '')]
-                elif options['noise_cancellation'] == 'true':
-                    dither_copy = deepcopy(dither)
-                    dither.addNoise(noise)
-                    dithers[di] = [(2 * dither_copy - dither, 'i')]
-                    del dither_copy
-                elif options['noise_cancellation'] == 'both':
-                    dither_copy = deepcopy(dither)
-                    dither.addNoise(noise)
-                    dithers[di] = [(dither, ''),
-                                   (2 * dither_copy - dither, 'i')]
-                    del dither_copy
-                else:
-                    raise Exception("Invalid value for noise_cancellation: " + str(options['noise_cancellation']))
+                dither.addNoise(noise)
+                dithers[di] = [(dither, '')]
             else:
-                noise_maps[di] *= 0
                 dithers[di] = [(dithers[di], '')]
 
         logger.info("Finished printing dither " + str(di + 1) + ".")
