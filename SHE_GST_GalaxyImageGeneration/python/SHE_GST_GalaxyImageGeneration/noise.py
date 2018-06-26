@@ -167,7 +167,7 @@ def add_stable_noise(image,
         base_deviate_backup = base_deviate
 
         # Add the same noise to each galaxy's stamp
-        galaxies = galaxy_group.get_galaxy_descendents()
+        galaxies = galaxy_group.get_galaxy_descendants()
         for _galaxy in galaxies:
 
             # Increment position
