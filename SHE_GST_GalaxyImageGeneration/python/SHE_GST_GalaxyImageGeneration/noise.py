@@ -144,7 +144,7 @@ def add_stable_noise(image,
         return
 
     # Figure out how to set up the grid for galaxy stamps, making it as square as possible
-    num_target_galaxies = len(image.get_galaxy_descendants())
+    num_target_galaxies = len(image_phl.get_galaxy_descendants())
     ncols = int(np.ceil(np.sqrt(num_target_galaxies)))
     if ncols == 0:
         ncols = 1
