@@ -193,6 +193,6 @@ def add_stable_noise(image,
             var_image_stamp = var_image.subImage(stamp_bounds)
 
             image_stamp.addNoise(galsim.VariableGaussianNoise(base_deviate,
-                                                              var_image_stamp))
+                                                              var_image_stamp.array))
 
     return
