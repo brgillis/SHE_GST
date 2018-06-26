@@ -1141,12 +1141,15 @@ def generate_image(image_phl,
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
     sky_level_unsubtracted_pixel = image_phl.get_param_value('unsubtracted_background') * pixel_scale ** 2
 
-    # Get the initial noise deviate
+    # Get the initial noise deviates
+    base_deviates = []
     if not options['suppress_noise']:
-        if options['noise_seed'] != 0:
-            base_deviate = galsim.BaseDeviate(options['noise_seed'])
-        else:
-            base_deviate = galsim.BaseDeviate(image_phl.get_full_seed() + 1)
+        for di in range(num_dithers):
+            if options['noise_seed'] != 0:
+                base_deviate = galsim.BaseDeviate(options['noise_seed'] + di)
+            else:
+                base_deviate = galsim.BaseDeviate(image_phl.get_full_seed() + 1 + di)
+            base_deviates.append(base_deviate)
 
     # For each dither
     dither_scheme = get_dither_scheme(options['dithering_scheme'])
@@ -1268,12 +1271,12 @@ def generate_image(image_phl,
                                                       pixel_scale=pixel_scale,
                                                       gain=options['gain'])
                     add_stable_noise(image=dither,
-                                     base_deviate=base_deviate,
+                                     base_deviate=base_deviates[di],
                                      var_array=var_array,
                                      image_phl=image_phl,
                                      options=options)
                 else:
-                    dither.addNoise(galsim.CCDNoise(base_deviate,
+                    dither.addNoise(galsim.CCDNoise(base_deviates[di],
                                                     gain=options['gain'],
                                                     read_noise=options['read_noise'],
                                                     sky_level=sky_level_subtracted_pixel))
