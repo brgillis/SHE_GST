@@ -261,7 +261,7 @@ def generate_image_group(image_group_phl, options):
     # Set up combined tables
     details_tables = []
     detections_tables = []
-    psf_tables = [[]] * num_dithers
+    psf_tables = []
 
     # Generate each image_phl, then append it and its data to the fits files
     for image_phl in image_group_phl.get_image_descendants():
@@ -323,7 +323,7 @@ def generate_image_group(image_group_phl, options):
                                                            pstf.bulge_index: -1 * np.ones(num_rows, dtype=np.int32),
                                                            pstf.disk_index: -1 * np.ones(num_rows, dtype=np.int32)})
 
-            psf_tables[i].append(psf_table)
+            psf_tables.append(psf_table)
 
         # Tables to combine
 
@@ -351,13 +351,9 @@ def generate_image_group(image_group_phl, options):
     write_xml_product(detections_prod, os.path.join(workdir, detections_filenames.prod_filenames[0]))
     write_listfile(os.path.join(workdir, options['detections_tables']), [detections_filenames.prod_filenames[0]])
 
-    combined_psf_tables = []
-
     for i in range(num_dithers):
 
-        combined_psf_tables.append(table.vstack(psf_tables[i]))
-
-        sort_psfs_from_archive(combined_psf_tables[i],
+        sort_psfs_from_archive(psf_tables[i],
                                psf_filenames.data_filenames[i],
                                psf_archive_filename,
                                i,
