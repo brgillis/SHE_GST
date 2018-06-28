@@ -178,8 +178,9 @@ def generate_image_group(image_group_phl, options):
     mosaic_filenames = ProductFilenames()
     psf_filenames = ProductFilenames()
 
-    psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", str(image_group_phl.get_full_ID()),
-                                                extension=".fits")
+    full_options = get_full_options(options, image_group_phl)
+    model_hash = hash_any(full_options, format="base64")
+    psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", model_hash, extension=".fits")
 
     # Get the filenames we'll need
     for i in range(num_dithers):
@@ -1059,8 +1060,6 @@ def add_image_header_info(gs_image,
     logger.debug("Exiting add_image_header_info method.")
 
     return
-
-# TODO: Add psf_archive_filename arg and use it
 
 
 def generate_image(image_phl,
