@@ -342,6 +342,14 @@ def generate_image_group(image_group_phl, options):
     dtc_hdu = table_to_hdu(combined_detections_table)
     append_hdu(os.path.join(workdir, detections_filenames.data_filenames[0]), dtc_hdu)
 
+    # Output data products for tables
+
+    details_prod = products.details.create_details_product(details_filenames.data_filenames[0])
+    write_xml_product(details_prod, options['details_table'])
+
+    detections_prod = products.detections.create_detections_product(detections_filenames.data_filenames[0])
+    write_xml_product(detections_prod, options['detections_table'])
+
     combined_psf_tables = []
 
     for i in range(num_dithers):
