@@ -348,7 +348,8 @@ def generate_image_group(image_group_phl, options):
     write_xml_product(details_prod, options['details_table'])
 
     detections_prod = products.detections.create_detections_product(detections_filenames.data_filenames[0])
-    write_xml_product(detections_prod, options['detections_table'])
+    write_xml_product(detections_prod, detections_filenames.prod_filenames[0])
+    write_listfile(options['detections_tables'], [detections_filenames.prod_filenames[0]])
 
     combined_psf_tables = []
 

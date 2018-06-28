@@ -40,7 +40,7 @@ allowed_options = {'aocs_time_series_products': ('mock_aocs_time_series_products
                    'details_only': (False, str2bool),
                    'details_output_format': ('fits', str),
                    'details_table': ('sim_details_table.xml', str),
-                   'detections_table': ('mock_detections_tables.xml', str),
+                   'detections_tables': ('mock_detections_tables.json', str),
                    'dithering_scheme': ('none', str),
                    'euclid_psf': (True, str2bool),
                    'galaxies_per_group': (8, int),
