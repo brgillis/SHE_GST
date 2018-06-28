@@ -436,13 +436,13 @@ def combine_image_dithers(image_listfile_name,
                                         image_dithers[0][0].header['MHASH'],
                                         extension=".fits")
     save_hdu(full_bkg_image, bkg_image_dithers, stack_wcs, pixel_factor,
-             data_filename, background_tag, workdir)
+             bkg_filename, background_tag, workdir)
 
     wgt_filename = get_allowed_filename("WGT_STACK",
                                         image_dithers[0][0].header['MHASH'],
                                         extension=".fits")
     save_hdu(full_bkg_image, wgt_image_dithers, stack_wcs, pixel_factor,
-             data_filename, weight_tag, workdir)
+             wgt_filename, weight_tag, workdir)
 
     p = products.stacked_frame.create_dpd_vis_stacked_frame(data_filename=data_filename,
                                                             bkg_filename=bkg_filename,
