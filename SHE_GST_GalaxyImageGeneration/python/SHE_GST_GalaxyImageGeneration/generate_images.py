@@ -707,22 +707,23 @@ def print_galaxies(image_phl,
                 disk_psf_profile = bulge_psf_profile
 
             # Save the profiles to the archive file
-            add_psf_to_archive(psf_profile=bulge_psf_profile,
-                               archive_filename=psf_archive_filename,
-                               galaxy_id=galaxy.get_full_ID(),
-                               exposure_index=di,
-                               psf_type="bulge",
-                               stamp_size=options['psf_stamp_size'],
-                               scale=pixel_scale / options['psf_scale_factor'],
-                               workdir=options['workdir'])
-            add_psf_to_archive(psf_profile=disk_psf_profile,
-                               archive_filename=psf_archive_filename,
-                               galaxy_id=galaxy.get_full_ID(),
-                               exposure_index=di,
-                               psf_type="disk",
-                               stamp_size=options['psf_stamp_size'],
-                               scale=pixel_scale / options['psf_scale_factor'],
-                               workdir=options['workdir'])
+            for di in range(num_dithers):
+                add_psf_to_archive(psf_profile=bulge_psf_profile,
+                                   archive_filename=psf_archive_filename,
+                                   galaxy_id=galaxy.get_full_ID(),
+                                   exposure_index=di,
+                                   psf_type="bulge",
+                                   stamp_size=options['psf_stamp_size'],
+                                   scale=pixel_scale / options['psf_scale_factor'],
+                                   workdir=options['workdir'])
+                add_psf_to_archive(psf_profile=disk_psf_profile,
+                                   archive_filename=psf_archive_filename,
+                                   galaxy_id=galaxy.get_full_ID(),
+                                   exposure_index=di,
+                                   psf_type="disk",
+                                   stamp_size=options['psf_stamp_size'],
+                                   scale=pixel_scale / options['psf_scale_factor'],
+                                   workdir=options['workdir'])
 
             # Get the position of the galaxy, depending on whether we're in field or stamp mode
 
