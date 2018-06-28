@@ -318,8 +318,8 @@ def combine_image_dithers(image_listfile_name,
         for i in range(len(f) // 3):
 
             assert f[3 * i].header['EXTNAME'][-4:] == "." + sci_tag
-            assert fb[i].header['EXTNAME'][:-4] == f[3 * i].header['EXTNAME'][:-4]
-            assert fw[i].header['EXTNAME'][:-4] == f[3 * i].header['EXTNAME'][:-4]
+            assert fb[i].header['EXTNAME'] == f[3 * i].header['EXTNAME'][:-4]
+            assert fw[i].header['EXTNAME'] == f[3 * i].header['EXTNAME'][:-4]
 
             shape = f[3 * i].data.shape
 
@@ -381,8 +381,8 @@ def combine_image_dithers(image_listfile_name,
                 assert image_dithers[i][3 * x + 2].header['EXTNAME'][-4:] == "." + mask_tag
                 flg_dithers.append(image_dithers[i][3 * x + 2].data)
 
-                assert image_dithers[i][3 * x + 2].header['EXTNAME'][-4:] == "." + mask_tag
-                flg_dithers.append(image_dithers[i][3 * x + 2].data)
+                bkg_dithers.append(bkg_image_dithers[i][x].data)
+                wgt_dithers.append(wgt_image_dithers[i][x].data)
 
         sci_stack = combine_dithers(sci_dithers,
                                     dithering_scheme,
