@@ -326,7 +326,7 @@ def generate_image_group(image_group_phl, options):
                                                            pstf.bulge_index: -1 * np.ones(num_rows, dtype=np.int32),
                                                            pstf.disk_index: -1 * np.ones(num_rows, dtype=np.int32)})
 
-            psf_tables[image_i].append(psf_table)
+            psf_tables[i].append(psf_table)
 
         # Tables to combine
 
