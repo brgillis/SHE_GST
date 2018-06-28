@@ -261,7 +261,9 @@ def generate_image_group(image_group_phl, options):
     # Set up combined tables
     details_tables = []
     detections_tables = []
-    psf_tables = [[]] * num_dithers
+    psf_tables = []
+    for i in range(num_dithers):
+        psf_tables.append([])
 
     image_i = -1
 
