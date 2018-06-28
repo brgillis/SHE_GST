@@ -252,7 +252,7 @@ def generate_image_group(image_group_phl, options):
         # Detections table
 
         my_detections_product = products.detections.create_detections_product(
-            filename=detections_filenames.data_filenames[0])
+            data_filename=detections_filenames.data_filenames[0])
         write_xml_product(my_detections_product,
                           os.path.join(workdir, detections_filenames.prod_filenames[0]))
 
