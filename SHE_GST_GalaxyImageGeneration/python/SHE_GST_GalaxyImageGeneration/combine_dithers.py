@@ -29,7 +29,7 @@ from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_PPT import magic_values as ppt_mv
 from SHE_PPT import products
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
-from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag
+from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag, background_tag, weight_tag
 from SHE_PPT.mask import masked_off_image
 import numpy as np
 
@@ -292,6 +292,8 @@ def combine_image_dithers(image_listfile_name,
 
     # Get out the fits filenames and load them in memory-mapped mode
     image_dithers = []
+    bkg_image_dithers = []
+    wgt_image_dithers = []
     max_len = 0
     max_x_size = 0
     max_y_size = 0
@@ -302,6 +304,8 @@ def combine_image_dithers(image_listfile_name,
 
         p = read_xml_product(os.path.join(workdir, image_product_filename), allow_pickled=True)
         f = fits.open(os.path.join(workdir, p.get_data_filename()), memmap=True, mode="denywrite")
+        fb = fits.open(os.path.join(workdir, p.get_bkg_filename()), memmap=True, mode="denywrite")
+        fw = fits.open(os.path.join(workdir, p.get_wgt_filename()), memmap=True, mode="denywrite")
 
         if len(f) > max_len:
             max_len = len(f)
@@ -314,6 +318,8 @@ def combine_image_dithers(image_listfile_name,
         for i in range(len(f) // 3):
 
             assert f[3 * i].header['EXTNAME'][-4:] == "." + sci_tag
+            assert fb[i].header['EXTNAME'][:-4] == f[3 * i].header['EXTNAME'][:-4]
+            assert fw[i].header['EXTNAME'][:-4] == f[3 * i].header['EXTNAME'][:-4]
 
             shape = f[3 * i].data.shape
 
@@ -335,6 +341,8 @@ def combine_image_dithers(image_listfile_name,
             max_num_y = num_y
 
         image_dithers.append(f)
+        bkg_image_dithers.append(f)
+        wgt_image_dithers.append(f)
 
     # Get the WCS from the first dither
     first_wcs, first_origin = galsim.wcs.readFromFitsHeader(image_dithers[0][0].header)
@@ -349,6 +357,8 @@ def combine_image_dithers(image_listfile_name,
     full_sci_image = np.zeros((max_x_size, max_y_size), dtype=np.float32)
     full_flg_image = np.ones((max_x_size, max_y_size), dtype=np.int32) * masked_off_image
     full_rms_image = np.zeros((max_x_size, max_y_size), dtype=np.float32)
+    full_bkg_image = np.zeros((max_x_size, max_y_size), dtype=np.float32)
+    full_wgt_image = np.zeros((max_x_size, max_y_size), dtype=np.float32)
 
     # Loop over hdus, combining them for each dither and adding to the full image
     x_offset = 0
@@ -357,6 +367,8 @@ def combine_image_dithers(image_listfile_name,
         sci_dithers = []
         flg_dithers = []
         rms_dithers = []
+        bkg_dithers = []
+        wgt_dithers = []
         for i in range(num_dithers):
             if 3 * x + 2 < len(image_dithers[i]):
 
@@ -365,6 +377,9 @@ def combine_image_dithers(image_listfile_name,
 
                 assert image_dithers[i][3 * x + 1].header['EXTNAME'][-4:] == "." + noisemap_tag
                 rms_dithers.append(image_dithers[i][3 * x + 1].data)
+
+                assert image_dithers[i][3 * x + 2].header['EXTNAME'][-4:] == "." + mask_tag
+                flg_dithers.append(image_dithers[i][3 * x + 2].data)
 
                 assert image_dithers[i][3 * x + 2].header['EXTNAME'][-4:] == "." + mask_tag
                 flg_dithers.append(image_dithers[i][3 * x + 2].data)
@@ -381,12 +396,24 @@ def combine_image_dithers(image_listfile_name,
                                     dithering_scheme,
                                     mode="NOISE_SUM")
 
+        bkg_stack = combine_dithers(bkg_dithers,
+                                    dithering_scheme,
+                                    mode="SUM")
+
+        wgt_stack = combine_dithers(wgt_dithers,
+                                    dithering_scheme,
+                                    mode="SUM")
+
         full_sci_image[x_offset:x_offset + sci_stack.shape[0],
                        y_offset:y_offset + sci_stack.shape[1]] += sci_stack
         full_flg_image[x_offset:x_offset + flg_stack.shape[0],
                        y_offset:y_offset + flg_stack.shape[1]] += flg_stack - masked_off_image
         full_rms_image[x_offset:x_offset + rms_stack.shape[0],
                        y_offset:y_offset + rms_stack.shape[1]] += rms_stack
+        full_bkg_image[x_offset:x_offset + bkg_stack.shape[0],
+                       y_offset:y_offset + bkg_stack.shape[1]] += bkg_stack
+        full_wgt_image[x_offset:x_offset + wgt_stack.shape[0],
+                       y_offset:y_offset + wgt_stack.shape[1]] += wgt_stack
 
         if x % 6 != 5:
             x_offset += sci_stack.shape[0] + pixel_factor * mv.image_gap_x_pix - extra_pixels
@@ -398,7 +425,6 @@ def combine_image_dithers(image_listfile_name,
     data_filename = get_allowed_filename("IMAGE_STACK",
                                          image_dithers[0][0].header['MHASH'],
                                          extension=".fits")
-
     save_hdu(full_sci_image, image_dithers, stack_wcs, pixel_factor,
              data_filename, sci_tag, workdir)
     save_hdu(full_flg_image, image_dithers, stack_wcs, pixel_factor,
@@ -406,7 +432,21 @@ def combine_image_dithers(image_listfile_name,
     save_hdu(full_rms_image, image_dithers, stack_wcs, pixel_factor,
              data_filename, noisemap_tag, workdir)
 
-    p = products.stacked_frame.create_dpd_vis_stacked_frame(data_filename)
+    bkg_filename = get_allowed_filename("BKG_STACK",
+                                        image_dithers[0][0].header['MHASH'],
+                                        extension=".fits")
+    save_hdu(full_bkg_image, bkg_image_dithers, stack_wcs, pixel_factor,
+             data_filename, background_tag, workdir)
+
+    wgt_filename = get_allowed_filename("WGT_STACK",
+                                        image_dithers[0][0].header['MHASH'],
+                                        extension=".fits")
+    save_hdu(full_bkg_image, wgt_image_dithers, stack_wcs, pixel_factor,
+             data_filename, weight_tag, workdir)
+
+    p = products.stacked_frame.create_dpd_vis_stacked_frame(data_filename=data_filename,
+                                                            bkg_filename=bkg_filename,
+                                                            wgt_filename=wgt_filename)
     write_xml_product(p, os.path.join(workdir, stacked_image_filename))
 
     return
