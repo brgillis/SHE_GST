@@ -536,10 +536,10 @@ def print_galaxies(image_phl,
         logger.debug("Implementing shape noise cancellation adjustments.")
 
         # First, shear must be set at the level of galaxy group or higher
-        if image_phl.get_generation_level('shear_magnitude') > SHE_GST_PhysicalModel.dv.galaxy_group_level:
-            image_phl.set_generation_level('shear_magnitude', SHE_GST_PhysicalModel.dv.galaxy_group_level)
-        if image_phl.get_generation_level('shear_angle') > SHE_GST_PhysicalModel.dv.galaxy_group_level:
-            image_phl.set_generation_level('shear_angle', SHE_GST_PhysicalModel.dv.galaxy_group_level)
+        if image_phl.get_generation_level('shear_magnitude') > SHE_GST_PhysicalModel.galaxy_group_level:
+            image_phl.set_generation_level('shear_magnitude', SHE_GST_PhysicalModel.galaxy_group_level)
+        if image_phl.get_generation_level('shear_angle') > SHE_GST_PhysicalModel.galaxy_group_level:
+            image_phl.set_generation_level('shear_angle', SHE_GST_PhysicalModel.galaxy_group_level)
 
         # Determine how many groups we need, creating just enough
         galaxies_per_group = options['galaxies_per_group']
