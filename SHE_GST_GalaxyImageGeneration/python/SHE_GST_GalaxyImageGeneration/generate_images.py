@@ -43,6 +43,7 @@ from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel, add_stabl
 from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile, sort_psfs_from_archive, add_psf_to_archive
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
+import SHE_GST_PhysicalModel
 
 from SHE_PPT import detector
 from SHE_PPT import products
@@ -533,6 +534,12 @@ def print_galaxies(image_phl,
     if options['shape_noise_cancellation']:
 
         logger.debug("Implementing shape noise cancellation adjustments.")
+
+        # First, shear must be set at the level of galaxy group or higher
+        if image_phl.get_generation_level('shear_magnitude') > SHE_GST_PhysicalModel.dv.galaxy_group_level:
+            image_phl.set_generation_level('shear_magnitude', SHE_GST_PhysicalModel.dv.galaxy_group_level)
+        if image_phl.get_generation_level('shear_angle') > SHE_GST_PhysicalModel.dv.galaxy_group_level:
+            image_phl.set_generation_level('shear_angle', SHE_GST_PhysicalModel.dv.galaxy_group_level)
 
         # Determine how many groups we need, creating just enough
         galaxies_per_group = options['galaxies_per_group']
