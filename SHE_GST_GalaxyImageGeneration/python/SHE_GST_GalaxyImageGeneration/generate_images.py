@@ -1269,11 +1269,11 @@ def generate_image(image_phl,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
 
             # Note - noise map here deliberately doesn't include galaxy contributions
-            noise_maps[di] *= get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel * np.ones_like(dither.array),
-                                                    sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
-                                                    read_noise_count=options['read_noise'],
-                                                    pixel_scale=pixel_scale,
-                                                    gain=options['gain'])
+            noise_maps[di] *= np.sqrt(get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel * np.ones_like(dither.array),
+                                                            sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
+                                                            read_noise_count=options['read_noise'],
+                                                            pixel_scale=pixel_scale,
+                                                            gain=options['gain'])
 
             if not options['suppress_noise']:
 
@@ -1284,6 +1284,7 @@ def generate_image(image_phl,
                                                       read_noise_count=options['read_noise'],
                                                       pixel_scale=pixel_scale,
                                                       gain=options['gain'])
+
                     add_stable_noise(image=dither,
                                      base_deviate=base_deviates[di],
                                      var_array=var_array,
