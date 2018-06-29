@@ -1187,7 +1187,7 @@ def generate_image(image_phl,
         mask_maps.append(galsim.ImageI(np.zeros_like(dithers[di].array, dtype=np.int16), wcs=wcs_list[di]))
 
         logger.info("Generating segmentation map " + str(di) + ".")
-        noise_level = np.sqrt(get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel * np.ones_like(dithers[di].array),
+        noise_level = np.sqrt(get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel,
                                                     sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
                                                     read_noise_count=options['read_noise'],
                                                     pixel_scale=pixel_scale,
