@@ -64,8 +64,10 @@ def make_segmentation_map(noisefree_image,
     stamps_mode = options['mode'] == 'stamps'
 
     full_noisefree_image = noisefree_image
+    full_segmentation_map = segmentation_map
     if not stamps_mode:
         noisefree_image = full_noisefree_image
+        segmentation_map = full_segmentation_map
         y_image, x_image = np.indices(np.shape(noisefree_image.array))
         threshold_mask = np.ravel(noisefree_image.array) <= threshold
         claimed_mask = np.zeros_like(threshold_mask, dtype=bool)
@@ -92,6 +94,8 @@ def make_segmentation_map(noisefree_image,
             stamp_bounds = galsim.BoundsI(xmin=xp_l, xmax=xp_h, ymin=yp_l, ymax=yp_h)
 
             noisefree_image = full_noisefree_image.subImage(stamp_bounds)
+            segmentation_map = full_segmentation_map.subImage(stamp_bounds)
+
             y_image, x_image = np.indices(np.shape(noisefree_image.array))
             threshold_mask = np.ravel(noisefree_image.array) <= threshold
             claimed_mask = np.zeros_like(threshold_mask, dtype=bool)
@@ -116,6 +120,7 @@ def make_segmentation_map(noisefree_image,
         detections_table.loc[sorted_dtc_table[detf.ID][i]][detf.seg_ID] = seg_ID
 
         # Add those values to the claimed mask
-        claimed_mask = np.logical_or(claimed_mask, ~full_mask)
+        if not stamps_mode:
+            claimed_mask = np.logical_or(claimed_mask, ~full_mask)
 
     return segmentation_map
