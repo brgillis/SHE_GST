@@ -166,13 +166,12 @@ def create_psf_hdu(psf_profile,
 
 
 def add_psf_to_archive(psf_profile,
-                       archive_filename,
+                       archive_hdulist,
                        galaxy_id,
                        exposure_index,
                        psf_type,
                        stamp_size=mv.default_psf_stamp_size,
-                       scale=mv.default_pixel_scale / mv.default_psf_scale_factor,
-                       workdir="."):
+                       scale=mv.default_pixel_scale / mv.default_psf_scale_factor):
     """Creates a PSF HDU and saves it to an archive file.
     """
 
@@ -186,8 +185,7 @@ def add_psf_to_archive(psf_profile,
 
     # Append the HDU to the archive
 
-    qualified_archive_filename = join(workdir, archive_filename)
-    fits.append(qualified_archive_filename, psf_hdu.data, psf_hdu.header, verify=False)
+    archive_hdulist.append(psf_hdu)
 
     return
 
