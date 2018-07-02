@@ -84,10 +84,10 @@ def make_segmentation_map(noisefree_image,
             # In stamps mode, just work with a cutout image
             stamp_size_pix = options['stamp_size']
 
-            xp_l = 1 + gal_xy.x - stamp_size_pix / 2
-            xp_h = gal_xy.x + stamp_size_pix / 2
-            yp_l = 1 + gal_xy.y - stamp_size_pix / 2
-            yp_h = gal_xy.y + stamp_size_pix / 2
+            xp_l = int(1 + gal_xy.x - stamp_size_pix / 2)
+            xp_h = int(gal_xy.x + stamp_size_pix / 2)
+            yp_l = int(1 + gal_xy.y - stamp_size_pix / 2)
+            yp_h = int(gal_xy.y + stamp_size_pix / 2)
 
             stamp_bounds = galsim.BoundsI(xmin=xp_l, xmax=xp_h, ymin=yp_l, ymax=yp_h)
 
