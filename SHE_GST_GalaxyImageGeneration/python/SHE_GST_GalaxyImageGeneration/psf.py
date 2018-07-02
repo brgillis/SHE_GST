@@ -141,11 +141,8 @@ def get_psf_profile(n,
 
 @lru_cache()
 def create_psf_hdu(psf_profile,
-                   galaxy_id,
-                   exposure_index,
                    stamp_size=mv.default_psf_stamp_size,
-                   scale=mv.default_pixel_scale / mv.default_psf_scale_factor,
-                   psf_type="bulge"):
+                   scale=mv.default_pixel_scale / mv.default_psf_scale_factor,):
     """Creates an HDU of an image of a PSF profile.
     """
 
@@ -155,12 +152,6 @@ def create_psf_hdu(psf_profile,
 
     # Set up an image HDU with this image
     psf_hdu = fits.ImageHDU(data=psf_image.array)
-
-    # Add needed keywords to the header of this HDU
-    psf_hdu.header[gal_id_label] = galaxy_id
-    psf_hdu.header[exposure_index_label] = exposure_index
-    psf_hdu.header[scale_label] = scale
-    psf_hdu.header[type_label] = psf_type
 
     # Return
     return psf_hdu
@@ -177,12 +168,14 @@ def add_psf_to_archive(psf_profile,
     """
 
     # Create the HDU
-    psf_hdu = create_psf_hdu(psf_profile=psf_profile,
-                             galaxy_id=galaxy_id,
-                             exposure_index=exposure_index,
-                             stamp_size=stamp_size,
-                             scale=scale,
-                             psf_type=psf_type)
+    psf_hdu = deepcopy(create_psf_hdu(psf_profile=psf_profile,
+                                      stamp_size=stamp_size,))
+
+    # Add needed keywords to the header of this HDU
+    psf_hdu.header[gal_id_label] = galaxy_id
+    psf_hdu.header[exposure_index_label] = exposure_index
+    psf_hdu.header[scale_label] = scale
+    psf_hdu.header[type_label] = psf_type
 
     # Append the HDU to the archive
 
