@@ -1203,7 +1203,8 @@ def generate_image(image_phl,
         segmentation_maps.append(make_segmentation_map(dithers[di],
                                                        detections_table,
                                                        wcs_list[di],
-                                                       threshold=0.01 * noise_level))
+                                                       threshold=0.01 * noise_level,
+                                                       options=options))
 
         # If we're using cutouts, make the cutout image_phl now
         if options['mode'] == 'cutouts':
