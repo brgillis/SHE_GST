@@ -207,7 +207,7 @@ def get_psf_from_archive(archive_hdulist,
 
 def sort_psfs_from_archive(psf_table,
                            psf_data_filename,
-                           psf_archive_filename,
+                           psf_archive_hdulist,
                            exposure_index,
                            workdir="."):
 
@@ -220,11 +220,8 @@ def sort_psfs_from_archive(psf_table,
     psf_table.remove_indices(pstf.ID)  # Necessary for bug workaround in astropy
     psf_table.add_index(pstf.ID)  # Allow it to be indexed by galaxy ID
 
-    # Open the archive to work with
-    archive_hdulist = fits.open(join(workdir, psf_archive_filename), mode='denywrite', memmap=True)
-
     hdu_index = 2  # Start indexing at 2, since 0 is empty and 1 is table
-    for hdu in archive_hdulist:
+    for hdu in psf_archive_hdulist:
 
         if hdu.header[exposure_index_label] != exposure_index:
             continue
