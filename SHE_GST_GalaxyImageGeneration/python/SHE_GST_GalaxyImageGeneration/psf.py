@@ -215,8 +215,9 @@ def sort_psfs_from_archive(psf_table,
 
     qualified_psf_data_filename = join(workdir, psf_data_filename)
 
-    psf_hdu = table_to_hdu(psf_table)
-    append_hdu(qualified_psf_data_filename, psf_hdu)
+    psf_table_hdu = table_to_hdu(psf_table)
+    data_hdulist = fits.open(qualified_psf_data_filename, mode='append')
+    data_hdulist.append(psf_table_hdu)
 
     psf_table.remove_indices(pstf.ID)  # Necessary for bug workaround in astropy
     psf_table.add_index(pstf.ID)  # Allow it to be indexed by galaxy ID
@@ -245,7 +246,7 @@ def sort_psfs_from_archive(psf_table,
         # Add to the data file
         psf_hdu = fits.ImageHDU(data=hdu.data,
                                 header=header)
-        append_hdu(qualified_psf_data_filename, psf_hdu)
+        data_hdulist.append(psf_hdu)
 
         # Update the PSF table with the HDU index of this
         if is_bulge:
@@ -255,14 +256,12 @@ def sort_psfs_from_archive(psf_table,
         hdu_index += 1
 
     # Now that the table is complete, update the values for it in the fits file
-
-    f = fits.open(qualified_psf_data_filename, memmap=True, mode='update')
-    out_table = f[1].data
+    out_table = data_hdulist[1].data
 
     out_table[pstf.bulge_index] = psf_table[pstf.bulge_index]
     out_table[pstf.disk_index] = psf_table[pstf.disk_index]
 
-    f.flush()
-    f.close()
+    data_hdulist.flush()
+    data_hdulist.close()
 
     return
