@@ -187,7 +187,7 @@ def add_psf_to_archive(psf_profile,
     # Append the HDU to the archive
 
     qualified_archive_filename = join(workdir, archive_filename)
-    fits.append(qualified_archive_filename, psf_hdu.data, psf_hdu.header)
+    fits.append(qualified_archive_filename, psf_hdu.data, psf_hdu.header, verify=False)
 
     return
 
