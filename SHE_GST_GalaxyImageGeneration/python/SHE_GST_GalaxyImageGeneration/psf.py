@@ -139,12 +139,10 @@ def get_psf_profile(n,
     return load_psf_model_from_sed_z(sed, allowed_zs[zi_best], gsparams=gsparams, data_dir=data_dir)
 
 
+@lru_cache()
 def create_psf_hdu(psf_profile,
-                   galaxy_id,
-                   exposure_index,
                    stamp_size=mv.default_psf_stamp_size,
-                   scale=mv.default_pixel_scale / mv.default_psf_scale_factor,
-                   psf_type="bulge"):
+                   scale=mv.default_pixel_scale / mv.default_psf_scale_factor,):
     """Creates an HDU of an image of a PSF profile.
     """
 
@@ -155,39 +153,33 @@ def create_psf_hdu(psf_profile,
     # Set up an image HDU with this image
     psf_hdu = fits.ImageHDU(data=psf_image.array)
 
+    # Return
+    return psf_hdu
+
+
+def add_psf_to_archive(psf_profile,
+                       archive_hdulist,
+                       galaxy_id,
+                       exposure_index,
+                       psf_type,
+                       stamp_size=mv.default_psf_stamp_size,
+                       scale=mv.default_pixel_scale / mv.default_psf_scale_factor):
+    """Creates a PSF HDU and saves it to an archive file.
+    """
+
+    # Create the HDU
+    psf_hdu = deepcopy(create_psf_hdu(psf_profile=psf_profile,
+                                      stamp_size=stamp_size,))
+
     # Add needed keywords to the header of this HDU
     psf_hdu.header[gal_id_label] = galaxy_id
     psf_hdu.header[exposure_index_label] = exposure_index
     psf_hdu.header[scale_label] = scale
     psf_hdu.header[type_label] = psf_type
 
-    # Return
-    return psf_hdu
-
-
-def add_psf_to_archive(psf_profile,
-                       archive_filename,
-                       galaxy_id,
-                       exposure_index,
-                       psf_type,
-                       stamp_size=mv.default_psf_stamp_size,
-                       scale=mv.default_pixel_scale / mv.default_psf_scale_factor,
-                       workdir="."):
-    """Creates a PSF HDU and saves it to an archive file.
-    """
-
-    # Create the HDU
-    psf_hdu = create_psf_hdu(psf_profile=psf_profile,
-                             galaxy_id=galaxy_id,
-                             exposure_index=exposure_index,
-                             stamp_size=stamp_size,
-                             scale=scale,
-                             psf_type=psf_type)
-
     # Append the HDU to the archive
 
-    qualified_archive_filename = join(workdir, archive_filename)
-    fits.append(qualified_archive_filename, psf_hdu.data, psf_hdu.header)
+    archive_hdulist.append(psf_hdu)
 
     return
 
@@ -209,23 +201,21 @@ def get_psf_from_archive(archive_hdulist,
 
 def sort_psfs_from_archive(psf_table,
                            psf_data_filename,
-                           psf_archive_filename,
+                           psf_archive_hdulist,
                            exposure_index,
                            workdir="."):
 
     qualified_psf_data_filename = join(workdir, psf_data_filename)
 
-    psf_hdu = table_to_hdu(psf_table)
-    append_hdu(qualified_psf_data_filename, psf_hdu)
+    psf_table_hdu = table_to_hdu(psf_table)
+    data_hdulist = fits.open(qualified_psf_data_filename, mode='append')
+    data_hdulist.append(psf_table_hdu)
 
     psf_table.remove_indices(pstf.ID)  # Necessary for bug workaround in astropy
     psf_table.add_index(pstf.ID)  # Allow it to be indexed by galaxy ID
 
-    # Open the archive to work with
-    archive_hdulist = fits.open(join(workdir, psf_archive_filename), mode='denywrite', memmap=True)
-
     hdu_index = 2  # Start indexing at 2, since 0 is empty and 1 is table
-    for hdu in archive_hdulist:
+    for hdu in psf_archive_hdulist:
 
         if hdu.header[exposure_index_label] != exposure_index:
             continue
@@ -245,7 +235,7 @@ def sort_psfs_from_archive(psf_table,
         # Add to the data file
         psf_hdu = fits.ImageHDU(data=hdu.data,
                                 header=header)
-        append_hdu(qualified_psf_data_filename, psf_hdu)
+        data_hdulist.append(psf_hdu)
 
         # Update the PSF table with the HDU index of this
         if is_bulge:
@@ -255,14 +245,12 @@ def sort_psfs_from_archive(psf_table,
         hdu_index += 1
 
     # Now that the table is complete, update the values for it in the fits file
-
-    f = fits.open(qualified_psf_data_filename, memmap=True, mode='update')
-    out_table = f[1].data
+    out_table = data_hdulist[1].data
 
     out_table[pstf.bulge_index] = psf_table[pstf.bulge_index]
     out_table[pstf.disk_index] = psf_table[pstf.disk_index]
 
-    f.flush()
-    f.close()
+    data_hdulist.flush()
+    data_hdulist.close()
 
     return

@@ -183,6 +183,8 @@ def generate_image_group(image_group_phl, options):
     model_hash = hash_any(full_options, format="base64")
     psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", model_hash, extension=".fits")
 
+    psf_archive_hdulist = fits.open(psf_archive_filename, mode='append')
+
     # Get the filenames we'll need
     for i in range(num_dithers):
         for filename_list, tag in ((image_filenames, sci_tag),
@@ -280,7 +282,7 @@ def generate_image_group(image_group_phl, options):
 
         # Generate the data
         (image_dithers, noise_maps, mask_maps, bkg_maps, wgt_maps, segmentation_maps,
-         detections_table, details_table) = generate_image(image_phl, options, wcs_list, psf_archive_filename)
+         detections_table, details_table) = generate_image(image_phl, options, wcs_list, psf_archive_hdulist)
 
         # Append to the fits file for each dither
         for i in range(num_dithers):
@@ -365,7 +367,7 @@ def generate_image_group(image_group_phl, options):
 
         sort_psfs_from_archive(combined_psf_tables[i],
                                psf_filenames.data_filenames[i],
-                               psf_archive_filename,
+                               psf_archive_hdulist,
                                i,
                                workdir=workdir)
 
@@ -388,6 +390,7 @@ def generate_image_group(image_group_phl, options):
                                      workdir=options['workdir'])
 
     # Remove the now-unneeded PSF archive file
+    psf_archive_hdulist.close()
     os.remove(os.path.join(workdir, psf_archive_filename))
 
     return
@@ -404,7 +407,7 @@ def print_galaxies(image_phl,
                    pixel_scale,
                    detections_table,
                    details_table,
-                   psf_archive_filename):
+                   psf_archive_hdulist):
     """
         @brief Prints galaxies onto a new image and stores details on them in the output table.
 
@@ -721,21 +724,19 @@ def print_galaxies(image_phl,
             # Save the profiles to the archive file
             for di in range(num_dithers):
                 add_psf_to_archive(psf_profile=bulge_psf_profile,
-                                   archive_filename=psf_archive_filename,
+                                   archive_hdulist=psf_archive_hdulist,
                                    galaxy_id=galaxy.get_full_ID(),
                                    exposure_index=di,
                                    psf_type="bulge",
                                    stamp_size=options['psf_stamp_size'],
-                                   scale=pixel_scale / options['psf_scale_factor'],
-                                   workdir=options['workdir'])
+                                   scale=pixel_scale / options['psf_scale_factor'],)
                 add_psf_to_archive(psf_profile=disk_psf_profile,
-                                   archive_filename=psf_archive_filename,
+                                   archive_hdulist=psf_archive_hdulist,
                                    galaxy_id=galaxy.get_full_ID(),
                                    exposure_index=di,
                                    psf_type="disk",
                                    stamp_size=options['psf_stamp_size'],
-                                   scale=pixel_scale / options['psf_scale_factor'],
-                                   workdir=options['workdir'])
+                                   scale=pixel_scale / options['psf_scale_factor'])
 
             # Get the position of the galaxy, depending on whether we're in field or stamp mode
 
@@ -1087,7 +1088,7 @@ def add_image_header_info(gs_image,
 def generate_image(image_phl,
                    options,
                    wcs_list,
-                   psf_archive_filename):
+                   psf_archive_hdulist):
     """
         @brief Creates a single image_phl of galaxies
 
@@ -1156,7 +1157,7 @@ def generate_image(image_phl,
     # Print the galaxies
     galaxies = print_galaxies(image_phl, options, wcs_list, centre_offset, num_dithers, dithers,
                               full_x_size, full_y_size, pixel_scale,
-                              detections_table, details_table, psf_archive_filename)
+                              detections_table, details_table, psf_archive_hdulist)
 
     sky_level_subtracted = image_phl.get_param_value('subtracted_background')
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
@@ -1202,7 +1203,8 @@ def generate_image(image_phl,
         segmentation_maps.append(make_segmentation_map(dithers[di],
                                                        detections_table,
                                                        wcs_list[di],
-                                                       threshold=0.01 * noise_level))
+                                                       threshold=0.01 * noise_level,
+                                                       options=options))
 
         # If we're using cutouts, make the cutout image_phl now
         if options['mode'] == 'cutouts':
