@@ -139,6 +139,7 @@ def get_psf_profile(n,
     return load_psf_model_from_sed_z(sed, allowed_zs[zi_best], gsparams=gsparams, data_dir=data_dir)
 
 
+@lru_cache()
 def create_psf_hdu(psf_profile,
                    galaxy_id,
                    exposure_index,
