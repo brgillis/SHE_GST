@@ -391,7 +391,8 @@ def generate_image_group(image_group_phl, options):
 
     # Remove the now-unneeded PSF archive file
     psf_archive_hdulist.close()
-    os.remove(os.path.join(workdir, psf_archive_filename))
+    if os.path.exists(os.path.join(workdir, psf_archive_filename)):
+        os.remove(os.path.join(workdir, psf_archive_filename))
 
     return
 
