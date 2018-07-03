@@ -169,7 +169,8 @@ def add_psf_to_archive(psf_profile,
 
     # Create the HDU
     psf_hdu = deepcopy(create_psf_hdu(psf_profile=psf_profile,
-                                      stamp_size=stamp_size,))
+                                      stamp_size=stamp_size,
+                                      scale=scale))
 
     # Add needed keywords to the header of this HDU
     psf_hdu.header[gal_id_label] = galaxy_id
