@@ -185,7 +185,7 @@ def generate_image_group(image_group_phl, options):
     model_hash = hash_any(full_options, format="base64")
     psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", model_hash, extension=".fits")
 
-    psf_archive_hdulist = fits.open(psf_archive_filename, mode='append')
+    psf_archive_hdulist = fits.open(os.path.join(options['workdir'], psf_archive_filename), mode='append')
 
     # Get the filenames we'll need
     for i in range(num_dithers):
