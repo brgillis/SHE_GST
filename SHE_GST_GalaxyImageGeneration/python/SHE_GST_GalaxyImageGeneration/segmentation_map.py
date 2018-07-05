@@ -5,7 +5,7 @@
     Functions to generate mock segmentation maps.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-07-05"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -125,4 +125,4 @@ def make_segmentation_map(noisefree_image,
         if not stamps_mode:
             claimed_mask = np.logical_or(claimed_mask, ~full_mask)
 
-    return segmentation_map
+    return full_segmentation_map
