@@ -5,7 +5,7 @@
     Functions to convert between Euclid magnitude and electron count
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-07-11"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -20,10 +20,7 @@ __updated__ = "2018-07-03"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from SHE_GST_GalaxyImageGeneration.gain import get_ADU_from_count, get_count_from_ADU
-from SHE_GST_GalaxyImageGeneration.get_I_from_SN import get_I_from_SN
-from SHE_GST_GalaxyImageGeneration.magic_values import mag_i_zeropoint, \
-    mag_vis_zeropoint
+from SHE_GST_GalaxyImageGeneration.gain import get_ADU_from_count
 import SHE_GST_GalaxyImageGeneration.magic_values as mv
 import numpy as np
 
@@ -92,5 +89,5 @@ def get_I(I_parameter, parameter_type, gain, exp_time):
     elif(parameter_type == 'mag_i'):
         return get_ADU_from_count(get_count_from_mag_i(I_parameter, exp_time = exp_time), gain)
     else:
-        raise Exception("get_I can't handle parameter type '" + str(parameter_type) + "'")
+        raise ValueError("get_I can't handle parameter type '" + str(parameter_type) + "'")
     return
