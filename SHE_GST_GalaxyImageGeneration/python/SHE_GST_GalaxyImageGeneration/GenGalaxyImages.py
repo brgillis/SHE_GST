@@ -6,7 +6,7 @@
     Elements program for generating galaxy images.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-07-11"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,13 +23,15 @@ __updated__ = "2018-07-03"
 
 import argparse
 
+from SHE_PPT.logging import getLogger
+from SHE_PPT.utility import get_arguments_string
+
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options,
                                                                  allowed_fixed_params,
                                                                  allowed_survey_settings)
 from SHE_GST_GalaxyImageGeneration.generate_images import generate_images
 from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_args
-from SHE_PPT.logging import getLogger
 import SHE_GST_cIceBRGpy
 
 
@@ -87,8 +89,12 @@ def mainMethod(args):
     logger = getLogger(mv.logger_name)
 
     logger.debug('#')
-    logger.debug('# Entering GenGalaxyImages mainMethod()')
+    logger.debug('# Entering SHE_GST_GenGalaxyImages mainMethod()')
     logger.debug('#')
+    
+    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.5 SHE_GST_GenGalaxyImages")
+    logger.info('Execution command for this step:')
+    logger.info(exec_cmd)
 
     # Set the work directory for C++ code
     if args.workdir is None:
