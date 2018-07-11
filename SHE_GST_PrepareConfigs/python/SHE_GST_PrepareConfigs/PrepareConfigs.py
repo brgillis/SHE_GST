@@ -41,10 +41,6 @@ def defineSpecificProgramOptions():
     logger.debug('#')
     logger.debug('# Entering SHE_GST_PrepareConfigs defineSpecificProgramOptions()')
     logger.debug('#')
-    
-    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.5 SHE_GST_PrepareConfigs")
-    logger.info('Execution command for this step:')
-    logger.info(exec_cmd)
 
     parser = argparse.ArgumentParser()
 
@@ -82,6 +78,10 @@ def mainMethod(args):
     logger.debug('#')
     logger.debug('# Entering SHE_CTE_PrepareConfigs mainMethod()')
     logger.debug('#')
+    
+    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.5 SHE_GST_PrepareConfigs")
+    logger.info('Execution command for this step:')
+    logger.info(exec_cmd)
 
     write_configs_from_plan(plan_filename = args.simulation_plan,
                             template_filename = args.config_template,
