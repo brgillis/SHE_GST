@@ -61,7 +61,7 @@ def make_segmentation_map(noisefree_image,
 
     detections_table.add_index(detf.ID)
 
-    segmentation_map = galsim.Image(-np.ones_like(noisefree_image.array, dtype=np.int32), scale=noisefree_image.scale)
+    segmentation_map = galsim.Image(np.zeros_like(noisefree_image.array, dtype=np.int32), scale=noisefree_image.scale)
 
     # We'll use special speedups for stamps mode, since we know overlaps are impossible with it
     stamps_mode = options['mode'] == 'stamps'
@@ -120,7 +120,14 @@ def make_segmentation_map(noisefree_image,
         full_mask = np.logical_or(region_mask, claimed_threshold_mask)
 
         # Set the unmasked values to the object's seg_ID
-        segmentation_map.array.ravel()[~full_mask] = seg_ID
+        if not stamps_mode:
+            segmentation_map.array.ravel()[~full_mask] = seg_ID
+        else:
+            # In stamps mode, ravel will create a copy, so we need to handle that
+            ravelled_map = segmentation_map.array.ravel()
+            ravelled_map[~full_mask] = seg_ID
+            new_map = ravelled_map.reshape(segmentation_map.array.shape())
+            segmentation_map.array += new_map
 
         # Store this seg_ID in the table
         detections_table.loc[sorted_dtc_table[detf.ID][i]][detf.seg_ID] = seg_ID
