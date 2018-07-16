@@ -79,7 +79,13 @@ def make_segmentation_map(noisefree_image,
 
     for i in range(len(sorted_dtc_table)):
 
-        seg_ID = next(seg_ID_gen)
+        # Get the seg_ID from the table if it's already been set
+        table_seg_ID = detections_table.loc[sorted_dtc_table[detf.ID][i]][detf.seg_ID]
+        if table_seg_ID > 0:
+            seg_ID = table_seg_ID
+        else:
+            # Not set, so generate a new one
+            seg_ID = next(seg_ID_gen)
 
         # For each object, look for pixels near it above the threshold value
         gal_xy = wcs.toImage(galsim.PositionD(float(sorted_dtc_table[detf.gal_x_world][i]),
