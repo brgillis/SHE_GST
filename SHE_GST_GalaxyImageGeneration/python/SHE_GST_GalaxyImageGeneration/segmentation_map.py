@@ -5,7 +5,7 @@
     Functions to generate mock segmentation maps.
 """
 
-__updated__ = "2018-07-05"
+__updated__ = "2018-07-16"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,9 +22,9 @@ __updated__ = "2018-07-05"
 
 from copy import deepcopy
 
-import galsim
-
 from SHE_PPT.table_formats.detections import tf as detf
+
+import galsim
 import numpy as np
 
 
@@ -35,6 +35,7 @@ def get_seg_ID():
     while True:
         yield seg_ID
         seg_ID += 1
+
 
 seg_ID_gen = get_seg_ID()
 
@@ -101,9 +102,12 @@ def make_segmentation_map(noisefree_image,
             y_image, x_image = np.indices(np.shape(noisefree_image.array))
             threshold_mask = np.ravel(noisefree_image.array) <= threshold
             claimed_mask = np.zeros_like(threshold_mask, dtype=bool)
+        else:
+            xp_l = 1
+            yp_l = 1
 
-        dx_image = x_image - gal_xy.x
-        dy_image = y_image - gal_xy.y
+        dx_image = x_image - (gal_xy.x - xp_l + 1)  # Need to correct for potential stamp shift of xp_l-1
+        dy_image = y_image - (gal_xy.y - yp_l + 1)
 
         r2_image = dx_image ** 2 + dy_image ** 2
 
