@@ -126,7 +126,7 @@ def make_segmentation_map(noisefree_image,
             # In stamps mode, ravel will create a copy, so we need to handle that
             ravelled_map = segmentation_map.array.ravel()
             ravelled_map[~full_mask] = seg_ID
-            new_map = ravelled_map.reshape(segmentation_map.array.shape())
+            new_map = ravelled_map.reshape(segmentation_map.array.shape)
             segmentation_map.array += new_map
 
         # Store this seg_ID in the table
