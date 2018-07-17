@@ -115,6 +115,9 @@ def write_configs_from_plan(plan_filename,
     logger = getLogger(mv.logger_name)
     logger.debug('# Entering write_configs.write_configs_from_plan')
 
+    # Copy over cache files in this step as well
+    copy_cache_files(workdir)
+
     qualified_plan_filename = find_file(get_data_filename(plan_filename, workdir), workdir)
     qualified_template_filename = find_file(template_filename, path=workdir)
 
