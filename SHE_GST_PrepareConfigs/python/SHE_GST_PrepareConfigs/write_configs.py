@@ -5,7 +5,7 @@
     Contains functions to write out configuration files.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-07-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,21 +21,65 @@ __updated__ = "2018-07-03"
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import os
+from shutil import copyfile
 
-from astropy.table import Table
-
-from SHE_GST_PrepareConfigs import magic_values as mv
 from SHE_PPT import products
 from SHE_PPT.file_io import (get_allowed_filename, replace_multiple_in_file,
                              write_pickled_product, write_listfile, find_file,
-                             read_pickled_product, get_data_filename)
+                             find_aux_file, read_pickled_product, get_data_filename)
+from SHE_PPT.logging import getLogger
 from SHE_PPT.table_formats.simulation_plan import tf as sptf
 from SHE_PPT.table_utility import is_in_format
+
+from SHE_GST_PrepareConfigs import magic_values as mv
+from astropy.table import Table
 import numpy as np
 
 
 products.simulation_config.init()
 products.simulation_plan.init()
+
+cache_filenames = ["ang_di_d_cache.bin",
+                   "crich_cache.bin",
+                   "crichz_cache.bin",
+                   "dfa_cache.bin",
+                   "lum_int_cache.bin",
+                   "massfunc_cache.bin",
+                   "mass_int_cache.bin",
+                   "sigma_r_cache.bin",
+                   "tfa_cache.bin",
+                   "viscdens_cache.bin",
+                   "vis_clus_cache.bin",
+                   "vis_gal_cache.bin",
+                   "visgdens_cache.bin"]
+cache_auxdir = "SHE_GST_GalaxyImageGeneration"
+
+
+def copy_cache_files(workdir):
+    """Copies all cache files from the aux directory into the working directory.
+    """
+
+    logger = getLogger(mv.logger_name)
+    logger.debug('# Entering write_configs.copy_cache_files')
+
+    for filename in cache_filenames:
+
+        # Find it in the auxdir
+        aux_filename = os.path.join(cache_auxdir, filename)
+        qualified_aux_filename = find_aux_file(aux_filename)
+
+        # Get the desired destination filename
+        qualified_dest_filename = os.path.join(workdir, filename)
+
+        # Copy the file
+        logger.debug('Attempting to copy cache file ' + qualified_aux_filename +
+                     ' to ' + qualified_dest_filename + '.')
+        copyfile(qualified_aux_filename, qualified_dest_filename)
+        logger.debug('Successfully copied cache file ' + qualified_aux_filename +
+                     ' to ' + qualified_dest_filename + '.')
+
+    logger.debug('# Exiting write_configs.copy_cache_files')
+    return
 
 
 def write_configs_from_plan(plan_filename,
@@ -67,6 +111,9 @@ def write_configs_from_plan(plan_filename,
     None
 
     """
+
+    logger = getLogger(mv.logger_name)
+    logger.debug('# Entering write_configs.write_configs_from_plan')
 
     qualified_plan_filename = find_file(get_data_filename(plan_filename, workdir), workdir)
     qualified_template_filename = find_file(template_filename, path=workdir)
@@ -192,6 +239,7 @@ def write_configs_from_plan(plan_filename,
     # Write out the listfile of these files
     write_listfile(os.path.join(workdir, listfile_filename), all_config_products)
 
+    logger.debug('# Exiting write_configs.write_configs_from_plan')
     return
 
 
@@ -237,6 +285,9 @@ def write_config(filename,
 
     """
 
+    logger = getLogger(mv.logger_name)
+    logger.debug('# Entering write_configs.write_config')
+
     input_strings = []
     output_strings = []
 
@@ -269,4 +320,5 @@ def write_config(filename,
     replace_multiple_in_file(template_filename, filename,
                              input_strings, output_strings)
 
+    logger.debug('# Exiting write_configs.write_config')
     return
