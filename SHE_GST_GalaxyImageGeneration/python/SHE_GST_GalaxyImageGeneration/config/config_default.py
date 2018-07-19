@@ -6,7 +6,7 @@
     values for the Generate_GalSim_Images project.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-07-19"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -32,6 +32,7 @@ __all__ = ['load_default_configurations']
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
+
 
 allowed_options = {'aocs_time_series_products': ('mock_aocs_time_series_products.json', str),
                    'astrometry_products': ('mock_astrometry_products.json', str),
@@ -59,6 +60,8 @@ allowed_options = {'aocs_time_series_products': ('mock_aocs_time_series_products
                    'num_parallel_threads': (1, int),
                    'num_target_galaxies': (0, int),
                    'output_file_name_base': ('simulated_image', str),
+                   'output_psf_file_name': (None, str),
+                   'output_unsubtracted_background': (None, float),
                    'psf_file_name_base': ('simulated_image_psfs', str),
                    'psf_images_and_tables': ('sim_psf_images_and_tables.json', str),
                    'psf_stamp_size': (256, int),
