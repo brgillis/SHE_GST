@@ -1162,6 +1162,10 @@ def generate_image(image_phl,
     sky_level_subtracted = image_phl.get_param_value('subtracted_background')
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
     sky_level_unsubtracted_pixel = image_phl.get_param_value('unsubtracted_background') * pixel_scale ** 2
+    if options['output_unsubtracted_background'] is None:
+        output_sky_level_unsubtracted_pixel = sky_level_unsubtracted_pixel
+    else:
+        output_sky_level_unsubtracted_pixel = options['output_unsubtracted_background'] * pixel_scale ** 2
 
     # Get the initial noise deviates
     base_deviates = []
@@ -1184,12 +1188,12 @@ def generate_image(image_phl,
             noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             bkg_maps.append(galsim.ImageF(np.ones_like(
-                dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
+                dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
         elif options['image_datatype'] == '64f':
             noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             bkg_maps.append(galsim.ImageD(np.ones_like(
-                dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
+                dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
 
         wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
         wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
