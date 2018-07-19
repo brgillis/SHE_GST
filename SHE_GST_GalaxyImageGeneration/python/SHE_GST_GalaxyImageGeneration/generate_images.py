@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-07-13"
+__updated__ = "2018-07-19"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -1183,11 +1183,13 @@ def generate_image(image_phl,
         if options['image_datatype'] == '32f':
             noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            bkg_maps.append(galsim.ImageF(np.zeros_like(dithers[di].array), wcs=wcs_list[di]))
+            bkg_maps.append(galsim.ImageF(np.zeros_like(
+                dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
         elif options['image_datatype'] == '64f':
             noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            bkg_maps.append(galsim.ImageD(np.zeros_like(dithers[di].array), wcs=wcs_list[di]))
+            bkg_maps.append(galsim.ImageD(np.zeros_like(
+                dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
 
         wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
         wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
