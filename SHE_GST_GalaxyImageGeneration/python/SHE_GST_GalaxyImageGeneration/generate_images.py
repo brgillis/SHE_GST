@@ -1183,12 +1183,12 @@ def generate_image(image_phl,
         if options['image_datatype'] == '32f':
             noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            bkg_maps.append(galsim.ImageF(np.zeros_like(
+            bkg_maps.append(galsim.ImageF(np.ones_like(
                 dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
         elif options['image_datatype'] == '64f':
             noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            bkg_maps.append(galsim.ImageD(np.zeros_like(
+            bkg_maps.append(galsim.ImageD(np.ones_like(
                 dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
 
         # Add the background map to the dither
