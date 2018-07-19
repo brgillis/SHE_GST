@@ -6,7 +6,7 @@
     Function to combine various dithers into a stacked image.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-07-19"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,19 +21,19 @@ __updated__ = "2018-07-03"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from numpy.lib.stride_tricks import as_strided
 import os
 
-from astropy.io import fits
-import galsim
-
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_PPT import magic_values as ppt_mv
 from SHE_PPT import products
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
 from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag, background_tag, weight_tag
 from SHE_PPT.mask import masked_off_image
+
+from SHE_GST_GalaxyImageGeneration import magic_values as mv
+from astropy.io import fits
+import galsim
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
 
 
 products.mosaic.init()
@@ -343,8 +343,8 @@ def combine_image_dithers(image_listfile_name,
             max_num_y = num_y
 
         image_dithers.append(f)
-        bkg_image_dithers.append(f)
-        wgt_image_dithers.append(f)
+        bkg_image_dithers.append(fb)
+        wgt_image_dithers.append(fw)
 
     # Get the WCS from the first dither
     first_wcs, first_origin = galsim.wcs.readFromFitsHeader(image_dithers[0][0].header)
