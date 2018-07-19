@@ -30,7 +30,7 @@ import os
 from SHE_PPT import detector
 from SHE_PPT import products
 from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
-                             write_xml_product)
+                             write_xml_product, find_file_in_path, find_file)
 from SHE_PPT.logging import getLogger
 from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
                                   model_seed_label, noise_seed_label, extname_label, dither_dx_label,
@@ -728,13 +728,13 @@ def print_galaxies(image_phl,
                     output_bulge_psf_profile = bulge_psf_profile
                     output_disk_psf_profile = disk_psf_profile
                 else:
-                    output_bulge_psf_profile = load_psf_model_from_file(options['output_psf_file_name'],
+                    output_psf_filename = find_file(options['output_psf_file_name'])
+                    output_bulge_psf_profile = load_psf_model_from_file(output_psf_filename,
                                                                         scale=pixel_scale /
                                                                         options['psf_scale_factor'],
                                                                         offset=mv.default_psf_center_offset)
-                    output_disk_psf_profile = load_psf_model_from_file(options['output_psf_file_name'],
-                                                                       scale=pixel_scale / options['psf_scale_factor'],
-                                                                       offset=mv.default_psf_center_offset)
+                    output_disk_psf_profile = output_bulge_psf_profile
+
                 add_psf_to_archive(psf_profile=output_bulge_psf_profile,
                                    archive_hdulist=psf_archive_hdulist,
                                    galaxy_id=galaxy.get_full_ID(),
