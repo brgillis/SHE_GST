@@ -1191,9 +1191,6 @@ def generate_image(image_phl,
             bkg_maps.append(galsim.ImageD(np.ones_like(
                 dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
 
-        # Add the background map to the dither
-        dithers[di] += bkg_maps[di]
-
         wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
         wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
 
