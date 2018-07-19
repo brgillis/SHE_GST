@@ -1179,7 +1179,7 @@ def generate_image(image_phl,
 
         logger.debug("Printing dither " + str(di + 1) + ".")
 
-        # Make mock noise and mask maps for this dither
+        # Make mock noise, mask, and background maps for this dither
         if options['image_datatype'] == '32f':
             noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
@@ -1190,6 +1190,9 @@ def generate_image(image_phl,
             wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             bkg_maps.append(galsim.ImageD(np.zeros_like(
                 dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
+
+        # Add the background map to the dither
+        dithers[di].array += bkg_maps[di].array
 
         wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
         wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
