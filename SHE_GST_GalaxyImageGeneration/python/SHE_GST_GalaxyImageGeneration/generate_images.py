@@ -280,7 +280,7 @@ def generate_image_group(image_group_phl, options):
                                                    dither_offset=get_dither_scheme(options['dithering_scheme'])[i]))
 
         # Generate the data
-        (image_dithers, noise_maps, mask_maps, bkg_maps, wgt_maps, segmentation_maps,
+        (image_dithers, noise_maps, mask_maps, wgt_maps, bkg_maps, segmentation_maps,
          detections_table, details_table) = generate_image(image_phl, options, wcs_list, psf_archive_hdulist)
 
         # Append to the fits file for each dither
