@@ -30,7 +30,7 @@ import os
 from SHE_PPT import detector
 from SHE_PPT import products
 from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
-                             write_xml_product)
+                             write_xml_product, find_file_in_path, find_file)
 from SHE_PPT.logging import getLogger
 from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
                                   model_seed_label, noise_seed_label, extname_label, dither_dx_label,
@@ -54,7 +54,8 @@ from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
                                                   is_target_galaxy)
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel, add_stable_noise
-from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile, sort_psfs_from_archive, add_psf_to_archive
+from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, sort_psfs_from_archive, add_psf_to_archive,
+                                               load_psf_model_from_file)
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
 import SHE_GST_PhysicalModel
@@ -723,14 +724,25 @@ def print_galaxies(image_phl,
 
             # Save the profiles to the archive file
             for di in range(num_dithers):
-                add_psf_to_archive(psf_profile=bulge_psf_profile,
+                if options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None':
+                    output_bulge_psf_profile = bulge_psf_profile
+                    output_disk_psf_profile = disk_psf_profile
+                else:
+                    output_psf_filename = find_file(options['output_psf_file_name'])
+                    output_bulge_psf_profile = load_psf_model_from_file(output_psf_filename,
+                                                                        scale=pixel_scale /
+                                                                        options['psf_scale_factor'],
+                                                                        offset=mv.default_psf_center_offset)
+                    output_disk_psf_profile = output_bulge_psf_profile
+
+                add_psf_to_archive(psf_profile=output_bulge_psf_profile,
                                    archive_hdulist=psf_archive_hdulist,
                                    galaxy_id=galaxy.get_full_ID(),
                                    exposure_index=di,
                                    psf_type="bulge",
                                    stamp_size=options['psf_stamp_size'],
                                    scale=pixel_scale / options['psf_scale_factor'],)
-                add_psf_to_archive(psf_profile=disk_psf_profile,
+                add_psf_to_archive(psf_profile=output_disk_psf_profile,
                                    archive_hdulist=psf_archive_hdulist,
                                    galaxy_id=galaxy.get_full_ID(),
                                    exposure_index=di,
@@ -1162,6 +1174,10 @@ def generate_image(image_phl,
     sky_level_subtracted = image_phl.get_param_value('subtracted_background')
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
     sky_level_unsubtracted_pixel = image_phl.get_param_value('unsubtracted_background') * pixel_scale ** 2
+    if options['output_unsubtracted_background'] is None:
+        output_sky_level_unsubtracted_pixel = sky_level_unsubtracted_pixel
+    else:
+        output_sky_level_unsubtracted_pixel = options['output_unsubtracted_background'] * pixel_scale ** 2
 
     # Get the initial noise deviates
     base_deviates = []
@@ -1184,12 +1200,12 @@ def generate_image(image_phl,
             noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             bkg_maps.append(galsim.ImageF(np.ones_like(
-                dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
+                dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
         elif options['image_datatype'] == '64f':
             noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             bkg_maps.append(galsim.ImageD(np.ones_like(
-                dithers[di].array), wcs=wcs_list[di]) * sky_level_unsubtracted_pixel)
+                dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
 
         wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
         wgt_maps[di].array[noise_maps[di].array <= 0] *= 0

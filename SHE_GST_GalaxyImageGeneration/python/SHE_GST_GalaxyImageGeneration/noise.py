@@ -6,7 +6,7 @@
     in simulated images.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-07-20"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,9 +23,8 @@ __updated__ = "2018-07-03"
 
 from copy import deepcopy
 
-import galsim
-
 from SHE_GST_GalaxyImageGeneration.gain import get_ADU_from_count, get_count_from_ADU
+import galsim
 import numpy as np
 
 
@@ -137,10 +136,8 @@ def add_stable_noise(image,
     """ Adds stable noise to an image.
     """
 
-    assert options['shape_noise_cancellation']
-
-    # If not in stamp mode, add noise simply
-    if not options['mode'] == 'stamps':
+    # If not in stamp mode or not applying shape noise cancellation, add noise simply
+    if not options['mode'] == 'stamps' or not options['shape_noise_cancellation']:
         image.addNoise(galsim.VariableGaussianNoise(base_deviate,
                                                     var_array))
         return
