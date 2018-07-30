@@ -186,7 +186,7 @@ def generate_image_group(image_group_phl, options):
     full_options = get_full_options(options, image_group_phl)
     model_hash = hash_any(full_options, format="base64")
     model_hash_fn = model_hash[0:model_hash_maxlen]
-    psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", model_hash_fn, extension=".fits")
+    psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".fits")
 
     psf_archive_hdulist = fits.open(os.path.join(options['workdir'], psf_archive_filename), mode='append')
 
@@ -202,19 +202,19 @@ def generate_image_group(image_group_phl, options):
             if tag in (detections_tag, details_tag):
                 dither_tag = ""
             else:
-                dither_tag = "_D" + str(i + 1)
+                dither_tag = "-D" + str(i + 1)
 
-            subfilenames_lists_labels_exts = [(filename_list.prod_filenames, "GST_P", ".xml"),
+            subfilenames_lists_labels_exts = [(filename_list.prod_filenames, "GST-P", ".xml"),
                                               (filename_list.data_filenames, "GST", ".fits"), ]
 
             # For the VIS image, also add other subfilenames
             if tag == sci_tag:
-                subfilenames_lists_labels_exts.append((filename_list.bkg_filenames, "GST_BKG", ".fits"))
-                subfilenames_lists_labels_exts.append((filename_list.wgt_filenames, "GST_WGT", ".fits"))
+                subfilenames_lists_labels_exts.append((filename_list.bkg_filenames, "GST-BKG", ".fits"))
+                subfilenames_lists_labels_exts.append((filename_list.wgt_filenames, "GST-WGT", ".fits"))
 
             for (subfilename_list, label, extension) in subfilenames_lists_labels_exts:
 
-                filename = get_allowed_filename(label + "_" + tag + dither_tag, model_hash_fn, extension=extension)
+                filename = get_allowed_filename(label + "-" + tag + dither_tag, model_hash_fn, extension=extension)
                 subfilename_list.append(filename)
 
                 # If it exists already, delete it
