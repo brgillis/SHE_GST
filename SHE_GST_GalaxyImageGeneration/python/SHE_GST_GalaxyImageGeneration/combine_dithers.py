@@ -6,7 +6,7 @@
     Function to combine various dithers into a stacked image.
 """
 
-__updated__ = "2018-07-19"
+__updated__ = "2018-07-30"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,6 +21,7 @@ __updated__ = "2018-07-19"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from numpy.lib.stride_tricks import as_strided
 import os
 
 from SHE_PPT import magic_values as ppt_mv
@@ -28,12 +29,11 @@ from SHE_PPT import products
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
 from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag, background_tag, weight_tag
 from SHE_PPT.mask import masked_off_image
+import galsim
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from astropy.io import fits
-import galsim
 import numpy as np
-from numpy.lib.stride_tricks import as_strided
 
 
 products.mosaic.init()
@@ -261,7 +261,8 @@ def combine_segmentation_dithers(segmentation_listfile_name,
 
     # Print out the stacked segmentation map
     data_filename = get_allowed_filename("GST_SEG_STACK",
-                                         segmentation_dithers[0][0].header['MHASH'],
+                                         segmentation_dithers[0][0].header[ppt_mv.model_hash_label
+                                                                           ][0:ppt_mv.short_instance_id_maxlen],
                                          extension=".fits")
 
     save_hdu(full_image, segmentation_dithers, stack_wcs, pixel_factor,
@@ -319,9 +320,9 @@ def combine_image_dithers(image_listfile_name,
 
         for i in range(len(f) // 3):
 
-            assert f[3 * i].header['EXTNAME'][-4:] == "." + sci_tag
-            assert fb[i].header['EXTNAME'] == f[3 * i].header['EXTNAME'][:-4]
-            assert fw[i].header['EXTNAME'] == f[3 * i].header['EXTNAME'][:-4]
+            assert f[3 * i].header[ppt_mv.extname_label][-4:] == "." + sci_tag
+            assert fb[i].header[ppt_mv.extname_label] == f[3 * i].header[ppt_mv.extname_label][:-4]
+            assert fw[i].header[ppt_mv.extname_label] == f[3 * i].header[ppt_mv.extname_label][:-4]
 
             shape = f[3 * i].data.shape
 
@@ -374,13 +375,13 @@ def combine_image_dithers(image_listfile_name,
         for i in range(num_dithers):
             if 3 * x + 2 < len(image_dithers[i]):
 
-                assert image_dithers[i][3 * x].header['EXTNAME'][-4:] == "." + sci_tag
+                assert image_dithers[i][3 * x].header[ppt_mv.extname_label][-4:] == "." + sci_tag
                 sci_dithers.append(image_dithers[i][3 * x].data)
 
-                assert image_dithers[i][3 * x + 1].header['EXTNAME'][-4:] == "." + noisemap_tag
+                assert image_dithers[i][3 * x + 1].header[ppt_mv.extname_label][-4:] == "." + noisemap_tag
                 rms_dithers.append(image_dithers[i][3 * x + 1].data)
 
-                assert image_dithers[i][3 * x + 2].header['EXTNAME'][-4:] == "." + mask_tag
+                assert image_dithers[i][3 * x + 2].header[ppt_mv.extname_label][-4:] == "." + mask_tag
                 flg_dithers.append(image_dithers[i][3 * x + 2].data)
 
                 bkg_dithers.append(bkg_image_dithers[i][x].data)
@@ -425,7 +426,8 @@ def combine_image_dithers(image_listfile_name,
 
     # Print out the stacked segmentation map
     data_filename = get_allowed_filename("GST_IMAGE_STACK",
-                                         image_dithers[0][0].header['MHASH'],
+                                         image_dithers[0][0].header[ppt_mv.model_hash_label
+                                                                    ][0:ppt_mv.short_instance_id_maxlen],
                                          extension=".fits")
     save_hdu(full_sci_image, image_dithers, stack_wcs, pixel_factor,
              data_filename, sci_tag, workdir)
@@ -435,13 +437,15 @@ def combine_image_dithers(image_listfile_name,
              data_filename, noisemap_tag, workdir)
 
     bkg_filename = get_allowed_filename("GST_BKG_STACK",
-                                        image_dithers[0][0].header['MHASH'],
+                                        image_dithers[0][0].header[ppt_mv.model_hash_label
+                                                                   ][0:ppt_mv.short_instance_id_maxlen],
                                         extension=".fits")
     save_hdu(full_bkg_image, bkg_image_dithers, stack_wcs, pixel_factor,
              bkg_filename, background_tag, workdir)
 
     wgt_filename = get_allowed_filename("GST_WGT_STACK",
-                                        image_dithers[0][0].header['MHASH'],
+                                        image_dithers[0][0].header[ppt_mv.model_hash_label
+                                                                   ][0:ppt_mv.short_instance_id_maxlen],
                                         extension=".fits")
     save_hdu(full_bkg_image, wgt_image_dithers, stack_wcs, pixel_factor,
              wgt_filename, weight_tag, workdir)
