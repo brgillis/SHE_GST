@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-07-19"
+__updated__ = "2018-07-30"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -42,6 +42,7 @@ from SHE_PPT.table_formats.detections import initialise_detections_table, detect
 from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
 from SHE_PPT.table_utility import add_row, table_to_hdu
 from SHE_PPT.utility import hash_any
+import galsim
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.combine_dithers import (combine_image_dithers,
@@ -61,8 +62,10 @@ from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
 import SHE_GST_PhysicalModel
 from astropy import table
 from astropy.io import fits
-import galsim
 import numpy as np
+
+
+model_hash_maxlen = 17  # Maximum possible length within filenames
 
 
 products.aocs_time_series.init()
@@ -171,7 +174,6 @@ def generate_image_group(image_group_phl, options):
 
     # Get the model hash so we can set up filenames
     full_options = get_full_options(options, image_group_phl.get_image_descendants()[0])
-    model_hash = hash_any(full_options, format="base64")
 
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
 
@@ -183,7 +185,8 @@ def generate_image_group(image_group_phl, options):
 
     full_options = get_full_options(options, image_group_phl)
     model_hash = hash_any(full_options, format="base64")
-    psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", model_hash, extension=".fits")
+    model_hash_fn = model_hash[0:model_hash_maxlen]
+    psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", model_hash_fn, extension=".fits")
 
     psf_archive_hdulist = fits.open(os.path.join(options['workdir'], psf_archive_filename), mode='append')
 
@@ -211,7 +214,7 @@ def generate_image_group(image_group_phl, options):
 
             for (subfilename_list, label, extension) in subfilenames_lists_labels_exts:
 
-                filename = get_allowed_filename(label + "_" + tag + dither_tag, model_hash, extension=extension)
+                filename = get_allowed_filename(label + "_" + tag + dither_tag, model_hash_fn, extension=extension)
                 subfilename_list.append(filename)
 
                 # If it exists already, delete it
