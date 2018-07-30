@@ -260,7 +260,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
             y_offset += detector_stack.shape[1] + pixel_factor * mv.image_gap_y_pix - extra_pixels
 
     # Print out the stacked segmentation map
-    data_filename = get_allowed_filename("GST_SEG_STACK",
+    data_filename = get_allowed_filename("GST-SEG-STACK",
                                          segmentation_dithers[0][0].header[ppt_mv.model_hash_label
                                                                            ][0:ppt_mv.short_instance_id_maxlen],
                                          extension=".fits")
@@ -425,7 +425,7 @@ def combine_image_dithers(image_listfile_name,
             y_offset += sci_stack.shape[1] + pixel_factor * mv.image_gap_y_pix - extra_pixels
 
     # Print out the stacked segmentation map
-    data_filename = get_allowed_filename("GST_IMAGE_STACK",
+    data_filename = get_allowed_filename("GST-IMAGE-STACK",
                                          image_dithers[0][0].header[ppt_mv.model_hash_label
                                                                     ][0:ppt_mv.short_instance_id_maxlen],
                                          extension=".fits")
@@ -436,14 +436,14 @@ def combine_image_dithers(image_listfile_name,
     save_hdu(full_rms_image, image_dithers, stack_wcs, pixel_factor,
              data_filename, noisemap_tag, workdir)
 
-    bkg_filename = get_allowed_filename("GST_BKG_STACK",
+    bkg_filename = get_allowed_filename("GST-BKG-STACK",
                                         image_dithers[0][0].header[ppt_mv.model_hash_label
                                                                    ][0:ppt_mv.short_instance_id_maxlen],
                                         extension=".fits")
     save_hdu(full_bkg_image, bkg_image_dithers, stack_wcs, pixel_factor,
              bkg_filename, background_tag, workdir)
 
-    wgt_filename = get_allowed_filename("GST_WGT_STACK",
+    wgt_filename = get_allowed_filename("GST-WGT-STACK",
                                         image_dithers[0][0].header[ppt_mv.model_hash_label
                                                                    ][0:ppt_mv.short_instance_id_maxlen],
                                         extension=".fits")
