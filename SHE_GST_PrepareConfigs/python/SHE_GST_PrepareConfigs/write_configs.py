@@ -5,7 +5,7 @@
     Contains functions to write out configuration files.
 """
 
-__updated__ = "2018-07-17"
+__updated__ = "2018-07-30"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -219,10 +219,10 @@ def write_configs_from_plan(plan_filename,
 
         for i in range(len(model_seeds)):
 
-            prod_filename = get_allowed_filename(type_name="GST_CFG_P",
+            prod_filename = get_allowed_filename(type_name="GST-CFG-P",
                                                  instance_id=tag + "-" + str(i),
                                                  extension=".xml")
-            filename = get_allowed_filename(type_name="GST_CFG",
+            filename = get_allowed_filename(type_name="GST-CFG",
                                             instance_id=tag + "-" + str(i),
                                             extension=".txt")
 
