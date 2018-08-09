@@ -5,7 +5,7 @@
     Main program for preparing configuration files for parallel runs.
 """
 
-__updated__ = "2018-07-11"
+__updated__ = "2018-08-09"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -54,6 +54,9 @@ def defineSpecificProgramOptions():
 
     parser.add_argument("--simulation_configs", default="config_files.json", type=str,
                         help="Filename to which to output list of generated config files.")
+
+    parser.add_argument("--pipeline_config", default=None, type=str,
+                        help="Pipeline-wide configuration file.")
 
     # Arguments needed by the pipeline runner
     parser.add_argument('--workdir', type=str, default=".")
