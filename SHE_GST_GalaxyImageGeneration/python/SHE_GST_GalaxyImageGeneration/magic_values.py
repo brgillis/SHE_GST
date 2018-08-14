@@ -6,7 +6,7 @@
     Magic values for the SHE_GST_GalaxyImageGeneration module
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-08-14"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -49,7 +49,7 @@ default_dithering_scheme = 'none'
 
 default_num_images = 1
 default_gain = 3.3
-default_pixel_scale = 0.1
+default_pixel_scale = 0.1 / 3600
 default_psf_scale_factor = 5
 default_psf_stamp_size = 256
 default_psf_center_offset = (-0.5, -2.5)
