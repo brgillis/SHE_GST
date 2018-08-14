@@ -195,7 +195,7 @@ def get_disk_galaxy_profile(half_light_radius,
     base_prof = InclinedSersic(n=1.,
                                inclination=tilt * galsim.degrees,
                                half_light_radius=half_light_radius,
-                               trunc=mv.default_truncation_radius_factor * scale_radius,
+                               trunc=mv.default_truncation_radius_factor * scale_radius / 3600,
                                flux=flux,
                                scale_h_over_r=height_ratio,
                                gsparams=gsparams)
