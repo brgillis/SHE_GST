@@ -5,6 +5,8 @@
     Contains unit tests of functions in SHE_GST_PrepareConfigs/write_configs.py
 """
 
+__updated__ = "2018-08-07"
+
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
 # This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
@@ -18,8 +20,9 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import pytest
 import os
+
+import pytest
 
 from SHE_GST_GalaxyImageGeneration.config.parse_config import get_cfg_args
 from SHE_GST_PrepareConfigs.write_configs import write_config, write_configs_from_plan
@@ -45,6 +48,7 @@ class TestWriteConfigs:
     @pytest.fixture(autouse = True)
     def setup(self, tmpdir):
         self.workdir = tmpdir.strpath
+        os.mkdir(os.path.join(self.workdir,"data"))
 
 
     def test_write_config(self):

@@ -7,6 +7,8 @@
     generating images.
 """
 
+__updated__ = "2018-08-14"
+
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
 # This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
@@ -25,8 +27,21 @@ from copy import deepcopy
 from multiprocessing import cpu_count, Pool
 import os
 
-from astropy import table
-from astropy.io import fits
+from SHE_PPT import detector
+from SHE_PPT import products
+from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
+                             write_xml_product, find_file_in_path, find_file)
+from SHE_PPT.logging import getLogger
+from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
+                                  model_seed_label, noise_seed_label, extname_label, dither_dx_label,
+                                  dither_dy_label, scale_label,
+                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
+                                  detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
+from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
+from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
+from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
+from SHE_PPT.table_utility import add_row, table_to_hdu
+from SHE_PPT.utility import hash_any
 import galsim
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
@@ -39,26 +54,18 @@ from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
                                                   get_disk_galaxy_profile,
                                                   is_target_galaxy)
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
-from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel
-from SHE_GST_GalaxyImageGeneration.psf import get_psf_profile, sort_psfs_from_archive, add_psf_to_archive
+from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel, add_stable_noise
+from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, sort_psfs_from_archive, add_psf_to_archive,
+                                               load_psf_model_from_file)
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
-from SHE_PPT import detector
-from SHE_PPT import products
-from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
-                             write_xml_product)
-from SHE_PPT.logging import getLogger
-from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
-                                  model_seed_label, noise_seed_label, extname_label, dither_dx_label,
-                                  dither_dy_label, scale_label,
-                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
-                                  detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
-from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
-from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
-from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
-from SHE_PPT.table_utility import add_row, table_to_hdu
-from SHE_PPT.utility import hash_any
+import SHE_GST_PhysicalModel
+from astropy import table
+from astropy.io import fits
 import numpy as np
+
+
+model_hash_maxlen = 17  # Maximum possible length within filenames
 
 
 products.aocs_time_series.init()
@@ -167,7 +174,6 @@ def generate_image_group(image_group_phl, options):
 
     # Get the model hash so we can set up filenames
     full_options = get_full_options(options, image_group_phl.get_image_descendants()[0])
-    model_hash = hash_any(full_options, format="base64")
 
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
 
@@ -177,8 +183,12 @@ def generate_image_group(image_group_phl, options):
     mosaic_filenames = ProductFilenames()
     psf_filenames = ProductFilenames()
 
-    psf_archive_filename = get_allowed_filename("PSF_ARCHIVE", str(image_group_phl.get_full_ID()),
-                                                extension=".fits")
+    full_options = get_full_options(options, image_group_phl)
+    model_hash = hash_any(full_options, format="base64")
+    model_hash_fn = model_hash[0:model_hash_maxlen]
+    psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".fits")
+
+    psf_archive_hdulist = fits.open(os.path.join(options['workdir'], psf_archive_filename), mode='append')
 
     # Get the filenames we'll need
     for i in range(num_dithers):
@@ -192,19 +202,19 @@ def generate_image_group(image_group_phl, options):
             if tag in (detections_tag, details_tag):
                 dither_tag = ""
             else:
-                dither_tag = "_D" + str(i + 1)
+                dither_tag = "-D" + str(i + 1)
 
-            subfilenames_lists_labels_exts = [(filename_list.prod_filenames, "GST_P", ".xml"),
+            subfilenames_lists_labels_exts = [(filename_list.prod_filenames, "GST-P", ".xml"),
                                               (filename_list.data_filenames, "GST", ".fits"), ]
 
             # For the VIS image, also add other subfilenames
             if tag == sci_tag:
-                subfilenames_lists_labels_exts.append((filename_list.bkg_filenames, "GST_BKG", ".fits"))
-                subfilenames_lists_labels_exts.append((filename_list.wgt_filenames, "GST_WGT", ".fits"))
+                subfilenames_lists_labels_exts.append((filename_list.bkg_filenames, "GST-BKG", ".fits"))
+                subfilenames_lists_labels_exts.append((filename_list.wgt_filenames, "GST-WGT", ".fits"))
 
             for (subfilename_list, label, extension) in subfilenames_lists_labels_exts:
 
-                filename = get_allowed_filename(label + "_" + tag + dither_tag, model_hash, extension=extension)
+                filename = get_allowed_filename(label + "-" + tag + dither_tag, model_hash_fn, extension=extension)
                 subfilename_list.append(filename)
 
                 # If it exists already, delete it
@@ -244,13 +254,11 @@ def generate_image_group(image_group_phl, options):
         # Details table
 
         details_product = products.details.create_details_product(filename=details_filenames.data_filenames[0])
-        write_pickled_product(details_product,
-                              os.path.join(workdir, details_filenames.prod_filenames[0]))
 
         # Detections table
 
         my_detections_product = products.detections.create_detections_product(
-            filename=detections_filenames.data_filenames[0])
+            data_filename=detections_filenames.data_filenames[0])
         write_xml_product(my_detections_product,
                           os.path.join(workdir, detections_filenames.prod_filenames[0]))
 
@@ -259,11 +267,16 @@ def generate_image_group(image_group_phl, options):
     # Set up combined tables
     details_tables = []
     detections_tables = []
-    psf_tables = [[]] * num_dithers
+    psf_tables = []
+    for i in range(num_dithers):
+        psf_tables.append([])
+
+    image_i = -1
 
     # Generate each image_phl, then append it and its data to the fits files
     for image_phl in image_group_phl.get_image_descendants():
 
+        image_i += 1
         wcs_list = []
 
         for i in range(num_dithers):
@@ -271,8 +284,8 @@ def generate_image_group(image_group_phl, options):
                                                    dither_offset=get_dither_scheme(options['dithering_scheme'])[i]))
 
         # Generate the data
-        (image_dithers, noise_maps, mask_maps, bkg_maps, wgt_maps, segmentation_maps,
-         detections_table, details_table) = generate_image(image_phl, options, wcs_list, psf_archive_filename)
+        (image_dithers, noise_maps, mask_maps, wgt_maps, bkg_maps, segmentation_maps,
+         detections_table, details_table) = generate_image(image_phl, options, wcs_list, psf_archive_hdulist)
 
         # Append to the fits file for each dither
         for i in range(num_dithers):
@@ -282,8 +295,8 @@ def generate_image_group(image_group_phl, options):
             qualified_image_filename = os.path.join(workdir, image_filenames.data_filenames[i])
 
             # Science image
-            im_hdu = fits.ImageHDU(data=image_dithers[i][0][0].array,
-                                   header=fits.header.Header(list(image_dithers[i][0][0].header.items())))
+            im_hdu = fits.ImageHDU(data=image_dithers[i].array,
+                                   header=fits.header.Header(list(image_dithers[i].header.items())))
             append_hdu(qualified_image_filename, im_hdu)
 
             # Noise map
@@ -340,6 +353,15 @@ def generate_image_group(image_group_phl, options):
     dtc_hdu = table_to_hdu(combined_detections_table)
     append_hdu(os.path.join(workdir, detections_filenames.data_filenames[0]), dtc_hdu)
 
+    # Output data products for tables
+
+    details_prod = products.details.create_details_product(details_filenames.data_filenames[0])
+    write_xml_product(details_prod, os.path.join(workdir, options['details_table']))
+
+    detections_prod = products.detections.create_detections_product(detections_filenames.data_filenames[0])
+    write_xml_product(detections_prod, os.path.join(workdir, detections_filenames.prod_filenames[0]))
+    write_listfile(os.path.join(workdir, options['detections_tables']), [detections_filenames.prod_filenames[0]])
+
     combined_psf_tables = []
 
     for i in range(num_dithers):
@@ -348,7 +370,7 @@ def generate_image_group(image_group_phl, options):
 
         sort_psfs_from_archive(combined_psf_tables[i],
                                psf_filenames.data_filenames[i],
-                               psf_archive_filename,
+                               psf_archive_hdulist,
                                i,
                                workdir=workdir)
 
@@ -371,7 +393,9 @@ def generate_image_group(image_group_phl, options):
                                      workdir=options['workdir'])
 
     # Remove the now-unneeded PSF archive file
-    os.remove(os.path.join(workdir, psf_archive_filename))
+    psf_archive_hdulist.close()
+    if os.path.exists(os.path.join(workdir, psf_archive_filename)):
+        os.remove(os.path.join(workdir, psf_archive_filename))
 
     return
 
@@ -387,7 +411,7 @@ def print_galaxies(image_phl,
                    pixel_scale,
                    detections_table,
                    details_table,
-                   psf_archive_filename):
+                   psf_archive_hdulist):
     """
         @brief Prints galaxies onto a new image and stores details on them in the output table.
 
@@ -447,7 +471,12 @@ def print_galaxies(image_phl,
 
     # If we're aiming for a certain number of target galaxies, adjust as necessary
     if options['num_target_galaxies'] > 0:
-        num_ratio = options['num_target_galaxies'] * (1. / num_target_galaxies)
+        if num_target_galaxies <= 0:
+            if options['render_background_galaxies']:
+                raise ValueError("Image too small to accurately represent background galaxies")
+            num_ratio = 1e99
+        else:
+            num_ratio = options['num_target_galaxies'] * (1. / num_target_galaxies)
 
         if num_ratio > 1:
 
@@ -517,6 +546,12 @@ def print_galaxies(image_phl,
     if options['shape_noise_cancellation']:
 
         logger.debug("Implementing shape noise cancellation adjustments.")
+
+        # First, shear must be set at the level of galaxy group or higher
+        if image_phl.get_generation_level('shear_magnitude') > SHE_GST_PhysicalModel.galaxy_group_level:
+            image_phl.set_generation_level('shear_magnitude', SHE_GST_PhysicalModel.galaxy_group_level)
+        if image_phl.get_generation_level('shear_angle') > SHE_GST_PhysicalModel.galaxy_group_level:
+            image_phl.set_generation_level('shear_angle', SHE_GST_PhysicalModel.galaxy_group_level)
 
         # Determine how many groups we need, creating just enough
         galaxies_per_group = options['galaxies_per_group']
@@ -696,22 +731,32 @@ def print_galaxies(image_phl,
                 disk_psf_profile = bulge_psf_profile
 
             # Save the profiles to the archive file
-            add_psf_to_archive(psf_profile=bulge_psf_profile,
-                               archive_filename=psf_archive_filename,
-                               galaxy_id=galaxy.get_full_ID(),
-                               exposure_index=di,
-                               psf_type="bulge",
-                               stamp_size=options['psf_stamp_size'],
-                               scale=pixel_scale / options['psf_scale_factor'],
-                               workdir=options['workdir'])
-            add_psf_to_archive(psf_profile=disk_psf_profile,
-                               archive_filename=psf_archive_filename,
-                               galaxy_id=galaxy.get_full_ID(),
-                               exposure_index=di,
-                               psf_type="disk",
-                               stamp_size=options['psf_stamp_size'],
-                               scale=pixel_scale / options['psf_scale_factor'],
-                               workdir=options['workdir'])
+            for di in range(num_dithers):
+                if options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None':
+                    output_bulge_psf_profile = bulge_psf_profile
+                    output_disk_psf_profile = disk_psf_profile
+                else:
+                    output_psf_filename = find_file(options['output_psf_file_name'])
+                    output_bulge_psf_profile = load_psf_model_from_file(output_psf_filename,
+                                                                        scale=pixel_scale /
+                                                                        options['psf_scale_factor'],
+                                                                        offset=mv.default_psf_center_offset)
+                    output_disk_psf_profile = output_bulge_psf_profile
+
+                add_psf_to_archive(psf_profile=output_bulge_psf_profile,
+                                   archive_hdulist=psf_archive_hdulist,
+                                   galaxy_id=galaxy.get_full_ID(),
+                                   exposure_index=di,
+                                   psf_type="bulge",
+                                   stamp_size=options['psf_stamp_size'],
+                                   scale=pixel_scale / options['psf_scale_factor'],)
+                add_psf_to_archive(psf_profile=output_disk_psf_profile,
+                                   archive_hdulist=psf_archive_hdulist,
+                                   galaxy_id=galaxy.get_full_ID(),
+                                   exposure_index=di,
+                                   psf_type="disk",
+                                   stamp_size=options['psf_stamp_size'],
+                                   scale=pixel_scale / options['psf_scale_factor'])
 
             # Get the position of the galaxy, depending on whether we're in field or stamp mode
 
@@ -1059,20 +1104,18 @@ def add_image_header_info(gs_image,
 
     return
 
-# TODO: Add psf_archive_filename arg and use it
 
-
-def generate_image(image,
+def generate_image(image_phl,
                    options,
                    wcs_list,
-                   psf_archive_filename):
+                   psf_archive_hdulist):
     """
-        @brief Creates a single image of galaxies
+        @brief Creates a single image_phl of galaxies
 
-        @details If successful, generates an image and corresponding details according to
-            the configuration stored in the image and options objects.
+        @details If successful, generates an image_phl and corresponding details according to
+            the configuration stored in the image_phl and options objects.
 
-        @param image
+        @param image_phl
             <SHE_GST_PhysicalModel.Image> The Image-level object which specifies how galaxies are to be generated.
         @param options
             <dict> The options dictionary for this run.
@@ -1081,7 +1124,7 @@ def generate_image(image,
     logger = getLogger(mv.logger_name)
     logger.debug("Entering generate_image method.")
 
-    logger.debug("# Printing image " + str(image.get_local_ID()) + " #")
+    logger.debug("# Printing image " + str(image_phl.get_local_ID()) + " #")
 
     # Magic numbers
 
@@ -1089,7 +1132,7 @@ def generate_image(image,
 
     # Setup
 
-    image.autofill_children()
+    image_phl.autofill_children()
 
     # General setup from config
     num_dithers = len(get_dither_scheme(options['dithering_scheme']))
@@ -1102,10 +1145,10 @@ def generate_image(image,
     bkg_maps = []
     segmentation_maps = []
 
-    # Create the image object, using the appropriate method for the image type
-    full_x_size = int(image.get_param_value("image_size_xp"))
-    full_y_size = int(image.get_param_value("image_size_yp"))
-    pixel_scale = image.get_param_value("pixel_scale")
+    # Create the image_phl object, using the appropriate method for the image_phl type
+    full_x_size = int(image_phl.get_param_value("image_size_xp"))
+    full_y_size = int(image_phl.get_param_value("image_size_yp"))
+    pixel_scale = image_phl.get_param_value("pixel_scale")
     if not options['details_only']:
         for di in range(num_dithers):
             if options['image_datatype'] == '32f':
@@ -1113,7 +1156,7 @@ def generate_image(image,
             elif options['image_datatype'] == '64f':
                 dithers.append(galsim.ImageD(full_x_size, full_y_size, wcs=wcs_list[di]))
             else:
-                raise Exception("Bad image type slipped through somehow.")
+                raise Exception("Bad image_phl type slipped through somehow.")
     if options['mode'] == 'field':
         stamp_size_pix = None
     else:
@@ -1124,28 +1167,35 @@ def generate_image(image,
         detections_table = None
         details_table = None
     else:
-        full_options = get_full_options(options, image)
-        detections_table = initialise_detections_table(image.get_parent(), full_options,
+        full_options = get_full_options(options, image_phl)
+        detections_table = initialise_detections_table(image_phl.get_parent(), full_options,
                                                        optional_columns=[detf.seg_ID,
                                                                          detf.StarFlag, detf.DeblendingFlag,
                                                                          detf.Isoarea, detf.MagStarGal])
-        details_table = initialise_details_table(image.get_parent(), full_options)
+        details_table = initialise_details_table(image_phl.get_parent(), full_options)
 
     # Print the galaxies
-    galaxies = print_galaxies(image, options, wcs_list, centre_offset, num_dithers, dithers,
+    galaxies = print_galaxies(image_phl, options, wcs_list, centre_offset, num_dithers, dithers,
                               full_x_size, full_y_size, pixel_scale,
-                              detections_table, details_table, psf_archive_filename)
+                              detections_table, details_table, psf_archive_hdulist)
 
-    sky_level_subtracted = image.get_param_value('subtracted_background')
+    sky_level_subtracted = image_phl.get_param_value('subtracted_background')
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
-    sky_level_unsubtracted_pixel = image.get_param_value('unsubtracted_background') * pixel_scale ** 2
+    sky_level_unsubtracted_pixel = image_phl.get_param_value('unsubtracted_background') * pixel_scale ** 2
+    if options['output_unsubtracted_background'] is None:
+        output_sky_level_unsubtracted_pixel = sky_level_unsubtracted_pixel
+    else:
+        output_sky_level_unsubtracted_pixel = options['output_unsubtracted_background'] * pixel_scale ** 2
 
-    # Get the initial noise deviate
+    # Get the initial noise deviates
+    base_deviates = []
     if not options['suppress_noise']:
-        if options['noise_seed'] != 0:
-            base_deviate = galsim.BaseDeviate(options['noise_seed'])
-        else:
-            base_deviate = galsim.BaseDeviate(image.get_full_seed() + 1)
+        for di in range(num_dithers):
+            if options['noise_seed'] != 0:
+                base_deviate = galsim.BaseDeviate(options['noise_seed'] + di)
+            else:
+                base_deviate = galsim.BaseDeviate(image_phl.get_full_seed() + 1 + di)
+            base_deviates.append(base_deviate)
 
     # For each dither
     dither_scheme = get_dither_scheme(options['dithering_scheme'])
@@ -1153,22 +1203,17 @@ def generate_image(image,
 
         logger.debug("Printing dither " + str(di + 1) + ".")
 
-        # Make mock noise and mask maps for this dither
+        # Make mock noise, mask, and background maps for this dither
         if options['image_datatype'] == '32f':
             noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            bkg_maps.append(galsim.ImageF(np.zeros_like(dithers[di].array), wcs=wcs_list[di]))
+            bkg_maps.append(galsim.ImageF(np.ones_like(
+                dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
         elif options['image_datatype'] == '64f':
             noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
             wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            bkg_maps.append(galsim.ImageD(np.zeros_like(dithers[di].array), wcs=wcs_list[di]))
-
-        noise_level = get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel,
-                                            sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
-                                            read_noise_count=options['read_noise'],
-                                            pixel_scale=pixel_scale,
-                                            gain=options['gain'])
-        noise_maps[di] *= noise_level
+            bkg_maps.append(galsim.ImageD(np.ones_like(
+                dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
 
         wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
         wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
@@ -1176,12 +1221,18 @@ def generate_image(image,
         mask_maps.append(galsim.ImageI(np.zeros_like(dithers[di].array, dtype=np.int16), wcs=wcs_list[di]))
 
         logger.info("Generating segmentation map " + str(di) + ".")
+        noise_level = np.sqrt(get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel,
+                                                    sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
+                                                    read_noise_count=options['read_noise'],
+                                                    pixel_scale=pixel_scale,
+                                                    gain=options['gain']))
         segmentation_maps.append(make_segmentation_map(dithers[di],
                                                        detections_table,
                                                        wcs_list[di],
-                                                       threshold=0.01 * noise_level))
+                                                       threshold=0.01 * noise_level,
+                                                       options=options))
 
-        # If we're using cutouts, make the cutout image now
+        # If we're using cutouts, make the cutout image_phl now
         if options['mode'] == 'cutouts':
             dithers[di] = make_cutout_image(dithers[di],
                                             options,
@@ -1227,78 +1278,63 @@ def generate_image(image,
 
             dither_shift = dither_scheme[di]
 
-            detector_id_str = detector.get_id_string(image.get_local_ID() % 6 + 1,
-                                                     image.get_local_ID() // 6 + 1)
+            detector_id_str = detector.get_id_string(image_phl.get_local_ID() % 6 + 1,
+                                                     image_phl.get_local_ID() // 6 + 1)
 
             # Add a header containing version info
-            add_image_header_info(dither, options['gain'], full_options, image.get_full_seed(),
+            add_image_header_info(dither, options['gain'], full_options, image_phl.get_full_seed(),
                                   extname=detector_id_str + "." + sci_tag,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
-            add_image_header_info(noise_maps[di], options['gain'], full_options, image.get_full_seed(),
+            add_image_header_info(noise_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
                                   extname=detector_id_str + "." + noisemap_tag,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
-            add_image_header_info(mask_maps[di], options['gain'], full_options, image.get_full_seed(),
+            add_image_header_info(mask_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
                                   extname=detector_id_str + "." + mask_tag,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
-            add_image_header_info(bkg_maps[di], options['gain'], full_options, image.get_full_seed(),
+            add_image_header_info(bkg_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
                                   extname=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
-            add_image_header_info(wgt_maps[di], options['gain'], full_options, image.get_full_seed(),
+            add_image_header_info(wgt_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
                                   extname=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
-            add_image_header_info(segmentation_maps[di], options['gain'], full_options, image.get_full_seed(),
+            add_image_header_info(segmentation_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
                                   extname=detector_id_str + "." + segmentation_tag,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
 
+            # Note - noise map here deliberately doesn't include galaxy contributions
+
+            noise_maps[di] *= noise_level
+
             if not options['suppress_noise']:
 
-                noise_maps[di] *= get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel * np.ones_like(dither.array),
-                                                        sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
-                                                        read_noise_count=options['read_noise'],
-                                                        pixel_scale=pixel_scale,
-                                                        gain=options['gain'])
-
                 if options['stable_rng']:
+                    # Use noise array here that does contain galaxy info
                     var_array = get_var_ADU_per_pixel(pixel_value_ADU=dither.array,
                                                       sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
                                                       read_noise_count=options['read_noise'],
                                                       pixel_scale=pixel_scale,
                                                       gain=options['gain'])
-                    noise = galsim.VariableGaussianNoise(base_deviate,
-                                                         var_array)
-                else:
-                    noise = galsim.CCDNoise(base_deviate,
-                                            gain=options['gain'],
-                                            read_noise=options['read_noise'],
-                                            sky_level=sky_level_subtracted_pixel)
 
-                # Set up noise inversion as necessary
-                if options['noise_cancellation'] == 'false':
-                    dither.addNoise(noise)
-                    dithers[di] = [(dither, '')]
-                elif options['noise_cancellation'] == 'true':
-                    dither_copy = deepcopy(dither)
-                    dither.addNoise(noise)
-                    dithers[di] = [(2 * dither_copy - dither, 'i')]
-                    del dither_copy
-                elif options['noise_cancellation'] == 'both':
-                    dither_copy = deepcopy(dither)
-                    dither.addNoise(noise)
-                    dithers[di] = [(dither, ''),
-                                   (2 * dither_copy - dither, 'i')]
-                    del dither_copy
+                    add_stable_noise(image=dither,
+                                     base_deviate=base_deviates[di],
+                                     var_array=var_array,
+                                     image_phl=image_phl,
+                                     options=options)
                 else:
-                    raise Exception("Invalid value for noise_cancellation: " + str(options['noise_cancellation']))
+                    dither.addNoise(galsim.CCDNoise(base_deviates[di],
+                                                    gain=options['gain'],
+                                                    read_noise=options['read_noise'],
+                                                    sky_level=sky_level_subtracted_pixel))
+                dithers[di] = dither
             else:
-                noise_maps[di] *= 0
-                dithers[di] = [(dithers[di], '')]
+                dithers[di] = dithers[di]
 
         logger.info("Finished printing dither " + str(di + 1) + ".")
 
-    logger.info("Finished printing image " + str(image.get_local_ID()) + ".")
+    logger.info("Finished printing image_phl " + str(image_phl.get_local_ID()) + ".")
 
-    # We no longer need this image's children, so clear it to save memory
-    image.clear()
+    # We no longer need this image_phl's children, so clear it to save memory
+    image_phl.clear()
 
     logger.debug("Exiting generate_image method.")
     return (dithers, noise_maps, mask_maps, wgt_maps, bkg_maps, segmentation_maps,
