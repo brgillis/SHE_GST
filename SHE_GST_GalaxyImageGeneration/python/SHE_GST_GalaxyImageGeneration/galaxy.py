@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-08-14"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -20,15 +20,16 @@ __updated__ = "2018-07-03"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from functools import lru_cache
 from os.path import join
 
+from SHE_PPT.file_io import find_file
+from SHE_PPT.logging import getLogger
 import galsim
 
 import SHE_GST_GalaxyImageGeneration.magic_values as mv
-from functools import lru_cache
-from SHE_PPT.logging import getLogger
 import numpy as np
-from SHE_PPT.file_io import find_file
+
 
 __all__ = ['get_galaxy_profile']
 
@@ -41,11 +42,13 @@ except ImportError:
 
 allowed_ns = np.array((1.8, 2.0, 2.56, 2.71, 3.0, 3.5, 4.0))
 
+
 def is_target_galaxy(galaxy, options):
     return galaxy.get_param_value('apparent_mag_vis') <= options['magnitude_limit']
 
+
 @lru_cache()
-def load_galaxy_model_from_file(n, bulge = True, data_dir = mv.default_data_dir, workdir = "."):
+def load_galaxy_model_from_file(n, bulge=True, data_dir=mv.default_data_dir, workdir="."):
 
     n_str = "%0.2f" % n
 
@@ -71,36 +74,38 @@ def load_galaxy_model_from_file(n, bulge = True, data_dir = mv.default_data_dir,
 
     return x, y, z, I
 
-def load_galaxy_model(n, bulge = True, data_dir = mv.default_data_dir, workdir = "."):
+
+def load_galaxy_model(n, bulge=True, data_dir=mv.default_data_dir, workdir="."):
     diffs = np.abs(allowed_ns - n)
     i_best = np.argmin(diffs)
 
-    return load_galaxy_model_from_file(allowed_ns[i_best], bulge, data_dir = data_dir,
-                                       workdir = workdir)
+    return load_galaxy_model_from_file(allowed_ns[i_best], bulge, data_dir=data_dir,
+                                       workdir=workdir)
+
 
 def rotate(x, y, theta_deg):
-
 
     theta = theta_deg * np.pi / 180
     sin_theta = np.sin(theta)
     cos_theta = np.cos(theta)
 
-    new_x, new_y = (x * cos_theta - y * sin_theta ,
-                     x * sin_theta + y * cos_theta)
+    new_x, new_y = (x * cos_theta - y * sin_theta,
+                    x * sin_theta + y * cos_theta)
 
     return new_x, new_y
 
-def shear(x, y, g, beta_deg):
 
+def shear(x, y, g, beta_deg):
 
     beta = beta_deg * np.pi / 180
     sin_2beta = np.sin(2 * beta)
     cos_2beta = np.cos(2 * beta)
 
-    new_x, new_y = (x + g * (x * cos_2beta + y * sin_2beta) ,
-                     y + g * (x * sin_2beta - y * cos_2beta))
+    new_x, new_y = (x + g * (x * cos_2beta + y * sin_2beta),
+                    y + g * (x * sin_2beta - y * cos_2beta))
 
     return new_x, new_y
+
 
 def get_half_light_radius(x, y, I):
     """ NOTE: Requires I to be normalized
@@ -120,10 +125,11 @@ def get_half_light_radius(x, y, I):
 
     return test_r - r_step / 2
 
+
 def get_target_galaxy_profile(sersic_index,
-                        half_light_radius,
-                        bulge,
-                        **kwargs):
+                              half_light_radius,
+                              bulge,
+                              **kwargs):
     """
     """
 
@@ -132,89 +138,94 @@ def get_target_galaxy_profile(sersic_index,
     else:
         return get_disk_galaxy_image(sersic_index, half_light_radius, **kwargs)
 
+
 def get_background_galaxy_profile(sersic_index,
-                        half_light_radius,
-                        bulge,
-                        **kwargs):
+                                  half_light_radius,
+                                  bulge,
+                                  **kwargs):
     """
     """
 
     # Always use the faster get_bulge_galaxy_profile for background galaxies
     return get_bulge_galaxy_profile(sersic_index, half_light_radius, **kwargs)
 
-def discretize(n, res = 0.05):
+
+def discretize(n, res=0.05):
     return res * (int(n / res) + 0.5)
+
 
 def get_bulge_galaxy_profile(sersic_index,
                              half_light_radius,
-                             flux = 1.,
-                             g_ell = 0.,
-                             beta_deg_ell = 0.,
-                             g_shear = 0.,
-                             beta_deg_shear = 0.,
-                             data_dir = mv.default_data_dir,
-                             gsparams = galsim.GSParams(),
-                             workdir = "."):
+                             flux=1.,
+                             g_ell=0.,
+                             beta_deg_ell=0.,
+                             g_shear=0.,
+                             beta_deg_shear=0.,
+                             data_dir=mv.default_data_dir,
+                             gsparams=galsim.GSParams(),
+                             workdir="."):
     n = discretize(sersic_index)
 
-    gal_profile = galsim.Sersic(n = n,
-                                half_light_radius = half_light_radius,
-                                flux = flux,
-                                gsparams = gsparams)
+    gal_profile = galsim.Sersic(n=n,
+                                half_light_radius=half_light_radius / 3600,  # Convert to deg
+                                flux=flux,
+                                gsparams=gsparams)
 
-    shear_ell = galsim.Shear(g = g_ell, beta = beta_deg_ell * galsim.degrees)
-    shear_lensing = galsim.Shear(g = g_shear, beta = beta_deg_shear * galsim.degrees)
+    shear_ell = galsim.Shear(g=g_ell, beta=beta_deg_ell * galsim.degrees)
+    shear_lensing = galsim.Shear(g=g_shear, beta=beta_deg_shear * galsim.degrees)
 
     gal_profile = gal_profile.shear(shear_ell + shear_lensing)
 
     return gal_profile
 
+
 def get_disk_galaxy_profile(half_light_radius,
-                            rotation = 0.,
-                            tilt = 0.,
-                            flux = 1.,
-                            g_shear = 0.,
-                            beta_deg_shear = 0.,
-                            height_ratio = 0.1,
-                            gsparams = galsim.GSParams()):
+                            rotation=0.,
+                            tilt=0.,
+                            flux=1.,
+                            g_shear=0.,
+                            beta_deg_shear=0.,
+                            height_ratio=0.1,
+                            gsparams=galsim.GSParams()):
 
     # Use galsim's hardcoded half-light-radius factor to get scale radius
     # (where hlr is hlr for face-on profile specifically)
-    scale_radius = half_light_radius / galsim.Exponential._hlr_factor
+    scale_radius = half_light_radius / (3600 * galsim.Exponential._hlr_factor)  # Convert to deg as well
 
-    base_prof = InclinedSersic(n = 1.,
-                               inclination = tilt * galsim.degrees,
-                               half_light_radius = half_light_radius,
-                               trunc = mv.default_truncation_radius_factor * scale_radius,
-                               flux = flux,
-                               scale_h_over_r = height_ratio,
-                               gsparams = gsparams)
+    base_prof = InclinedSersic(n=1.,
+                               inclination=tilt * galsim.degrees,
+                               half_light_radius=half_light_radius,
+                               trunc=mv.default_truncation_radius_factor * scale_radius,
+                               flux=flux,
+                               scale_h_over_r=height_ratio,
+                               gsparams=gsparams)
 
     rotated_prof = base_prof.rotate(rotation * galsim.degrees)
 
-    final_prof = rotated_prof.shear(g = g_shear,
-                                 beta = beta_deg_shear * galsim.degrees)
+    final_prof = rotated_prof.shear(g=g_shear,
+                                    beta=beta_deg_shear * galsim.degrees)
 
     return final_prof
 
+
 def get_disk_galaxy_image(sersic_index,
                           half_light_radius,
-                          stamp_size_factor = 4.5,
-                          rotation = 0.,
-                          tilt = 0.,
-                          spin = 0.,
-                          flux = 1.,
-                          data_dir = mv.default_data_dir,
-                          image_scale = mv.default_pixel_scale,
-                          g_shear = 0.,
-                          beta_deg_shear = 0.,
-                          xp_sp_shift = 0,
-                          yp_sp_shift = 0,
-                          subsampling_factor = 1,
-                          height_ratio = 0.1,
-                          workdir = "."):
+                          stamp_size_factor=4.5,
+                          rotation=0.,
+                          tilt=0.,
+                          spin=0.,
+                          flux=1.,
+                          data_dir=mv.default_data_dir,
+                          image_scale=mv.default_pixel_scale,
+                          g_shear=0.,
+                          beta_deg_shear=0.,
+                          xp_sp_shift=0,
+                          yp_sp_shift=0,
+                          subsampling_factor=1,
+                          height_ratio=0.1,
+                          workdir="."):
 
-    gal_x, gal_y, gal_z, gal_I = load_galaxy_model(sersic_index, False, data_dir, workdir = workdir)
+    gal_x, gal_y, gal_z, gal_I = load_galaxy_model(sersic_index, False, data_dir, workdir=workdir)
 
     # Adjust for the height ratio
     gal_z *= height_ratio / 0.1
