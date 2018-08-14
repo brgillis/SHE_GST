@@ -12,8 +12,8 @@ elements_depends_on_subdirs(SHE_PPT)
 elements_install_python_modules()
 
 # Instruction for creating a Python executable
-elements_add_python_program(GenGalaxyImages SHE_GST_GalaxyImageGeneration.GenGalaxyImages)
-elements_add_python_program(GenPOfE SHE_GST_GalaxyImageGeneration.GenPOfE)
+elements_add_python_program(SHE_GST_GenGalaxyImages SHE_GST_GalaxyImageGeneration.GenGalaxyImages)
+elements_add_python_program(SHE_GST_GenPOfE SHE_GST_GalaxyImageGeneration.GenPOfE)
 
 # Install the configuration files
 elements_install_conf_files()

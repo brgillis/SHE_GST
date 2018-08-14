@@ -6,6 +6,8 @@
     in simulated images.
 """
 
+__updated__ = "2018-07-20"
+
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
 # This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
@@ -19,7 +21,12 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from copy import deepcopy
+
 from SHE_GST_GalaxyImageGeneration.gain import get_ADU_from_count, get_count_from_ADU
+import galsim
+import numpy as np
+
 
 def get_sky_level_ADU_per_pixel(sky_level_ADU_per_sq_arcsec,
                                 pixel_scale):
@@ -34,6 +41,7 @@ def get_sky_level_ADU_per_pixel(sky_level_ADU_per_sq_arcsec,
     sky_level_ADU_per_pixel = sky_level_ADU_per_sq_arcsec * pixel_scale ** 2
 
     return sky_level_ADU_per_pixel
+
 
 def get_sky_level_count_per_pixel(sky_level_ADU_per_sq_arcsec,
                                   pixel_scale,
@@ -51,6 +59,7 @@ def get_sky_level_count_per_pixel(sky_level_ADU_per_sq_arcsec,
     sky_level_count_per_pixel = get_count_from_ADU(sky_level_ADU_per_pixel, gain)
 
     return sky_level_count_per_pixel
+
 
 def get_count_lambda_per_pixel(pixel_value_ADU,
                                sky_level_ADU_per_sq_arcsec,
@@ -75,6 +84,7 @@ def get_count_lambda_per_pixel(pixel_value_ADU,
 
     return count_lambda
 
+
 def get_read_noise_ADU_per_pixel(read_noise_count,
                                  gain):
     """ Calculate the read noise per pixel in units of ADU
@@ -88,6 +98,7 @@ def get_read_noise_ADU_per_pixel(read_noise_count,
     read_noise_ADU_per_pixel = get_ADU_from_count(read_noise_count, gain)
 
     return read_noise_ADU_per_pixel
+
 
 def get_var_ADU_per_pixel(pixel_value_ADU,
                           sky_level_ADU_per_sq_arcsec,
@@ -106,11 +117,81 @@ def get_var_ADU_per_pixel(pixel_value_ADU,
     """
 
     pois_count_lambda = get_count_lambda_per_pixel(pixel_value_ADU,
-                                              sky_level_ADU_per_sq_arcsec, pixel_scale, gain)
-    pois_ADU_var = get_ADU_from_count(get_ADU_from_count(pois_count_lambda, gain), gain)  # Apply twice since it's squared
+                                                   sky_level_ADU_per_sq_arcsec, pixel_scale, gain)
+    # Apply twice since it's squared
+    pois_ADU_var = get_ADU_from_count(get_ADU_from_count(pois_count_lambda, gain), gain)
 
     read_noise_ADU_sigma = get_read_noise_ADU_per_pixel(read_noise_count, gain)
 
     total_var = pois_ADU_var + read_noise_ADU_sigma ** 2
 
     return total_var
+
+
+def add_stable_noise(image,
+                     base_deviate,
+                     var_array,
+                     image_phl,
+                     options):
+    """ Adds stable noise to an image.
+    """
+
+    # If not in stamp mode or not applying shape noise cancellation, add noise simply
+    if not options['mode'] == 'stamps' or not options['shape_noise_cancellation']:
+        image.addNoise(galsim.VariableGaussianNoise(base_deviate,
+                                                    var_array))
+        return
+
+    # Get a Galsim Image of the var array so we can cutout stamps from it
+    var_image = galsim.Image(var_array)
+
+    # Figure out how to set up the grid for galaxy stamps, making it as square as possible
+    num_target_galaxies = options['num_target_galaxies']
+    ncols = int(np.ceil(np.sqrt(num_target_galaxies)))
+    if ncols == 0:
+        ncols = 1
+    nrows = int(np.ceil(num_target_galaxies / ncols))
+    if nrows == 0:
+        nrows = 1
+
+    # Indices to keep track of row and column we're drawing galaxy/psf to
+    icol = -1
+    irow = 0
+
+    stamp_size_pix = options['stamp_size']
+
+    # In stamp mode, add to each galaxy group's stamps the same way
+
+    galaxy_groups = image_phl.get_galaxy_group_descendants()
+    for galaxy_group in galaxy_groups:
+
+        # Only want to advance deviate once per group, which we do by copying again here
+        base_deviate_backup = base_deviate
+
+        # Add the same noise to each galaxy's stamp
+        galaxies = galaxy_group.get_galaxy_descendants()
+        for _galaxy in galaxies:
+
+            # Increment position
+            icol += 1
+            if icol >= ncols:
+                icol = 0
+                irow += 1
+                if irow >= nrows:
+                    raise Exception("More galaxies than expected when printing stamps.")
+
+            base_deviate = deepcopy(base_deviate_backup)
+
+            xp_l = 1 + icol * stamp_size_pix
+            xp_h = stamp_size_pix + icol * stamp_size_pix
+            yp_l = 1 + irow * stamp_size_pix
+            yp_h = stamp_size_pix + irow * stamp_size_pix
+
+            stamp_bounds = galsim.BoundsI(xmin=xp_l, xmax=xp_h, ymin=yp_l, ymax=yp_h)
+            image_stamp = image.subImage(stamp_bounds)
+            var_image_stamp = var_image.subImage(stamp_bounds)
+
+            image_stamp.addNoise(galsim.VariableGaussianNoise(base_deviate,
+                                                              var_image_stamp.array))
+
+    return

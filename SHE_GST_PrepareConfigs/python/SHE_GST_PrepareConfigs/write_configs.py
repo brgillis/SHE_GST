@@ -5,6 +5,8 @@
     Contains functions to write out configuration files.
 """
 
+__updated__ = "2018-08-07"
+
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
 # This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
@@ -18,27 +20,72 @@
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from astropy.table import Table
-import numpy as np
 import os
+from shutil import copyfile
 
+from SHE_PPT import products
 from SHE_PPT.file_io import (get_allowed_filename, replace_multiple_in_file,
                              write_pickled_product, write_listfile, find_file,
-                             read_pickled_product, get_data_filename)
-from SHE_PPT import products
-from SHE_PPT.table_formats.simulation_plan import tf as sptf , \
-    simulation_plan_table_format
+                             find_aux_file, read_pickled_product, get_data_filename)
+from SHE_PPT.logging import getLogger
+from SHE_PPT.table_formats.simulation_plan import tf as sptf
 from SHE_PPT.table_utility import is_in_format
+
+from SHE_GST_PrepareConfigs import magic_values as mv
+from astropy.table import Table
+import numpy as np
+
 
 products.simulation_config.init()
 products.simulation_plan.init()
 
-from SHE_GST_PrepareConfigs import magic_values as mv
+cache_filenames = ["ang_di_d_cache.bin",
+                   "crich_cache.bin",
+                   "crichz_cache.bin",
+                   "dfa_cache.bin",
+                   "lum_int_cache.bin",
+                   "massfunc_cache.bin",
+                   "mass_int_cache.bin",
+                   "sigma_r_cache.bin",
+                   "tfa_cache.bin",
+                   "viscdens_cache.bin",
+                   "vis_clus_cache.bin",
+                   "vis_gal_cache.bin",
+                   "visgdens_cache.bin"]
+cache_auxdir = "SHE_GST_GalaxyImageGeneration"
+
+
+def copy_cache_files(workdir):
+    """Copies all cache files from the aux directory into the working directory.
+    """
+
+    logger = getLogger(mv.logger_name)
+    logger.debug('# Entering write_configs.copy_cache_files')
+
+    for filename in cache_filenames:
+
+        # Find it in the auxdir
+        aux_filename = os.path.join(cache_auxdir, filename)
+        qualified_aux_filename = find_aux_file(aux_filename)
+
+        # Get the desired destination filename
+        qualified_dest_filename = os.path.join(workdir, filename)
+
+        # Copy the file
+        logger.debug('Attempting to copy cache file ' + qualified_aux_filename +
+                     ' to ' + qualified_dest_filename + '.')
+        copyfile(qualified_aux_filename, qualified_dest_filename)
+        logger.debug('Successfully copied cache file ' + qualified_aux_filename +
+                     ' to ' + qualified_dest_filename + '.')
+
+    logger.debug('# Exiting write_configs.copy_cache_files')
+    return
+
 
 def write_configs_from_plan(plan_filename,
-                             template_filename,
-                             listfile_filename,
-                             workdir):
+                            template_filename,
+                            listfile_filename,
+                            workdir):
     """Writes out configuration files based on a template and plan.
 
     Parameters
@@ -65,26 +112,31 @@ def write_configs_from_plan(plan_filename,
 
     """
 
+    logger = getLogger(mv.logger_name)
+    logger.debug('# Entering write_configs.write_configs_from_plan')
+
+    # Copy over cache files in this step as well
+    copy_cache_files(workdir)
+
     qualified_plan_filename = find_file(get_data_filename(plan_filename, workdir), workdir)
-    qualified_template_filename = find_file(template_filename, path = workdir)
+    qualified_template_filename = find_file(template_filename, path=workdir)
 
     # Read in the plan table
     simulation_plan_table = None
     try:
-        simulation_plan_table = Table.read(qualified_plan_filename, format = "fits")
+        simulation_plan_table = Table.read(qualified_plan_filename, format="fits")
     except Exception as _e2:
         # Not a known table format, maybe an ascii table?
         try:
-            simulation_plan_table = Table.read(qualified_plan_filename, format = "ascii")
+            simulation_plan_table = Table.read(qualified_plan_filename, format="ascii")
         except IOError as _e3:
             pass
     # If it's still none, we couldn't identify it, so raise the initial exception
     if simulation_plan_table is None:
         raise TypeError("Unknown file format for simulation plan table in " + qualified_plan_filename)
 
-    # FIXME - fix is_in_format so strict=False won't care about different int types
-#     if not is_in_format(simulation_plan_table, sptf):
-#         raise TypeError("Table stored in " + qualified_plan_filename + " is of invalid type.")
+    if not is_in_format(simulation_plan_table, sptf, verbose=True, strict=False, ignore_metadata=True):
+        raise TypeError("Table stored in " + qualified_plan_filename + " is of invalid type.")
 
     # Keep a list of all configuration files generated
     all_config_products = []
@@ -108,7 +160,7 @@ def write_configs_from_plan(plan_filename,
     # Write up configs for the plan in each row of the table
     for row_index in range(len(simulation_plan_table)):
 
-        desired_tag = tags[row_index]
+        desired_tag = tags[row_index].strip()
 
         if desired_tag not in tags_used:
             tags_used.add(desired_tag)
@@ -134,10 +186,10 @@ def write_configs_from_plan(plan_filename,
         if mseed_max < mseed_min:
             raise ValueError("Model seed max cannot be less than model seed min")
 
-        model_seeds = np.linspace(start = mseed_min,
-                                  stop = mseed_max,
-                                  num = (mseed_max - mseed_min) // mseed_step + 1,
-                                  endpoint = True)
+        model_seeds = np.linspace(start=mseed_min,
+                                  stop=mseed_max,
+                                  num=(mseed_max - mseed_min) // mseed_step + 1,
+                                  endpoint=True)
 
         nseed_min = noise_seed_mins[row_index]
         nseed_max = noise_seed_maxes[row_index]
@@ -149,10 +201,10 @@ def write_configs_from_plan(plan_filename,
         if nseed_max < nseed_min:
             raise ValueError("Nois seed max cannot be less than noise seed min")
 
-        noise_seeds = np.linspace(start = nseed_min,
-                                  stop = nseed_max,
-                                  num = (nseed_max - nseed_min) // nseed_step + 1,
-                                  endpoint = True)
+        noise_seeds = np.linspace(start=nseed_min,
+                                  stop=nseed_max,
+                                  num=(nseed_max - nseed_min) // nseed_step + 1,
+                                  endpoint=True)
 
         if len(model_seeds) != len(noise_seeds):
             raise ValueError("Plan gives different lengths for sets of model seeds and noise seeds.")
@@ -166,40 +218,41 @@ def write_configs_from_plan(plan_filename,
 
         for i in range(len(model_seeds)):
 
-            prod_filename = get_allowed_filename(type_name = "GST_CFG_P",
-                                                 instance_id = tag + "-" + str(i),
-                                                 extension = ".xml")
-            filename = get_allowed_filename(type_name = "GST_CFG",
-                                                 instance_id = tag + "-" + str(i),
-                                                 extension = ".txt")
+            prod_filename = get_allowed_filename(type_name="GST-CFG-P",
+                                                 instance_id=tag + "-" + str(i),
+                                                 extension=".xml")
+            filename = get_allowed_filename(type_name="GST-CFG",
+                                            instance_id=tag + "-" + str(i),
+                                            extension=".txt")
 
             cfg_prod = products.simulation_config.create_simulation_config_product(filename)
             write_pickled_product(cfg_prod, os.path.join(workdir, prod_filename))
             all_config_products.append(prod_filename)
 
-            write_config(filename = os.path.join(workdir, filename),
-                         template_filename = qualified_template_filename,
-                         model_seed = int(model_seeds[i]),
-                         noise_seed = int(noise_seeds[i]),
-                         suppress_noise = suppress_noise,
-                         num_detectors = num_detectors,
-                         num_galaxies = num_galaxies,
-                         render_background = render_background)
+            write_config(filename=os.path.join(workdir, filename),
+                         template_filename=qualified_template_filename,
+                         model_seed=int(model_seeds[i]),
+                         noise_seed=int(noise_seeds[i]),
+                         suppress_noise=suppress_noise,
+                         num_detectors=num_detectors,
+                         num_galaxies=num_galaxies,
+                         render_background=render_background)
 
     # Write out the listfile of these files
     write_listfile(os.path.join(workdir, listfile_filename), all_config_products)
 
+    logger.debug('# Exiting write_configs.write_configs_from_plan')
     return
 
 
 def write_config(filename,
-                  template_filename,
-                  model_seed = None,
-                  noise_seed = None,
-                  suppress_noise = None,
-                  num_detectors = None,
-                  num_galaxies = None,
-                  render_background = None):
+                 template_filename,
+                 model_seed=None,
+                 noise_seed=None,
+                 suppress_noise=None,
+                 num_detectors=None,
+                 num_galaxies=None,
+                 render_background=None):
     """Writes a configuration file based on a template.
 
     Parameters
@@ -234,10 +287,13 @@ def write_config(filename,
 
     """
 
+    logger = getLogger(mv.logger_name)
+    logger.debug('# Entering write_configs.write_config')
+
     input_strings = []
     output_strings = []
 
-    def add_replacement(replacement_tag, value, dtype, inrange = lambda _v : True):
+    def add_replacement(replacement_tag, value, dtype, inrange=lambda _v: True):
         if value is None:
             return
         value = dtype(value)
@@ -254,17 +310,17 @@ def write_config(filename,
             return False
 
     # Check validity of each variable, and add to input/output strings if not None
-    add_replacement(mv.repstr_model_seed, model_seed, dtype = int)
-    add_replacement(mv.repstr_noise_seed, noise_seed, dtype = int)
-    add_replacement(mv.repstr_suppress_noise, suppress_noise, dtype = str2bool)
-    add_replacement(mv.repstr_num_detectors, num_detectors, dtype = int,
-                    inrange = lambda v : (v >= 1) and (v <= 36))
-    add_replacement(mv.repstr_num_galaxies, num_galaxies, dtype = int,
-                    inrange = lambda v : (v >= 1))
-    add_replacement(mv.repstr_render_background, render_background, dtype = str2bool)
+    add_replacement(mv.repstr_model_seed, model_seed, dtype=int)
+    add_replacement(mv.repstr_noise_seed, noise_seed, dtype=int)
+    add_replacement(mv.repstr_suppress_noise, suppress_noise, dtype=str2bool)
+    add_replacement(mv.repstr_num_detectors, num_detectors, dtype=int,
+                    inrange=lambda v: (v >= 1) and (v <= 36))
+    add_replacement(mv.repstr_num_galaxies, num_galaxies, dtype=int,
+                    inrange=lambda v: (v >= 1))
+    add_replacement(mv.repstr_render_background, render_background, dtype=str2bool)
 
     replace_multiple_in_file(template_filename, filename,
                              input_strings, output_strings)
 
+    logger.debug('# Exiting write_configs.write_config')
     return
-

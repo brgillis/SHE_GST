@@ -32,6 +32,7 @@
 	 
 	/* Include the headers in the wrapper code */
 	#include "SHE_GST_PhysicalModel/common.hpp"
+	#include "SHE_GST_PhysicalModel/default_values.hpp"
 	#include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
 	#include "SHE_GST_PhysicalModel/ParamGenerator.hpp"
 	#include "SHE_GST_PhysicalModel/ParamParam.hpp"
@@ -53,6 +54,7 @@
  
 // Parse the header files to generate wrappers
 %include "SHE_GST_PhysicalModel/common.hpp"
+%include "SHE_GST_PhysicalModel/default_values.hpp"
 %include "SHE_GST_PhysicalModel/ParamHierarchyLevel.hpp"
 %include "SHE_GST_PhysicalModel/ParamGenerator.hpp"
 %include "SHE_GST_PhysicalModel/ParamParam.hpp"
