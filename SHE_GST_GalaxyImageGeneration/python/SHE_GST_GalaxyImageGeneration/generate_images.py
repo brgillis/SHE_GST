@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-07-30"
+__updated__ = "2018-08-14"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -471,7 +471,12 @@ def print_galaxies(image_phl,
 
     # If we're aiming for a certain number of target galaxies, adjust as necessary
     if options['num_target_galaxies'] > 0:
-        num_ratio = options['num_target_galaxies'] * (1. / num_target_galaxies)
+        if num_target_galaxies <= 0:
+            if options['render_background_galaxies']:
+                raise ValueError("Image too small to accurately represent background galaxies")
+            num_ratio = 1e99
+        else:
+            num_ratio = options['num_target_galaxies'] * (1. / num_target_galaxies)
 
         if num_ratio > 1:
 
