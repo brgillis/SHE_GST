@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-08-14"
+__updated__ = "2018-08-16"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -1180,12 +1180,12 @@ def generate_image(image_phl,
                               detections_table, details_table, psf_archive_hdulist)
 
     sky_level_subtracted = image_phl.get_param_value('subtracted_background')
-    sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2
-    sky_level_unsubtracted_pixel = image_phl.get_param_value('unsubtracted_background') * pixel_scale ** 2
+    sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2 * 3600**2
+    sky_level_unsubtracted_pixel = image_phl.get_param_value('unsubtracted_background') * pixel_scale ** 2 * 3600**2
     if options['output_unsubtracted_background'] is None:
         output_sky_level_unsubtracted_pixel = sky_level_unsubtracted_pixel
     else:
-        output_sky_level_unsubtracted_pixel = options['output_unsubtracted_background'] * pixel_scale ** 2
+        output_sky_level_unsubtracted_pixel = options['output_unsubtracted_background'] * pixel_scale ** 2 * 3600**2
 
     # Get the initial noise deviates
     base_deviates = []
@@ -1224,7 +1224,7 @@ def generate_image(image_phl,
         noise_level = np.sqrt(get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel,
                                                     sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
                                                     read_noise_count=options['read_noise'],
-                                                    pixel_scale=pixel_scale,
+                                                    pixel_scale=pixel_scale * 3600,
                                                     gain=options['gain']))
         segmentation_maps.append(make_segmentation_map(dithers[di],
                                                        detections_table,
@@ -1312,7 +1312,7 @@ def generate_image(image_phl,
                     var_array = get_var_ADU_per_pixel(pixel_value_ADU=dither.array,
                                                       sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
                                                       read_noise_count=options['read_noise'],
-                                                      pixel_scale=pixel_scale,
+                                                      pixel_scale=pixel_scale * 3600,
                                                       gain=options['gain'])
 
                     add_stable_noise(image=dither,

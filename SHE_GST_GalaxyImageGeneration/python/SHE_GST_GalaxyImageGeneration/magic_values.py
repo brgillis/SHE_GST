@@ -6,7 +6,7 @@
     Magic values for the SHE_GST_GalaxyImageGeneration module
 """
 
-__updated__ = "2018-08-14"
+__updated__ = "2018-08-16"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -83,7 +83,7 @@ galaxy_model_tail = ".dat"
 galaxy_model_path = "galaxy_models"
 
 psf_model_path = "psf_models"
-psf_model_scale = 0.02  # arcsec/pixel
+psf_model_scale = 0.02 / 3600  # deg/pixel
 
 fftw_wisdom_filename = ".fftw_wisdom"
 
