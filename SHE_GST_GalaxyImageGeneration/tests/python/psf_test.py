@@ -5,7 +5,7 @@
     Tests of functions dealing with creating and managing PSF profiles and images.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-08-16"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,14 +22,14 @@ __updated__ = "2018-07-03"
 
 from numpy.testing import assert_almost_equal, assert_allclose
 from os.path import join
-
-from astropy.io import fits
-import galsim
 import pytest
+
+import galsim
 
 from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, get_background_psf_profile,
                                                add_psf_to_archive, get_psf_from_archive,
                                                load_psf_model_from_sed_z)
+from astropy.io import fits
 import numpy as np
 
 
@@ -42,7 +42,7 @@ class TestPSF:
     @classmethod
     def setup_class(cls):
 
-        cls.pixel_scale = 0.01
+        cls.pixel_scale = 0.01 / 3600
         cls.stamp_size = 128
 
         cls.z = 0
