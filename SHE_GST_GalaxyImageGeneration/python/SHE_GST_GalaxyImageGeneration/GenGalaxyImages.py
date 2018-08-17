@@ -95,7 +95,7 @@ def mainMethod(args):
     logger.debug('# Entering SHE_GST_GenGalaxyImages mainMethod()')
     logger.debug('#')
 
-    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.6 SHE_GST_GenGalaxyImages",
+    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.6.2 SHE_GST_GenGalaxyImages",
                                     store_true=["profile", "debug"])
     logger.info('Execution command for this step:')
     logger.info(exec_cmd)
