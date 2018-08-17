@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2018-08-16"
+__updated__ = "2018-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -88,7 +88,13 @@ def load_psf_model_from_file(file_name,
                              offset,
                              gsparams=galsim.GSParams()):
 
-    model = galsim.fits.read(file_name)
+    try:
+        model = galsim.fits.read(file_name)
+    except AttributeError as e:
+        if not "'NoneType' object has no attribute 'dtype'" in str(e):
+            raise
+        # It might be in HDU 1 instead of 0
+        model = galsim.fits.read(file_name, hdu=1)
 
     return galsim.InterpolatedImage(model,
                                     scale=scale,
