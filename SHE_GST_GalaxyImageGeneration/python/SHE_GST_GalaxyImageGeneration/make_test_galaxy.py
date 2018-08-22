@@ -9,7 +9,7 @@
     galaxy image.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -26,36 +26,35 @@ __updated__ = "2018-07-03"
 
 import sys
 
-from astropy.io import fits
 import galsim
 
+from astropy.io import fits
 import numpy as np
-import pyfftw
 
 
 def main(argv):
     """ @TODO main docstring
     """
 
-
     input_gal_array = fits.open("test_galaxy.fits")[0].data
 
     for interp in ('quintic', 'nearest'):
 
-        input_gal = galsim.InterpolatedImage(galsim.Image(input_gal_array, scale = 0.1),
-                                             x_interpolant = interp)
+        input_gal = galsim.InterpolatedImage(galsim.Image(input_gal_array, scale=0.1),
+                                             x_interpolant=interp)
 
         output_gal_array = np.zeros((34, 34))
         output_gal = galsim.Image(output_gal_array)
 
-        input_gal.drawImage(output_gal, scale = 0.1,
-                         offset = (0.0, 0.0),
-                         add_to_image = True,
-                         method = 'no_pixel')
+        input_gal.drawImage(output_gal, scale=0.1,
+                            offset=(0.0, 0.0),
+                            add_to_image=True,
+                            method='no_pixel')
 
         galsim.fits.write(output_gal, "test_galaxy_" + interp + ".fits")
 
     return
+
 
 if __name__ == "__main__":
     main(sys.argv)

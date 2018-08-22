@@ -5,7 +5,7 @@
     Functions to apply configurations and run one of the programs
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,22 +22,15 @@ __updated__ = "2018-07-03"
 
 import subprocess
 
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_survey_settings,
-                                                                   generation_levels_inverse,)
-from SHE_GST_GalaxyImageGeneration.config.parse_config import (set_up_from_config_file,
-                                                                 load_default_configurations,
-                                                                 get_cfg_args,
-                                                                 apply_args)
 from SHE_PPT.logging import getLogger
 
-
-try:
-    import pyfftw
-    import pickle
-    have_pyfftw = True
-except ImportError as _e:
-    have_pyfftw = False
+from SHE_GST_GalaxyImageGeneration import magic_values as mv
+from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_survey_settings,
+                                                                 generation_levels_inverse,)
+from SHE_GST_GalaxyImageGeneration.config.parse_config import (set_up_from_config_file,
+                                                               load_default_configurations,
+                                                               get_cfg_args,
+                                                               apply_args)
 
 
 def run_from_config_file(func, config_file_name, *args, **kwargs):
@@ -45,6 +38,7 @@ def run_from_config_file(func, config_file_name, *args, **kwargs):
     survey, options = set_up_from_config_file(config_file_name)
 
     return run_from_survey_and_options(func, survey, options, *args, **kwargs)
+
 
 def run_from_args(func, cline_args, *args, **kwargs):
 
@@ -68,6 +62,7 @@ def run_from_args(func, cline_args, *args, **kwargs):
     logger.debug("# Exiting run_from_args method.")
 
     return results
+
 
 def run_from_config_file_and_args(func, config_file_name, cline_args, *args, **kwargs):
 
@@ -112,21 +107,9 @@ def run_from_survey_and_options(func, survey, options, *args, **kwargs):
 
     # Ensure that the output folder exists
     cmd = 'mkdir -p ' + options['workdir']
-    subprocess.call(cmd, shell = True)
-
-    # Set up pyfftw
-    if have_pyfftw:
-        pyfftw.interfaces.cache.enable()
-        try:
-            pyfftw.import_wisdom(pickle.load(open(mv.fftw_wisdom_filename, "rb")))
-        except IOError as _e:
-            pass
+    subprocess.call(cmd, shell=True)
 
     # We have the input we want, now run the program
     results = func(survey, options, *args, **kwargs)
-
-    # Save fftw wisdom
-    if have_pyfftw:
-        pickle.dump(pyfftw.export_wisdom(), open(mv.fftw_wisdom_filename, "wb"))
 
     return results
