@@ -83,7 +83,7 @@ def mainMethod(args):
     logger.debug('# Entering SHE_CTE_PrepareConfigs mainMethod()')
     logger.debug('#')
 
-    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.6.2 SHE_GST_PrepareConfigs",
+    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.6.3 SHE_GST_PrepareConfigs",
                                     store_true=["profile", "debug"])
     logger.info('Execution command for this step:')
     logger.info(exec_cmd)
