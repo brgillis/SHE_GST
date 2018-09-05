@@ -1,5 +1,33 @@
 Changelog for SHE_GST Galaxy Simulations toolkit
 
+Changes from v1.6 to v1.8
+=========================
+
+API Changes
+-----------
+
+Dependency Changes
+------------------
+
+- Now depends on SHE_PPT 1.0
+
+Deprecated Features
+-------------------
+
+Bug Fixes
+---------
+
+New Features
+------------
+
+New config features
+-------------------
+
+Miscellaneous
+-------------
+
+- Fixed default sky background level to be more realistic
+
 Changes from v1.4 to v1.6
 =========================
 

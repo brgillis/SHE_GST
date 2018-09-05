@@ -54,7 +54,7 @@ default_psf_scale_factor = 5
 default_psf_stamp_size = 256
 default_psf_center_offset = (-0.5, -2.5)
 default_read_noise = 5.4
-default_sky_level = 32570.
+default_sky_level = 4571.
 default_exp_time = 565.  # seconds
 
 default_truncation_radius_factor = 4.5

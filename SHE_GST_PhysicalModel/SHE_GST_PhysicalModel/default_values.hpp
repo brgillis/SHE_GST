@@ -52,7 +52,7 @@ constexpr const flt_t image_size_yp = 2048; // pixels
 
 constexpr const flt_t exp_time = 565.; // seconds
 
-constexpr const flt_t sky_level = 32570.; // ADU/arcsec
+constexpr const flt_t sky_level = 4571.; // ADU/arcsec
 constexpr const flt_t subtracted_background_l10_mean = std::log10(sky_level);
 constexpr const flt_t subtracted_background_l10_stddev = 0.05;
 
