@@ -5,7 +5,7 @@
     Main program for preparing configuration files for parallel runs.
 """
 
-__updated__ = "2018-08-09"
+__updated__ = "2018-09-05"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,11 +21,11 @@ __updated__ = "2018-08-09"
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import argparse
-from SHE_PPT.logging import getLogger
-from SHE_PPT.utility import get_arguments_string
 
 from SHE_GST_PrepareConfigs import magic_values as mv
 from SHE_GST_PrepareConfigs.write_configs import write_configs_from_plan
+from SHE_PPT.logging import getLogger
+from SHE_PPT.utility import get_arguments_string
 
 
 def defineSpecificProgramOptions():
@@ -83,7 +83,7 @@ def mainMethod(args):
     logger.debug('# Entering SHE_CTE_PrepareConfigs mainMethod()')
     logger.debug('#')
 
-    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.6.3 SHE_GST_PrepareConfigs",
+    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.7 SHE_GST_PrepareConfigs",
                                     store_true=["profile", "debug"])
     logger.info('Execution command for this step:')
     logger.info(exec_cmd)
