@@ -59,7 +59,7 @@ def copy_cache_files(workdir):
     """Copies all cache files from the aux directory into the working directory.
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug('# Entering write_configs.copy_cache_files')
 
     for filename in cache_filenames:
@@ -112,7 +112,7 @@ def write_configs_from_plan(plan_filename,
 
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug('# Entering write_configs.write_configs_from_plan')
 
     # Copy over cache files in this step as well
@@ -287,7 +287,7 @@ def write_config(filename,
 
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug('# Entering write_configs.write_config')
 
     input_strings = []

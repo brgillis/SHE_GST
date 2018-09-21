@@ -39,7 +39,7 @@ def get_full_options(options, image):
         @param full_options <dict>
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
 
     logger.debug("# Entering get_full_options method.")
 

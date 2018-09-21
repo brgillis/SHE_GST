@@ -107,7 +107,7 @@ def generate_images(survey, options):
         @param options
             <dict> The options dictionary for this run
     """
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug("Entering generate_images method.")
 
     # Seed the survey
@@ -441,7 +441,7 @@ def print_galaxies(image_phl,
             <SHE_GST_PhysicalModel.galaxy_list> Iterable list of the galaxies which were printed.
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug("Entering 'print_galaxies' function.")
 
     # Get some data out of the options
@@ -1059,7 +1059,7 @@ def add_image_header_info(gs_image,
 
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug("Entering add_image_header_info method.")
 
     # Add a header attribute if needed
@@ -1121,7 +1121,7 @@ def generate_image(image_phl,
             <dict> The options dictionary for this run.
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug("Entering generate_image method.")
 
     logger.debug("# Printing image " + str(image_phl.get_local_ID()) + " #")

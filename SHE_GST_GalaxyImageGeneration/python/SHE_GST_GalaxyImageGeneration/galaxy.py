@@ -37,7 +37,7 @@ try:
     from galsim import InclinedSersic
 except ImportError:
     err = "GalSim's InclinedSersic profile is not available."
-    getLogger(mv.logger_name).error(err)
+    getLogger(__name__).error(err)
     raise ImportError(err)
 
 allowed_ns = np.array((1.8, 2.0, 2.56, 2.71, 3.0, 3.5, 4.0))

@@ -42,7 +42,7 @@ def run_from_config_file(func, config_file_name, *args, **kwargs):
 
 def run_from_args(func, cline_args, *args, **kwargs):
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug("# Entering run_from_args method.")
 
     # Load defaults
@@ -80,7 +80,7 @@ def run_from_survey_and_options(func, survey, options, *args, **kwargs):
     if(options['workdir'][-1] == '/'):
         options['workdir'] = options['workdir'][0:-1]
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
 
     # Print all options we're using to the logger
     logger.debug("# Running with the following options: #")

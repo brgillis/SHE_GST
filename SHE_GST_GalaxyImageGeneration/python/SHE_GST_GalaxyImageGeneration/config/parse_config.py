@@ -126,7 +126,7 @@ def parse_line(line, args):
 
 def apply_args(survey, options, args):
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
 
     logger.debug("# Entering apply_args method.")
 
