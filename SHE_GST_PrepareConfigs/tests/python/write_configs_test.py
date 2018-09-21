@@ -155,7 +155,7 @@ class TestWriteConfigs:
         base_plan[0]["NSEED_MAX"] = num_seeds * 2
         base_plan[0]["NSEED_STEP"] = 2
 
-        base_plan.write(plan_filename, format="fits", clobber=True)
+        base_plan.write(plan_filename, format="fits", overwrite=True)
 
         write_configs_from_plan(plan_filename,
                                 template_filename,
@@ -190,7 +190,7 @@ class TestWriteConfigs:
         base_plan[0]["NSEED_MAX"] = 3
         base_plan[0]["NSEED_STEP"] = 0
 
-        base_plan.write(plan_filename, format="fits", clobber=True)
+        base_plan.write(plan_filename, format="fits", overwrite=True)
 
         write_configs_from_plan(plan_filename,
                                 template_filename,
@@ -225,7 +225,7 @@ class TestWriteConfigs:
         base_plan[0]["NSEED_MAX"] = 3
         base_plan[0]["NSEED_STEP"] = 0
 
-        base_plan.write(plan_filename, format="fits", clobber=True)
+        base_plan.write(plan_filename, format="fits", overwrite=True)
 
         write_configs_from_plan(plan_filename,
                                 template_filename,
