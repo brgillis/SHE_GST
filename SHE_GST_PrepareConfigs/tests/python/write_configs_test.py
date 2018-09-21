@@ -182,8 +182,6 @@ class TestWriteConfigs:
 
         # Test for zero noise seed step
 
-        base_plan = Table.read(base_plan_filename, format="fits")
-        base_plan.remove_row(1)  # Remove the second row for these tests
         base_plan[0]["MSEED_MIN"] = 4
         base_plan[0]["MSEED_MAX"] = 2 + num_seeds * 2
         base_plan[0]["MSEED_STEP"] = 2
@@ -218,8 +216,6 @@ class TestWriteConfigs:
 
         # Test for zero model and noise seed steps
 
-        base_plan = Table.read(base_plan_filename, format="fits")
-        base_plan.remove_row(1)  # Remove the second row for these tests
         base_plan[0]["MSEED_MIN"] = 15
         base_plan[0]["MSEED_MAX"] = 15
         base_plan[0]["MSEED_STEP"] = 0
