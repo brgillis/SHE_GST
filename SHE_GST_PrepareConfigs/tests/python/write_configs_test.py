@@ -140,6 +140,7 @@ class TestWriteConfigs:
         listfile_filename = os.path.join(self.workdir, "test_listfile.junk")
         template_filename = find_file("AUX/SHE_GST_PrepareConfigs/StampsTemplate.conf")
         base_plan_filename = find_file("AUX/SHE_GST_PrepareConfigs/test_simulation_plan.fits")
+        plan_filename = os.path.join(self.workdir, "test_plan.fits")
 
         num_seeds = 5
 
@@ -153,6 +154,8 @@ class TestWriteConfigs:
         base_plan[0]["NSEED_MIN"] = 2
         base_plan[0]["NSEED_MAX"] = num_seeds * 2
         base_plan[0]["NSEED_STEP"] = 2
+
+        base_plan.write(plan_filename, format="fits")
 
         write_configs_from_plan(plan_filename,
                                 template_filename,
@@ -180,13 +183,14 @@ class TestWriteConfigs:
         # Test for zero noise seed step
 
         base_plan = Table.read(base_plan_filename, format="fits")
-        base_plan.remove_row(1)  # Remove the second row for these tests
         base_plan[0]["MSEED_MIN"] = 4
         base_plan[0]["MSEED_MAX"] = 2 + num_seeds * 2
         base_plan[0]["MSEED_STEP"] = 2
         base_plan[0]["NSEED_MIN"] = 3
         base_plan[0]["NSEED_MAX"] = 3
         base_plan[0]["NSEED_STEP"] = 0
+
+        base_plan.write(plan_filename, format="fits")
 
         write_configs_from_plan(plan_filename,
                                 template_filename,
@@ -214,13 +218,14 @@ class TestWriteConfigs:
         # Test for zero model and noise seed steps
 
         base_plan = Table.read(base_plan_filename, format="fits")
-        base_plan.remove_row(1)  # Remove the second row for these tests
         base_plan[0]["MSEED_MIN"] = 15
         base_plan[0]["MSEED_MAX"] = 15
         base_plan[0]["MSEED_STEP"] = 0
         base_plan[0]["NSEED_MIN"] = 3
         base_plan[0]["NSEED_MAX"] = 3
         base_plan[0]["NSEED_STEP"] = 0
+
+        base_plan.write(plan_filename, format="fits")
 
         write_configs_from_plan(plan_filename,
                                 template_filename,
