@@ -234,7 +234,7 @@ class TestWriteConfigs:
 
         assert len(config_filenames) == 1
 
-        for i in range(num_seeds):
+        for i in range(1):
 
             config_p_filename = config_filenames[i]
             config_filename = get_data_filename(config_p_filename, workdir=self.workdir)
