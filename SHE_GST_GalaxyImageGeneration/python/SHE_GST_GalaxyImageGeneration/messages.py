@@ -41,7 +41,7 @@ def old_config_version(ver):
             will have to be assumed.
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
 
     logger.info("Using configuration file for version " + ver +
                 " of the script. This is an old version. Default values will be used for " +
@@ -54,7 +54,7 @@ def new_config_version(ver):
         @brief A boilerplate note that the config file version being used is up to date.
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
 
     logger.info("Using configuration file for version " + ver + " of the script." +
                 "This is the most recent version - no default values need to be assumed.")

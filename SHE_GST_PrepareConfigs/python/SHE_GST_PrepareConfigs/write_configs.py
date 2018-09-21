@@ -5,7 +5,7 @@
     Contains functions to write out configuration files.
 """
 
-__updated__ = "2018-08-07"
+__updated__ = "2018-09-21"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -59,7 +59,7 @@ def copy_cache_files(workdir):
     """Copies all cache files from the aux directory into the working directory.
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug('# Entering write_configs.copy_cache_files')
 
     for filename in cache_filenames:
@@ -112,7 +112,7 @@ def write_configs_from_plan(plan_filename,
 
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug('# Entering write_configs.write_configs_from_plan')
 
     # Copy over cache files in this step as well
@@ -180,34 +180,65 @@ def write_configs_from_plan(plan_filename,
         mseed_max = model_seed_maxes[row_index]
         mseed_step = model_seed_steps[row_index]
 
-        if mseed_step <= 0:
-            raise ValueError("Model seed step cannot be <= zero.")
+        # Check step is valid
+        if mseed_step < 0:
+            raise ValueError("Model seed step cannot be < zero.")
 
+        # Check limits are valid
         if mseed_max < mseed_min:
             raise ValueError("Model seed max cannot be less than model seed min")
 
-        model_seeds = np.linspace(start=mseed_min,
-                                  stop=mseed_max,
-                                  num=(mseed_max - mseed_min) // mseed_step + 1,
-                                  endpoint=True)
+        # Check step and min/max are compatible
+        if mseed_step == 0:
+            if mseed_max != mseed_min:
+                raise ValueError("If model seed step is zero, model seed min must equal model seed max.")
+            model_seed_len = 1
+        else:
+            if (mseed_max - mseed_min) % mseed_step != 0:
+                raise ValueError("Model seed max minus model seed min must be evenly divisible by model seed step.")
+            model_seed_len = (mseed_max - mseed_min) // mseed_step + 1
 
         nseed_min = noise_seed_mins[row_index]
         nseed_max = noise_seed_maxes[row_index]
         nseed_step = noise_seed_steps[row_index]
 
-        if mseed_step == 0:
-            raise ValueError("Noise seed step cannot be zero.")
+        if nseed_step < 0:
+            raise ValueError("Noise seed step cannot be < zero.")
 
         if nseed_max < nseed_min:
-            raise ValueError("Nois seed max cannot be less than noise seed min")
+            raise ValueError("Noise seed max cannot be less than noise seed min")
+
+        # Check step and min/max are compatible
+        if nseed_step == 0:
+            if nseed_max != nseed_min:
+                raise ValueError("If noise seed step is zero, noise seed min must equal noise seed max.")
+            noise_seed_len = 1
+        else:
+            if (nseed_max - nseed_min) % nseed_step != 0:
+                raise ValueError("Noise seed max minus noise seed min must be evenly divisible by noise seed step.")
+            noise_seed_len = (nseed_max - nseed_min) // nseed_step + 1
+
+        # Check we have the same number of seeds for model and noise
+        if model_seed_len != noise_seed_len:
+            # We don't have same number, but check if the length of either is 1, implying we're leaving it constant
+            if model_seed_len == 1:
+                model_seed_len = noise_seed_len
+            elif noise_seed_len == 1:
+                noise_seed_len = model_seed_len
+            else:
+                raise ValueError("Plan gives different lengths for sets of model seeds and noise seeds.")
+
+        model_seeds = np.linspace(start=mseed_min,
+                                  stop=mseed_max,
+                                  num=model_seed_len,
+                                  endpoint=True,
+                                  dtype=int)
 
         noise_seeds = np.linspace(start=nseed_min,
                                   stop=nseed_max,
-                                  num=(nseed_max - nseed_min) // nseed_step + 1,
-                                  endpoint=True)
-
-        if len(model_seeds) != len(noise_seeds):
-            raise ValueError("Plan gives different lengths for sets of model seeds and noise seeds.")
+                                  num=noise_seed_len,
+                                  endpoint=True,
+                                  dtype=int)
 
         suppress_noise = suppress_noises[row_index]
         num_detectors = num_detectorses[row_index]
@@ -287,7 +318,7 @@ def write_config(filename,
 
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug('# Entering write_configs.write_config')
 
     input_strings = []

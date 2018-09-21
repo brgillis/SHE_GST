@@ -51,7 +51,7 @@ def generate_p_of_e(survey, options, output_file_name, header_items, e_bins):
             <dict> The options dictionary for this run
     """
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug("Entering generate_p_of_e method.")
 
     # Seed the survey
@@ -86,7 +86,7 @@ def generate_p_of_e(survey, options, output_file_name, header_items, e_bins):
 
 def get_pe_bins_for_image(image, options, e_bins):
 
-    logger = getLogger(mv.logger_name)
+    logger = getLogger(__name__)
     logger.debug("Entering get_pe_bins_for_image method.")
 
     # Set up empty bins
