@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-08-16"
+__updated__ = "2018-09-24"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -678,12 +678,12 @@ def print_galaxies(image_phl,
             continue
 
         if is_target_gal:
-            if num_target_galaxies_printed % 10 == 0:
+            if num_target_galaxies_printed % 100 == 0:
                 logger.info("Printed " + str(num_target_galaxies_printed) + "/" +
                             str(num_target_galaxies) + " target galaxies.")
             num_target_galaxies_printed += 1
         else:
-            if num_background_galaxies_printed % 50 == 0:
+            if num_background_galaxies_printed % 500 == 0:
                 logger.info("Printed " + str(num_background_galaxies_printed) + "/" +
                             str(num_background_galaxies) + " background galaxies.")
             num_background_galaxies_printed += 1
