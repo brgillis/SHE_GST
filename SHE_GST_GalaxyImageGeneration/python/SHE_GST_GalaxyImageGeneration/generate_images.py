@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-09-24"
+__updated__ = "2018-10-24"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -250,10 +250,6 @@ def generate_image_group(image_group_phl, options):
 
         write_xml_product(psf_product,
                           os.path.join(workdir, psf_filenames.prod_filenames[i]))
-
-        # Details table
-
-        details_product = products.details.create_details_product(filename=details_filenames.data_filenames[0])
 
         # Detections table
 
@@ -984,7 +980,7 @@ def print_galaxies(image_phl,
 
         xy_world = wcs_list[0].toWorld(galsim.PositionD(xc + xp_sp_shift, yc + yp_sp_shift))
 
-        # Record all data used for this galaxy in the output table
+        # Record all data used for this galaxy in the output table (except snr, which we calculate later)
         if (not options['details_output_format'] == 'none') and (is_target_gal or (options['mode'] == 'field')):
             g1 = g_shear * np.cos(2 * beta_shear * np.pi / 180)
             g2 = g_shear * np.sin(2 * beta_shear * np.pi / 180)
@@ -1001,6 +997,7 @@ def print_galaxies(image_phl,
                                         datf.disk_height_ratio: disk_height_ratio,
                                         datf.z: gal_z,
                                         datf.magnitude: galaxy.get_param_value('apparent_mag_vis'),
+                                        datf.snr: 0,
                                         datf.sersic_index: gal_n,
                                         datf.rotation: rotation,
                                         datf.tilt: tilt,
@@ -1330,6 +1327,23 @@ def generate_image(image_phl,
                 dithers[di] = dithers[di]
 
         logger.info("Finished printing dither " + str(di + 1) + ".")
+
+    # Now that the galaxies have been printed, we can calculate their S/Ns
+    for row in details_table:
+        signal_to_noise_estimates = []
+        for di in range(num_dithers):
+            signal_to_noise_estimates.append(get_signal_to_noise_estimate(ra=row[datf.ra],
+                                                                          dec=row[datf.dec],
+                                                                          image=dithers[di],
+                                                                          background=bkg_maps[di],
+                                                                          rms=np.mean(noise_maps[di]),
+                                                                          gain=options['gain'],))
+        # Add the S/N estimates in quadrature
+        snr_squared = 0
+        for signal_to_noise_estimate in signal_to_noise_estimates:
+            snr_squared += signal_to_noise_estimate**2
+        snr = np.sqrt(snr_squared)
+        row[datf.snr] = snr
 
     logger.info("Finished printing image_phl " + str(image_phl.get_local_ID()) + ".")
 
