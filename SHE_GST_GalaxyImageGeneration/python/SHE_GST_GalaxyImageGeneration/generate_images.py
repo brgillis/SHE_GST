@@ -58,6 +58,7 @@ from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel, add_stabl
 from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, sort_psfs_from_archive, add_psf_to_archive,
                                                load_psf_model_from_file)
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
+from SHE_GST_GalaxyImageGeneration.signal_to_noise import get_signal_to_noise_estimate
 from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
 import SHE_GST_PhysicalModel
 from astropy import table
