@@ -285,53 +285,54 @@ def generate_image_group(image_group_phl, options):
          detections_table, details_table) = generate_image(image_phl, options, wcs_list, psf_archive_hdulist)
 
         # Append to the fits file for each dither
-        for i in range(num_dithers):
+        if not options['details_only']:
+            for i in range(num_dithers):
 
-            workdir = options['workdir']
+                workdir = options['workdir']
 
-            qualified_image_filename = os.path.join(workdir, image_filenames.data_filenames[i])
+                qualified_image_filename = os.path.join(workdir, image_filenames.data_filenames[i])
 
-            # Science image
-            im_hdu = fits.ImageHDU(data=image_dithers[i].array,
-                                   header=fits.header.Header(list(image_dithers[i].header.items())))
-            append_hdu(qualified_image_filename, im_hdu)
+                # Science image
+                im_hdu = fits.ImageHDU(data=image_dithers[i].array,
+                                       header=fits.header.Header(list(image_dithers[i].header.items())))
+                append_hdu(qualified_image_filename, im_hdu)
 
-            # Noise map
-            rms_hdu = fits.ImageHDU(data=noise_maps[i].array,
-                                    header=fits.header.Header(list(noise_maps[i].header.items())))
-            append_hdu(qualified_image_filename, rms_hdu)
+                # Noise map
+                rms_hdu = fits.ImageHDU(data=noise_maps[i].array,
+                                        header=fits.header.Header(list(noise_maps[i].header.items())))
+                append_hdu(qualified_image_filename, rms_hdu)
 
-            # Mask map
-            flg_hdu = fits.ImageHDU(data=mask_maps[i].array,
-                                    header=fits.header.Header(list(mask_maps[i].header.items())))
-            append_hdu(qualified_image_filename, flg_hdu)
+                # Mask map
+                flg_hdu = fits.ImageHDU(data=mask_maps[i].array,
+                                        header=fits.header.Header(list(mask_maps[i].header.items())))
+                append_hdu(qualified_image_filename, flg_hdu)
 
-            # Background map
-            bkg_hdu = fits.ImageHDU(data=bkg_maps[i].array,
-                                    header=fits.header.Header(list(bkg_maps[i].header.items())))
-            append_hdu(os.path.join(workdir, image_filenames.bkg_filenames[i]), bkg_hdu)
+                # Background map
+                bkg_hdu = fits.ImageHDU(data=bkg_maps[i].array,
+                                        header=fits.header.Header(list(bkg_maps[i].header.items())))
+                append_hdu(os.path.join(workdir, image_filenames.bkg_filenames[i]), bkg_hdu)
 
-            # Weight map
-            wgt_hdu = fits.ImageHDU(data=wgt_maps[i].array,
-                                    header=fits.header.Header(list(wgt_maps[i].header.items())))
-            append_hdu(os.path.join(workdir, image_filenames.wgt_filenames[i]), wgt_hdu)
+                # Weight map
+                wgt_hdu = fits.ImageHDU(data=wgt_maps[i].array,
+                                        header=fits.header.Header(list(wgt_maps[i].header.items())))
+                append_hdu(os.path.join(workdir, image_filenames.wgt_filenames[i]), wgt_hdu)
 
-            # Segmentation map
+                # Segmentation map
 
-            seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
-                                    header=fits.header.Header(list(segmentation_maps[i].header.items())))
-            append_hdu(os.path.join(workdir, mosaic_filenames.data_filenames[i]), seg_hdu)
+                seg_hdu = fits.ImageHDU(data=segmentation_maps[i].array,
+                                        header=fits.header.Header(list(segmentation_maps[i].header.items())))
+                append_hdu(os.path.join(workdir, mosaic_filenames.data_filenames[i]), seg_hdu)
 
-            # PSF catalogue and images
+                # PSF catalogue and images
 
-            num_rows = len(details_table[datf.ID])
-            psf_table = initialise_psf_table(image_phl.get_parent(), options,
-                                             init_columns={pstf.ID: details_table[datf.ID],
-                                                           pstf.template: -1 * np.ones(num_rows, dtype=np.int64),
-                                                           pstf.bulge_index: -1 * np.ones(num_rows, dtype=np.int32),
-                                                           pstf.disk_index: -1 * np.ones(num_rows, dtype=np.int32)})
+                num_rows = len(details_table[datf.ID])
+                psf_table = initialise_psf_table(image_phl.get_parent(), options,
+                                                 init_columns={pstf.ID: details_table[datf.ID],
+                                                               pstf.template: -1 * np.ones(num_rows, dtype=np.int64),
+                                                               pstf.bulge_index: -1 * np.ones(num_rows, dtype=np.int32),
+                                                               pstf.disk_index: -1 * np.ones(num_rows, dtype=np.int32)})
 
-            psf_tables[i].append(psf_table)
+                psf_tables[i].append(psf_table)
 
         # Tables to combine
 
@@ -359,35 +360,39 @@ def generate_image_group(image_group_phl, options):
     write_xml_product(detections_prod, os.path.join(workdir, detections_filenames.prod_filenames[0]))
     write_listfile(os.path.join(workdir, options['detections_tables']), [detections_filenames.prod_filenames[0]])
 
-    combined_psf_tables = []
+    if not options['details_only']:
 
-    for i in range(num_dithers):
+        combined_psf_tables = []
 
-        combined_psf_tables.append(table.vstack(psf_tables[i]))
+        for i in range(num_dithers):
 
-        sort_psfs_from_archive(combined_psf_tables[i],
-                               psf_filenames.data_filenames[i],
-                               psf_archive_hdulist,
-                               i,
-                               workdir=workdir)
+            combined_psf_tables.append(table.vstack(psf_tables[i]))
 
-    # Output listfiles of filenames
-    write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames.prod_filenames)
-    write_listfile(os.path.join(options['workdir'], options['segmentation_images']), mosaic_filenames.prod_filenames)
-    write_listfile(os.path.join(options['workdir'], options['psf_images_and_tables']), psf_filenames.prod_filenames)
+            sort_psfs_from_archive(combined_psf_tables[i],
+                                   psf_filenames.data_filenames[i],
+                                   psf_archive_hdulist,
+                                   i,
+                                   workdir=workdir)
 
-    # If we're dithering, create stacks
-    if num_dithers > 1:
+        # Output listfiles of filenames
+        write_listfile(os.path.join(options['workdir'], options['data_images']), image_filenames.prod_filenames)
+        write_listfile(os.path.join(options['workdir'],
+                                    options['segmentation_images']), mosaic_filenames.prod_filenames)
+        write_listfile(os.path.join(options['workdir'],
+                                    options['psf_images_and_tables']), psf_filenames.prod_filenames)
 
-        combine_image_dithers(options['data_images'],
-                              options['stacked_data_image'],
-                              options['dithering_scheme'],
-                              workdir=options['workdir'])
+        # If we're dithering, create stacks
+        if num_dithers > 1:
 
-        combine_segmentation_dithers(options['segmentation_images'],
-                                     options['stacked_segmentation_image'],
-                                     options['dithering_scheme'],
-                                     workdir=options['workdir'])
+            combine_image_dithers(options['data_images'],
+                                  options['stacked_data_image'],
+                                  options['dithering_scheme'],
+                                  workdir=options['workdir'])
+
+            combine_segmentation_dithers(options['segmentation_images'],
+                                         options['stacked_segmentation_image'],
+                                         options['dithering_scheme'],
+                                         workdir=options['workdir'])
 
     # Remove the now-unneeded PSF archive file
     psf_archive_hdulist.close()
