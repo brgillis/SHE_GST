@@ -59,7 +59,7 @@ def get_signal_to_noise_estimate(ra, dec, image, background, rms, gain, stamp_si
     """
 
     # Get the galaxy's pixel position on the image
-    xy = image.wcs.toImage(galsim.PositionD(ra, dec))
+    xy = image.wcs.toImage(galsim.PositionD(float(ra), float(dec)))
     xp = xy.x
     yp = xy.y
 
