@@ -1337,7 +1337,8 @@ def generate_image(image_phl,
                                                                           image=dithers[di],
                                                                           background=bkg_maps[di],
                                                                           rms=np.mean(noise_maps[di]),
-                                                                          gain=options['gain'],))
+                                                                          gain=options['gain'],
+                                                                          stamp_size=options['stamp_size']))
         # Add the S/N estimates in quadrature
         snr_squared = 0
         for signal_to_noise_estimate in signal_to_noise_estimates:
