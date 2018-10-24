@@ -1196,7 +1196,6 @@ def generate_image(image_phl,
             base_deviates.append(base_deviate)
 
     # For each dither
-    dither_scheme = get_dither_scheme(options['dithering_scheme'])
     if not options['details_only']:
         for di in range(num_dithers):
 
