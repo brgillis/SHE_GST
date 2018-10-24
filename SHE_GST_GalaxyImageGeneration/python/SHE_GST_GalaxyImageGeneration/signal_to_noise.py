@@ -4,7 +4,6 @@
 
     @TODO: File docstring
 """
-from Program_Files.GalSim.galsim.errors import GalSimHSMError
 
 from SHE_PPT.logging import getLogger
 import galsim
