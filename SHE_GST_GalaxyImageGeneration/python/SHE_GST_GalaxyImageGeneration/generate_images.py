@@ -1197,84 +1197,81 @@ def generate_image(image_phl,
 
     # For each dither
     dither_scheme = get_dither_scheme(options['dithering_scheme'])
-    for di in range(num_dithers):
+    if not options['details_only']:
+        for di in range(num_dithers):
 
-        logger.debug("Printing dither " + str(di + 1) + ".")
+            logger.debug("Printing dither " + str(di + 1) + ".")
 
-        # Make mock noise, mask, and background maps for this dither
-        if options['image_datatype'] == '32f':
-            noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            bkg_maps.append(galsim.ImageF(np.ones_like(
-                dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
-        elif options['image_datatype'] == '64f':
-            noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
-            bkg_maps.append(galsim.ImageD(np.ones_like(
-                dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
+            # Make mock noise, mask, and background maps for this dither
+            if options['image_datatype'] == '32f':
+                noise_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
+                wgt_maps.append(galsim.ImageF(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
+                bkg_maps.append(galsim.ImageF(np.ones_like(
+                    dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
+            elif options['image_datatype'] == '64f':
+                noise_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
+                wgt_maps.append(galsim.ImageD(np.ones_like(dithers[di].array), wcs=wcs_list[di]))
+                bkg_maps.append(galsim.ImageD(np.ones_like(
+                    dithers[di].array), wcs=wcs_list[di]) * output_sky_level_unsubtracted_pixel)
 
-        wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
-        wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
+            wgt_maps[di].array[noise_maps[di].array > 0] /= noise_maps[di].array[noise_maps[di].array > 0] ** 2
+            wgt_maps[di].array[noise_maps[di].array <= 0] *= 0
 
-        mask_maps.append(galsim.ImageI(np.zeros_like(dithers[di].array, dtype=np.int16), wcs=wcs_list[di]))
+            mask_maps.append(galsim.ImageI(np.zeros_like(dithers[di].array, dtype=np.int16), wcs=wcs_list[di]))
 
-        logger.info("Generating segmentation map " + str(di) + ".")
-        noise_level = np.sqrt(get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel,
-                                                    sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
-                                                    read_noise_count=options['read_noise'],
-                                                    pixel_scale=pixel_scale * 3600,
-                                                    gain=options['gain']))
-        segmentation_maps.append(make_segmentation_map(dithers[di],
-                                                       detections_table,
-                                                       wcs_list[di],
-                                                       threshold=0.01 * noise_level,
-                                                       options=options))
+            logger.info("Generating segmentation map " + str(di) + ".")
+            noise_level = np.sqrt(get_var_ADU_per_pixel(pixel_value_ADU=sky_level_unsubtracted_pixel,
+                                                        sky_level_ADU_per_sq_arcsec=sky_level_subtracted,
+                                                        read_noise_count=options['read_noise'],
+                                                        pixel_scale=pixel_scale * 3600,
+                                                        gain=options['gain']))
+            segmentation_maps.append(make_segmentation_map(dithers[di],
+                                                           detections_table,
+                                                           wcs_list[di],
+                                                           threshold=0.01 * noise_level,
+                                                           options=options))
 
-        # If we're using cutouts, make the cutout image_phl now
-        if options['mode'] == 'cutouts':
-            dithers[di] = make_cutout_image(dithers[di],
-                                            options,
-                                            galaxies,
-                                            detections_table,
-                                            details_table,
-                                            centre_offset)
-            noise_maps[di] = make_cutout_image(noise_maps[di],
-                                               options,
-                                               galaxies,
-                                               detections_table,
-                                               details_table,
-                                               centre_offset)
-            mask_maps[di] = make_cutout_image(mask_maps[di],
-                                              options,
-                                              galaxies,
-                                              detections_table,
-                                              details_table,
-                                              centre_offset)
-            bkg_maps[di] = make_cutout_image(bkg_maps[di],
-                                             options,
-                                             galaxies,
-                                             detections_table,
-                                             details_table,
-                                             centre_offset)
-            wgt_maps[di] = make_cutout_image(wgt_maps[di],
-                                             options,
-                                             galaxies,
-                                             detections_table,
-                                             details_table,
-                                             centre_offset)
-            segmentation_maps[di] = make_cutout_image(segmentation_maps[di],
-                                                      options,
-                                                      galaxies,
-                                                      detections_table,
-                                                      details_table,
-                                                      centre_offset)
-
-        if not options['details_only']:
+            # If we're using cutouts, make the cutout image_phl now
+            if options['mode'] == 'cutouts':
+                dithers[di] = make_cutout_image(dithers[di],
+                                                options,
+                                                galaxies,
+                                                detections_table,
+                                                details_table,
+                                                centre_offset)
+                noise_maps[di] = make_cutout_image(noise_maps[di],
+                                                   options,
+                                                   galaxies,
+                                                   detections_table,
+                                                   details_table,
+                                                   centre_offset)
+                mask_maps[di] = make_cutout_image(mask_maps[di],
+                                                  options,
+                                                  galaxies,
+                                                  detections_table,
+                                                  details_table,
+                                                  centre_offset)
+                bkg_maps[di] = make_cutout_image(bkg_maps[di],
+                                                 options,
+                                                 galaxies,
+                                                 detections_table,
+                                                 details_table,
+                                                 centre_offset)
+                wgt_maps[di] = make_cutout_image(wgt_maps[di],
+                                                 options,
+                                                 galaxies,
+                                                 detections_table,
+                                                 details_table,
+                                                 centre_offset)
+                segmentation_maps[di] = make_cutout_image(segmentation_maps[di],
+                                                          options,
+                                                          galaxies,
+                                                          detections_table,
+                                                          details_table,
+                                                          centre_offset)
 
             dither = dithers[di]
             dither += sky_level_unsubtracted_pixel
-
-            dither_shift = dither_scheme[di]
 
             detector_id_str = detector.get_id_string(image_phl.get_local_ID() % 6 + 1,
                                                      image_phl.get_local_ID() // 6 + 1)
@@ -1329,25 +1326,25 @@ def generate_image(image_phl,
 
         logger.info("Finished printing dither " + str(di + 1) + ".")
 
-    # Now that the galaxies have been printed, we can calculate their S/Ns
-    for row in details_table:
-        signal_to_noise_estimates = []
-        for di in range(num_dithers):
-            signal_to_noise_estimates.append(get_signal_to_noise_estimate(ra=row[datf.ra],
-                                                                          dec=row[datf.dec],
-                                                                          image=dithers[di],
-                                                                          background=bkg_maps[di],
-                                                                          rms=np.mean(noise_maps[di].array),
-                                                                          gain=options['gain'],
-                                                                          stamp_size=options['stamp_size']))
-        # Add the S/N estimates in quadrature
-        snr_squared = 0
-        for signal_to_noise_estimate in signal_to_noise_estimates:
-            snr_squared += signal_to_noise_estimate**2
-        snr = np.sqrt(snr_squared)
-        row[datf.snr] = snr
+        # Now that the galaxies have been printed, we can calculate their S/Ns
+        for row in details_table:
+            signal_to_noise_estimates = []
+            for di in range(num_dithers):
+                signal_to_noise_estimates.append(get_signal_to_noise_estimate(ra=row[datf.ra],
+                                                                              dec=row[datf.dec],
+                                                                              image=dithers[di],
+                                                                              background=bkg_maps[di],
+                                                                              rms=np.mean(noise_maps[di].array),
+                                                                              gain=options['gain'],
+                                                                              stamp_size=options['stamp_size']))
+            # Add the S/N estimates in quadrature
+            snr_squared = 0
+            for signal_to_noise_estimate in signal_to_noise_estimates:
+                snr_squared += signal_to_noise_estimate**2
+            snr = np.sqrt(snr_squared)
+            row[datf.snr] = snr
 
-    logger.info("Finished printing image_phl " + str(image_phl.get_local_ID()) + ".")
+    logger.info("Finished printing image " + str(image_phl.get_local_ID()) + ".")
 
     # We no longer need this image_phl's children, so clear it to save memory
     image_phl.clear()
