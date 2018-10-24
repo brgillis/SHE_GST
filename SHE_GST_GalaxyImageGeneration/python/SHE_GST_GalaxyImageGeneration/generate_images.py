@@ -1337,7 +1337,7 @@ def generate_image(image_phl,
                                                                           dec=row[datf.dec],
                                                                           image=dithers[di],
                                                                           background=bkg_maps[di],
-                                                                          rms=np.mean(noise_maps[di]),
+                                                                          rms=np.mean(noise_maps[di].array),
                                                                           gain=options['gain'],
                                                                           stamp_size=options['stamp_size']))
         # Add the S/N estimates in quadrature
