@@ -180,7 +180,7 @@ def add_psf_to_archive(psf_profile,
                                       scale=scale))
     
     psf_dataset = archive_filehandle.create_dataset(str(galaxy_id)+"_"+str(exposure_index)+"_"+psf_type,
-                                                    data=psf_hdu[0].data)
+                                                    data=psf_hdu.data)
 
     # Add needed keywords to the attributes of this dataset
     psf_dataset.attrs[gal_id_label] = galaxy_id
@@ -198,7 +198,7 @@ def get_psf_from_archive(archive_filehandle,
 
     dataset = archive_filehandle[str(galaxy_id)+"_"+str(exposure_index)+"_"+psf_type]
 
-    psf_image = galsim.ImageF(dataset.data, scale=dataset.attrs[scale_label])
+    psf_image = galsim.ImageF(dataset[:,:], scale=dataset.attrs[scale_label])
 
     return psf_image
 

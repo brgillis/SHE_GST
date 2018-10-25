@@ -111,24 +111,26 @@ class TestPSF:
 
         # Test that we get an exception if searching for a psf that doesn't exist
         with pytest.raises(KeyError):
-            get_psf_from_archive(archive_hdulist, galaxy_id=0, exposure_index=1)
+            get_psf_from_archive(archive_filehandle, galaxy_id=0, exposure_index=1, psf_type='bulge')
         with pytest.raises(KeyError):
-            get_psf_from_archive(archive_hdulist, galaxy_id=2, exposure_index=0)
+            get_psf_from_archive(archive_filehandle, galaxy_id=0, exposure_index=0, psf_type='disk')
+        with pytest.raises(KeyError):
+            get_psf_from_archive(archive_filehandle, galaxy_id=2, exposure_index=0, psf_type='bulge')
 
         # Check that each of the ones we did read in is correct
 
         psf00_i = galsim.ImageF(self.stamp_size, self.stamp_size, scale=self.pixel_scale)
-        psf00.drawImage(psf00_i)
+        psf00.drawImage(psf00_i, method="no_pixel")
         assert_allclose(psf00_i.array, psf00_r.array)
         assert_almost_equal(psf00_i.scale, psf00_r.scale)
 
         psf10_i = galsim.ImageF(self.stamp_size, self.stamp_size, scale=self.pixel_scale)
-        psf10.drawImage(psf10_i)
+        psf10.drawImage(psf10_i, method="no_pixel")
         assert_allclose(psf10_i.array, psf10_r.array)
         assert_almost_equal(psf10_i.scale, psf11_r.scale)
 
         psf11_i = galsim.ImageF(self.stamp_size, self.stamp_size, scale=self.pixel_scale)
-        psf11.drawImage(psf11_i)
+        psf11.drawImage(psf11_i, method="no_pixel")
         assert_allclose(psf11_i.array, psf11_r.array)
         assert_almost_equal(psf10_i.scale, psf11_r.scale)
 
