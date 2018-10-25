@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2018-08-17"
+__updated__ = "2018-10-25"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -24,16 +24,14 @@ from copy import deepcopy
 from functools import lru_cache
 from os.path import join
 
-from SHE_PPT.file_io import find_file, append_hdu
-from SHE_PPT.magic_values import bulge_psf_tag, disk_psf_tag
-from SHE_PPT.table_formats.psf import tf as pstf
-from SHE_PPT.table_utility import table_to_hdu
+from astropy.io import fits
 import galsim
 
 import SHE_GST_GalaxyImageGeneration.magic_values as mv
-from astropy.io import fits
-from astropy.table import Table
-from coverage.html import data_filename
+from SHE_PPT.file_io import find_file
+from SHE_PPT.magic_values import bulge_psf_tag, disk_psf_tag
+from SHE_PPT.table_formats.psf import tf as pstf
+from SHE_PPT.table_utility import table_to_hdu
 import numpy as np
 
 
