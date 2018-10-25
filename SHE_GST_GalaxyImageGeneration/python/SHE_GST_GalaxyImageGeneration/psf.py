@@ -165,7 +165,7 @@ def create_psf_hdu(psf_profile,
 
 
 def add_psf_to_archive(psf_profile,
-                       archive_hdulist,
+                       archive_filehandle,
                        galaxy_id,
                        exposure_index,
                        psf_type,
@@ -178,38 +178,34 @@ def add_psf_to_archive(psf_profile,
     psf_hdu = deepcopy(create_psf_hdu(psf_profile=psf_profile,
                                       stamp_size=stamp_size,
                                       scale=scale))
+    
+    psf_dataset = archive_filehandle.create_dataset(str(galaxy_id)+"_"+str(exposure_index)+"_"+psf_type,
+                                                    data=psf_hdu[0].data)
 
-    # Add needed keywords to the header of this HDU
-    psf_hdu.header[gal_id_label] = galaxy_id
-    psf_hdu.header[exposure_index_label] = exposure_index
-    psf_hdu.header[scale_label] = scale
-    psf_hdu.header[type_label] = psf_type
-
-    # Append the HDU to the archive
-
-    archive_hdulist.append(psf_hdu)
+    # Add needed keywords to the attributes of this dataset
+    psf_dataset.attrs[gal_id_label] = galaxy_id
+    psf_dataset.attrs[exposure_index_label] = exposure_index
+    psf_dataset.attrs[scale_label] = scale
+    psf_dataset.attrs[type_label] = psf_type
 
     return
 
 
-def get_psf_from_archive(archive_hdulist,
+def get_psf_from_archive(archive_filehandle,
                          galaxy_id,
-                         exposure_index):
+                         exposure_index,
+                         psf_type):
 
-    for hdu in archive_hdulist:
-        if hdu.header[gal_id_label] == galaxy_id and hdu.header[exposure_index_label] == exposure_index:
+    dataset = archive_filehandle[str(galaxy_id)+"_"+str(exposure_index)+"_"+psf_type]
 
-            psf_image = galsim.ImageF(hdu.data, scale=hdu.header[scale_label])
+    psf_image = galsim.ImageF(dataset.data, scale=dataset.attrs[scale_label])
 
-            return psf_image
-
-    raise ValueError("PSF for galaxy " + str(galaxy_id) + " for exposure " + str(exposure_index) +
-                     " not found in PSF archive.")
+    return psf_image
 
 
 def sort_psfs_from_archive(psf_table,
                            psf_data_filename,
-                           psf_archive_hdulist,
+                           archive_filehandle,
                            exposure_index,
                            workdir="."):
 
@@ -223,26 +219,29 @@ def sort_psfs_from_archive(psf_table,
     psf_table.add_index(pstf.ID)  # Allow it to be indexed by galaxy ID
 
     hdu_index = 2  # Start indexing at 2, since 0 is empty and 1 is table
-    for hdu in psf_archive_hdulist:
+    for dataset_key in archive_filehandle:
+        
+        dataset = archive_filehandle[dataset_key]
 
-        if hdu.header[exposure_index_label] != exposure_index:
+        if dataset.attrs[exposure_index_label] != exposure_index:
             continue
 
-        gal_id = hdu.header[gal_id_label]
+        gal_id = dataset.attrs[gal_id_label]
 
-        header = deepcopy(hdu.header)
+        is_bulge = dataset.attrs[type_label] == "bulge"
 
-        is_bulge = header[type_label] == "bulge"
-
-        # Set up the header to point to galaxy id
+        # Set up the hdu
+        psf_hdu = fits.ImageHDU(data=dataset.data)
+        psf_hdu.header[gal_id_label] = dataset.attrs[gal_id_label]
+        psf_hdu.header[exposure_index_label] = dataset.attrs[exposure_index_label]
+        psf_hdu.header[scale_label] = dataset.attrs[scale_label]
+        psf_hdu.header[type_label] = dataset.attrs[type_label]
         if is_bulge:
-            header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
+            psf_hdu.header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
         else:
-            header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
-
+            psf_hdu.header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
+        
         # Add to the data file
-        psf_hdu = fits.ImageHDU(data=hdu.data,
-                                header=header)
         data_hdulist.append(psf_hdu)
 
         # Update the PSF table with the HDU index of this
