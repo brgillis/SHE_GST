@@ -5,7 +5,7 @@
     Tests of functions dealing with creating and managing PSF profiles and images.
 """
 
-__updated__ = "2018-08-16"
+__updated__ = "2018-10-25"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -20,16 +20,16 @@ __updated__ = "2018-08-16"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from numpy.testing import assert_almost_equal, assert_allclose
 from os.path import join
-import pytest
 
 import galsim
+import h5py
+from numpy.testing import assert_almost_equal, assert_allclose
+import pytest
 
 from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, get_background_psf_profile,
                                                add_psf_to_archive, get_psf_from_archive,
                                                load_psf_model_from_sed_z)
-from astropy.io import fits
 import numpy as np
 
 
@@ -88,31 +88,31 @@ class TestPSF:
 
     def test_psf_archive(self):
 
-        archive_filename = "psf_archive.fits"
+        archive_filename = "psf_archive.hdf5"
 
         # Create some psfs and add them to the archive
         psf00 = get_background_psf_profile()
         psf10 = get_psf_profile(self.n, self.z, bulge=False)
         psf11 = get_psf_profile(self.n, self.z, bulge=True)
+        
+        archive_filehandle = h5py.File(join(self.workdir, archive_filename), 'a')
 
-        archive_hdulist = fits.open(join(self.workdir, archive_filename), mode='append')
-
-        add_psf_to_archive(psf00, archive_hdulist, galaxy_id=0, exposure_index=0, psf_type='bulge',
+        add_psf_to_archive(psf00, archive_filehandle, galaxy_id=0, exposure_index=0, psf_type='bulge',
                            stamp_size=self.stamp_size, scale=self.pixel_scale)
-        add_psf_to_archive(psf10, archive_hdulist, galaxy_id=1, exposure_index=0, psf_type='bulge',
+        add_psf_to_archive(psf10, archive_filehandle, galaxy_id=1, exposure_index=0, psf_type='disk',
                            stamp_size=self.stamp_size, scale=self.pixel_scale)
-        add_psf_to_archive(psf11, archive_hdulist, galaxy_id=1, exposure_index=1, psf_type='bulge',
+        add_psf_to_archive(psf11, archive_filehandle, galaxy_id=1, exposure_index=1, psf_type='bulge',
                            stamp_size=self.stamp_size, scale=self.pixel_scale)
 
         # Read each of these back
-        psf00_r = get_psf_from_archive(archive_hdulist, galaxy_id=0, exposure_index=0)
-        psf10_r = get_psf_from_archive(archive_hdulist, galaxy_id=1, exposure_index=0)
-        psf11_r = get_psf_from_archive(archive_hdulist, galaxy_id=1, exposure_index=1)
+        psf00_r = get_psf_from_archive(archive_filehandle, galaxy_id=0, exposure_index=0, psf_type='bulge')
+        psf10_r = get_psf_from_archive(archive_filehandle, galaxy_id=1, exposure_index=0, psf_type='disk')
+        psf11_r = get_psf_from_archive(archive_filehandle, galaxy_id=1, exposure_index=1, psf_type='bulge')
 
         # Test that we get an exception if searching for a psf that doesn't exist
-        with pytest.raises(ValueError):
+        with pytest.raises(KeyError):
             get_psf_from_archive(archive_hdulist, galaxy_id=0, exposure_index=1)
-        with pytest.raises(ValueError):
+        with pytest.raises(KeyError):
             get_psf_from_archive(archive_hdulist, galaxy_id=2, exposure_index=0)
 
         # Check that each of the ones we did read in is correct
