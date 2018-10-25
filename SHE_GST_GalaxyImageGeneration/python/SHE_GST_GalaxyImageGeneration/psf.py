@@ -155,7 +155,7 @@ def create_psf_hdu(psf_profile,
 
     # Draw the profile onto an image of the proper size
     psf_image = galsim.ImageF(stamp_size, stamp_size, scale=scale)
-    psf_profile.drawImage(psf_image)
+    psf_profile.drawImage(psf_image, method='no_pixel')
 
     # Set up an image HDU with this image
     psf_hdu = fits.ImageHDU(data=psf_image.array)
