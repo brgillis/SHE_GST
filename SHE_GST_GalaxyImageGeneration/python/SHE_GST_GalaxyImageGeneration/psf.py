@@ -56,6 +56,8 @@ seds = {4.0: 'sbc',
         1.8: 'sb3',
         }
 
+single_psf_filename = join(mv.default_data_dir, "psf_models", sed_names['sb3'] + ".fits_0.000_0.804_0.00.fits")
+
 allowed_ns = np.array((1.8, 2.0, 2.56, 2.71, 3.0, 3.5, 4.0))
 allowed_zs = np.array((0., 0.5, 1.0, 1.5, 2.0))
 

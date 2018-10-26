@@ -57,7 +57,7 @@ from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel, add_stable_noise
 from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, sort_psfs_from_archive, add_psf_to_archive,
-                                               load_psf_model_from_file)
+                                               load_psf_model_from_file, single_psf_filename)
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_GST_GalaxyImageGeneration.signal_to_noise import get_signal_to_noise_estimate
 from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
@@ -373,9 +373,13 @@ def generate_image_group(image_group_phl, options):
 
             combined_psf_tables.append(table.vstack(psf_tables[i]))
 
-            if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
-                    (options['model_psf_file_name'] is not None and options['model_psf_file_name'] != 'None')):
-                output_psf_file_name = options['model_psf_file_name']
+            if options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None':
+                if options['model_psf_file_name'] is not None and options['model_psf_file_name'] != 'None':
+                    output_psf_file_name = options['model_psf_file_name']
+                elif options['single_psf']:
+                    output_psf_file_name = single_psf_filename
+                else:
+                    output_psf_file_name = None
             else:
                 output_psf_file_name = options['output_psf_file_name']
 
