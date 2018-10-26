@@ -193,7 +193,8 @@ def generate_image_group(image_group_phl, options):
     psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".hdf5")
 
     if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
-            (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None')):
+            (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None') and
+            not options['single_psf']):
         psf_archive_filehandle = h5py.File(os.path.join(workdir, psf_archive_filename), 'a')
     else:
         psf_archive_filehandle = None
@@ -753,7 +754,8 @@ def print_galaxies(image_phl,
             # Save the profiles to the archive file
             for di in range(num_dithers):
                 if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
-                        (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None')):
+                    (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None') and
+                        not options['single_psf']):
                     output_bulge_psf_profile = bulge_psf_profile
                     output_disk_psf_profile = disk_psf_profile
 
