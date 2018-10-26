@@ -369,10 +369,10 @@ def generate_image_group(image_group_phl, options):
 
             combined_psf_tables.append(table.vstack(psf_tables[i]))
 
-            sort_psfs_from_archive(combined_psf_tables[i],
-                                   psf_filenames.data_filenames[i],
-                                   psf_archive_filehandle,
-                                   i,
+            sort_psfs_from_archive(psf_table=combined_psf_tables[i],
+                                   psf_data_filename=psf_filenames.data_filenames[i],
+                                   archive_filehandle=psf_archive_filehandle,
+                                   exposure_index=i,
                                    workdir=workdir)
 
         # Output listfiles of filenames
