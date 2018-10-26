@@ -172,6 +172,8 @@ def generate_image_group(image_group_phl, options):
         None
     """
 
+    workdir = options['workdir']
+
     image_group_phl.fill_images()
 
     # Get the model hash so we can set up filenames
@@ -190,7 +192,7 @@ def generate_image_group(image_group_phl, options):
     model_hash_fn = model_hash[0:model_hash_maxlen]
     psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".hdf5")
 
-    psf_archive_filehandle = h5py.File(psf_archive_filename, 'a')
+    psf_archive_filehandle = h5py.File(os.path.join(workdir,psf_archive_filename), 'a')
 
     # Get the filenames we'll need
     for i in range(num_dithers):
@@ -226,8 +228,6 @@ def generate_image_group(image_group_phl, options):
 
     # Set up XML products we're outputting
     for i in range(num_dithers):
-
-        workdir = options['workdir']
 
         # Image product
 
