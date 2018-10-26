@@ -231,7 +231,7 @@ def sort_psfs_from_archive(psf_table,
         is_bulge = dataset.attrs[type_label] == "bulge"
 
         # Set up the hdu
-        psf_hdu = fits.ImageHDU(data=dataset.data)
+        psf_hdu = fits.ImageHDU(data=dataset[:,:])
         psf_hdu.header[gal_id_label] = dataset.attrs[gal_id_label]
         psf_hdu.header[exposure_index_label] = dataset.attrs[exposure_index_label]
         psf_hdu.header[scale_label] = dataset.attrs[scale_label]

@@ -747,14 +747,14 @@ def print_galaxies(image_phl,
                     output_disk_psf_profile = output_bulge_psf_profile
 
                 add_psf_to_archive(psf_profile=output_bulge_psf_profile,
-                                   archive_hdulist=psf_archive_filehandle,
+                                   archive_filehandle=psf_archive_filehandle,
                                    galaxy_id=galaxy.get_full_ID(),
                                    exposure_index=di,
                                    psf_type="bulge",
                                    stamp_size=options['psf_stamp_size'],
                                    scale=pixel_scale / options['psf_scale_factor'],)
                 add_psf_to_archive(psf_profile=output_disk_psf_profile,
-                                   archive_hdulist=psf_archive_filehandle,
+                                   archive_filehandle=psf_archive_filehandle,
                                    galaxy_id=galaxy.get_full_ID(),
                                    exposure_index=di,
                                    psf_type="disk",
