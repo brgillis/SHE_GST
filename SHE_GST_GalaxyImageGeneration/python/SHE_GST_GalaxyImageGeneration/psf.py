@@ -243,6 +243,7 @@ def sort_psfs_from_archive(psf_table,
 
         # Make the headers for each HDU correct
         bulge_psf_hdu.header[exposure_index_label] = exposure_index
+        bulge_psf_hdu.header[scale_label] = scale
 
         disk_psf_hdu = deepcopy(bulge_psf_hdu)
 
