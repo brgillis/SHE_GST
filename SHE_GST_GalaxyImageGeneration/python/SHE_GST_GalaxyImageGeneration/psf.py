@@ -257,11 +257,14 @@ def sort_psfs_from_archive(psf_table,
             row[pstf.bulge_index] = hdu_index
             row[pstf.disk_index] = hdu_index + 1
 
-            bulge_psf_hdu.header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
-            disk_psf_hdu.header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
+            new_bulge_hdu = deepcopy(bulge_psf_hdu)
+            new_disk_hdu = deepcopy(disk_psf_hdu)
 
-            data_hdulist.append(bulge_psf_hdu)
-            data_hdulist.append(disk_psf_hdu)
+            new_bulge_hdu.header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
+            new_disk_hdu.header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
+
+            data_hdulist.append(new_bulge_hdu)
+            data_hdulist.append(new_disk_hdu)
 
             hdu_index += 2
 
