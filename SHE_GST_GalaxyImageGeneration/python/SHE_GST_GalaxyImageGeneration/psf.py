@@ -179,9 +179,9 @@ def add_psf_to_archive(psf_profile,
     """
 
     # Create the HDU
-    psf_hdu = create_psf_hdu(psf_profile=psf_profile,
-                             stamp_size=stamp_size,
-                             scale=scale)
+    psf_hdu = deepcopy(create_psf_hdu(psf_profile=psf_profile,
+                                      stamp_size=stamp_size,
+                                      scale=scale))
 
     psf_dataset = archive_filehandle.create_dataset(str(galaxy_id) + "_" + str(exposure_index) + "_" + psf_type,
                                                     data=psf_hdu.data)
