@@ -209,8 +209,11 @@ def get_psf_from_archive(archive_filehandle,
 
 def sort_psfs_from_archive(psf_table,
                            psf_data_filename,
-                           archive_filehandle,
                            exposure_index,
+                           archive_filehandle=None,
+                           output_psf_filename=None,
+                           stamp_size=mv.default_psf_stamp_size,
+                           scale=mv.psf_model_scale,
                            workdir="."):
 
     logger.debug("Entering sort_psfs_from_archive")
@@ -225,37 +228,74 @@ def sort_psfs_from_archive(psf_table,
     psf_table.add_index(pstf.ID)  # Allow it to be indexed by galaxy ID
 
     hdu_index = 2  # Start indexing at 2, since 0 is empty and 1 is table
-    for dataset_key in archive_filehandle:
 
-        dataset = archive_filehandle[dataset_key]
+    # If we're using a single output PSF for all galaxies, use optimisations
+    if output_psf_filename != None and output_psf_filename != 'None':
+        qualified_output_psf_filename = find_file(output_psf_filename, workdir)
+        psf_profile = load_psf_model_from_file(qualified_output_psf_filename,
+                                               scale=scale,
+                                               offset=mv.default_psf_center_offset)
+        bulge_psf_hdu = create_psf_hdu(psf_profile=psf_profile,
+                                       stamp_size=stamp_size,
+                                       scale=scale)
 
-        if dataset.attrs[exposure_index_label] != exposure_index:
-            continue
+        # Make the headers for each HDU correct
+        bulge_psf_hdu.header[exposure_index_label] = exposure_index
 
-        logger.debug("Sorting PSF " + dataset_key + " into file.")
+        disk_psf_hdu = deepcopy(bulge_psf_hdu)
 
-        gal_id = dataset.attrs[gal_id_label]
+        bulge_psf_hdu.header[type_label] = "bulge"
+        disk_psf_hdu.header[type_label] = "disk"
 
-        # Set up the hdu
-        psf_hdu = fits.ImageHDU(data=dataset[:, :])
-        psf_hdu.header[gal_id_label] = dataset.attrs[gal_id_label]
-        psf_hdu.header[exposure_index_label] = dataset.attrs[exposure_index_label]
-        psf_hdu.header[scale_label] = dataset.attrs[scale_label]
-        psf_hdu.header[type_label] = dataset.attrs[type_label]
-        if dataset.attrs[type_label] == "bulge":
-            psf_hdu.header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
-        else:
-            psf_hdu.header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
+        for row in psf_table:
 
-        # Add to the data file
-        data_hdulist.append(psf_hdu)
+            gal_id = row[pstf.ID]
 
-        # Update the PSF table with the HDU index of this
-        if dataset.attrs[type_label] == "bulge":
-            psf_table.loc[gal_id][pstf.bulge_index] = hdu_index
-        else:
-            psf_table.loc[gal_id][pstf.disk_index] = hdu_index
-        hdu_index += 1
+            row[pstf.bulge_index] = hdu_index
+            row[pstf.disk_index] = hdu_index + 1
+
+            bulge_psf_hdu.header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
+            disk_psf_hdu.header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
+
+            data_hdulist.append(bulge_psf_hdu)
+            data_hdulist.append(disk_psf_hdu)
+
+            hdu_index += 2
+
+    # Otherwise, sort from the archive
+    else:
+
+        for dataset_key in archive_filehandle:
+
+            dataset = archive_filehandle[dataset_key]
+
+            if dataset.attrs[exposure_index_label] != exposure_index:
+                continue
+
+            logger.debug("Sorting PSF " + dataset_key + " into file.")
+
+            gal_id = dataset.attrs[gal_id_label]
+
+            # Set up the hdu
+            psf_hdu = fits.ImageHDU(data=dataset[:, :])
+            psf_hdu.header[gal_id_label] = dataset.attrs[gal_id_label]
+            psf_hdu.header[exposure_index_label] = dataset.attrs[exposure_index_label]
+            psf_hdu.header[scale_label] = dataset.attrs[scale_label]
+            psf_hdu.header[type_label] = dataset.attrs[type_label]
+            if dataset.attrs[type_label] == "bulge":
+                psf_hdu.header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
+            else:
+                psf_hdu.header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
+
+            # Add to the data file
+            data_hdulist.append(psf_hdu)
+
+            # Update the PSF table with the HDU index of this
+            if dataset.attrs[type_label] == "bulge":
+                psf_table.loc[gal_id][pstf.bulge_index] = hdu_index
+            else:
+                psf_table.loc[gal_id][pstf.disk_index] = hdu_index
+            hdu_index += 1
 
     # Now that the table is complete, update the values for it in the fits file
     out_table = data_hdulist[1].data
