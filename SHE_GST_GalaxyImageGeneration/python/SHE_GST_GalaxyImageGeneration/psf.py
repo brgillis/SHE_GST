@@ -179,9 +179,9 @@ def add_psf_to_archive(psf_profile,
     """
 
     # Create the HDU
-    psf_hdu = deepcopy(create_psf_hdu(psf_profile=psf_profile,
-                                      stamp_size=stamp_size,
-                                      scale=scale))
+    psf_hdu = create_psf_hdu(psf_profile=psf_profile,
+                             stamp_size=stamp_size,
+                             scale=scale)
 
     psf_dataset = archive_filehandle.create_dataset(str(galaxy_id) + "_" + str(exposure_index) + "_" + psf_type,
                                                     data=psf_hdu.data)
@@ -237,7 +237,7 @@ def sort_psfs_from_archive(psf_table,
         gal_id = dataset.attrs[gal_id_label]
 
         # Set up the hdu
-        psf_hdu = fits.ImageHDU(data=dataset[:,:])
+        psf_hdu = fits.ImageHDU(data=dataset[:, :])
         psf_hdu.header[gal_id_label] = dataset.attrs[gal_id_label]
         psf_hdu.header[exposure_index_label] = dataset.attrs[exposure_index_label]
         psf_hdu.header[scale_label] = dataset.attrs[scale_label]
