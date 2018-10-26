@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-10-24"
+__updated__ = "2018-10-26"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -43,6 +43,7 @@ from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as 
 from SHE_PPT.table_utility import add_row, table_to_hdu
 from SHE_PPT.utility import hash_any
 import galsim
+import h5py
 
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.combine_dithers import (combine_image_dithers,
@@ -171,6 +172,8 @@ def generate_image_group(image_group_phl, options):
         None
     """
 
+    workdir = options['workdir']
+
     image_group_phl.fill_images()
 
     # Get the model hash so we can set up filenames
@@ -187,9 +190,9 @@ def generate_image_group(image_group_phl, options):
     full_options = get_full_options(options, image_group_phl)
     model_hash = hash_any(full_options, format="base64")
     model_hash_fn = model_hash[0:model_hash_maxlen]
-    psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".fits")
+    psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".hdf5")
 
-    psf_archive_hdulist = fits.open(os.path.join(options['workdir'], psf_archive_filename), mode='append')
+    psf_archive_filehandle = h5py.File(os.path.join(workdir,psf_archive_filename), 'a')
 
     # Get the filenames we'll need
     for i in range(num_dithers):
@@ -225,8 +228,6 @@ def generate_image_group(image_group_phl, options):
 
     # Set up XML products we're outputting
     for i in range(num_dithers):
-
-        workdir = options['workdir']
 
         # Image product
 
@@ -282,7 +283,7 @@ def generate_image_group(image_group_phl, options):
 
         # Generate the data
         (image_dithers, noise_maps, mask_maps, wgt_maps, bkg_maps, segmentation_maps,
-         detections_table, details_table) = generate_image(image_phl, options, wcs_list, psf_archive_hdulist)
+         detections_table, details_table) = generate_image(image_phl, options, wcs_list, psf_archive_filehandle)
 
         # Append to the fits file for each dither
         if not options['details_only']:
@@ -368,10 +369,10 @@ def generate_image_group(image_group_phl, options):
 
             combined_psf_tables.append(table.vstack(psf_tables[i]))
 
-            sort_psfs_from_archive(combined_psf_tables[i],
-                                   psf_filenames.data_filenames[i],
-                                   psf_archive_hdulist,
-                                   i,
+            sort_psfs_from_archive(psf_table=combined_psf_tables[i],
+                                   psf_data_filename=psf_filenames.data_filenames[i],
+                                   archive_filehandle=psf_archive_filehandle,
+                                   exposure_index=i,
                                    workdir=workdir)
 
         # Output listfiles of filenames
@@ -395,7 +396,7 @@ def generate_image_group(image_group_phl, options):
                                          workdir=options['workdir'])
 
     # Remove the now-unneeded PSF archive file
-    psf_archive_hdulist.close()
+    del psf_archive_filehandle
     if os.path.exists(os.path.join(workdir, psf_archive_filename)):
         os.remove(os.path.join(workdir, psf_archive_filename))
 
@@ -413,7 +414,7 @@ def print_galaxies(image_phl,
                    pixel_scale,
                    detections_table,
                    details_table,
-                   psf_archive_hdulist):
+                   psf_archive_filehandle):
     """
         @brief Prints galaxies onto a new image and stores details on them in the output table.
 
@@ -746,14 +747,14 @@ def print_galaxies(image_phl,
                     output_disk_psf_profile = output_bulge_psf_profile
 
                 add_psf_to_archive(psf_profile=output_bulge_psf_profile,
-                                   archive_hdulist=psf_archive_hdulist,
+                                   archive_filehandle=psf_archive_filehandle,
                                    galaxy_id=galaxy.get_full_ID(),
                                    exposure_index=di,
                                    psf_type="bulge",
                                    stamp_size=options['psf_stamp_size'],
                                    scale=pixel_scale / options['psf_scale_factor'],)
                 add_psf_to_archive(psf_profile=output_disk_psf_profile,
-                                   archive_hdulist=psf_archive_hdulist,
+                                   archive_filehandle=psf_archive_filehandle,
                                    galaxy_id=galaxy.get_full_ID(),
                                    exposure_index=di,
                                    psf_type="disk",
@@ -1111,7 +1112,7 @@ def add_image_header_info(gs_image,
 def generate_image(image_phl,
                    options,
                    wcs_list,
-                   psf_archive_hdulist):
+                   psf_archive_filehandle):
     """
         @brief Creates a single image_phl of galaxies
 
@@ -1180,7 +1181,7 @@ def generate_image(image_phl,
     # Print the galaxies
     galaxies = print_galaxies(image_phl, options, wcs_list, centre_offset, num_dithers, dithers,
                               full_x_size, full_y_size, pixel_scale,
-                              detections_table, details_table, psf_archive_hdulist)
+                              detections_table, details_table, psf_archive_filehandle)
 
     sky_level_subtracted = image_phl.get_param_value('subtracted_background')
     sky_level_subtracted_pixel = sky_level_subtracted * pixel_scale ** 2 * 3600**2

@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2018-10-25"
+__updated__ = "2018-10-26"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -24,15 +24,19 @@ from copy import deepcopy
 from functools import lru_cache
 from os.path import join
 
-from astropy.io import fits
-import galsim
-
-import SHE_GST_GalaxyImageGeneration.magic_values as mv
 from SHE_PPT.file_io import find_file
+from SHE_PPT.logging import getLogger
 from SHE_PPT.magic_values import bulge_psf_tag, disk_psf_tag
 from SHE_PPT.table_formats.psf import tf as pstf
 from SHE_PPT.table_utility import table_to_hdu
+import galsim
+
+import SHE_GST_GalaxyImageGeneration.magic_values as mv
+from astropy.io import fits
 import numpy as np
+
+
+logger = getLogger(__name__)
 
 
 # Magic values for this module
@@ -165,7 +169,7 @@ def create_psf_hdu(psf_profile,
 
 
 def add_psf_to_archive(psf_profile,
-                       archive_hdulist,
+                       archive_filehandle,
                        galaxy_id,
                        exposure_index,
                        psf_type,
@@ -175,43 +179,41 @@ def add_psf_to_archive(psf_profile,
     """
 
     # Create the HDU
-    psf_hdu = deepcopy(create_psf_hdu(psf_profile=psf_profile,
-                                      stamp_size=stamp_size,
-                                      scale=scale))
+    psf_hdu = create_psf_hdu(psf_profile=psf_profile,
+                             stamp_size=stamp_size,
+                             scale=scale)
 
-    # Add needed keywords to the header of this HDU
-    psf_hdu.header[gal_id_label] = galaxy_id
-    psf_hdu.header[exposure_index_label] = exposure_index
-    psf_hdu.header[scale_label] = scale
-    psf_hdu.header[type_label] = psf_type
+    psf_dataset = archive_filehandle.create_dataset(str(galaxy_id) + "_" + str(exposure_index) + "_" + psf_type,
+                                                    data=psf_hdu.data)
 
-    # Append the HDU to the archive
-
-    archive_hdulist.append(psf_hdu)
+    # Add needed keywords to the attributes of this dataset
+    psf_dataset.attrs[gal_id_label] = galaxy_id
+    psf_dataset.attrs[exposure_index_label] = exposure_index
+    psf_dataset.attrs[scale_label] = scale
+    psf_dataset.attrs[type_label] = psf_type
 
     return
 
 
-def get_psf_from_archive(archive_hdulist,
+def get_psf_from_archive(archive_filehandle,
                          galaxy_id,
-                         exposure_index):
+                         exposure_index,
+                         psf_type):
 
-    for hdu in archive_hdulist:
-        if hdu.header[gal_id_label] == galaxy_id and hdu.header[exposure_index_label] == exposure_index:
+    dataset = archive_filehandle[str(galaxy_id) + "_" + str(exposure_index) + "_" + psf_type]
 
-            psf_image = galsim.ImageF(hdu.data, scale=hdu.header[scale_label])
+    psf_image = galsim.ImageF(dataset[:, :], scale=dataset.attrs[scale_label])
 
-            return psf_image
-
-    raise ValueError("PSF for galaxy " + str(galaxy_id) + " for exposure " + str(exposure_index) +
-                     " not found in PSF archive.")
+    return psf_image
 
 
 def sort_psfs_from_archive(psf_table,
                            psf_data_filename,
-                           psf_archive_hdulist,
+                           archive_filehandle,
                            exposure_index,
                            workdir="."):
+
+    logger.debug("Entering sort_psfs_from_archive")
 
     qualified_psf_data_filename = join(workdir, psf_data_filename)
 
@@ -223,30 +225,33 @@ def sort_psfs_from_archive(psf_table,
     psf_table.add_index(pstf.ID)  # Allow it to be indexed by galaxy ID
 
     hdu_index = 2  # Start indexing at 2, since 0 is empty and 1 is table
-    for hdu in psf_archive_hdulist:
+    for dataset_key in archive_filehandle:
 
-        if hdu.header[exposure_index_label] != exposure_index:
+        dataset = archive_filehandle[dataset_key]
+
+        if dataset.attrs[exposure_index_label] != exposure_index:
             continue
 
-        gal_id = hdu.header[gal_id_label]
+        logger.debug("Sorting PSF " + dataset_key + " into file.")
 
-        header = deepcopy(hdu.header)
+        gal_id = dataset.attrs[gal_id_label]
 
-        is_bulge = header[type_label] == "bulge"
-
-        # Set up the header to point to galaxy id
-        if is_bulge:
-            header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
+        # Set up the hdu
+        psf_hdu = fits.ImageHDU(data=dataset[:, :])
+        psf_hdu.header[gal_id_label] = dataset.attrs[gal_id_label]
+        psf_hdu.header[exposure_index_label] = dataset.attrs[exposure_index_label]
+        psf_hdu.header[scale_label] = dataset.attrs[scale_label]
+        psf_hdu.header[type_label] = dataset.attrs[type_label]
+        if dataset.attrs[type_label] == "bulge":
+            psf_hdu.header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
         else:
-            header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
+            psf_hdu.header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
 
         # Add to the data file
-        psf_hdu = fits.ImageHDU(data=hdu.data,
-                                header=header)
         data_hdulist.append(psf_hdu)
 
         # Update the PSF table with the HDU index of this
-        if is_bulge:
+        if dataset.attrs[type_label] == "bulge":
             psf_table.loc[gal_id][pstf.bulge_index] = hdu_index
         else:
             psf_table.loc[gal_id][pstf.disk_index] = hdu_index
@@ -260,5 +265,7 @@ def sort_psfs_from_archive(psf_table,
 
     data_hdulist.flush()
     data_hdulist.close()
+
+    logger.debug("Exiting sort_psfs_from_archive")
 
     return
