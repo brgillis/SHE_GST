@@ -192,7 +192,8 @@ def generate_image_group(image_group_phl, options):
     model_hash_fn = model_hash[0:model_hash_maxlen]
     psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".hdf5")
 
-    if options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None':
+    if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
+            (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None')):
         psf_archive_filehandle = h5py.File(os.path.join(workdir, psf_archive_filename), 'a')
     else:
         psf_archive_filehandle = None
@@ -372,10 +373,16 @@ def generate_image_group(image_group_phl, options):
 
             combined_psf_tables.append(table.vstack(psf_tables[i]))
 
+            if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
+                    (options['model_psf_file_name'] is not None and options['model_psf_file_name'] != 'None')):
+                output_psf_file_name = options['model_psf_file_name']
+            else:
+                output_psf_file_name = options['output_psf_file_name']
+
             sort_psfs_from_archive(psf_table=combined_psf_tables[i],
                                    psf_data_filename=psf_filenames.data_filenames[i],
                                    archive_filehandle=psf_archive_filehandle,
-                                   output_psf_filename=options['output_psf_file_name'],
+                                   output_psf_filename=output_psf_file_name,
                                    exposure_index=i,
                                    stamp_size=options['psf_stamp_size'],
                                    scale=image_group_phl.get_param_value("pixel_scale") / options['psf_scale_factor'],
@@ -741,7 +748,8 @@ def print_galaxies(image_phl,
 
             # Save the profiles to the archive file
             for di in range(num_dithers):
-                if options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None':
+                if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
+                        (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None')):
                     output_bulge_psf_profile = bulge_psf_profile
                     output_disk_psf_profile = disk_psf_profile
 
