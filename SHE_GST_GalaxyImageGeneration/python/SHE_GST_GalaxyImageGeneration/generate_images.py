@@ -57,7 +57,7 @@ from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
 from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
 from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel, add_stable_noise
 from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, sort_psfs_from_archive, add_psf_to_archive,
-                                               load_psf_model_from_file)
+                                               load_psf_model_from_file, single_psf_filename)
 from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_GST_GalaxyImageGeneration.signal_to_noise import get_signal_to_noise_estimate
 from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
@@ -192,7 +192,12 @@ def generate_image_group(image_group_phl, options):
     model_hash_fn = model_hash[0:model_hash_maxlen]
     psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".hdf5")
 
-    psf_archive_filehandle = h5py.File(os.path.join(workdir,psf_archive_filename), 'a')
+    if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
+            (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None') and
+            not options['single_psf']):
+        psf_archive_filehandle = h5py.File(os.path.join(workdir, psf_archive_filename), 'a')
+    else:
+        psf_archive_filehandle = None
 
     # Get the filenames we'll need
     for i in range(num_dithers):
@@ -369,10 +374,23 @@ def generate_image_group(image_group_phl, options):
 
             combined_psf_tables.append(table.vstack(psf_tables[i]))
 
+            if options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None':
+                if options['model_psf_file_name'] is not None and options['model_psf_file_name'] != 'None':
+                    output_psf_file_name = options['model_psf_file_name']
+                elif options['single_psf']:
+                    output_psf_file_name = single_psf_filename
+                else:
+                    output_psf_file_name = None
+            else:
+                output_psf_file_name = options['output_psf_file_name']
+
             sort_psfs_from_archive(psf_table=combined_psf_tables[i],
                                    psf_data_filename=psf_filenames.data_filenames[i],
                                    archive_filehandle=psf_archive_filehandle,
+                                   output_psf_filename=output_psf_file_name,
                                    exposure_index=i,
+                                   stamp_size=options['psf_stamp_size'],
+                                   scale=image_group_phl.get_param_value("pixel_scale") / options['psf_scale_factor'],
                                    workdir=workdir)
 
         # Output listfiles of filenames
@@ -735,31 +753,26 @@ def print_galaxies(image_phl,
 
             # Save the profiles to the archive file
             for di in range(num_dithers):
-                if options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None':
+                if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
+                    (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None') and
+                        not options['single_psf']):
                     output_bulge_psf_profile = bulge_psf_profile
                     output_disk_psf_profile = disk_psf_profile
-                else:
-                    output_psf_filename = find_file(options['output_psf_file_name'])
-                    output_bulge_psf_profile = load_psf_model_from_file(output_psf_filename,
-                                                                        scale=pixel_scale /
-                                                                        options['psf_scale_factor'],
-                                                                        offset=mv.default_psf_center_offset)
-                    output_disk_psf_profile = output_bulge_psf_profile
 
-                add_psf_to_archive(psf_profile=output_bulge_psf_profile,
-                                   archive_filehandle=psf_archive_filehandle,
-                                   galaxy_id=galaxy.get_full_ID(),
-                                   exposure_index=di,
-                                   psf_type="bulge",
-                                   stamp_size=options['psf_stamp_size'],
-                                   scale=pixel_scale / options['psf_scale_factor'],)
-                add_psf_to_archive(psf_profile=output_disk_psf_profile,
-                                   archive_filehandle=psf_archive_filehandle,
-                                   galaxy_id=galaxy.get_full_ID(),
-                                   exposure_index=di,
-                                   psf_type="disk",
-                                   stamp_size=options['psf_stamp_size'],
-                                   scale=pixel_scale / options['psf_scale_factor'])
+                    add_psf_to_archive(psf_profile=output_bulge_psf_profile,
+                                       archive_filehandle=psf_archive_filehandle,
+                                       galaxy_id=galaxy.get_full_ID(),
+                                       exposure_index=di,
+                                       psf_type="bulge",
+                                       stamp_size=options['psf_stamp_size'],
+                                       scale=pixel_scale / options['psf_scale_factor'],)
+                    add_psf_to_archive(psf_profile=output_disk_psf_profile,
+                                       archive_filehandle=psf_archive_filehandle,
+                                       galaxy_id=galaxy.get_full_ID(),
+                                       exposure_index=di,
+                                       psf_type="disk",
+                                       stamp_size=options['psf_stamp_size'],
+                                       scale=pixel_scale / options['psf_scale_factor'])
 
             # Get the position of the galaxy, depending on whether we're in field or stamp mode
 
