@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2018-10-26"
+__updated__ = "2018-11-12"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -250,23 +250,18 @@ def sort_psfs_from_archive(psf_table,
         bulge_psf_hdu.header[type_label] = "bulge"
         disk_psf_hdu.header[type_label] = "disk"
 
+        bulge_psf_hdu.header['EXTNAME'] = "ALL." + bulge_psf_tag
+        disk_psf_hdu.header['EXTNAME'] = "ALL." + disk_psf_tag
+
+        data_hdulist.append(bulge_psf_hdu)
+        data_hdulist.append(disk_psf_hdu)
+
         for row in psf_table:
 
             gal_id = row[pstf.ID]
 
             row[pstf.bulge_index] = hdu_index
             row[pstf.disk_index] = hdu_index + 1
-
-            new_bulge_hdu = deepcopy(bulge_psf_hdu)
-            new_disk_hdu = deepcopy(disk_psf_hdu)
-
-            new_bulge_hdu.header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
-            new_disk_hdu.header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
-
-            data_hdulist.append(new_bulge_hdu)
-            data_hdulist.append(new_disk_hdu)
-
-            hdu_index += 2
 
     # Otherwise, sort from the archive
     else:
