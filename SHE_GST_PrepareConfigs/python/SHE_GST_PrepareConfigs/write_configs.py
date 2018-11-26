@@ -5,7 +5,7 @@
     Contains functions to write out configuration files.
 """
 
-__updated__ = "2018-09-21"
+__updated__ = "2018-11-26"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,6 +23,9 @@ __updated__ = "2018-09-21"
 import os
 from shutil import copyfile
 
+from astropy.table import Table
+
+from SHE_GST_PrepareConfigs import magic_values as mv
 from SHE_PPT import products
 from SHE_PPT.file_io import (get_allowed_filename, replace_multiple_in_file,
                              write_pickled_product, write_listfile, find_file,
@@ -30,9 +33,6 @@ from SHE_PPT.file_io import (get_allowed_filename, replace_multiple_in_file,
 from SHE_PPT.logging import getLogger
 from SHE_PPT.table_formats.simulation_plan import tf as sptf
 from SHE_PPT.table_utility import is_in_format
-
-from SHE_GST_PrepareConfigs import magic_values as mv
-from astropy.table import Table
 import numpy as np
 
 
@@ -52,7 +52,7 @@ cache_filenames = ["ang_di_d_cache.bin",
                    "vis_clus_cache.bin",
                    "vis_gal_cache.bin",
                    "visgdens_cache.bin"]
-cache_auxdir = "SHE_GST_GalaxyImageGeneration"
+cache_auxdir = "SHE_GST_IceBRG_physics"
 
 
 def copy_cache_files(workdir):
