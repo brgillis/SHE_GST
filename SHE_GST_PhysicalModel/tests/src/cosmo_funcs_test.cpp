@@ -6,17 +6,17 @@
 
  **********************************************************************
 
- Copyright (C) 2012-2020 Euclid Science Ground Segment      
+ Copyright (C) 2012-2020 Euclid Science Ground Segment
 
- This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General    
- Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)    
- any later version.    
+ This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)
+ any later version.
 
- This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied    
- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more    
- details.    
+ This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details.
 
- You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
+ You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
  the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
  \**********************************************************************/
@@ -28,15 +28,20 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
+#include <ElementsKernel/Auxiliary.h>
+
 #include <Eigen/Core>
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 #include "SHE_GST_PhysicalModel/dependency_functions/cosmology.hpp"
+#include "SHE_GST_IceBRG_physics/detail/astro_caches.hpp"
 
 namespace SHE_GST_PhysicalModel
 {
 
 struct cosmo_funcs_fixture {
+
+  const std::string dfa_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/dfa_cache.bin").string();
 
 	const flt_t tolerance = 5; // A bit loose, to allow different cosmologies
 
@@ -64,6 +69,8 @@ struct cosmo_funcs_fixture {
 BOOST_AUTO_TEST_SUITE (Cosmo_Funcs_Test)
 
 BOOST_FIXTURE_TEST_CASE(test_cosmo_funcs, cosmo_funcs_fixture) {
+
+  IceBRG::dfa_cache().set_file_name(dfa_cache_filepath);
 
 	flt_t d_00 = SHE_GST_PhysicalModel::get_distance_from_angle(test_theta_0,test_z_0);
 	BOOST_CHECK_EQUAL(d_00,exp_d_00);
