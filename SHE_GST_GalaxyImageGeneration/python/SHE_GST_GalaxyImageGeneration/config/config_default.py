@@ -6,7 +6,7 @@
     values for the Generate_GalSim_Images project.
 """
 
-__updated__ = "2018-07-19"
+__updated__ = "2018-11-27"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -46,7 +46,7 @@ allowed_options = {'aocs_time_series_products': ('mock_aocs_time_series_products
                    'detections_tables': ('mock_detections_tables.json', str),
                    'dithering_scheme': ('none', str),
                    'euclid_psf': (True, str2bool),
-                   'galaxies_per_group': (8, int),
+                   'galaxies_per_group': (2, int),
                    'image_datatype': (mv.default_image_datatype, str),
                    'logdir': (".", str),
                    'magnitude_limit': (mv.default_magnitude_limit, float),
