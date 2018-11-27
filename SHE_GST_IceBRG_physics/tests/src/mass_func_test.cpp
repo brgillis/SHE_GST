@@ -89,9 +89,9 @@ BOOST_FIXTURE_TEST_CASE( vis_galaxies_test, mass_func_fixture )
   IceBRG::visible_clusters_cache ()
   .set_file_name(vis_clus_cache_filepath);
   IceBRG::visible_galaxy_density_cache ()
-  .set_file_name(vis_gal_cache_filepath);
-  IceBRG::visible_galaxies_cache ()
   .set_file_name(visgdens_cache_filepath);
+  IceBRG::visible_galaxies_cache ()
+  .set_file_name(vis_gal_cache_filepath);
 
 	square_angle_type area = 1.*square(unitconv::amintorad*rad);
 
@@ -129,9 +129,9 @@ BOOST_FIXTURE_TEST_CASE( mass_func_test, mass_func_fixture )
   IceBRG::visible_clusters_cache ()
   .set_file_name(vis_clus_cache_filepath);
   IceBRG::visible_galaxy_density_cache ()
-  .set_file_name(vis_gal_cache_filepath);
-  IceBRG::visible_galaxies_cache ()
   .set_file_name(visgdens_cache_filepath);
+  IceBRG::visible_galaxies_cache ()
+  .set_file_name(vis_gal_cache_filepath);
 
 	flt_t z = 0;
 
@@ -257,9 +257,9 @@ BOOST_FIXTURE_TEST_CASE( vis_clusters_test, mass_func_fixture )
   IceBRG::visible_clusters_cache ()
   .set_file_name(vis_clus_cache_filepath);
   IceBRG::visible_galaxy_density_cache ()
-  .set_file_name(vis_gal_cache_filepath);
-  IceBRG::visible_galaxies_cache ()
   .set_file_name(visgdens_cache_filepath);
+  IceBRG::visible_galaxies_cache ()
+  .set_file_name(vis_gal_cache_filepath);
 
 	square_angle_type area = 1.*square(unitconv::amintorad*rad);
 
@@ -295,9 +295,9 @@ BOOST_FIXTURE_TEST_CASE( cluster_richness_test, mass_func_fixture )
   IceBRG::visible_clusters_cache ()
   .set_file_name(vis_clus_cache_filepath);
   IceBRG::visible_galaxy_density_cache ()
-  .set_file_name(vis_gal_cache_filepath);
-  IceBRG::visible_galaxies_cache ()
   .set_file_name(visgdens_cache_filepath);
+  IceBRG::visible_galaxies_cache ()
+  .set_file_name(vis_gal_cache_filepath);
 
 	flt_t z1 = 0.2;
 	flt_t z2 = 0.23;

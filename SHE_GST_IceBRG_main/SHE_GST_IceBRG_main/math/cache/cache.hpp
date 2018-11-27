@@ -377,7 +377,7 @@ protected:
 		{
 			if ( loop_counter >= 2 )
 			{
-				throw std::runtime_error("Infinite loop detected trying to load " + SPCP(name)->_current_file_name() + " in IceBRG::brg_cache_2d.\n");
+        throw std::runtime_error("Infinite loop detected trying to load " + SPCP(name)->_current_file_name() + " in IceBRG::brg_cache.\n");
 			}
 			else
 			{
@@ -391,6 +391,7 @@ protected:
 			}
 			catch(const std::exception &e)
 			{
+        handle_notification("Cannot open cache file, so recalculating.");
 				need_to_calc = true;
 			}
 			if(need_to_calc)
@@ -412,6 +413,14 @@ protected:
 			if( (!in_file) || (((str_t)file_name) != SPCP(name)->_name_base()) ||
 					(file_version != SPCP(name)->_version_number_) )
 			{
+        std::stringstream ss;
+
+        ss << "Cache file has wrong name or version.\nname = " << file_name <<
+        "\nexpected name = " << SPCP(name)->_name_base() <<
+        "\nfile version = " << file_version <<
+        "\nexpected version = " << SPCP(name)->_version_number_;
+
+        handle_notification(ss.str());
 				need_to_calc = true;
 				SPCP(name)->_calc_if_necessary();
 				SPCP(name)->_output();

@@ -114,8 +114,8 @@ BOOST_FIXTURE_TEST_CASE(test_physical_size, physical_size_fixture) {
   IceBRG::tfa_cache().set_file_name(tfa_cache_filepath);
   IceBRG::visible_cluster_density_cache().set_file_name(viscdens_cache_filepath);
   IceBRG::visible_clusters_cache().set_file_name(vis_clus_cache_filepath);
-  IceBRG::visible_galaxy_density_cache().set_file_name(vis_gal_cache_filepath);
-  IceBRG::visible_galaxies_cache().set_file_name(visgdens_cache_filepath);
+  IceBRG::visible_galaxy_density_cache ().set_file_name(visgdens_cache_filepath);
+  IceBRG::visible_galaxies_cache ().set_file_name(vis_gal_cache_filepath);
 
 	// Now see if we can inherit all the way down to the galaxy level
 	survey.set_param_params(num_clusters_name,"fixed",0.);

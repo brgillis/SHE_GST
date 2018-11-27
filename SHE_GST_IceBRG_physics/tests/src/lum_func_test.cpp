@@ -89,9 +89,9 @@ BOOST_AUTO_TEST_CASE( lum_func_test )
   IceBRG::visible_clusters_cache ()
   .set_file_name(vis_clus_cache_filepath);
   IceBRG::visible_galaxy_density_cache ()
-  .set_file_name(vis_gal_cache_filepath);
-  IceBRG::visible_galaxies_cache ()
   .set_file_name(visgdens_cache_filepath);
+  IceBRG::visible_galaxies_cache ()
+  .set_file_name(vis_gal_cache_filepath);
 
 
 
