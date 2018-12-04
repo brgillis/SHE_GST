@@ -89,6 +89,10 @@ struct PHL_autofill_children_fixture {
 			ex_clusters*ex_cgs;
 	flt_t ex_fgs_min = ex_fgs - accepted_sigma * std::sqrt(ex_fgs);
 	flt_t ex_fgs_max = ex_fgs + accepted_sigma * std::sqrt(ex_fgs);
+
+  flt_t ex_wcs_g1 = 0;
+  flt_t ex_wcs_g2 = 0;
+  flt_t ex_wcs_theta = 0;
 };
 
 
@@ -113,6 +117,10 @@ BOOST_FIXTURE_TEST_CASE(test_PHL_autofill_children, PHL_autofill_children_fixtur
 	BOOST_CHECK_NO_THROW(survey1.autofill_children());
 
 	BOOST_CHECK_EQUAL(survey1.num_children(),ex_image_groups);
+
+  BOOST_CHECK_EQUAL(survey1.get_param_value("wcs_g1"),ex_wcs_g1);
+  BOOST_CHECK_EQUAL(survey1.get_param_value("wcs_g2"),ex_wcs_g2);
+  BOOST_CHECK_EQUAL(survey1.get_param_value("wcs_theta"),ex_wcs_theta);
 
 	ImageGroup * p_image_group1;
 	BOOST_CHECK_NO_THROW(p_image_group1 = survey1.get_children<ImageGroup>().at(0));
