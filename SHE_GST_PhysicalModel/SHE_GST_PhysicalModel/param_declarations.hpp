@@ -64,6 +64,11 @@ public: \
 DECLARE_PARAM(num_image_groups)
 DECLARE_PARAM(pixel_scale)
 
+DECLARE_PARAM(wcs_g1)
+DECLARE_PARAM(wcs_g2)
+
+DECLARE_PARAM(wcs_theta)
+
 // Image Group level
 
 DECLARE_PARAM(num_images)
