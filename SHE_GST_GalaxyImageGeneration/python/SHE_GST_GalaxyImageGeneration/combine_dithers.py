@@ -6,7 +6,7 @@
     Function to combine various dithers into a stacked image.
 """
 
-__updated__ = "2018-07-30"
+__updated__ = "2018-12-05"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -260,9 +260,10 @@ def combine_segmentation_dithers(segmentation_listfile_name,
             y_offset += detector_stack.shape[1] + pixel_factor * mv.image_gap_y_pix - extra_pixels
 
     # Print out the stacked segmentation map
+    model_hash_fn = segmentation_dithers[0][0].header[ppt_mv.model_hash_label][0:ppt_mv.short_instance_id_maxlen]
+    model_hash_fn = model_hash_fn.replace('.', '-').replace('+', '-')
     data_filename = get_allowed_filename("GST-SEG-STACK",
-                                         segmentation_dithers[0][0].header[ppt_mv.model_hash_label
-                                                                           ][0:ppt_mv.short_instance_id_maxlen],
+                                         model_hash_fn,
                                          extension=".fits")
 
     save_hdu(full_image, segmentation_dithers, stack_wcs, pixel_factor,
@@ -425,9 +426,10 @@ def combine_image_dithers(image_listfile_name,
             y_offset += sci_stack.shape[1] + pixel_factor * mv.image_gap_y_pix - extra_pixels
 
     # Print out the stacked segmentation map
+    model_hash_fn = image_dithers[0][0].header[ppt_mv.model_hash_label][0:ppt_mv.short_instance_id_maxlen]
+    model_hash_fn = model_hash_fn.replace('.', '-').replace('+', '-')
     data_filename = get_allowed_filename("GST-IMAGE-STACK",
-                                         image_dithers[0][0].header[ppt_mv.model_hash_label
-                                                                    ][0:ppt_mv.short_instance_id_maxlen],
+                                         model_hash_fn,
                                          extension=".fits")
     save_hdu(full_sci_image, image_dithers, stack_wcs, pixel_factor,
              data_filename, sci_tag, workdir)
@@ -437,15 +439,13 @@ def combine_image_dithers(image_listfile_name,
              data_filename, noisemap_tag, workdir)
 
     bkg_filename = get_allowed_filename("GST-BKG-STACK",
-                                        image_dithers[0][0].header[ppt_mv.model_hash_label
-                                                                   ][0:ppt_mv.short_instance_id_maxlen],
+                                        model_hash_fn,
                                         extension=".fits")
     save_hdu(full_bkg_image, bkg_image_dithers, stack_wcs, pixel_factor,
              bkg_filename, background_tag, workdir)
 
     wgt_filename = get_allowed_filename("GST-WGT-STACK",
-                                        image_dithers[0][0].header[ppt_mv.model_hash_label
-                                                                   ][0:ppt_mv.short_instance_id_maxlen],
+                                        model_hash_fn,
                                         extension=".fits")
     save_hdu(full_bkg_image, wgt_image_dithers, stack_wcs, pixel_factor,
              wgt_filename, weight_tag, workdir)
