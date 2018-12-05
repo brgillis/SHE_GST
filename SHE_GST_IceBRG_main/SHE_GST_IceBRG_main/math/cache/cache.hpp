@@ -3,17 +3,17 @@
 
  **********************************************************************
 
- Copyright (C) 2012-2020 Euclid Science Ground Segment      
+ Copyright (C) 2012-2020 Euclid Science Ground Segment
 
- This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General    
- Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)    
- any later version.    
+ This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)
+ any later version.
 
- This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied    
- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more    
- details.    
+ This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details.
 
- You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
+ You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
  the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 \**********************************************************************/
@@ -204,7 +204,16 @@ private:
 	}
 	str_t _current_file_name() const
 	{
-		return join_path(globals::workdir,SPCP(name)->_file_name_);
+    IceBRG::str_t local_filename = SPCP(name)->_file_name_;
+
+    if(*(local_filename.data())=='/')
+    {
+      return local_filename;
+    }
+    else
+    {
+      return join_path(globals::workdir,SPCP(name)->_file_name_);
+    }
 	}
 	void _unload() const
 	{
@@ -368,7 +377,7 @@ protected:
 		{
 			if ( loop_counter >= 2 )
 			{
-				throw std::runtime_error("Infinite loop detected trying to load " + SPCP(name)->_current_file_name() + " in IceBRG::brg_cache_2d.\n");
+        throw std::runtime_error("Infinite loop detected trying to load " + SPCP(name)->_current_file_name() + " in IceBRG::brg_cache.\n");
 			}
 			else
 			{
@@ -382,6 +391,7 @@ protected:
 			}
 			catch(const std::exception &e)
 			{
+        handle_notification("Cannot open cache file, so recalculating.");
 				need_to_calc = true;
 			}
 			if(need_to_calc)
@@ -403,6 +413,14 @@ protected:
 			if( (!in_file) || (((str_t)file_name) != SPCP(name)->_name_base()) ||
 					(file_version != SPCP(name)->_version_number_) )
 			{
+        std::stringstream ss;
+
+        ss << "Cache file has wrong name or version.\nname = " << file_name <<
+        "\nexpected name = " << SPCP(name)->_name_base() <<
+        "\nfile version = " << file_version <<
+        "\nexpected version = " << SPCP(name)->_version_number_;
+
+        handle_notification(ss.str());
 				need_to_calc = true;
 				SPCP(name)->_calc_if_necessary();
 				SPCP(name)->_output();

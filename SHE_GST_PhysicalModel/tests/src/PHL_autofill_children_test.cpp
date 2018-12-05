@@ -27,6 +27,9 @@
 
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include <ElementsKernel/Auxiliary.h>
+
+#include "SHE_GST_IceBRG_physics/detail/astro_caches.hpp"
 
 #include "SHE_GST_IceBRG_main/math/misc_math.hpp"
 #include "SHE_GST_IceBRG_main/units/unit_conversions.hpp"
@@ -50,6 +53,20 @@ using namespace IceBRG;
 struct PHL_autofill_children_fixture {
 
 	Survey survey1;
+
+  const std::string add_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/ang_di_d_cache.bin").string();
+  const std::string crich_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/crich_cache.bin").string();
+  const std::string crichz_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/crichz_cache.bin").string();
+  const std::string dfa_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/dfa_cache.bin").string();
+  const std::string lum_int_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/lum_int_cache.bin").string();
+  const std::string massfunc_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/massfunc_cache.bin").string();
+  const std::string mass_int_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/mass_int_cache.bin").string();
+  const std::string sigma_r_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/sigma_r_cache.bin").string();
+  const std::string tfa_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/tfa_cache.bin").string();
+  const std::string viscdens_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/viscdens_cache.bin").string();
+  const std::string vis_clus_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/vis_clus_cache.bin").string();
+  const std::string vis_gal_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/vis_gal_cache.bin").string();
+  const std::string visgdens_cache_filepath = Elements::getAuxiliaryPath("SHE_GST_IceBRG_physics/visgdens_cache.bin").string();
 
 	flt_t ex_satellites = mean_cluster_richness(0.2,1.3) - 1;
 	flt_t ex_fields = dv::num_fields;
@@ -78,6 +95,20 @@ struct PHL_autofill_children_fixture {
 BOOST_AUTO_TEST_SUITE (PHL_Autofill_Children_Test)
 
 BOOST_FIXTURE_TEST_CASE(test_PHL_autofill_children, PHL_autofill_children_fixture) {
+
+  IceBRG::add_cache().set_file_name(add_cache_filepath);
+  IceBRG::cluster_richness_cache().set_file_name(crich_cache_filepath);
+  IceBRG::cluster_richness_at_z_cache().set_file_name(crichz_cache_filepath);
+  IceBRG::dfa_cache().set_file_name(dfa_cache_filepath);
+  IceBRG::lum_func_integral_cache().set_file_name(lum_int_cache_filepath);
+  IceBRG::l10_mass_function_cache().set_file_name(massfunc_cache_filepath);
+  IceBRG::l10_mass_function_integral_cache().set_file_name(mass_int_cache_filepath);
+  IceBRG::sigma_r_cache().set_file_name(sigma_r_cache_filepath);
+  IceBRG::tfa_cache().set_file_name(tfa_cache_filepath);
+  IceBRG::visible_cluster_density_cache().set_file_name(viscdens_cache_filepath);
+  IceBRG::visible_clusters_cache().set_file_name(vis_clus_cache_filepath);
+  IceBRG::visible_galaxy_density_cache ().set_file_name(visgdens_cache_filepath);
+  IceBRG::visible_galaxies_cache ().set_file_name(vis_gal_cache_filepath);
 
 	BOOST_CHECK_NO_THROW(survey1.autofill_children());
 

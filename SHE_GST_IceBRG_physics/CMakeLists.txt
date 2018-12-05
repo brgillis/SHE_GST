@@ -18,5 +18,8 @@ elements_add_library(SHE_GST_IceBRG_physics src/lib/*.cpp src/lib/*/*.cpp
 elements_add_unit_test(SHE_GST_IceBRG_physics_test                  
                        tests/src/*_test.cpp
                        LINK_LIBRARIES ElementsKernel Boost Eigen3 SHE_GST_IceBRG_main SHE_GST_IceBRG_physics
-                       INCLUDE_DIRS ElementsKernel Boost Eigen3 SHE_GST_IceBRG_main
+                       INCLUDE_DIRS ElementsKernel Boost Eigen3 SHE_GST_IceBRG_main SHE_GST_IceBRG_physics
                        TYPE Boost)
+
+# Install the auxiliary files
+elements_install_aux_files()
