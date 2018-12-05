@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-10-26"
+__updated__ = "2018-12-05"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -189,7 +189,7 @@ def generate_image_group(image_group_phl, options):
 
     full_options = get_full_options(options, image_group_phl)
     model_hash = hash_any(full_options, format="base64")
-    model_hash_fn = model_hash[0:model_hash_maxlen]
+    model_hash_fn = model_hash[0:model_hash_maxlen].replace('.', '-').replace('+', '-')
     psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".hdf5")
 
     if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
