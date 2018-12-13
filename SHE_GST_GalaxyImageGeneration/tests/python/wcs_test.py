@@ -72,7 +72,7 @@ class TestWCS:
 
         cls.offset_wcs_10 = get_offset_wcs(pixel_scale=cls.pixel_scale,
                                            x_i=cls.xi10,
-                                           y_i=cls.yi00,
+                                           y_i=cls.yi10,
                                            full_x_size=cls.full_x_size,
                                            full_y_size=cls.full_y_size)
 
