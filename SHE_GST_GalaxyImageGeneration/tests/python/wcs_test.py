@@ -68,6 +68,9 @@ class TestWCS:
         cls.g1_1 = 0.1
         cls.g2_1 = 0.
 
+        cls.g1p_factor = (1 + cls.g1_1) / np.sqrt(1 - cls.g1_1**2 - cls.g2_1**2)
+        cls.g1m_factor = (1 - cls.g1_1) / np.sqrt(1 - cls.g1_1**2 - cls.g2_1**2)
+
         # Test a 20% g2 shear
         cls.g1_2 = 0.
         cls.g2_2 = 0.2
@@ -217,13 +220,13 @@ class TestWCS:
 
         for trans in (affine_wcs_g1_00_trans, affine_wcs_g1_10_trans, affine_wcs_g1_01_trans):
 
-            assert_almost_equal(trans[1].x - trans[0].x, (1 + self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[1].x - trans[0].x, self.g1p_factor * self.full_x_size * self.pixel_scale)
             assert_almost_equal(trans[2].x - trans[0].x, 0.)
-            assert_almost_equal(trans[3].x - trans[0].x, (1 + self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[3].x - trans[0].x, self.g1p_factor * self.full_x_size * self.pixel_scale)
 
             assert_almost_equal(trans[1].y - trans[0].y, 0.)
-            assert_almost_equal(trans[2].y - trans[0].y, (1 - self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * self.full_y_size * self.pixel_scale)
-            assert_almost_equal(trans[3].y - trans[0].y, (1 - self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * self.full_y_size * self.pixel_scale)
+            assert_almost_equal(trans[2].y - trans[0].y, self.g1m_factor * self.full_y_size * self.pixel_scale)
+            assert_almost_equal(trans[3].y - trans[0].y, self.g1m_factor * self.full_y_size * self.pixel_scale)
 
         # Check that the gaps are correct for the offset WCSes
 
@@ -260,17 +263,17 @@ class TestWCS:
         # Check that the gaps are correct for the g1 WCSes
 
         assert_almost_equal(affine_wcs_g1_10_trans[0].x - affine_wcs_g1_00_trans[1].x,
-                            (1 + self.g1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * image_gap_x_pix * self.pixel_scale)
+                            self.g1p_factor * image_gap_x_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_g1_10_trans[2].x - affine_wcs_g1_00_trans[3].x,
-                            (1 + self.g1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * image_gap_x_pix * self.pixel_scale)
+                            self.g1p_factor * image_gap_x_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_g1_10_trans[0].y - affine_wcs_g1_00_trans[1].y, 0.)
         assert_almost_equal(affine_wcs_g1_10_trans[2].y - affine_wcs_g1_00_trans[3].y, 0.)
 
         assert_almost_equal(affine_wcs_g1_01_trans[0].x - affine_wcs_g1_00_trans[2].x, 0.)
         assert_almost_equal(affine_wcs_g1_01_trans[1].x - affine_wcs_g1_00_trans[3].x, 0.)
         assert_almost_equal(affine_wcs_g1_01_trans[0].y - affine_wcs_g1_00_trans[2].y,
-                            (1 - self.g1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * image_gap_y_pix * self.pixel_scale)
+                            self.g1m_factor * image_gap_y_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_g1_01_trans[1].y - affine_wcs_g1_00_trans[3].y,
-                            (1 - self.g1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * image_gap_y_pix * self.pixel_scale)
+                            self.g1m_factor * image_gap_y_pix * self.pixel_scale)
 
         return
