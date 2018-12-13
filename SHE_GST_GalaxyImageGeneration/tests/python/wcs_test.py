@@ -201,7 +201,7 @@ class TestWCS:
 
         # Check that the corners are correct for the rotation WCSes
 
-        for trans in (affine_wcs_g1_00_trans, affine_wcs_g1_10_trans, affine_wcs_g1_01_trans):
+        for trans in (affine_wcs_rot_00_trans, affine_wcs_rot_10_trans, affine_wcs_rot_01_trans):
 
             assert_almost_equal(trans[1].x - trans[0].x, self.costheta * self.full_x_size * self.pixel_scale)
             assert_almost_equal(trans[2].x - trans[0].x, -self.sintheta * self.full_y_size * self.pixel_scale)
@@ -215,7 +215,7 @@ class TestWCS:
 
         # Check that the corners are correct for the g1 WCSes
 
-        for trans in (affine_wcs_rot_00_trans, affine_wcs_rot_10_trans, affine_wcs_rot_01_trans):
+        for trans in (affine_wcs_g1_00_trans, affine_wcs_g1_10_trans, affine_wcs_g1_01_trans):
 
             assert_almost_equal(trans[1].x - trans[0].x, (1 + self.g1) * self.full_x_size * self.pixel_scale)
             assert_almost_equal(trans[2].x - trans[0].x, 0.)
