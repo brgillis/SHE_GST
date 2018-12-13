@@ -75,8 +75,8 @@ class TestWCS:
         cls.g1_2 = 0.
         cls.g2_2 = 0.2
 
-        cls.g2p_factor = (1 + cls.g2_1) / np.sqrt(1 - cls.g1_2**2 - cls.g2_2**2)
-        cls.g2m_factor = (1 - cls.g2_1) / np.sqrt(1 - cls.g1_2**2 - cls.g2_2**2)
+        cls.g2p_factor = (1 + cls.g2_2) / np.sqrt(1 - cls.g1_2**2 - cls.g2_2**2)
+        cls.g2m_factor = (1 - cls.g2_2) / np.sqrt(1 - cls.g1_2**2 - cls.g2_2**2)
 
         cls.offset_wcs_00 = get_offset_wcs(pixel_scale=cls.pixel_scale,
                                            x_i=cls.xi00,
