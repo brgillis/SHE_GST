@@ -68,9 +68,15 @@ class TestWCS:
         cls.g1_1 = 0.1
         cls.g2_1 = 0.
 
-        # Test a 20% g2 shear
+        cls.g1p_factor = (1 + cls.g1_1) / np.sqrt(1 - cls.g1_1**2 - cls.g2_1**2)
+        cls.g1m_factor = (1 - cls.g1_1) / np.sqrt(1 - cls.g1_1**2 - cls.g2_1**2)
+
+        # Test a 20% g2 shear - Note in this case we use a square detector for simplicity
         cls.g1_2 = 0.
         cls.g2_2 = 0.2
+
+        cls.g2p_factor = (1 + cls.g2_1) / np.sqrt(1 - cls.g1_2**2 - cls.g2_2**2)
+        cls.g2m_factor = (1 - cls.g2_1) / np.sqrt(1 - cls.g1_2**2 - cls.g2_2**2)
 
         cls.offset_wcs_00 = get_offset_wcs(pixel_scale=cls.pixel_scale,
                                            x_i=cls.xi00,
@@ -132,6 +138,27 @@ class TestWCS:
                                               full_y_size=cls.full_y_size,
                                               g1=cls.g1_1)
 
+        cls.affine_wcs_g2_00 = get_affine_wcs(pixel_scale=cls.pixel_scale,
+                                              x_i=cls.xi00,
+                                              y_i=cls.yi00,
+                                              full_x_size=cls.full_x_size,
+                                              full_y_size=cls.full_x_size,  # Note this one is square
+                                              g2=cls.g2_2)
+
+        cls.affine_wcs_g2_10 = get_affine_wcs(pixel_scale=cls.pixel_scale,
+                                              x_i=cls.xi10,
+                                              y_i=cls.yi10,
+                                              full_x_size=cls.full_x_size,
+                                              full_y_size=cls.full_x_size,  # Note this one is square
+                                              g2=cls.g2_2)
+
+        cls.affine_wcs_g2_01 = get_affine_wcs(pixel_scale=cls.pixel_scale,
+                                              x_i=cls.xi01,
+                                              y_i=cls.yi01,
+                                              full_x_size=cls.full_x_size,
+                                              full_y_size=cls.full_x_size,  # Note this one is square
+                                              g2=cls.g2_2)
+
         return
 
     @classmethod
@@ -171,6 +198,9 @@ class TestWCS:
         affine_wcs_g1_00_trans = []
         affine_wcs_g1_10_trans = []
         affine_wcs_g1_01_trans = []
+        affine_wcs_g2_00_trans = []
+        affine_wcs_g2_10_trans = []
+        affine_wcs_g2_01_trans = []
 
         for wcs, trans in ((self.offset_wcs_00, offset_wcs_00_trans),
                            (self.offset_wcs_10, offset_wcs_10_trans),
@@ -180,7 +210,10 @@ class TestWCS:
                            (self.affine_wcs_rot_01, affine_wcs_rot_01_trans),
                            (self.affine_wcs_g1_00, affine_wcs_g1_00_trans),
                            (self.affine_wcs_g1_10, affine_wcs_g1_10_trans),
-                           (self.affine_wcs_g1_01, affine_wcs_g1_01_trans),):
+                           (self.affine_wcs_g1_01, affine_wcs_g1_01_trans),
+                           (self.affine_wcs_g2_00, affine_wcs_g2_00_trans),
+                           (self.affine_wcs_g2_10, affine_wcs_g2_10_trans),
+                           (self.affine_wcs_g2_01, affine_wcs_g2_01_trans),):
 
             trans.append(wcs.toWorld(self.c00))
             trans.append(wcs.toWorld(self.c10))
@@ -217,13 +250,23 @@ class TestWCS:
 
         for trans in (affine_wcs_g1_00_trans, affine_wcs_g1_10_trans, affine_wcs_g1_01_trans):
 
-            assert_almost_equal(trans[1].x - trans[0].x, (1 + self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[1].x - trans[0].x, self.g1p_factor * self.full_x_size * self.pixel_scale)
             assert_almost_equal(trans[2].x - trans[0].x, 0.)
-            assert_almost_equal(trans[3].x - trans[0].x, (1 + self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[3].x - trans[0].x, self.g1p_factor * self.full_x_size * self.pixel_scale)
 
             assert_almost_equal(trans[1].y - trans[0].y, 0.)
-            assert_almost_equal(trans[2].y - trans[0].y, (1 - self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * self.full_y_size * self.pixel_scale)
-            assert_almost_equal(trans[3].y - trans[0].y, (1 - self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * self.full_y_size * self.pixel_scale)
+            assert_almost_equal(trans[2].y - trans[0].y, self.g1m_factor * self.full_y_size * self.pixel_scale)
+            assert_almost_equal(trans[3].y - trans[0].y, self.g1m_factor * self.full_y_size * self.pixel_scale)
+
+        # Check that the corners are correct for the g2 WCSes
+
+        for trans in (affine_wcs_g2_00_trans, affine_wcs_g2_10_trans, affine_wcs_g2_01_trans):
+
+            assert_almost_equal(trans[1].x - trans[2].x, self.g2m_factor * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[3].x - trans[0].x, self.g2p_factor * self.full_x_size * self.pixel_scale)
+
+            assert_almost_equal(trans[1].y - trans[2].y, self.g2p_factor * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[3].y - trans[0].y, self.g2m_factor * self.full_x_size * self.pixel_scale)
 
         # Check that the gaps are correct for the offset WCSes
 
@@ -260,17 +303,17 @@ class TestWCS:
         # Check that the gaps are correct for the g1 WCSes
 
         assert_almost_equal(affine_wcs_g1_10_trans[0].x - affine_wcs_g1_00_trans[1].x,
-                            (1 + self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * image_gap_x_pix * self.pixel_scale)
+                            self.g1p_factor * image_gap_x_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_g1_10_trans[2].x - affine_wcs_g1_00_trans[3].x,
-                            (1 + self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * image_gap_x_pix * self.pixel_scale)
+                            self.g1p_factor * image_gap_x_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_g1_10_trans[0].y - affine_wcs_g1_00_trans[1].y, 0.)
         assert_almost_equal(affine_wcs_g1_10_trans[2].y - affine_wcs_g1_00_trans[3].y, 0.)
 
         assert_almost_equal(affine_wcs_g1_01_trans[0].x - affine_wcs_g1_00_trans[2].x, 0.)
         assert_almost_equal(affine_wcs_g1_01_trans[1].x - affine_wcs_g1_00_trans[3].x, 0.)
         assert_almost_equal(affine_wcs_g1_01_trans[0].y - affine_wcs_g1_00_trans[2].y,
-                            (1 - self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * image_gap_y_pix * self.pixel_scale)
+                            self.g1m_factor * image_gap_y_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_g1_01_trans[1].y - affine_wcs_g1_00_trans[3].y,
-                            (1 - self.g1_1)/np.sqrt(1 - self.g1_1**2 - self.g2_1**2) * image_gap_y_pix * self.pixel_scale)
+                            self.g1m_factor * image_gap_y_pix * self.pixel_scale)
 
         return
