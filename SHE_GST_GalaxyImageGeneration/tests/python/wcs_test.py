@@ -48,7 +48,7 @@ class TestWCS:
         cls.yi00 = 0
 
         cls.xi10 = 1
-        cls.yi00 = 0
+        cls.yi10 = 0
 
         cls.xi01 = 0
         cls.yi01 = 1
