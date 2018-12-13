@@ -203,8 +203,8 @@ class TestWCS:
         assert_almost_equal(offset_wcs_10_trans[0].y - offset_wcs_00_trans[1].y, 0.)
         assert_almost_equal(offset_wcs_10_trans[2].y - offset_wcs_00_trans[3].y, 0.)
 
-        assert_almost_equal(offset_wcs_01_trans[0].x - offset_wcs_00_trans[1].x, 0.)
-        assert_almost_equal(offset_wcs_01_trans[2].x - offset_wcs_00_trans[3].x, 0.)
+        assert_almost_equal(offset_wcs_01_trans[0].x - offset_wcs_00_trans[2].x, 0.)
+        assert_almost_equal(offset_wcs_01_trans[1].x - offset_wcs_00_trans[3].x, 0.)
         assert_almost_equal(offset_wcs_01_trans[0].y - offset_wcs_00_trans[2].y, image_gap_y_pix * self.pixel_scale)
         assert_almost_equal(offset_wcs_01_trans[1].y - offset_wcs_00_trans[3].y, image_gap_y_pix * self.pixel_scale)
 
@@ -219,9 +219,9 @@ class TestWCS:
         assert_almost_equal(affine_wcs_rot_10_trans[2].y - affine_wcs_rot_00_trans[3].y,
                             self.sintheta * image_gap_x_pix * self.pixel_scale)
 
-        assert_almost_equal(affine_wcs_rot_01_trans[0].x - affine_wcs_rot_00_trans[1].x,
+        assert_almost_equal(affine_wcs_rot_01_trans[0].x - affine_wcs_rot_00_trans[2].x,
                             -self.sintheta * image_gap_y_pix * self.pixel_scale)
-        assert_almost_equal(affine_wcs_rot_01_trans[2].x - affine_wcs_rot_00_trans[3].x,
+        assert_almost_equal(affine_wcs_rot_01_trans[1].x - affine_wcs_rot_00_trans[3].x,
                             -self.sintheta * image_gap_y_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_rot_01_trans[0].y - affine_wcs_rot_00_trans[2].y,
                             self.costheta * image_gap_y_pix * self.pixel_scale)
