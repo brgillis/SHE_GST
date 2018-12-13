@@ -64,6 +64,14 @@ class TestWCS:
         cls.costheta = np.cos(cls.world2image_theta * np.pi / 180)
         cls.sintheta = np.sin(cls.world2image_theta * np.pi / 180)
 
+        # Test a 10% g1 shear
+        cls.g1_1 = 0.1
+        cls.g2_1 = 0.
+
+        # Test a 20% g2 shear
+        cls.g1_2 = 0.
+        cls.g2_1 = 0.2
+
         cls.offset_wcs_00 = get_offset_wcs(pixel_scale=cls.pixel_scale,
                                            x_i=cls.xi00,
                                            y_i=cls.yi00,
@@ -101,7 +109,28 @@ class TestWCS:
                                                y_i=cls.yi01,
                                                full_x_size=cls.full_x_size,
                                                full_y_size=cls.full_y_size,
-                                               theta=cls.world2image_theta)
+                                               g1=cls.g1_1)
+
+        cls.affine_wcs_g1_00 = get_affine_wcs(pixel_scale=cls.pixel_scale,
+                                              x_i=cls.xi00,
+                                              y_i=cls.yi00,
+                                              full_x_size=cls.full_x_size,
+                                              full_y_size=cls.full_y_size,
+                                              g1=cls.g1_1)
+
+        cls.affine_wcs_g1_10 = get_affine_wcs(pixel_scale=cls.pixel_scale,
+                                              x_i=cls.xi10,
+                                              y_i=cls.yi10,
+                                              full_x_size=cls.full_x_size,
+                                              full_y_size=cls.full_y_size,
+                                              g1=cls.g1_1)
+
+        cls.affine_wcs_g1_01 = get_affine_wcs(pixel_scale=cls.pixel_scale,
+                                              x_i=cls.xi01,
+                                              y_i=cls.yi01,
+                                              full_x_size=cls.full_x_size,
+                                              full_y_size=cls.full_y_size,
+                                              g1=cls.g1_1)
 
         return
 
@@ -117,7 +146,7 @@ class TestWCS:
 
         expected_dist = np.sqrt(x_step ** 2 + y_step ** 2) * self.pixel_scale
 
-        # Test that each wcs behaves as expected
+        # Test that each wcs behaves as expected. Don't test shear wcs here, as they don't maintain distance as simply
         for wcs in (self.offset_wcs_00, self.offset_wcs_10, self.offset_wcs_01,
                     self.affine_wcs_rot_00, self.affine_wcs_rot_10, self.affine_wcs_rot_01,):
 
@@ -130,7 +159,7 @@ class TestWCS:
 
         return
 
-    def test_offset_wcs_difference(self):
+    def test_wcs_difference(self):
 
         # Get transformed coordinates of each corner for each wcs
         offset_wcs_00_trans = []
@@ -139,13 +168,19 @@ class TestWCS:
         affine_wcs_rot_00_trans = []
         affine_wcs_rot_10_trans = []
         affine_wcs_rot_01_trans = []
+        affine_wcs_g1_00_trans = []
+        affine_wcs_g1_10_trans = []
+        affine_wcs_g1_01_trans = []
 
         for wcs, trans in ((self.offset_wcs_00, offset_wcs_00_trans),
                            (self.offset_wcs_10, offset_wcs_10_trans),
                            (self.offset_wcs_01, offset_wcs_01_trans),
                            (self.affine_wcs_rot_00, affine_wcs_rot_00_trans),
                            (self.affine_wcs_rot_10, affine_wcs_rot_10_trans),
-                           (self.affine_wcs_rot_01, affine_wcs_rot_01_trans),):
+                           (self.affine_wcs_rot_01, affine_wcs_rot_01_trans),
+                           (self.affine_wcs_g1_00, affine_wcs_g1_00_trans),
+                           (self.affine_wcs_g1_10, affine_wcs_g1_10_trans),
+                           (self.affine_wcs_g1_01, affine_wcs_g1_01_trans),):
 
             trans.append(wcs.toWorld(self.c00))
             trans.append(wcs.toWorld(self.c10))
@@ -166,7 +201,7 @@ class TestWCS:
 
         # Check that the corners are correct for the rotation WCSes
 
-        for trans in (affine_wcs_rot_00_trans, affine_wcs_rot_10_trans, affine_wcs_rot_01_trans):
+        for trans in (affine_wcs_g1_00_trans, affine_wcs_g1_10_trans, affine_wcs_g1_01_trans):
 
             assert_almost_equal(trans[1].x - trans[0].x, self.costheta * self.full_x_size * self.pixel_scale)
             assert_almost_equal(trans[2].x - trans[0].x, -self.sintheta * self.full_y_size * self.pixel_scale)
@@ -177,6 +212,18 @@ class TestWCS:
             assert_almost_equal(trans[2].y - trans[0].y, self.costheta * self.full_y_size * self.pixel_scale)
             assert_almost_equal(trans[3].y - trans[0].y, self.sintheta * self.full_x_size * self.pixel_scale +
                                 self.costheta * self.full_y_size * self.pixel_scale)
+
+        # Check that the corners are correct for the g1 WCSes
+
+        for trans in (affine_wcs_rot_00_trans, affine_wcs_rot_10_trans, affine_wcs_rot_01_trans):
+
+            assert_almost_equal(trans[1].x - trans[0].x, (1 + self.g1) * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[2].x - trans[0].x, 0.)
+            assert_almost_equal(trans[3].x - trans[0].x, (1 + self.g1) * self.full_x_size * self.pixel_scale)
+
+            assert_almost_equal(trans[1].y - trans[0].y, 0.)
+            assert_almost_equal(trans[2].y - trans[0].y, (1 - self.g1) * self.full_y_size * self.pixel_scale)
+            assert_almost_equal(trans[3].y - trans[0].y, (1 - self.g1) * self.full_y_size * self.pixel_scale)
 
         # Check that the gaps are correct for the offset WCSes
 
@@ -209,5 +256,21 @@ class TestWCS:
                             self.costheta * image_gap_y_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_rot_01_trans[1].y - affine_wcs_rot_00_trans[3].y,
                             self.costheta * image_gap_y_pix * self.pixel_scale)
+
+        # Check that the gaps are correct for the g1 WCSes
+
+        assert_almost_equal(offset_wcs_10_trans[0].x - offset_wcs_00_trans[1].x,
+                            (1 + self.g1) * image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(offset_wcs_10_trans[2].x - offset_wcs_00_trans[3].x,
+                            (1 + self.g1) * image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(offset_wcs_10_trans[0].y - offset_wcs_00_trans[1].y, 0.)
+        assert_almost_equal(offset_wcs_10_trans[2].y - offset_wcs_00_trans[3].y, 0.)
+
+        assert_almost_equal(offset_wcs_01_trans[0].x - offset_wcs_00_trans[2].x, 0.)
+        assert_almost_equal(offset_wcs_01_trans[1].x - offset_wcs_00_trans[3].x, 0.)
+        assert_almost_equal(offset_wcs_01_trans[0].y - offset_wcs_00_trans[2].y,
+                            (1 - self.g1) * image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(offset_wcs_01_trans[1].y - offset_wcs_00_trans[3].y,
+                            (1 - self.g1) * image_gap_y_pix * self.pixel_scale)
 
         return
