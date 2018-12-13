@@ -84,7 +84,8 @@ def get_affine_wcs(pixel_scale,
                    g1=0,
                    g2=0,
                    theta=0):
-    """Creates a galsim Affine WCS from required information.
+    """Creates a galsim Affine WCS from required information. Note that angle and shear here describe the
+    image-to-world transformation.
     """
 
     x_offset = x_i * (full_x_size + image_gap_x_pix) + dither_offset[0]
