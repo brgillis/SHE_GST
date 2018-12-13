@@ -262,11 +262,11 @@ class TestWCS:
 
         for trans in (affine_wcs_g2_00_trans, affine_wcs_g2_10_trans, affine_wcs_g2_01_trans):
 
-            assert_almost_equal(trans[1].x - trans[2].x, self.g2m_factor * self.full_x_size * self.pixel_scale)
-            assert_almost_equal(trans[3].x - trans[0].x, self.g2p_factor * self.full_x_size * self.pixel_scale)
+            d_s = np.sqrt((trans[1].x - trans[2].x)**2 + (trans[1].y - trans[2].y)**2)
+            d_l = np.sqrt((trans[3].x - trans[0].x)**2 + (trans[3].y - trans[0].y)**2)
 
-            assert_almost_equal(trans[1].y - trans[2].y, self.g2p_factor * self.full_x_size * self.pixel_scale)
-            assert_almost_equal(trans[3].y - trans[0].y, self.g2m_factor * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(d_s, self.g2m_factor * self.full_x_size * np.sqrt(2.) * self.pixel_scale)
+            assert_almost_equal(d_l, self.g2p_factor * self.full_x_size * np.sqrt(2.) * self.pixel_scale)
 
         # Check that the gaps are correct for the offset WCSes
 
