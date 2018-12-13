@@ -179,9 +179,9 @@ class TestWCS:
                             -self.sintheta * image_gap_y_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_rot_01_trans[1].x - affine_wcs_rot_00_trans[3].x,
                             -self.sintheta * image_gap_y_pix * self.pixel_scale)
-        assert_almost_equal(affine_wcs_rot_01_trans[0].y - affine_wcs_rot_00_trans[1].y,
+        assert_almost_equal(affine_wcs_rot_01_trans[0].y - affine_wcs_rot_00_trans[2].y,
                             self.costheta * image_gap_y_pix * self.pixel_scale)
-        assert_almost_equal(affine_wcs_rot_01_trans[2].y - affine_wcs_rot_00_trans[3].y,
+        assert_almost_equal(affine_wcs_rot_01_trans[1].y - affine_wcs_rot_00_trans[3].y,
                             self.costheta * image_gap_y_pix * self.pixel_scale)
 
         return
