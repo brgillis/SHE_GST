@@ -136,6 +136,9 @@ class TestWCS:
         offset_wcs_00_trans = []
         offset_wcs_10_trans = []
         offset_wcs_01_trans = []
+        affine_wcs_rot_00_trans = []
+        affine_wcs_rot_10_trans = []
+        affine_wcs_rot_01_trans = []
 
         for wcs, trans in ((self.offset_wcs_00, offset_wcs_00_trans),
                            (self.offset_wcs_10, offset_wcs_10_trans),
