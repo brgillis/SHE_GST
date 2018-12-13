@@ -133,9 +133,9 @@ class TestWCS:
     def test_offset_wcs_difference(self):
 
         # Get transformed coordinates of each corner for each wcs
-        offset_wcs00_trans = []
-        offset_wcs10_trans = []
-        offset_wcs01_trans = []
+        offset_wcs_00_trans = []
+        offset_wcs_10_trans = []
+        offset_wcs_01_trans = []
 
         for wcs, trans in ((self.offset_wcs_00, offset_wcs_00_trans),
                            (self.offset_wcs_10, offset_wcs_10_trans),
