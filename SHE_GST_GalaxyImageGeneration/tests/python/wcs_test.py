@@ -5,7 +5,7 @@
     Tests of functions dealing with creating a GalSim WCS.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2018-12-13"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -20,14 +20,15 @@ __updated__ = "2018-07-03"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from numpy.testing import assert_almost_equal
 import pytest
 
-import numpy as np
 import galsim
-from numpy.testing import assert_almost_equal
 
-from SHE_GST_GalaxyImageGeneration.wcs import get_offset_wcs, get_wcs_from_image_phl
 from SHE_GST_GalaxyImageGeneration.magic_values import image_gap_x_pix, image_gap_y_pix
+from SHE_GST_GalaxyImageGeneration.wcs import get_offset_wcs, get_wcs_from_image_phl, get_affine_wcs
+import numpy as np
+
 
 class TestWCS:
     """
@@ -38,36 +39,67 @@ class TestWCS:
     @classmethod
     def setup_class(cls):
 
+        # Set up basic testing data
         cls.pixel_scale = 0.05
         cls.full_x_size = 1024
         cls.full_y_size = 1024
 
-        cls.xi1 = 0
-        cls.yi1 = 0
+        cls.xi00 = 0
+        cls.yi00 = 0
 
-        cls.xi2 = 1
-        cls.yi2 = 0
+        cls.xi10 = 1
+        cls.yi00 = 0
 
-        cls.xi3 = 0
-        cls.yi3 = 1
+        cls.xi01 = 0
+        cls.yi01 = 1
 
-        cls.test_wcs1 = get_offset_wcs(pixel_scale = cls.pixel_scale,
-                                       x_i = cls.xi1,
-                                       y_i = cls.yi1,
-                                       full_x_size = cls.full_x_size,
-                                       full_y_size = cls.full_y_size)
+        # Set up coordinates of the corners
+        cls.c00 = galsim.PositionD(0, 0)
+        cls.c10 = galsim.PositionD(cls.full_x_size, 0)
+        cls.c01 = galsim.PositionD(0, cls.full_y_size)
+        cls.c11 = galsim.PositionD(cls.full_x_size, cls.full_y_size)
 
-        cls.test_wcs2 = get_offset_wcs(pixel_scale = cls.pixel_scale,
-                                       x_i = cls.xi2,
-                                       y_i = cls.yi2,
-                                       full_x_size = cls.full_x_size,
-                                       full_y_size = cls.full_y_size)
+        # Test a 30-degree rotation for easy but non-trivial maths
+        cls.theta = 30
 
-        cls.test_wcs3 = get_offset_wcs(pixel_scale = cls.pixel_scale,
-                                       x_i = cls.xi3,
-                                       y_i = cls.yi3,
-                                       full_x_size = cls.full_x_size,
-                                       full_y_size = cls.full_y_size)
+        cls.offset_wcs_00 = get_offset_wcs(pixel_scale=cls.pixel_scale,
+                                           x_i=cls.xi00,
+                                           y_i=cls.yi00,
+                                           full_x_size=cls.full_x_size,
+                                           full_y_size=cls.full_y_size)
+
+        cls.offset_wcs_10 = get_offset_wcs(pixel_scale=cls.pixel_scale,
+                                           x_i=cls.xi10,
+                                           y_i=cls.yi00,
+                                           full_x_size=cls.full_x_size,
+                                           full_y_size=cls.full_y_size)
+
+        cls.offset_wcs_01 = get_offset_wcs(pixel_scale=cls.pixel_scale,
+                                           x_i=cls.xi01,
+                                           y_i=cls.yi01,
+                                           full_x_size=cls.full_x_size,
+                                           full_y_size=cls.full_y_size)
+
+        cls.affine_wcs_rot_00 = get_affine_wcs(pixel_scale=pixel_scale,
+                                               x_i=cls.xi00,
+                                               y_i=cls.yi00,
+                                               full_x_size=cls.full_x_size,
+                                               full_y_size=cls.full_y_size,
+                                               theta=cls.wcs_theta)
+
+        cls.affine_wcs_rot_10 = get_affine_wcs(pixel_scale=pixel_scale,
+                                               x_i=cls.xi10,
+                                               y_i=cls.yi10,
+                                               full_x_size=cls.full_x_size,
+                                               full_y_size=cls.full_y_size,
+                                               theta=cls.wcs_theta)
+
+        cls.affine_wcs_rot_01 = get_affine_wcs(pixel_scale=pixel_scale,
+                                               x_i=cls.xi01,
+                                               y_i=cls.yi01,
+                                               full_x_size=cls.full_x_size,
+                                               full_y_size=cls.full_y_size,
+                                               theta=cls.wcs_theta)
 
         return
 
@@ -76,7 +108,7 @@ class TestWCS:
 
         return
 
-    def test_get_wcs_basic(self):
+    def test_wcs_basic(self):
 
         x_step = 1000
         y_step = 1000
@@ -84,7 +116,8 @@ class TestWCS:
         expected_dist = np.sqrt(x_step ** 2 + y_step ** 2) * self.pixel_scale
 
         # Test that each wcs behaves as expected
-        for wcs in (self.test_wcs1, self.test_wcs2, self.test_wcs3):
+        for wcs in (self.offset_wcs_00, self.offset_wcs_10, self.offset_wcs_01,
+                    self.affine_wcs_rot_00, self.affine_wcs_rot_10, self.affine_wcs_rot_01,):
 
             uv0 = wcs.toWorld(galsim.PositionD(0, 0))
             uv1 = wcs.toWorld(galsim.PositionD(x_step, y_step))
@@ -95,34 +128,57 @@ class TestWCS:
 
         return
 
-    def test_wcs_difference(self):
-
-        # Set up coordinates of the corners
-        c00 = galsim.PositionD(0, 0)
-        c10 = galsim.PositionD(self.full_x_size, 0)
-        c01 = galsim.PositionD(0, self.full_y_size)
-        c11 = galsim.PositionD(self.full_x_size, self.full_y_size)
+    def test_offset_wcs_difference(self):
 
         # Get transformed coordinates of each corner for each wcs
-        wcs1_trans = []
-        wcs2_trans = []
-        wcs3_trans = []
+        offset_wcs00_trans = []
+        offset_wcs10_trans = []
+        offset_wcs01_trans = []
 
-        for wcs, trans in ((self.test_wcs1, wcs1_trans),
-                           (self.test_wcs2, wcs2_trans),
-                           (self.test_wcs3, wcs3_trans),):
+        for wcs, trans in ((self.offset_wcs_00, offset_wcs_00_trans),
+                           (self.offset_wcs_10, offset_wcs_10_trans),
+                           (self.offset_wcs_01, offset_wcs_01_trans),
+                           (self.affine_wcs_rot_00, affine_wcs_rot_00_trans),
+                           (self.affine_wcs_rot_10, affine_wcs_rot_10_trans),
+                           (self.affine_wcs_rot_01, affine_wcs_rot_01_trans),):
 
-            trans.append(wcs.toWorld(c00))
-            trans.append(wcs.toWorld(c10))
-            trans.append(wcs.toWorld(c01))
-            trans.append(wcs.toWorld(c11))
+            trans.append(wcs.toWorld(self.c00))
+            trans.append(wcs.toWorld(self.c10))
+            trans.append(wcs.toWorld(self.c01))
+            trans.append(wcs.toWorld(self.c11))
 
-        # Check that the gaps are correct
+        # Check that the gaps are correct for the offset WCSes
 
-        assert_almost_equal(wcs2_trans[0].x - wcs1_trans[1].x , image_gap_x_pix * self.pixel_scale)
-        assert_almost_equal(wcs2_trans[2].x - wcs1_trans[3].x , image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(offset_wcs_10_trans[0].x - offset_wcs_00_trans[1].x, image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(offset_wcs_10_trans[2].x - offset_wcs_00_trans[3].x, image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(offset_wcs_10_trans[0].y - offset_wcs_00_trans[1].y, 0.)
+        assert_almost_equal(offset_wcs_10_trans[2].y - offset_wcs_00_trans[3].y, 0.)
 
-        assert_almost_equal(wcs3_trans[0].y - wcs1_trans[2].y , image_gap_y_pix * self.pixel_scale)
-        assert_almost_equal(wcs3_trans[1].y - wcs1_trans[3].y , image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(offset_wcs_01_trans[0].x - offset_wcs_00_trans[1].x, 0.)
+        assert_almost_equal(offset_wcs_01_trans[2].x - offset_wcs_00_trans[3].x, 0.)
+        assert_almost_equal(offset_wcs_01_trans[0].y - offset_wcs_00_trans[2].y, image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(offset_wcs_01_trans[1].y - offset_wcs_00_trans[3].y, image_gap_y_pix * self.pixel_scale)
+
+        # Check that the gaps are correct for the rotation WCSes
+
+        assert_almost_equal(affine_wcs_rot_10_trans[0].x - affine_wcs_rot_00_trans[1].x,
+                            np.sqrt(3) / 2. * image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_10_trans[2].x - affine_wcs_rot_00_trans[3].x,
+                            np.sqrt(3) / 2. * image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_10_trans[0].y - affine_wcs_rot_00_trans[1].y,
+                            -1 / 2. * image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_10_trans[2].y - affine_wcs_rot_00_trans[3].y,
+                            -1 / 2. * image_gap_x_pix * self.pixel_scale)
+
+        assert_almost_equal(affine_wcs_rot_01_trans[0].x - affine_wcs_rot_00_trans[1].x,
+                            1 / 2. * image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_01_trans[2].x - affine_wcs_rot_00_trans[3].x,
+                            1 / 2. * image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_01_trans[0].y -
+                            affine_wcs_rot_00_trans[2].y,
+                            np.sqrt(3) / 2. * image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_01_trans[1].y -
+                            affine_wcs_rot_00_trans[3].y,
+                            np.sqrt(3) / 2. * image_gap_y_pix * self.pixel_scale)
 
         return
