@@ -42,7 +42,7 @@ class TestWCS:
         # Set up basic testing data
         cls.pixel_scale = 0.05
         cls.full_x_size = 1024
-        cls.full_y_size = 1024
+        cls.full_y_size = 2048
 
         cls.xi00 = 0
         cls.yi00 = 0
@@ -151,6 +151,50 @@ class TestWCS:
             trans.append(wcs.toWorld(self.c10))
             trans.append(wcs.toWorld(self.c01))
             trans.append(wcs.toWorld(self.c11))
+
+        # Check that the corners are correct for the offset WCSes
+
+        for trans in (offset_wcs_00_trans, offset_wcs_10_trans, offset_wcs_01_trans):
+
+            assert_almost_equal(trans[1].x - trans[0].x, self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[2].x - trans[0].x, 0.)
+            assert_almost_equal(trans[3].x - trans[0].x, self.full_x_size * self.pixel_scale)
+
+            assert_almost_equal(trans[1].y - trans[0].y, 0.)
+            assert_almost_equal(trans[2].y - trans[0].y, self.full_y_size * self.pixel_scale)
+            assert_almost_equal(trans[3].y - trans[0].y, self.full_y_size * self.pixel_scale)
+
+        # Check that the corners are correct for the rotation WCSes
+
+        for trans in (affine_wcs_rot_00_trans, affine_wcs_rot_10_trans, affine_wcs_rot_01_trans):
+
+            assert_almost_equal(trans[1].x - trans[0].x, self.costheta * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[2].x - trans[0].x, -self.sintheta * self.full_y_size * self.pixel_scale)
+            assert_almost_equal(trans[3].x - trans[0].x, self.costheta * self.full_x_size * self.pixel_scale +
+                                -self.sintheta * self.full_y_size * self.pixel_scale)
+
+            assert_almost_equal(trans[1].y - trans[0].y, self.sintheta * self.full_x_size * self.pixel_scale)
+            assert_almost_equal(trans[2].y - trans[0].y, self.costheta * self.full_y_size * self.pixel_scale)
+            assert_almost_equal(trans[3].y - trans[0].y, self.sintheta * self.full_x_size * self.pixel_scale +
+                                self.costheta * self.full_y_size * self.pixel_scale)
+
+        assert_almost_equal(affine_wcs_rot_10_trans[0].x - affine_wcs_rot_00_trans[1].x,
+                            self.costheta * image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_10_trans[2].x - affine_wcs_rot_00_trans[3].x,
+                            self.costheta * image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_10_trans[0].y - affine_wcs_rot_00_trans[1].y,
+                            self.sintheta * image_gap_x_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_10_trans[2].y - affine_wcs_rot_00_trans[3].y,
+                            self.sintheta * image_gap_x_pix * self.pixel_scale)
+
+        assert_almost_equal(affine_wcs_rot_01_trans[0].x - affine_wcs_rot_00_trans[1].x,
+                            -self.sintheta * image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_01_trans[2].x - affine_wcs_rot_00_trans[3].x,
+                            -self.sintheta * image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_01_trans[0].y - affine_wcs_rot_00_trans[2].y,
+                            self.costheta * image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_01_trans[1].y - affine_wcs_rot_00_trans[3].y,
+                            self.costheta * image_gap_y_pix * self.pixel_scale)
 
         # Check that the gaps are correct for the offset WCSes
 
