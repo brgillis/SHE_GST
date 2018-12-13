@@ -259,18 +259,18 @@ class TestWCS:
 
         # Check that the gaps are correct for the g1 WCSes
 
-        assert_almost_equal(offset_wcs_10_trans[0].x - offset_wcs_00_trans[1].x,
+        assert_almost_equal(affine_wcs_g1_10_trans[0].x - affine_wcs_g1_00_trans[1].x,
                             (1 + self.g1) * image_gap_x_pix * self.pixel_scale)
-        assert_almost_equal(offset_wcs_10_trans[2].x - offset_wcs_00_trans[3].x,
+        assert_almost_equal(affine_wcs_g1_10_trans[2].x - affine_wcs_g1_00_trans[3].x,
                             (1 + self.g1) * image_gap_x_pix * self.pixel_scale)
-        assert_almost_equal(offset_wcs_10_trans[0].y - offset_wcs_00_trans[1].y, 0.)
-        assert_almost_equal(offset_wcs_10_trans[2].y - offset_wcs_00_trans[3].y, 0.)
+        assert_almost_equal(affine_wcs_g1_10_trans[0].y - affine_wcs_g1_00_trans[1].y, 0.)
+        assert_almost_equal(affine_wcs_g1_10_trans[2].y - affine_wcs_g1_00_trans[3].y, 0.)
 
-        assert_almost_equal(offset_wcs_01_trans[0].x - offset_wcs_00_trans[2].x, 0.)
-        assert_almost_equal(offset_wcs_01_trans[1].x - offset_wcs_00_trans[3].x, 0.)
-        assert_almost_equal(offset_wcs_01_trans[0].y - offset_wcs_00_trans[2].y,
+        assert_almost_equal(affine_wcs_g1_01_trans[0].x - affine_wcs_g1_00_trans[2].x, 0.)
+        assert_almost_equal(affine_wcs_g1_01_trans[1].x - affine_wcs_g1_00_trans[3].x, 0.)
+        assert_almost_equal(affine_wcs_g1_01_trans[0].y - affine_wcs_g1_00_trans[2].y,
                             (1 - self.g1) * image_gap_y_pix * self.pixel_scale)
-        assert_almost_equal(offset_wcs_01_trans[1].y - offset_wcs_00_trans[3].y,
+        assert_almost_equal(affine_wcs_g1_01_trans[1].y - affine_wcs_g1_00_trans[3].y,
                             (1 - self.g1) * image_gap_y_pix * self.pixel_scale)
 
         return
