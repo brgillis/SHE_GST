@@ -60,7 +60,9 @@ class TestWCS:
         cls.c11 = galsim.PositionD(cls.full_x_size, cls.full_y_size)
 
         # Test a 30-degree rotation for easy but non-trivial maths
-        cls.theta = 30
+        cls.world2image_theta = 30
+        cls.costheta = np.cos(cls.world2image_theta * np.pi / 180)
+        cls.sintheta = np.sin(cls.world2image_theta * np.pi / 180)
 
         cls.offset_wcs_00 = get_offset_wcs(pixel_scale=cls.pixel_scale,
                                            x_i=cls.xi00,
@@ -80,26 +82,26 @@ class TestWCS:
                                            full_x_size=cls.full_x_size,
                                            full_y_size=cls.full_y_size)
 
-        cls.affine_wcs_rot_00 = get_affine_wcs(pixel_scale=pixel_scale,
+        cls.affine_wcs_rot_00 = get_affine_wcs(pixel_scale=cls.pixel_scale,
                                                x_i=cls.xi00,
                                                y_i=cls.yi00,
                                                full_x_size=cls.full_x_size,
                                                full_y_size=cls.full_y_size,
-                                               theta=cls.wcs_theta)
+                                               theta=cls.world2image_theta)
 
-        cls.affine_wcs_rot_10 = get_affine_wcs(pixel_scale=pixel_scale,
+        cls.affine_wcs_rot_10 = get_affine_wcs(pixel_scale=cls.pixel_scale,
                                                x_i=cls.xi10,
                                                y_i=cls.yi10,
                                                full_x_size=cls.full_x_size,
                                                full_y_size=cls.full_y_size,
-                                               theta=cls.wcs_theta)
+                                               theta=cls.world2image_theta)
 
-        cls.affine_wcs_rot_01 = get_affine_wcs(pixel_scale=pixel_scale,
+        cls.affine_wcs_rot_01 = get_affine_wcs(pixel_scale=cls.pixel_scale,
                                                x_i=cls.xi01,
                                                y_i=cls.yi01,
                                                full_x_size=cls.full_x_size,
                                                full_y_size=cls.full_y_size,
-                                               theta=cls.wcs_theta)
+                                               theta=cls.world2image_theta)
 
         return
 
@@ -162,23 +164,21 @@ class TestWCS:
         # Check that the gaps are correct for the rotation WCSes
 
         assert_almost_equal(affine_wcs_rot_10_trans[0].x - affine_wcs_rot_00_trans[1].x,
-                            np.sqrt(3) / 2. * image_gap_x_pix * self.pixel_scale)
+                            self.costheta * image_gap_x_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_rot_10_trans[2].x - affine_wcs_rot_00_trans[3].x,
-                            np.sqrt(3) / 2. * image_gap_x_pix * self.pixel_scale)
+                            self.costheta * image_gap_x_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_rot_10_trans[0].y - affine_wcs_rot_00_trans[1].y,
-                            -1 / 2. * image_gap_x_pix * self.pixel_scale)
+                            -self.sintheta * image_gap_x_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_rot_10_trans[2].y - affine_wcs_rot_00_trans[3].y,
-                            -1 / 2. * image_gap_x_pix * self.pixel_scale)
+                            -self.sintheta * image_gap_x_pix * self.pixel_scale)
 
         assert_almost_equal(affine_wcs_rot_01_trans[0].x - affine_wcs_rot_00_trans[1].x,
-                            1 / 2. * image_gap_y_pix * self.pixel_scale)
+                            self.sintheta * image_gap_y_pix * self.pixel_scale)
         assert_almost_equal(affine_wcs_rot_01_trans[2].x - affine_wcs_rot_00_trans[3].x,
-                            1 / 2. * image_gap_y_pix * self.pixel_scale)
-        assert_almost_equal(affine_wcs_rot_01_trans[0].y -
-                            affine_wcs_rot_00_trans[2].y,
-                            np.sqrt(3) / 2. * image_gap_y_pix * self.pixel_scale)
-        assert_almost_equal(affine_wcs_rot_01_trans[1].y -
-                            affine_wcs_rot_00_trans[3].y,
-                            np.sqrt(3) / 2. * image_gap_y_pix * self.pixel_scale)
+                            self.sintheta * image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_01_trans[0].y - affine_wcs_rot_00_trans[2].y,
+                            self.costheta * image_gap_y_pix * self.pixel_scale)
+        assert_almost_equal(affine_wcs_rot_01_trans[1].y - affine_wcs_rot_00_trans[3].y,
+                            self.costheta * image_gap_y_pix * self.pixel_scale)
 
         return
