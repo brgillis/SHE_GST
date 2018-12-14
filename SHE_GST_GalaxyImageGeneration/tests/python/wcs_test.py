@@ -5,7 +5,7 @@
     Tests of functions dealing with creating a GalSim WCS.
 """
 
-__updated__ = "2018-12-13"
+__updated__ = "2018-12-14"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -20,10 +20,9 @@ __updated__ = "2018-12-13"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import galsim
 from numpy.testing import assert_almost_equal
 import pytest
-
-import galsim
 
 from SHE_GST_GalaxyImageGeneration.magic_values import image_gap_x_pix, image_gap_y_pix
 from SHE_GST_GalaxyImageGeneration.wcs import get_offset_wcs, get_wcs_from_image_phl, get_affine_wcs
@@ -58,6 +57,8 @@ class TestWCS:
         cls.c10 = galsim.PositionD(cls.full_x_size, 0)
         cls.c01 = galsim.PositionD(0, cls.full_y_size)
         cls.c11 = galsim.PositionD(cls.full_x_size, cls.full_y_size)
+        cls.c0h = galsim.PositionD(0, cls.full_x_size)
+        cls.c1h = galsim.PositionD(cls.full_x_size, cls.full_x_size)
 
         # Test a 30-degree rotation for easy but non-trivial maths
         cls.world2image_theta = 30
@@ -219,6 +220,8 @@ class TestWCS:
             trans.append(wcs.toWorld(self.c10))
             trans.append(wcs.toWorld(self.c01))
             trans.append(wcs.toWorld(self.c11))
+            trans.append(wcs.toWorld(self.c0h))
+            trans.append(wcs.toWorld(self.c1h))
 
         # Check that the corners are correct for the offset WCSes
 
@@ -262,8 +265,8 @@ class TestWCS:
 
         for trans in (affine_wcs_g2_00_trans, affine_wcs_g2_10_trans, affine_wcs_g2_01_trans):
 
-            d_s = np.sqrt((trans[1].x - trans[2].x)**2 + (trans[1].y - trans[2].y)**2)
-            d_l = np.sqrt((trans[3].x - trans[0].x)**2 + (trans[3].y - trans[0].y)**2)
+            d_s = np.sqrt((trans[1].x - trans[4].x)**2 + (trans[1].y - trans[4].y)**2)
+            d_l = np.sqrt((trans[5].x - trans[0].x)**2 + (trans[5].y - trans[0].y)**2)
 
             assert_almost_equal(d_s, self.g2m_factor * self.full_x_size * np.sqrt(2.) * self.pixel_scale)
             assert_almost_equal(d_l, self.g2p_factor * self.full_x_size * np.sqrt(2.) * self.pixel_scale)
