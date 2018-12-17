@@ -738,6 +738,7 @@ def print_galaxies(image_phl,
                                                 model_psf_file_name=options['model_psf_file_name'],
                                                 model_psf_scale=options['model_psf_scale'] * 36000, # Needs to be in units of pixels
                                                 model_psf_offset=model_psf_offset,
+                                                pixel_scale=pixel_scale,
                                                 gsparams=default_gsparams,
                                                 workdir=options['workdir'])
             if options['chromatic_psf']:
@@ -749,6 +750,7 @@ def print_galaxies(image_phl,
                                                    model_psf_file_name=options['model_psf_file_name'],
                                                    model_psf_scale=options['model_psf_scale'] * 36000, # Needs to be in units of pixels
                                                    model_psf_offset=model_psf_offset,
+                                                   pixel_scale=pixel_scale,
                                                    gsparams=default_gsparams,
                                                    workdir=options['workdir'])
             else:
