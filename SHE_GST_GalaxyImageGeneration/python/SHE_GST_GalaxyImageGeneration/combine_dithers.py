@@ -6,7 +6,7 @@
     Function to combine various dithers into a stacked image.
 """
 
-__updated__ = "2018-12-05"
+__updated__ = "2018-12-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,18 +21,18 @@ __updated__ = "2018-12-05"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from numpy.lib.stride_tricks import as_strided
 import os
 
+from astropy.io import fits
+import galsim
+from numpy.lib.stride_tricks import as_strided
+
+from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_PPT import magic_values as ppt_mv
 from SHE_PPT import products
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
 from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag, background_tag, weight_tag
 from SHE_PPT.mask import masked_off_image
-import galsim
-
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from astropy.io import fits
 import numpy as np
 
 
@@ -229,8 +229,12 @@ def combine_segmentation_dithers(segmentation_listfile_name,
 
     # Get the WCS from the first dither
     first_wcs, first_origin = galsim.wcs.readFromFitsHeader(segmentation_dithers[0][0].header)
-    stack_wcs = galsim.wcs.OffsetWCS(scale=first_wcs.scale / pixel_factor,
-                                     origin=first_origin / pixel_factor)
+    
+    stack_wcs = galsim.wcs.AffineTransform(dudx=first_wcs.dudx / pixel_factor,
+                                           dudy=first_wcs.dudy / pixel_factor,
+                                           dvdx=first_wcs.dvdx / pixel_factor,
+                                           dvdy=first_wcs.dvdy / pixel_factor,
+                                           origin=first_origin / pixel_factor)
 
     max_x_size = pixel_factor * max_x_size + extra_pixels
     max_y_size = pixel_factor * max_y_size + extra_pixels
@@ -350,8 +354,12 @@ def combine_image_dithers(image_listfile_name,
 
     # Get the WCS from the first dither
     first_wcs, first_origin = galsim.wcs.readFromFitsHeader(image_dithers[0][0].header)
-    stack_wcs = galsim.wcs.OffsetWCS(scale=first_wcs.scale / pixel_factor,
-                                     origin=first_origin / pixel_factor)
+    
+    stack_wcs = galsim.wcs.AffineTransform(dudx=first_wcs.dudx / pixel_factor,
+                                           dudy=first_wcs.dudy / pixel_factor,
+                                           dvdx=first_wcs.dvdx / pixel_factor,
+                                           dvdy=first_wcs.dvdy / pixel_factor,
+                                           origin=first_origin / pixel_factor)
 
     # Create the image we'll need
 

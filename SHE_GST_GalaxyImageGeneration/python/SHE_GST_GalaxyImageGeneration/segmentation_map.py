@@ -5,7 +5,7 @@
     Functions to generate mock segmentation maps.
 """
 
-__updated__ = "2018-07-16"
+__updated__ = "2018-12-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,9 +22,9 @@ __updated__ = "2018-07-16"
 
 from copy import deepcopy
 
-from SHE_PPT.table_formats.detections import tf as detf
-
 import galsim
+
+from SHE_PPT.table_formats.detections import tf as detf
 import numpy as np
 
 
@@ -61,7 +61,7 @@ def make_segmentation_map(noisefree_image,
 
     detections_table.add_index(detf.ID)
 
-    segmentation_map = galsim.Image(np.zeros_like(noisefree_image.array, dtype=np.int32), scale=noisefree_image.scale)
+    segmentation_map = galsim.Image(np.zeros_like(noisefree_image.array, dtype=np.int32), wcs=noisefree_image.wcs)
 
     # We'll use special speedups for stamps mode, since we know overlaps are impossible with it
     stamps_mode = options['mode'] == 'stamps'
@@ -74,8 +74,10 @@ def make_segmentation_map(noisefree_image,
         y_image, x_image = np.indices(np.shape(noisefree_image.array))
         threshold_mask = np.ravel(noisefree_image.array) <= threshold
         claimed_mask = np.zeros_like(threshold_mask, dtype=bool)
+        
+    scale, _, _, _ = noisefree_image.wcs.jacobian().getDecomposition()
 
-    r_max_factor_scaled = r_max_factor / noisefree_image.scale
+    r_max_factor_scaled = r_max_factor / scale
 
     for i in range(len(sorted_dtc_table)):
 

@@ -1123,7 +1123,8 @@ def add_image_header_info(gs_image,
     gs_image.header[extname_label] = extname
 
     # Pixel scale
-    gs_image.header[scale_label] = gs_image.scale
+    scale, _, _, _ = gs_image.wcs.jacobian().getDecomposition()
+    gs_image.header[scale_label] = scale
 
     # WCS info
     wcs.writeToFitsHeader(gs_image.header, gs_image.bounds)
