@@ -736,7 +736,7 @@ def print_galaxies(image_phl,
                                                 use_background_psf=use_background_psf,
                                                 data_dir=options['data_dir'],
                                                 model_psf_file_name=options['model_psf_file_name'],
-                                                model_psf_scale=options['model_psf_scale'],
+                                                model_psf_scale=options['model_psf_scale'] * 36000, # Needs to be in units of pixels
                                                 model_psf_offset=model_psf_offset,
                                                 gsparams=default_gsparams,
                                                 workdir=options['workdir'])
@@ -747,7 +747,7 @@ def print_galaxies(image_phl,
                                                    use_background_psf=use_background_psf,
                                                    data_dir=options['data_dir'],
                                                    model_psf_file_name=options['model_psf_file_name'],
-                                                   model_psf_scale=options['model_psf_scale'],
+                                                   model_psf_scale=options['model_psf_scale'] * 36000, # Needs to be in units of pixels
                                                    model_psf_offset=model_psf_offset,
                                                    gsparams=default_gsparams,
                                                    workdir=options['workdir'])
