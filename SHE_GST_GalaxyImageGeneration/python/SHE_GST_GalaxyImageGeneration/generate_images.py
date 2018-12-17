@@ -1000,7 +1000,8 @@ def print_galaxies(image_phl,
                     final_disk.drawImage(gal_image, scale=1.0,
                                          offset=(-x_centre_offset + x_offset + disk_xp_sp_shift,
                                                  - y_centre_offset + y_offset + disk_yp_sp_shift),
-                                         add_to_image=True)
+                                         add_to_image=True,
+                                         method='no_pixel')
 
                 else:
                     final_gal.drawImage(gal_image, scale=1.0,
