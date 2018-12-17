@@ -39,6 +39,26 @@ IMPLEMENT_PARAM(pixel_scale, dv::survey_level, IndFixed(dv::pixel_scale)
 		_cached_value = _p_params->get_independently(get_rng());
 	)
 
+IMPLEMENT_PARAM(wcs_g1, dv::survey_level, IndFixed(dv::wcs_g1)
+    ,
+    _cached_value = _p_params->get_independently(get_rng());
+    ,
+    _cached_value = _p_params->get_independently(get_rng());
+)
+IMPLEMENT_PARAM(wcs_g2, dv::survey_level, IndFixed(dv::wcs_g2)
+    ,
+    _cached_value = _p_params->get_independently(get_rng());
+    ,
+    _cached_value = _p_params->get_independently(get_rng());
+)
+
+IMPLEMENT_PARAM(wcs_theta, dv::survey_level, IndFixed(dv::wcs_theta)
+    ,
+    _cached_value = _p_params->get_independently(get_rng());
+    ,
+    _cached_value = _p_params->get_independently(get_rng());
+)
+
 // Image Group level
 IMPLEMENT_PARAM(num_images, dv::image_group_level, IndFixed(dv::num_images)
     ,

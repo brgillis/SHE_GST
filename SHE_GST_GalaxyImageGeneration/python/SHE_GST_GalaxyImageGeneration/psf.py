@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2018-11-12"
+__updated__ = "2018-12-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -24,15 +24,15 @@ from copy import deepcopy
 from functools import lru_cache
 from os.path import join
 
+from astropy.io import fits
+import galsim
+
+import SHE_GST_GalaxyImageGeneration.magic_values as mv
 from SHE_PPT.file_io import find_file
 from SHE_PPT.logging import getLogger
 from SHE_PPT.magic_values import bulge_psf_tag, disk_psf_tag
 from SHE_PPT.table_formats.psf import tf as pstf
 from SHE_PPT.table_utility import table_to_hdu
-import galsim
-
-import SHE_GST_GalaxyImageGeneration.magic_values as mv
-from astropy.io import fits
 import numpy as np
 
 
@@ -107,7 +107,8 @@ def load_psf_model_from_file(file_name,
 
 
 @lru_cache()
-def get_background_psf_profile(gsparams=galsim.GSParams()):
+def get_background_psf_profile(gsparams=galsim.GSParams(),
+                               pixel_scale=mv.default_pixel_scale):
 
     prof = galsim.OpticalPSF(lam=725,  # nm
                              diam=1.2,  # m
@@ -116,7 +117,7 @@ def get_background_psf_profile(gsparams=galsim.GSParams()):
                              obscuration=0.33,
                              nstruts=3,
                              gsparams=gsparams,
-                             )
+                             ).dilate(1./pixel_scale) # Scale to be in units of pixels
 
     return prof
 
@@ -129,11 +130,12 @@ def get_psf_profile(n,
                     model_psf_file_name=None,
                     model_psf_scale=mv.psf_model_scale,
                     model_psf_offset=mv.default_psf_center_offset,
+                    pixel_scale=mv.default_pixel_scale,
                     gsparams=galsim.GSParams(),
                     workdir="."):
 
     if use_background_psf:
-        return get_background_psf_profile(gsparams=gsparams)
+        return get_background_psf_profile(pixel_scale=pixel_scale, gsparams=gsparams)
 
     if model_psf_file_name is not None:
         qualified_model_filename = find_file(model_psf_file_name, workdir)

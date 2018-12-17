@@ -35,6 +35,11 @@ constexpr const int_t survey_level = 0;
 constexpr const flt_t num_image_groups = 1;
 constexpr const flt_t pixel_scale = 0.1; // arcsec/pixel
 
+constexpr const flt_t wcs_g1 = 0.;
+constexpr const flt_t wcs_g2 = 0.;
+
+constexpr const flt_t wcs_theta = 0.;
+
 // ImageGroup-level
 
 constexpr const int_t image_group_level = 1;

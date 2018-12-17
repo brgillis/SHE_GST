@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2018-08-14"
+__updated__ = "2018-12-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,11 +23,11 @@ __updated__ = "2018-08-14"
 from functools import lru_cache
 from os.path import join
 
-from SHE_PPT.file_io import find_file
-from SHE_PPT.logging import getLogger
 import galsim
 
 import SHE_GST_GalaxyImageGeneration.magic_values as mv
+from SHE_PPT.file_io import find_file
+from SHE_PPT.logging import getLogger
 import numpy as np
 
 
@@ -194,7 +194,7 @@ def get_disk_galaxy_profile(half_light_radius,
 
     base_prof = InclinedSersic(n=1.,
                                inclination=tilt * galsim.degrees,
-                               half_light_radius=half_light_radius / 3600,
+                               scale_radius=scale_radius,
                                trunc=mv.default_truncation_radius_factor * scale_radius,
                                flux=flux,
                                scale_h_over_r=height_ratio,

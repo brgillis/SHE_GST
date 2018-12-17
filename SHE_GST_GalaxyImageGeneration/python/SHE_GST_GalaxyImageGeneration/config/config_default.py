@@ -6,7 +6,7 @@
     values for the Generate_GalSim_Images project.
 """
 
-__updated__ = "2018-11-27"
+__updated__ = "2018-12-04"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -94,7 +94,10 @@ allowed_fixed_params = ('num_images',
                         'num_galaxies',
                         'pixel_scale',
                         'image_size_xp',
-                        'image_size_yp')
+                        'image_size_yp',
+                        'wcs_g1',
+                        'wcs_g2',
+                        'wcs_theta')
 
 allowed_settings = ('level',
                     'params',
@@ -104,6 +107,9 @@ allowed_survey_settings = (  # Survey level
 
     'num_images',
     'pixel_scale',
+    'wcs_g1',
+    'wcs_g2',
+    'wcs_theta',
 
     # Image level
 

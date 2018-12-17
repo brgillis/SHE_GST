@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-12-05"
+__updated__ = "2018-12-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -27,21 +27,8 @@ from copy import deepcopy
 from multiprocessing import cpu_count, Pool
 import os
 
-from SHE_PPT import detector
-from SHE_PPT import products
-from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
-                             write_xml_product, find_file_in_path, find_file)
-from SHE_PPT.logging import getLogger
-from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
-                                  model_seed_label, noise_seed_label, extname_label, dither_dx_label,
-                                  dither_dy_label, scale_label,
-                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
-                                  detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
-from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
-from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
-from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
-from SHE_PPT.table_utility import add_row, table_to_hdu
-from SHE_PPT.utility import hash_any
+from astropy import table
+from astropy.io import fits
 import galsim
 import h5py
 
@@ -62,8 +49,21 @@ from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_GST_GalaxyImageGeneration.signal_to_noise import get_signal_to_noise_estimate
 from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
 import SHE_GST_PhysicalModel
-from astropy import table
-from astropy.io import fits
+from SHE_PPT import detector
+from SHE_PPT import products
+from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
+                             write_xml_product, find_file_in_path, find_file)
+from SHE_PPT.logging import getLogger
+from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
+                                  model_seed_label, noise_seed_label, extname_label, dither_dx_label,
+                                  dither_dy_label, scale_label,
+                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
+                                  detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
+from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
+from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
+from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
+from SHE_PPT.table_utility import add_row, table_to_hdu
+from SHE_PPT.utility import hash_any
 import numpy as np
 
 
@@ -473,6 +473,9 @@ def print_galaxies(image_phl,
 
     background_galaxies = []
     target_galaxies = []
+            
+    # Since all WCSs are uniform so far, we just use a single jacobian WCS for profile transformations
+    jacobian_wcs = wcs_list[0].jacobian(image_pos=galsim.PositionD(0.,0.))
 
     # Generate parameters first (for consistent rng)
 
@@ -733,8 +736,9 @@ def print_galaxies(image_phl,
                                                 use_background_psf=use_background_psf,
                                                 data_dir=options['data_dir'],
                                                 model_psf_file_name=options['model_psf_file_name'],
-                                                model_psf_scale=options['model_psf_scale'],
+                                                model_psf_scale=options['model_psf_scale'] * 36000, # Needs to be in units of pixels
                                                 model_psf_offset=model_psf_offset,
+                                                pixel_scale=pixel_scale,
                                                 gsparams=default_gsparams,
                                                 workdir=options['workdir'])
             if options['chromatic_psf']:
@@ -744,8 +748,9 @@ def print_galaxies(image_phl,
                                                    use_background_psf=use_background_psf,
                                                    data_dir=options['data_dir'],
                                                    model_psf_file_name=options['model_psf_file_name'],
-                                                   model_psf_scale=options['model_psf_scale'],
+                                                   model_psf_scale=options['model_psf_scale'] * 36000, # Needs to be in units of pixels
                                                    model_psf_offset=model_psf_offset,
+                                                   pixel_scale=pixel_scale,
                                                    gsparams=default_gsparams,
                                                    workdir=options['workdir'])
             else:
@@ -871,15 +876,18 @@ def print_galaxies(image_phl,
         if not options['details_only']:
             if is_target_gal:
 
-                bulge_gal_profile = get_bulge_galaxy_profile(sersic_index=gal_n,
-                                                             half_light_radius=bulge_size,
-                                                             flux=gal_intensity * bulge_fraction,
-                                                             g_ell=g_ell,
-                                                             beta_deg_ell=rotation,
-                                                             g_shear=g_shear,
-                                                             beta_deg_shear=beta_shear,
-                                                             gsparams=default_gsparams,
-                                                             data_dir=options['data_dir'])
+                bulge_gal_profile_world = get_bulge_galaxy_profile(sersic_index=gal_n,
+                                                                   half_light_radius=bulge_size,
+                                                                   flux=gal_intensity * bulge_fraction,
+                                                                   g_ell=g_ell,
+                                                                   beta_deg_ell=rotation,
+                                                                   g_shear=g_shear,
+                                                                   beta_deg_shear=beta_shear,
+                                                                   gsparams=default_gsparams,
+                                                                   data_dir=options['data_dir'])
+                
+                # Convert the profile to image co-ordinates
+                bulge_gal_profile = jacobian_wcs.toImage(bulge_gal_profile_world)
 
                 # Convolve the galaxy, psf, and pixel profile to determine the final (well,
                 # before noise) pixelized image_phl
@@ -887,14 +895,17 @@ def print_galaxies(image_phl,
                                               gsparams=default_gsparams)
 
                 # Try to get a disk galaxy profile if the galsim version supports it
-                disk_gal_profile = get_disk_galaxy_profile(half_light_radius=disk_size,
-                                                           rotation=rotation,
-                                                           tilt=tilt,
-                                                           flux=gal_intensity * (1 - bulge_fraction),
-                                                           g_shear=g_shear,
-                                                           beta_deg_shear=beta_shear,
-                                                           height_ratio=disk_height_ratio,
-                                                           gsparams=default_gsparams)
+                disk_gal_profile_world = get_disk_galaxy_profile(half_light_radius=disk_size,
+                                                                 rotation=rotation,
+                                                                 tilt=tilt,
+                                                                 flux=gal_intensity * (1 - bulge_fraction),
+                                                                 g_shear=g_shear,
+                                                                 beta_deg_shear=beta_shear,
+                                                                 height_ratio=disk_height_ratio,
+                                                                 gsparams=default_gsparams)
+                
+                # Convert the profile to image co-ordinates
+                disk_gal_profile = jacobian_wcs.toImage(disk_gal_profile_world)
 
                 final_disk = galsim.Convolve([disk_gal_profile, disk_psf_profile,
                                               galsim.Pixel(scale=pixel_scale)],
@@ -905,15 +916,17 @@ def print_galaxies(image_phl,
             else:
                 # Just use a single sersic profile for background galaxies
                 # to make them more of a compromise between bulges and disks
-                gal_profile = get_bulge_galaxy_profile(sersic_index=gal_n,
-                                                       half_light_radius=bulge_size,
-                                                       flux=gal_intensity,
-                                                       g_ell=2. * g_ell,
-                                                       beta_deg_ell=rotation,
-                                                       g_shear=g_shear,
-                                                       beta_deg_shear=beta_shear,
-                                                       gsparams=default_gsparams,
-                                                       data_dir=options['data_dir'])
+                gal_profile_world = get_bulge_galaxy_profile(sersic_index=gal_n,
+                                                             half_light_radius=bulge_size,
+                                                             flux=gal_intensity,
+                                                             g_ell=2. * g_ell,
+                                                             beta_deg_ell=rotation,
+                                                             g_shear=g_shear,
+                                                             beta_deg_shear=beta_shear,
+                                                             gsparams=default_gsparams,
+                                                             data_dir=options['data_dir'])
+                
+                gal_profile = jacobian_wcs.toImage(gal_profile_world)
 
                 # Convolve the galaxy, psf, and pixel profile to determine the final
                 # (well, before noise) pixelized image_phl
@@ -974,11 +987,11 @@ def print_galaxies(image_phl,
             xc = bounds.center.x + centre_offset + x_centre_offset
             yc = bounds.center.y + centre_offset + y_centre_offset
 
-            # Draw the image_phl
+            # Draw the image
             for gal_image, (x_offset, y_offset) in zip(gal_images, get_dither_scheme(options['dithering_scheme'])):
 
                 if is_target_gal:
-                    final_bulge.drawImage(gal_image, scale=pixel_scale,
+                    final_bulge.drawImage(gal_image, scale=1.0,
                                           offset=(-x_centre_offset + x_offset + xp_sp_shift,
                                                   - y_centre_offset + y_offset + yp_sp_shift),
                                           add_to_image=True)
@@ -986,14 +999,14 @@ def print_galaxies(image_phl,
                     disk_xp_sp_shift = xp_sp_shift
                     disk_yp_sp_shift = yp_sp_shift
 
-                    final_disk.drawImage(gal_image, scale=pixel_scale,
+                    final_disk.drawImage(gal_image, scale=1.0,
                                          offset=(-x_centre_offset + x_offset + disk_xp_sp_shift,
                                                  - y_centre_offset + y_offset + disk_yp_sp_shift),
                                          add_to_image=True,
                                          method='no_pixel')
 
                 else:
-                    final_gal.drawImage(gal_image, scale=pixel_scale,
+                    final_gal.drawImage(gal_image, scale=1.0,
                                         offset=(-x_centre_offset + x_offset + xp_sp_shift,
                                                 - y_centre_offset + y_offset + xp_sp_shift),
                                         add_to_image=True)
@@ -1112,7 +1125,8 @@ def add_image_header_info(gs_image,
     gs_image.header[extname_label] = extname
 
     # Pixel scale
-    gs_image.header[scale_label] = gs_image.scale
+    scale, _, _, _ = gs_image.wcs.jacobian().getDecomposition()
+    gs_image.header[scale_label] = scale
 
     # WCS info
     wcs.writeToFitsHeader(gs_image.header, gs_image.bounds)
