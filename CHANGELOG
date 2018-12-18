@@ -6,6 +6,8 @@ Changes from v1.6 to v1.8
 API Changes
 -----------
 
+- Added support for wcs_theta, wcs_g1, and wcs_g2 options to config files
+
 Dependency Changes
 ------------------
 
@@ -17,8 +19,12 @@ Deprecated Features
 Bug Fixes
 ---------
 
+- Fixed units bug preventing background galaxies from being rendered
+
 New Features
 ------------
+
+- Added support for WCS rotation and shear
 
 New config features
 -------------------
