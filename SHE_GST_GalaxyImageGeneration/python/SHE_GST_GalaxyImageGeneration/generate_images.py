@@ -1204,8 +1204,11 @@ def generate_image(image_phl,
         full_options = get_full_options(options, image_phl)
         detections_table = initialise_detections_table(image_phl.get_parent(), full_options,
                                                        optional_columns=[detf.seg_ID,
-                                                                         detf.StarFlag, detf.DeblendingFlag,
-                                                                         detf.Isoarea, detf.MagStarGal])
+                                                                         detf.STAR_FLAG,
+                                                                         detf.STAR_PROB,
+                                                                         detf.DET_QUALITY_FLAG,
+                                                                         detf.Isoarea,
+                                                                         detf.MAG_STARGAL_SEP])
         details_table = initialise_details_table(image_phl.get_parent(), full_options)
 
     # Print the galaxies
