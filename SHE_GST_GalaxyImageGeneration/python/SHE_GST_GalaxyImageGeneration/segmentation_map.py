@@ -5,7 +5,7 @@
     Functions to generate mock segmentation maps.
 """
 
-__updated__ = "2018-12-17"
+__updated__ = "2018-12-18"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -53,11 +53,11 @@ def make_segmentation_map(noisefree_image,
     if detf.Isoarea not in detections_table.columns:
         raise ValueError(detf.Isoarea + " must be in detections table for make_segmentation_map")
 
-    if detf.MagStarGal in detections_table.columns:
+    if detf.MAG_VIS_TOTAL in detections_table.columns:
         sorted_dtc_table = deepcopy(detections_table)
-        sorted_dtc_table.sort(detf.MagStarGal)
+        sorted_dtc_table.sort(detf.MAG_VIS_TOTAL)
     else:
-        raise ValueError(detf.MagStarGal + " must be in detections table for make_segmentation_map")
+        raise ValueError(detf.MAG_VIS_TOTAL + " must be in detections table for make_segmentation_map")
 
     detections_table.add_index(detf.ID)
 

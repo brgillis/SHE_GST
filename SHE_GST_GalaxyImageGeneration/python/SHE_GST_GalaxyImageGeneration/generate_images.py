@@ -1052,10 +1052,10 @@ def print_galaxies(image_phl,
                 detf.seg_ID: -99,
                 detf.gal_x_world: xy_world.x,
                 detf.gal_y_world: xy_world.y,
-                detf.StarFlag: False,
-                detf.DeblendingFlag: False,
+                detf.STAR_FLAG: False,
+                detf.STAR_PROB: 0.,
                 detf.Isoarea: np.pi * hlr**2,
-                detf.MagStarGal: galaxy.get_param_value('apparent_mag_vis'),
+                detf.MAG_VIS_TOTAL: galaxy.get_param_value('apparent_mag_vis'),
             })
 
             del final_disk, disk_psf_profile
@@ -1206,9 +1206,8 @@ def generate_image(image_phl,
                                                        optional_columns=[detf.seg_ID,
                                                                          detf.STAR_FLAG,
                                                                          detf.STAR_PROB,
-                                                                         detf.DET_QUALITY_FLAG,
                                                                          detf.Isoarea,
-                                                                         detf.MAG_STARGAL_SEP])
+                                                                         detf.MAG_VIS_TOTAL])
         details_table = initialise_details_table(image_phl.get_parent(), full_options)
 
     # Print the galaxies
