@@ -75,7 +75,8 @@ struct PHL_autofill_children_fixture {
 
 	flt_t accepted_sigma = 3.;
 
-	flt_t ex_clusters = dv::image_size_xp * dv::image_size_yp * square(dv::pixel_scale/60.) *
+  flt_t ex_clusters = dv::image_size_xp * dv::image_size_yp * square(dv::pixel_scale * 60.)
+      *
 			visible_clusters(1.*square(unitconv::amintorad*rad));
 	flt_t ex_clusters_min = ex_clusters - accepted_sigma * std::sqrt(ex_clusters);
 	flt_t ex_clusters_max = ex_clusters + accepted_sigma * std::sqrt(ex_clusters);
@@ -84,7 +85,8 @@ struct PHL_autofill_children_fixture {
 	flt_t ex_cgs_min = ex_cgs - accepted_sigma * std::sqrt(ex_cgs-1); // - 1 to exclude central from variation
 	flt_t ex_cgs_max = ex_cgs + accepted_sigma * std::sqrt(ex_cgs-1); // - 1 to exclude central from variation
 
-	flt_t ex_fgs = dv::image_size_xp * dv::image_size_yp * square(dv::pixel_scale/60.) *
+  flt_t ex_fgs = dv::image_size_xp * dv::image_size_yp * square(dv::pixel_scale * 60.)
+      *
 			visible_galaxies(1.*square(unitconv::amintorad*rad)) -
 			ex_clusters*ex_cgs;
 	flt_t ex_fgs_min = ex_fgs - accepted_sigma * std::sqrt(ex_fgs);
