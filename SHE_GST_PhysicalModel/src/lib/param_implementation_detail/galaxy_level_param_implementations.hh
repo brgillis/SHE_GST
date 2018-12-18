@@ -1,5 +1,5 @@
 /**********************************************************************\
- @file galaxy_level_param_implementations.hh
+ @file galaxy_pair_level_param_implementations.hh
  ------------------
 
  Implementations for Galaxy-level parameters, separated out
@@ -9,17 +9,17 @@
 
  **********************************************************************
 
- Copyright (C) 2012-2020 Euclid Science Ground Segment      
+ Copyright (C) 2012-2020 Euclid Science Ground Segment
 
- This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General    
- Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)    
- any later version.    
+ This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)
+ any later version.
 
- This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied    
- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more    
- details.    
+ This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details.
 
- You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
+ You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
  the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 \**********************************************************************/
@@ -27,7 +27,7 @@
 #ifndef SRC_PARAM_IMPLEMENTATION_DETAIL_GALAXY_LEVEL_PARAM_IMPLEMENTATIONS_HH_
 #define SRC_PARAM_IMPLEMENTATION_DETAIL_GALAXY_LEVEL_PARAM_IMPLEMENTATIONS_HH_
 
-IMPLEMENT_PARAM(absolute_mag_vis, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(absolute_mag_vis, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = generate_abs_mag_vis(REQUEST(galaxy_type), REQUEST(redshift),
 					REQUEST(cluster_mass),get_rng());
@@ -35,62 +35,62 @@ IMPLEMENT_PARAM(absolute_mag_vis, dv::galaxy_level, Calculated
 		_cached_value = generate_abs_mag_vis(REQUEST(galaxy_type), REQUEST(redshift),
 					REQUEST(cluster_mass),get_rng());
 	)
-IMPLEMENT_PARAM(apparent_mag_vis, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(apparent_mag_vis, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = get_apparent_mag_vis(REQUEST(absolute_mag_vis), REQUEST(redshift));
 	,
 		_cached_value = get_apparent_mag_vis(REQUEST(absolute_mag_vis), REQUEST(redshift));
 	)
-IMPLEMENT_PARAM(apparent_size_bulge, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(apparent_size_bulge, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = get_angle_from_distance(REQUEST(physical_size_bulge), REQUEST(redshift))
 	,
 		_cached_value = generate_apparent_size_bulge(REQUEST(apparent_mag_vis), get_rng());
 	)
-IMPLEMENT_PARAM(apparent_size_disk, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(apparent_size_disk, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = get_angle_from_distance(REQUEST(physical_size_disk), REQUEST(redshift));
 	,
 		_cached_value = generate_apparent_size_disk(REQUEST(apparent_mag_vis), get_rng());
 	)
-IMPLEMENT_PARAM(bulge_class, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(bulge_class, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = generate_bulge_class(REQUEST(stellar_mass), REQUEST(redshift), get_rng());
 	,
 		_cached_value = generate_bulge_class(REQUEST(stellar_mass), REQUEST(redshift), get_rng());
 	)
-IMPLEMENT_PARAM(bulge_fraction, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(bulge_fraction, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = get_bulge_fraction_from_class(REQUEST(bulge_class));
 	,
 		_cached_value = generate_bulge_fraction(REQUEST(apparent_mag_vis), REQUEST(sersic_index),
 					get_rng());
 	)
-IMPLEMENT_PARAM(bulge_axis_ratio, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(bulge_axis_ratio, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = get_bulge_axis_ratio(REQUEST(sersic_index));
 	,
 		_cached_value = get_bulge_axis_ratio(REQUEST(sersic_index));
 	)
-IMPLEMENT_PARAM(bulge_ellipticity, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(bulge_ellipticity, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = get_bulge_ellipticity(REQUEST(bulge_axis_ratio),REQUEST(tilt));
 	,
 		_cached_value = get_bulge_ellipticity(REQUEST(bulge_axis_ratio),REQUEST(tilt));
 	)
-IMPLEMENT_PARAM(disk_height_ratio, dv::galaxy_level, IndFixed(dv::disk_height_ratio)
+IMPLEMENT_PARAM(disk_height_ratio, dv::galaxy_pair_level, IndFixed(dv::disk_height_ratio)
     ,
         _cached_value = _p_params->get_independently(get_rng());
     ,
         _cached_value = _p_params->get_independently(get_rng());
     )
-IMPLEMENT_PARAM(galaxy_type, dv::galaxy_level, IndFixed(dv::galaxy_type)
+IMPLEMENT_PARAM(galaxy_type, dv::galaxy_pair_level, IndFixed(dv::galaxy_type)
 	,
 		_cached_value = _p_params->get_independently(get_rng());
 	,
 		_cached_value = _p_params->get_independently(get_rng());
 	)
-IMPLEMENT_PARAM(physical_size_bulge, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(physical_size_bulge, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = generate_physical_size_bulge(REQUEST(galaxy_type), REQUEST(redshift),
 					REQUEST(stellar_mass), get_rng());
@@ -98,7 +98,7 @@ IMPLEMENT_PARAM(physical_size_bulge, dv::galaxy_level, Calculated
 		_cached_value = generate_physical_size_bulge(REQUEST(galaxy_type), REQUEST(redshift),
 					REQUEST(stellar_mass), get_rng());
 	)
-IMPLEMENT_PARAM(physical_size_disk, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(physical_size_disk, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = generate_physical_size_disk(REQUEST(galaxy_type), REQUEST(redshift),
 					REQUEST(stellar_mass), get_rng());
@@ -106,7 +106,7 @@ IMPLEMENT_PARAM(physical_size_disk, dv::galaxy_level, Calculated
 		_cached_value = generate_physical_size_disk(REQUEST(galaxy_type), REQUEST(redshift),
 					REQUEST(stellar_mass), get_rng());
 	)
-IMPLEMENT_PARAM(redshift, dv::galaxy_level, DepFieldRedshift(dv::galaxy_redshift_enhancement,
+IMPLEMENT_PARAM(redshift, dv::galaxy_pair_level, DepFieldRedshift(dv::galaxy_redshift_enhancement,
 		dv::galaxy_redshift_min, dv::galaxy_redshift_max)
 	,
 		if(is_field_galaxy(REQUEST(galaxy_type)))
@@ -171,21 +171,21 @@ IMPLEMENT_PARAM(rp, dv::galaxy_level, Calculated
 		_cached_value = generate_rp(REQUEST(galaxy_type), REQUEST(cluster_mass),
 				REQUEST(cluster_redshift), REQUEST(pixel_scale), get_rng());
 	)
-IMPLEMENT_PARAM(sersic_index, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(sersic_index, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = generate_sersic_index_from_bulge_class(REQUEST(bulge_class), get_rng());
 	,
 		_cached_value = generate_sersic_index_from_apparent_mag_vis(REQUEST(apparent_mag_vis),
 				get_rng());
 	)
-IMPLEMENT_PARAM(shear_angle, dv::galaxy_level, IndUniform(dv::shear_angle_min,
+IMPLEMENT_PARAM(shear_angle, dv::galaxy_group_level, IndUniform(dv::shear_angle_min,
 															dv::shear_angle_max)
 	,
 		_cached_value = generate_shear_angle(REQUEST(xp), REQUEST(yp), get_rng());
 	,
 		_cached_value = generate_shear_angle(REQUEST(xp), REQUEST(yp), get_rng());
 	)
-IMPLEMENT_PARAM(shear_magnitude, dv::galaxy_level, IndContRayleigh(dv::shear_magnitude_sigma,
+IMPLEMENT_PARAM(shear_magnitude, dv::galaxy_group_level, IndContRayleigh(dv::shear_magnitude_sigma,
 	dv::shear_magnitude_max,
 	dv::shear_magnitude_p)
 	,
@@ -195,13 +195,13 @@ IMPLEMENT_PARAM(shear_magnitude, dv::galaxy_level, IndContRayleigh(dv::shear_mag
 		_cached_value = generate_shear_magnitude(REQUEST(xp), REQUEST(yp),
 				REQUEST(redshift), get_rng());
 	)
-IMPLEMENT_PARAM(spin, dv::galaxy_level, IndUniform(dv::spin_min, dv::spin_max)
+IMPLEMENT_PARAM(spin, dv::galaxy_pair_level, IndUniform(dv::spin_min, dv::spin_max)
 	,
 		_cached_value = _p_params->get_independently(get_rng());
 	,
 		_cached_value = _p_params->get_independently(get_rng());
 	)
-IMPLEMENT_PARAM(stellar_mass, dv::galaxy_level, Calculated
+IMPLEMENT_PARAM(stellar_mass, dv::galaxy_pair_level, Calculated
 	,
 		_cached_value = get_stellar_mass(REQUEST(absolute_mag_vis));
 	,
@@ -213,7 +213,7 @@ IMPLEMENT_PARAM(theta_sat, dv::galaxy_level, IndUniform(dv::theta_sat_min, dv::t
 	,
 		_cached_value = _p_params->get_independently(get_rng());
 	)
-IMPLEMENT_PARAM(tilt, dv::galaxy_level, IndArcCos(dv::tilt_cos_min, dv::tilt_cos_max)
+IMPLEMENT_PARAM(tilt, dv::galaxy_pair_level, IndArcCos(dv::tilt_cos_min, dv::tilt_cos_max)
 	,
 		if(is_satellite_galaxy(REQUEST(galaxy_type)))
 			_cached_value = generate_tilt( REQUEST(xp), REQUEST(yp), REQUEST(cluster_xp), REQUEST(cluster_yp),
