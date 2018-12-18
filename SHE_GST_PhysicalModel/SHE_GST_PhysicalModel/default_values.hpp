@@ -33,7 +33,7 @@ namespace SHE_GST_PhysicalModel { namespace dv {
 constexpr const int_t survey_level = 0;
 
 constexpr const flt_t num_image_groups = 1;
-constexpr const flt_t pixel_scale = 0.1; // arcsec/pixel
+constexpr const flt_t pixel_scale = 0.1 / 3600; // arcsec/pixel
 
 constexpr const flt_t wcs_g1 = 0.;
 constexpr const flt_t wcs_g2 = 0.;

@@ -38,12 +38,12 @@ namespace SHE_GST_PhysicalModel {
  *
  * @param image_size_x_pix
  * @param image_size_y_pix
- * @param pixel_scale Pixel scale in arcsec/pixel
+ * @param pixel_scale Pixel scale in deg/pixel
  * @return
  */
 inline flt_t get_image_area( flt_t const & image_size_x_pix, flt_t const & image_size_y_pix, flt_t const & pixel_scale )
 {
-	return image_size_x_pix * image_size_y_pix * IceBRG::square( pixel_scale/60. );
+	return image_size_x_pix * image_size_y_pix * IceBRG::square( pixel_scale*60. );
 }
 
 inline flt_t get_zp( flt_t const & inst_zp, flt_t const & exp_time)

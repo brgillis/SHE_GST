@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-12-17"
+__updated__ = "2018-12-18"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -476,6 +476,9 @@ def print_galaxies(image_phl,
             
     # Since all WCSs are uniform so far, we just use a single jacobian WCS for profile transformations
     jacobian_wcs = wcs_list[0].jacobian(image_pos=galsim.PositionD(0.,0.))
+    
+    # Seed the python RNG
+    np.random.seed(image_phl.get_full_seed())
 
     # Generate parameters first (for consistent rng)
 
@@ -1223,7 +1226,7 @@ def generate_image(image_phl,
     if not options['suppress_noise']:
         for di in range(num_dithers):
             if options['noise_seed'] != 0:
-                base_deviate = galsim.BaseDeviate(options['noise_seed'] + di)
+                base_deviate = galsim.BaseDeviate(num_dithers*options['noise_seed'] + di)
             else:
                 base_deviate = galsim.BaseDeviate(image_phl.get_full_seed() + 1 + di)
             base_deviates.append(base_deviate)
