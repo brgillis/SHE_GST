@@ -5,7 +5,7 @@
     Functions to generate mock segmentation maps.
 """
 
-__updated__ = "2018-12-18"
+__updated__ = "2019-02-18"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -50,14 +50,16 @@ def make_segmentation_map(noisefree_image,
         @TODO Docstring
     """
 
-    if detf.Isoarea not in detections_table.columns:
-        raise ValueError(detf.Isoarea + " must be in detections table for make_segmentation_map")
+    if detf.hlr not in detections_table.columns:
+        raise ValueError(detf.hlr + " must be in detections table for make_segmentation_map")
 
-    if detf.MAG_VIS_TOTAL in detections_table.columns:
+    if detf.FLUX_VIS_APER in detections_table.columns:
         sorted_dtc_table = deepcopy(detections_table)
-        sorted_dtc_table.sort(detf.MAG_VIS_TOTAL)
+        sorted_dtc_table[detf.FLUX_VIS_APER] *= -1 # Sort in descending flux
+        sorted_dtc_table.sort(detf.FLUX_VIS_APER)
+        sorted_dtc_table[detf.FLUX_VIS_APER] *= -1
     else:
-        raise ValueError(detf.MAG_VIS_TOTAL + " must be in detections table for make_segmentation_map")
+        raise ValueError(detf.FLUX_VIS_APER + " must be in detections table for make_segmentation_map")
 
     detections_table.add_index(detf.ID)
 
@@ -76,6 +78,9 @@ def make_segmentation_map(noisefree_image,
         claimed_mask = np.zeros_like(threshold_mask, dtype=bool)
         
     scale, _, _, _ = noisefree_image.wcs.jacobian().getDecomposition()
+    
+    # Convert the scale to arcsec
+    scale *= 3600
 
     r_max_factor_scaled = r_max_factor / scale
 
@@ -119,7 +124,9 @@ def make_segmentation_map(noisefree_image,
 
         r2_image = dx_image ** 2 + dy_image ** 2
 
-        r2_max = r_max_factor_scaled**2 * sorted_dtc_table[detf.Isoarea][i]
+        r2_max = r_max_factor_scaled**2 * sorted_dtc_table[detf.hlr][i]**2
+        
+        import pdb; pdb.set_trace()
 
         region_mask = np.ravel(r2_image) > r2_max
 
