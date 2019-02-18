@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2018-12-18"
+__updated__ = "2019-02-18"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -55,7 +55,7 @@ from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, w
                              write_xml_product, find_file_in_path, find_file)
 from SHE_PPT.logging import getLogger
 from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
-                                  model_seed_label, noise_seed_label, extname_label, dither_dx_label,
+                                  model_seed_label, noise_seed_label, extname_label, ccdid_label, dither_dx_label,
                                   dither_dy_label, scale_label,
                                   sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
                                   detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
@@ -1070,6 +1070,7 @@ def add_image_header_info(gs_image,
                           full_options,
                           model_seed,
                           extname,
+                          ccdid,
                           wcs,
                           stamp_size=None,):
     """
@@ -1087,6 +1088,8 @@ def add_image_header_info(gs_image,
             <int> Seed used for the physical model
         @param extname
             <str> Name of the extension
+        @param ccdid
+            <str> ID of the CCD
         @param dither_shift
             <(float,float)> Shift for this dither.
 
@@ -1126,6 +1129,7 @@ def add_image_header_info(gs_image,
 
     # Extension name
     gs_image.header[extname_label] = extname
+    gs_image.header[ccdid_label] = ccdid
 
     # Pixel scale
     scale, _, _, _ = gs_image.wcs.jacobian().getDecomposition()
@@ -1315,22 +1319,22 @@ def generate_image(image_phl,
 
             # Add a header containing version info
             add_image_header_info(dither, options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + sci_tag,
+                                  extname=detector_id_str + "." + sci_tag, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(noise_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + noisemap_tag,
+                                  extname=detector_id_str + "." + noisemap_tag, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(mask_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + mask_tag,
+                                  extname=detector_id_str + "." + mask_tag, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(bkg_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str,
+                                  extname=detector_id_str, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(wgt_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str,
+                                  extname=detector_id_str, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(segmentation_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + segmentation_tag,
+                                  extname=detector_id_str + "." + segmentation_tag, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
 
             # Note - noise map here deliberately doesn't include galaxy contributions
