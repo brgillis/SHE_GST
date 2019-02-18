@@ -125,8 +125,6 @@ def make_segmentation_map(noisefree_image,
         r2_image = dx_image ** 2 + dy_image ** 2
 
         r2_max = r_max_factor_scaled**2 * sorted_dtc_table[detf.hlr][i]**2
-        
-        import pdb; pdb.set_trace()
 
         region_mask = np.ravel(r2_image) > r2_max
 
