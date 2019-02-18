@@ -6,7 +6,7 @@
     Pixel shifts for different dithering schemes
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2019-02-18"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -44,4 +44,9 @@ def get_dither_scheme(scheme_name):
                 (0.0, 0.0),
                )
     else:
-        return ((0.0, 0.0),)
+        try:
+            num_dithers = int(scheme_name)
+            offset = [(0.0, 0.0),]
+            return tuple(offset * num_dithers)
+        except Exception as _e:
+            return ((0.0, 0.0),)
