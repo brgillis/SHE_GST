@@ -3,6 +3,7 @@ elements_subdir(SHE_GST_cIceBRGpy)
 
 # Declare Elements module dependencies
 elements_depends_on_subdirs(ElementsKernel)
+elements_depends_on_subdirs(SHE_GST)
 elements_depends_on_subdirs(SHE_GST_IceBRG_main)
 elements_depends_on_subdirs(SHE_GST_IceBRG_physics)
 

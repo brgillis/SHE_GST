@@ -4,6 +4,7 @@ elements_subdir(SHE_GST_PrepareConfigs)
 # Declare Elements module dependencies
 elements_depends_on_subdirs(ElementsKernel)
 elements_depends_on_subdirs(SHE_PPT)
+elements_depends_on_subdirs(SHE_GST)
 elements_depends_on_subdirs(SHE_GST_GalaxyImageGeneration)
 
 # Instruction for Python module installation

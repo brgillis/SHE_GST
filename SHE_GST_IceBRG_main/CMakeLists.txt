@@ -3,6 +3,7 @@ elements_subdir(SHE_GST_IceBRG_main)
 
 # Declare Elements module dependencies
 elements_depends_on_subdirs(ElementsKernel)
+elements_depends_on_subdirs(SHE_GST)
 
 # Declare library dependencies
 find_package(Boost)
