@@ -5,7 +5,7 @@
     Contains functions to write out configuration files.
 """
 
-__updated__ = "2018-11-26"
+__updated__ = "2019-04-22"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,9 +23,6 @@ __updated__ = "2018-11-26"
 import os
 from shutil import copyfile
 
-from astropy.table import Table
-
-from SHE_GST_PrepareConfigs import magic_values as mv
 from SHE_PPT import products
 from SHE_PPT.file_io import (get_allowed_filename, replace_multiple_in_file,
                              write_pickled_product, write_listfile, find_file,
@@ -33,6 +30,10 @@ from SHE_PPT.file_io import (get_allowed_filename, replace_multiple_in_file,
 from SHE_PPT.logging import getLogger
 from SHE_PPT.table_formats.simulation_plan import tf as sptf
 from SHE_PPT.table_utility import is_in_format
+
+import SHE_GST
+from SHE_GST_PrepareConfigs import magic_values as mv
+from astropy.table import Table
 import numpy as np
 
 
@@ -251,10 +252,12 @@ def write_configs_from_plan(plan_filename,
 
             prod_filename = get_allowed_filename(type_name="GST-CFG-P",
                                                  instance_id=tag + "-" + str(i),
-                                                 extension=".xml")
+                                                 extension=".xml",
+                                                 version=SHE_GST.__version__)
             filename = get_allowed_filename(type_name="GST-CFG",
                                             instance_id=tag + "-" + str(i),
-                                            extension=".txt")
+                                            extension=".txt",
+                                            version=SHE_GST.__version__)
 
             cfg_prod = products.simulation_config.create_simulation_config_product(filename)
             write_pickled_product(cfg_prod, os.path.join(workdir, prod_filename))

@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse-pydev version="1.0"?><pydev_project>
-<pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">python3</pydev_property>
-<pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 3.0</pydev_property>
-<pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/${PROJECT_DIR_NAME}/SHE_GST_GalaxyImageGeneration/python</path>
-<path>/${PROJECT_DIR_NAME}/SHE_GST_cIceBRGpy/python</path>
-<path>/${PROJECT_DIR_NAME}/SHE_GST_IceBRGpy/python</path>
-<path>/${PROJECT_DIR_NAME}/SHE_GST_PrepareConfigs/python</path>
-</pydev_pathproperty>
-<pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
-<path>/opt/euclid/Elements/3.10/InstallArea/x86_64-co7-gcc48-o2g/python</path>
-<path>/home/brg/git/SHE_PPT/SHE_PPT/python</path>
-</pydev_pathproperty>
+    
+    <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">python3</pydev_property>
+    
+    <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 3.0</pydev_property>
+    
+    <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
+        <path>/${PROJECT_DIR_NAME}/SHE_GST_GalaxyImageGeneration/python</path>
+        <path>/${PROJECT_DIR_NAME}/SHE_GST_cIceBRGpy/python</path>
+        <path>/${PROJECT_DIR_NAME}/SHE_GST_IceBRGpy/python</path>
+        <path>/${PROJECT_DIR_NAME}/SHE_GST_PrepareConfigs/python</path>
+    </pydev_pathproperty>
+    
+    <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
+        
+        <path>/opt/euclid/Elements/3.10/InstallArea/x86_64-co7-gcc48-o2g/python</path>
+        
+        <path>/home/brg/git/SHE_PPT/SHE_PPT/python</path>
+        
+    </pydev_pathproperty>
+    
 </pydev_project>

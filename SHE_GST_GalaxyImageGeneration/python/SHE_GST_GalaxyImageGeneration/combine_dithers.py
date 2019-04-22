@@ -6,7 +6,7 @@
     Function to combine various dithers into a stacked image.
 """
 
-__updated__ = "2018-12-17"
+__updated__ = "2019-04-22"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,18 +21,19 @@ __updated__ = "2018-12-17"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from numpy.lib.stride_tricks import as_strided
 import os
 
-from astropy.io import fits
-import galsim
-from numpy.lib.stride_tricks import as_strided
-
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_PPT import magic_values as ppt_mv
 from SHE_PPT import products
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
 from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag, background_tag, weight_tag
 from SHE_PPT.mask import masked_off_image
+import galsim
+
+import SHE_GST
+from SHE_GST_GalaxyImageGeneration import magic_values as mv
+from astropy.io import fits
 import numpy as np
 
 
@@ -229,7 +230,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
 
     # Get the WCS from the first dither
     first_wcs, first_origin = galsim.wcs.readFromFitsHeader(segmentation_dithers[0][0].header)
-    
+
     stack_wcs = galsim.wcs.AffineTransform(dudx=first_wcs.dudx / pixel_factor,
                                            dudy=first_wcs.dudy / pixel_factor,
                                            dvdx=first_wcs.dvdx / pixel_factor,
@@ -268,7 +269,8 @@ def combine_segmentation_dithers(segmentation_listfile_name,
     model_hash_fn = model_hash_fn.replace('.', '-').replace('+', '-')
     data_filename = get_allowed_filename("GST-SEG-STACK",
                                          model_hash_fn,
-                                         extension=".fits")
+                                         extension=".fits",
+                                         version=SHE_GST.__version__)
 
     save_hdu(full_image, segmentation_dithers, stack_wcs, pixel_factor,
              data_filename, segmentation_tag, workdir)
@@ -354,7 +356,7 @@ def combine_image_dithers(image_listfile_name,
 
     # Get the WCS from the first dither
     first_wcs, first_origin = galsim.wcs.readFromFitsHeader(image_dithers[0][0].header)
-    
+
     stack_wcs = galsim.wcs.AffineTransform(dudx=first_wcs.dudx / pixel_factor,
                                            dudy=first_wcs.dudy / pixel_factor,
                                            dvdx=first_wcs.dvdx / pixel_factor,
@@ -438,7 +440,8 @@ def combine_image_dithers(image_listfile_name,
     model_hash_fn = model_hash_fn.replace('.', '-').replace('+', '-')
     data_filename = get_allowed_filename("GST-IMAGE-STACK",
                                          model_hash_fn,
-                                         extension=".fits")
+                                         extension=".fits",
+                                         version=SHE_GST.__version__)
     save_hdu(full_sci_image, image_dithers, stack_wcs, pixel_factor,
              data_filename, sci_tag, workdir)
     save_hdu(full_flg_image, image_dithers, stack_wcs, pixel_factor,
@@ -448,13 +451,15 @@ def combine_image_dithers(image_listfile_name,
 
     bkg_filename = get_allowed_filename("GST-BKG-STACK",
                                         model_hash_fn,
-                                        extension=".fits")
+                                        extension=".fits",
+                                        version=SHE_GST.__version__)
     save_hdu(full_bkg_image, bkg_image_dithers, stack_wcs, pixel_factor,
              bkg_filename, background_tag, workdir)
 
     wgt_filename = get_allowed_filename("GST-WGT-STACK",
                                         model_hash_fn,
-                                        extension=".fits")
+                                        extension=".fits",
+                                        version=SHE_GST.__version__)
     save_hdu(full_bkg_image, wgt_image_dithers, stack_wcs, pixel_factor,
              wgt_filename, weight_tag, workdir)
 

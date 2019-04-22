@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2019-02-18"
+__updated__ = "2019-04-22"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -27,11 +27,25 @@ from copy import deepcopy
 from multiprocessing import cpu_count, Pool
 import os
 
-from astropy import table
-from astropy.io import fits
+from SHE_PPT import detector
+from SHE_PPT import products
+from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
+                             write_xml_product, find_file_in_path, find_file)
+from SHE_PPT.logging import getLogger
+from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
+                                  model_seed_label, noise_seed_label, extname_label, ccdid_label, dither_dx_label,
+                                  dither_dy_label, scale_label,
+                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
+                                  detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
+from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
+from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
+from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
+from SHE_PPT.table_utility import add_row, table_to_hdu
+from SHE_PPT.utility import hash_any
 import galsim
 import h5py
 
+import SHE_GST
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.combine_dithers import (combine_image_dithers,
                                                            combine_segmentation_dithers)
@@ -49,21 +63,8 @@ from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_GST_GalaxyImageGeneration.signal_to_noise import get_signal_to_noise_estimate
 from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
 import SHE_GST_PhysicalModel
-from SHE_PPT import detector
-from SHE_PPT import products
-from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
-                             write_xml_product, find_file_in_path, find_file)
-from SHE_PPT.logging import getLogger
-from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
-                                  model_seed_label, noise_seed_label, extname_label, ccdid_label, dither_dx_label,
-                                  dither_dy_label, scale_label,
-                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
-                                  detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
-from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
-from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
-from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
-from SHE_PPT.table_utility import add_row, table_to_hdu
-from SHE_PPT.utility import hash_any
+from astropy import table
+from astropy.io import fits
 import numpy as np
 
 
@@ -190,7 +191,8 @@ def generate_image_group(image_group_phl, options):
     full_options = get_full_options(options, image_group_phl)
     model_hash = hash_any(full_options, format="base64")
     model_hash_fn = model_hash[0:model_hash_maxlen].replace('.', '-').replace('+', '-')
-    psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".hdf5")
+    psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".hdf5",
+                                                version=SHE_GST.__version__)
 
     if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
             (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None') and
@@ -223,7 +225,8 @@ def generate_image_group(image_group_phl, options):
 
             for (subfilename_list, label, extension) in subfilenames_lists_labels_exts:
 
-                filename = get_allowed_filename(label + "-" + tag + dither_tag, model_hash_fn, extension=extension)
+                filename = get_allowed_filename(label + "-" + tag + dither_tag, model_hash_fn, extension=extension,
+                                                version=SHE_GST.__version__)
                 subfilename_list.append(filename)
 
                 # If it exists already, delete it
@@ -473,10 +476,10 @@ def print_galaxies(image_phl,
 
     background_galaxies = []
     target_galaxies = []
-            
+
     # Since all WCSs are uniform so far, we just use a single jacobian WCS for profile transformations
-    jacobian_wcs = wcs_list[0].jacobian(image_pos=galsim.PositionD(0.,0.))
-    
+    jacobian_wcs = wcs_list[0].jacobian(image_pos=galsim.PositionD(0., 0.))
+
     # Seed the python RNG
     np.random.seed(image_phl.get_full_seed())
 
@@ -739,7 +742,8 @@ def print_galaxies(image_phl,
                                                 use_background_psf=use_background_psf,
                                                 data_dir=options['data_dir'],
                                                 model_psf_file_name=options['model_psf_file_name'],
-                                                model_psf_scale=options['model_psf_scale'] * 36000, # Needs to be in units of pixels
+                                                model_psf_scale=options['model_psf_scale'] *
+                                                36000,  # Needs to be in units of pixels
                                                 model_psf_offset=model_psf_offset,
                                                 pixel_scale=pixel_scale,
                                                 gsparams=default_gsparams,
@@ -751,7 +755,8 @@ def print_galaxies(image_phl,
                                                    use_background_psf=use_background_psf,
                                                    data_dir=options['data_dir'],
                                                    model_psf_file_name=options['model_psf_file_name'],
-                                                   model_psf_scale=options['model_psf_scale'] * 36000, # Needs to be in units of pixels
+                                                   model_psf_scale=options['model_psf_scale'] *
+                                                   36000,  # Needs to be in units of pixels
                                                    model_psf_offset=model_psf_offset,
                                                    pixel_scale=pixel_scale,
                                                    gsparams=default_gsparams,
@@ -888,7 +893,7 @@ def print_galaxies(image_phl,
                                                                    beta_deg_shear=beta_shear,
                                                                    gsparams=default_gsparams,
                                                                    data_dir=options['data_dir'])
-                
+
                 # Convert the profile to image co-ordinates
                 bulge_gal_profile = jacobian_wcs.toImage(bulge_gal_profile_world)
 
@@ -906,7 +911,7 @@ def print_galaxies(image_phl,
                                                                  beta_deg_shear=beta_shear,
                                                                  height_ratio=disk_height_ratio,
                                                                  gsparams=default_gsparams)
-                
+
                 # Convert the profile to image co-ordinates
                 disk_gal_profile = jacobian_wcs.toImage(disk_gal_profile_world)
 
@@ -928,7 +933,7 @@ def print_galaxies(image_phl,
                                                              beta_deg_shear=beta_shear,
                                                              gsparams=default_gsparams,
                                                              data_dir=options['data_dir'])
-                
+
                 gal_profile = jacobian_wcs.toImage(gal_profile_world)
 
                 # Convolve the galaxy, psf, and pixel profile to determine the final
@@ -1056,7 +1061,7 @@ def print_galaxies(image_phl,
                 detf.STAR_FLAG: False,
                 detf.STAR_PROB: 0.,
                 detf.hlr: hlr,
-                detf.FLUX_VIS_APER: 10**(-0.4*galaxy.get_param_value('apparent_mag_vis')),
+                detf.FLUX_VIS_APER: 10**(-0.4 * galaxy.get_param_value('apparent_mag_vis')),
             })
 
             del final_disk, disk_psf_profile
@@ -1233,7 +1238,7 @@ def generate_image(image_phl,
     if not options['suppress_noise']:
         for di in range(num_dithers):
             if options['noise_seed'] != 0:
-                base_deviate = galsim.BaseDeviate(num_dithers*options['noise_seed'] + di)
+                base_deviate = galsim.BaseDeviate(num_dithers * options['noise_seed'] + di)
             else:
                 base_deviate = galsim.BaseDeviate(image_phl.get_full_seed() + 1 + di)
             base_deviates.append(base_deviate)
