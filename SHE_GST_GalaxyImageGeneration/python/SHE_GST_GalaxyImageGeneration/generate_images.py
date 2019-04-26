@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2019-04-22"
+__updated__ = "2019-04-26"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -249,7 +249,8 @@ def generate_image_group(image_group_phl, options):
 
         # Segmentation map
 
-        mock_mosaic_product = products.mosaic.create_mosaic_product(data_filename=mosaic_filenames.data_filenames[i])
+        mock_mosaic_product = products.exposure_mosaic.create_exposure_mosaic_product(
+            data_filename=mosaic_filenames.data_filenames[i])
 
         write_xml_product(mock_mosaic_product,
                           os.path.join(workdir, mosaic_filenames.prod_filenames[i]))
