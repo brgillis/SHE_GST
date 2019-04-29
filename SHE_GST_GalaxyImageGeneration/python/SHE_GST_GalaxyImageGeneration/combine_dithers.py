@@ -6,7 +6,7 @@
     Function to combine various dithers into a stacked image.
 """
 
-__updated__ = "2019-04-22"
+__updated__ = "2019-04-29"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,19 +21,19 @@ __updated__ = "2019-04-22"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from numpy.lib.stride_tricks import as_strided
 import os
 
+from astropy.io import fits
+import galsim
+from numpy.lib.stride_tricks import as_strided
+
+import SHE_GST
+from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_PPT import magic_values as ppt_mv
 from SHE_PPT import products
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
 from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag, background_tag, weight_tag
 from SHE_PPT.mask import masked_off_image
-import galsim
-
-import SHE_GST
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from astropy.io import fits
 import numpy as np
 
 
@@ -434,6 +434,10 @@ def combine_image_dithers(image_listfile_name,
         else:
             x_offset = 0
             y_offset += sci_stack.shape[1] + pixel_factor * mv.image_gap_y_pix - extra_pixels
+            
+    # Subtract the background from the science image
+    # TODO: Remove this once VIS fixes it
+    full_sci_image -= full_bkg_image
 
     # Print out the stacked segmentation map
     model_hash_fn = image_dithers[0][0].header[ppt_mv.model_hash_label][0:ppt_mv.short_instance_id_maxlen]
