@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2019-04-26"
+__updated__ = "2019-06-24"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -244,30 +244,26 @@ def generate_image_group(image_group_phl, options):
         image_product.set_bkg_filename(image_filenames.bkg_filenames[i])
         image_product.set_wgt_filename(image_filenames.wgt_filenames[i])
 
-        write_xml_product(image_product,
-                          os.path.join(workdir, image_filenames.prod_filenames[i]))
+        write_xml_product(image_product, image_filenames.prod_filenames, workdir=workdir)
 
         # Segmentation map
 
         mock_mosaic_product = products.exposure_mosaic.create_exposure_mosaic_product(
             data_filename=mosaic_filenames.data_filenames[i])
 
-        write_xml_product(mock_mosaic_product,
-                          os.path.join(workdir, mosaic_filenames.prod_filenames[i]))
+        write_xml_product(mock_mosaic_product, mosaic_filenames.prod_filenames, workdir=workdir)
 
         # PSF catalogue and images
 
         psf_product = products.psf_image.create_dpd_she_psf_image(filename=psf_filenames.data_filenames[i])
 
-        write_xml_product(psf_product,
-                          os.path.join(workdir, psf_filenames.prod_filenames[i]))
+        write_xml_product(psf_product, psf_filenames.prod_filenames, workdir=workdir)
 
         # Detections table
 
         my_detections_product = products.detections.create_detections_product(
             data_filename=detections_filenames.data_filenames[0])
-        write_xml_product(my_detections_product,
-                          os.path.join(workdir, detections_filenames.prod_filenames[0]))
+        write_xml_product(my_detections_product, detections_filenames.prod_filenames[0], workdir=workdir)
 
     # end for i in range(num_dithers):
 
@@ -364,10 +360,10 @@ def generate_image_group(image_group_phl, options):
     # Output data products for tables
 
     details_prod = products.details.create_details_product(details_filenames.data_filenames[0])
-    write_xml_product(details_prod, os.path.join(workdir, options['details_table']))
+    write_xml_product(details_prod, options['details_table'], workdir=workdir)
 
     detections_prod = products.detections.create_detections_product(detections_filenames.data_filenames[0])
-    write_xml_product(detections_prod, os.path.join(workdir, detections_filenames.prod_filenames[0]))
+    write_xml_product(detections_prod, detections_filenames.prod_filenames[0], workdir=workdir)
     write_listfile(os.path.join(workdir, options['detections_tables']), [detections_filenames.prod_filenames[0]])
 
     if not options['details_only']:

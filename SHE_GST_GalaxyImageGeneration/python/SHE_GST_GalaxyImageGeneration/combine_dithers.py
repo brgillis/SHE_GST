@@ -276,7 +276,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
              data_filename, segmentation_tag, workdir)
 
     p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
-    write_xml_product(p, os.path.join(workdir, stacked_segmentation_filename))
+    write_xml_product(p, stacked_segmentation_filename, workdir=workdir)
 
     return
 
@@ -470,6 +470,6 @@ def combine_image_dithers(image_listfile_name,
     p = products.stacked_frame.create_dpd_vis_stacked_frame(data_filename=data_filename,
                                                             bkg_filename=bkg_filename,
                                                             wgt_filename=wgt_filename)
-    write_xml_product(p, os.path.join(workdir, stacked_image_filename))
+    write_xml_product(p, stacked_image_filename, workdir=workdir)
 
     return
