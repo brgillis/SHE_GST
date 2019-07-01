@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2019-06-27"
+__updated__ = "2019-06-28"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -27,8 +27,21 @@ from copy import deepcopy
 from multiprocessing import cpu_count, Pool
 import os
 
-from astropy import table
-from astropy.io import fits
+from SHE_PPT import detector
+from SHE_PPT import products
+from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
+                             write_xml_product, find_file_in_path, find_file)
+from SHE_PPT.logging import getLogger
+from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
+                                  model_seed_label, noise_seed_label, extname_label, ccdid_label, dither_dx_label,
+                                  dither_dy_label, scale_label,
+                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
+                                  detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
+from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
+from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
+from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
+from SHE_PPT.table_utility import add_row, table_to_hdu
+from SHE_PPT.utility import hash_any
 import galsim
 import h5py
 
@@ -50,34 +63,12 @@ from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
 from SHE_GST_GalaxyImageGeneration.signal_to_noise import get_signal_to_noise_estimate
 from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
 import SHE_GST_PhysicalModel
-from SHE_PPT import detector
-from SHE_PPT import products
-from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu, write_pickled_product,
-                             write_xml_product, find_file_in_path, find_file)
-from SHE_PPT.logging import getLogger
-from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
-                                  model_seed_label, noise_seed_label, extname_label, ccdid_label, dither_dx_label,
-                                  dither_dy_label, scale_label,
-                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
-                                  detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
-from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
-from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
-from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
-from SHE_PPT.table_utility import add_row, table_to_hdu
-from SHE_PPT.utility import hash_any
+from astropy import table
+from astropy.io import fits
 import numpy as np
 
 
 model_hash_maxlen = 17  # Maximum possible length within filenames
-
-
-products.aocs_time_series.init()
-products.calibrated_frame.init()
-products.details.init()
-products.detections.init()
-products.mosaic.init()
-products.psf_image.init()
-products.stacked_frame.init()
 
 
 default_gsparams = galsim.GSParams(folding_threshold=5e-3,
@@ -260,7 +251,7 @@ def generate_image_group(image_group_phl, options):
         write_xml_product(psf_product, psf_filenames.prod_filenames[i], workdir=workdir)
 
         # Detections table
-        if i==0:
+        if i == 0:
             my_detections_product = products.detections.create_detections_product(
                 data_filename=detections_filenames.data_filenames[i])
             write_xml_product(my_detections_product, detections_filenames.prod_filenames[i], workdir=workdir)
