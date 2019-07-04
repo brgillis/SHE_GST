@@ -80,21 +80,21 @@ IMPLEMENT_PARAM(bulge_ellipticity, dv::galaxy_pair_level, Calculated
 	)
 IMPLEMENT_PARAM(bulge_truncation_factor, dv::galaxy_pair_level, IndFixed(dv::bulge_truncation_factor)
     ,
-    cached_value = _p_params->get_independently(get_rng());
+    _cached_value = _p_params->get_independently(get_rng());
     ,
-    cached_value = _p_params->get_independently(get_rng());
+    _cached_value = _p_params->get_independently(get_rng());
 )
 IMPLEMENT_PARAM(disk_height_ratio, dv::galaxy_pair_level, IndFixed(dv::disk_height_ratio)
     ,
-    cached_value = _p_params->get_independently(get_rng());
+    _cached_value = _p_params->get_independently(get_rng());
     ,
-    cached_value = _p_params->get_independently(get_rng());
+    _cached_value = _p_params->get_independently(get_rng());
     )
 IMPLEMENT_PARAM(disk_truncation_factor, dv::galaxy_pair_level, IndFixed(dv::disk_truncation_factor)
     ,
-    cached_value = _p_params->get_independently(get_rng());
+    _cached_value = _p_params->get_independently(get_rng());
     ,
-    cached_value = _p_params->get_independently(get_rng());
+    _cached_value = _p_params->get_independently(get_rng());
 )
 IMPLEMENT_PARAM(galaxy_type, dv::galaxy_pair_level, IndFixed(dv::galaxy_type)
 	,
