@@ -117,6 +117,10 @@ def make_cutout_image(image,
         yl += y_shift
 
         gal_bounds = galsim.BoundsI(xl, xh, yl, yh)
+        
+#         from matplotlib import pyplot as plt
+#         plt.pcolor(image[gal_bounds].array)
+#         import pdb; pdb.set_trace()
 
         # Add the galaxy's stamp to the cutout image
         cutout_image[cutout_bounds] += image[gal_bounds]
@@ -127,8 +131,8 @@ def make_cutout_image(image,
             if otable is not None:
                 index = (otable[tf.ID] == galaxy.get_full_ID())
                 otable[xcol][index] = dtype(icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift +
-                    x_sp_shift + centre_offset)
-                otable[ycol][index] = dtype(irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + \
-                    y_sp_shift + centre_offset)
+                    x_sp_shift + centre_offset) * pixel_scale
+                otable[ycol][index] = dtype(irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + 
+                    y_sp_shift + centre_offset) * pixel_scale
 
     return cutout_image
