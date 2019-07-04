@@ -121,7 +121,11 @@ constexpr const flt_t bulge_intrinsic_ellipticity_sigma = 0.25;
 constexpr const flt_t bulge_intrinsic_ellipticity_max = 0.9;
 constexpr const flt_t bulge_intrinsic_ellipticity_p = 4.;
 
+constexpr const flt_t bulge_truncation_factor = 4.5;
+
 constexpr const flt_t disk_height_ratio = 0.1;
+
+constexpr const flt_t disk_truncation_factor = 4.5;
 
 constexpr const flt_t galaxy_type = 0.;
 

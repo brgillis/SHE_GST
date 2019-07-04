@@ -6,7 +6,7 @@
     values for the Generate_GalSim_Images project.
 """
 
-__updated__ = "2018-12-04"
+__updated__ = "2019-07-04"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -146,7 +146,9 @@ allowed_survey_settings = (  # Survey level
     'bulge_fraction',
     'bulge_axis_ratio',
     'bulge_ellipticity',
+    'bulge_truncation_factor',
     'disk_height_ratio',
+    'disk_truncation_factor',
     'galaxy_type',
     'physical_size_bulge',
     'physical_size_disk',
