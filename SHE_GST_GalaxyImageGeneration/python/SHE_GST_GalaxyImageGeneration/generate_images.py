@@ -864,10 +864,12 @@ def print_galaxies(image_phl,
         g_ell = galaxy.get_param_value('bulge_ellipticity')
 
         bulge_fraction = galaxy.get_param_value('bulge_fraction')
-
         bulge_size = galaxy.get_param_value('apparent_size_bulge')
+        bulge_trunc_factor = galaxy.get_param_value('bulge_truncation_factor')
+        
         disk_size = galaxy.get_param_value('apparent_size_disk')
         disk_height_ratio = galaxy.get_param_value('disk_height_ratio')
+        disk_trunc_factor = galaxy.get_param_value('disk_truncation_factor')
 
         if not options['details_only']:
             if is_target_gal:
@@ -879,8 +881,8 @@ def print_galaxies(image_phl,
                                                                    beta_deg_ell=rotation,
                                                                    g_shear=g_shear,
                                                                    beta_deg_shear=beta_shear,
-                                                                   gsparams=default_gsparams,
-                                                                   data_dir=options['data_dir'])
+                                                                   trunc_factor=bulge_trunc_factor,
+                                                                   gsparams=default_gsparams)
 
                 # Convert the profile to image co-ordinates
                 bulge_gal_profile = jacobian_wcs.toImage(bulge_gal_profile_world)
@@ -898,6 +900,7 @@ def print_galaxies(image_phl,
                                                                  g_shear=g_shear,
                                                                  beta_deg_shear=beta_shear,
                                                                  height_ratio=disk_height_ratio,
+                                                                 trunc_factor=disk_trunc_factor,
                                                                  gsparams=default_gsparams)
 
                 # Convert the profile to image co-ordinates

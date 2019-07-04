@@ -107,8 +107,7 @@ def get_bulge_galaxy_profile(sersic_index,
                              g_shear=0.,
                              beta_deg_shear=0.,
                              trunc_factor=4.5,
-                             gsparams=galsim.GSParams(),
-                             workdir="."):
+                             gsparams=galsim.GSParams()):
     n = discretize(sersic_index)
     
     scale_radius_deg = half_light_radius / (3600 * galsim.Exponential._hlr_factor)
