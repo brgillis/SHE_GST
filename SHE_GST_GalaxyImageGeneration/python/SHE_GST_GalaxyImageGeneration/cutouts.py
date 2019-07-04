@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2019-07-04"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -25,10 +25,10 @@ __updated__ = "2018-07-03"
 import galsim
 
 from SHE_GST_GalaxyImageGeneration.galaxy import is_target_galaxy
-import numpy as np
-
 from SHE_PPT.table_formats.details import tf as datf
 from SHE_PPT.table_formats.detections import tf as detf
+import numpy as np
+
 
 def make_cutout_image(image,
                       options,
@@ -53,11 +53,13 @@ def make_cutout_image(image,
 
     cutout_image_npix_x = ncols * stamp_size_pix
     cutout_image_npix_y = nrows * stamp_size_pix
+    
+    pixel_scale, _, _, _ = image.wcs.jacobian().getDecomposition()
 
     cutout_image = galsim.Image(cutout_image_npix_x,
                                 cutout_image_npix_y,
                                 dtype = image.dtype,
-                                scale = image.scale)
+                                scale = pixel_scale)
 
     # Add each target galaxy to the cutout image
 
@@ -120,13 +122,13 @@ def make_cutout_image(image,
         cutout_image[cutout_bounds] += image[gal_bounds]
 
         # Adjust the galaxy's x and y centre coordinates in output tables if necessary
-        for (otable, tf, dtype) in ((detections_table, detf, int),
-                                    (details_table, datf, float)):
+        for (otable, tf, xcol, ycol, dtype) in ((detections_table, detf, detf.gal_x_world, detf.gal_y_world, int),
+                                                (details_table, datf, datf.ra, datf.dec, float)):
             if otable is not None:
                 index = (otable[tf.ID] == galaxy.get_full_ID())
-                otable[tf.gal_x][index] = dtype(icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift +
+                otable[xcol][index] = dtype(icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift +
                     x_sp_shift + centre_offset)
-                otable[tf.gal_y][index] = dtype(irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + \
+                otable[ycol][index] = dtype(irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + \
                     y_sp_shift + centre_offset)
 
     return cutout_image
