@@ -90,7 +90,7 @@ IMPLEMENT_PARAM(disk_height_ratio, dv::galaxy_pair_level, IndFixed(dv::disk_heig
     ,
     cached_value = _p_params->get_independently(get_rng());
     )
-IMPLEMENT_PARAM(bulge_truncation_factor, dv::galaxy_pair_level, IndFixed(dv::bulge_truncation_factor)
+IMPLEMENT_PARAM(disk_truncation_factor, dv::galaxy_pair_level, IndFixed(dv::disk_truncation_factor)
     ,
     cached_value = _p_params->get_independently(get_rng());
     ,
