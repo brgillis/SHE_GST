@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2019-07-04"
+__updated__ = "2019-07-16"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -922,8 +922,7 @@ def print_galaxies(image_phl,
                                                              beta_deg_ell=rotation,
                                                              g_shear=g_shear,
                                                              beta_deg_shear=beta_shear,
-                                                             gsparams=default_gsparams,
-                                                             data_dir=options['data_dir'])
+                                                             gsparams=default_gsparams)
 
                 gal_profile = jacobian_wcs.toImage(gal_profile_world)
 
