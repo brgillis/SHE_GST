@@ -5,6 +5,9 @@ elements_subdir(SHE_GST_PrepareConfigs)
 elements_depends_on_subdirs(ElementsKernel)
 elements_depends_on_subdirs(SHE_PPT)
 elements_depends_on_subdirs(SHE_GST)
+elements_depends_on_subdirs(SHE_GST_cIceBRGpy)
+elements_depends_on_subdirs(SHE_GST_IceBRGpy)
+elements_depends_on_subdirs(SHE_GST_PhysicalModel)
 elements_depends_on_subdirs(SHE_GST_GalaxyImageGeneration)
 
 # Instruction for Python module installation
