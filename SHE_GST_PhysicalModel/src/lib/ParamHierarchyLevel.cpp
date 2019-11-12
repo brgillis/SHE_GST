@@ -558,13 +558,20 @@ void ParamHierarchyLevel::adopt_child(child_t * const & p_child, std::vector<Par
     {
         DEBUG_LOG() << "In " << get_name() << "<ParamHierarchyLevel>::adopt_child, "
                 << "this is first child, so updating provisional parameters.";
+
+        std::vector<flt_t> provisional_param_values;
+
         for( auto p_param : provisional_params )
         {
-            if(p_param->_is_cached())
-            {
-                auto p_parent_version = p_param->_p_parent_version();
-                p_parent_version->_cache_provisional_value(p_param->get());
-            }
+            provisional_param_values.push_back(p_param->get());
+        }
+        for( size_t i=0; i<provisional_params.size(); ++i )
+        {
+            auto p_param = provisional_params[i];
+            flt_t cached_value = provisional_param_values[i];
+
+            auto p_parent_version = p_param->_p_parent_version();
+            p_parent_version->_cache_provisional_value(cached_value);
         }
     }
     // If it's not the first child, clear the caches of all provisional params
