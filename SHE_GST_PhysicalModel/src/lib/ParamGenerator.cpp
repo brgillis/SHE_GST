@@ -6,17 +6,17 @@
 
  **********************************************************************
 
- Copyright (C) 2012-2020 Euclid Science Ground Segment      
+ Copyright (C) 2012-2020 Euclid Science Ground Segment
 
- This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General    
- Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)    
- any later version.    
+ This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General
+ Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option)
+ any later version.
 
- This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied    
- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more    
- details.    
+ This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details.
 
- You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to    
+ You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
  the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
  \**********************************************************************/
@@ -36,7 +36,7 @@
 #define UNCACHED_VALUE std::numeric_limits<flt_t>::infinity()
 
 // Toggle debug-level logging with a define, so we can completely disable it for efficiency later
-#define DEBUGGING false
+#define DEBUGGING true
 #define DEBUG_LOG() if(DEBUGGING) logger.info()
 
 namespace SHE_GST_PhysicalModel
@@ -88,19 +88,27 @@ void ParamGenerator::_cache_value(flt_t const & new_value)
 
 void ParamGenerator::_cache_provisional_value(flt_t const & new_value)
 {
+    DEBUG_LOG() << "Entering " << name() << "<ParamGenerator>::_cache_provisional_value method.";
+
     _cache_value(new_value);
     if(!_generated_at_this_level())
     {
+        DEBUG_LOG() << "In " << name() << "<ParamGenerator>::_cache_provisional_value method, "
+                << "value is not generated at this level, so caching value " << new_value << ".";
         _p_parent_version()->_cache_provisional_value(new_value);
     }
     else
     {
+        DEBUG_LOG() << "In " << name() << "<ParamGenerator>::_cache_provisional_value method, "
+                << "value is generated at this level, so clearing cache for all children.";
         // Uncache for any children
         for( auto const & child : _p_owner->_children )
         {
             child->_clear_param_cache(name());
         }
     }
+
+    DEBUG_LOG() << "Exiting " << name() << "<ParamGenerator>::_cache_provisional_value method successfully.";
 }
 
 void ParamGenerator::_decache()
