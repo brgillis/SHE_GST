@@ -36,7 +36,7 @@
 #define UNCACHED_VALUE std::numeric_limits<flt_t>::infinity()
 
 // Toggle debug-level logging with a define, so we can completely disable it for efficiency later
-#define DEBUGGING true
+#define DEBUGGING false
 #define DEBUG_LOG() if(DEBUGGING) logger.info()
 
 namespace SHE_GST_PhysicalModel
