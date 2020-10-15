@@ -31,7 +31,7 @@ import SHE_GST_GalaxyImageGeneration.magic_values as mv
 from SHE_PPT.file_io import find_file
 from SHE_PPT.logging import getLogger
 from SHE_PPT.magic_values import bulge_psf_tag, disk_psf_tag
-from SHE_PPT.table_formats.psf import tf as pstf
+from SHE_PPT.table_formats.she_psf_model_image import tf as pstf
 from SHE_PPT.table_utility import table_to_hdu
 import numpy as np
 
