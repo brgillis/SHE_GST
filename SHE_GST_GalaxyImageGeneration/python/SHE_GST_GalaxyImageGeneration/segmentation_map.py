@@ -24,7 +24,7 @@ from copy import deepcopy
 
 import galsim
 
-from SHE_PPT.table_formats.detections import tf as detf
+from SHE_PPT.table_formats.mer_final_catalog import tf as detf
 import numpy as np
 
 
