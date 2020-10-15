@@ -34,7 +34,7 @@ from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options
                                                             generation_levels,
                                                             load_default_configurations)
 
-products.simulation_config.init()
+products.she_simulation_config.init()
 
 __all__ = ['get_cfg_args', 'set_up_from_config_file', 'apply_args', 'clean_quotes']
 
@@ -52,7 +52,7 @@ def get_cfg_args(config_filename, workdir = "."):
 
     try:
         config_prod = read_pickled_product(qualified_config_filename)
-        if not isinstance(config_prod, products.simulation_config.DpdSheSimulationConfigProduct):
+        if not isinstance(config_prod, products.she_simulation_config.DpdSheSimulationConfigProduct):
             raise IOError(possible_exception_str)
         # It's a product, so get the file it points to in the workdir
         qualified_config_filename = find_file(config_prod.get_filename(), path = workdir)
