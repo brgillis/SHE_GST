@@ -25,8 +25,8 @@ __updated__ = "2019-07-04"
 import galsim
 
 from SHE_GST_GalaxyImageGeneration.galaxy import is_target_galaxy
-from SHE_PPT.table_formats.details import tf as datf
-from SHE_PPT.table_formats.detections import tf as detf
+from SHE_PPT.table_formats.she_simulated_catalog import tf as datf
+from SHE_PPT.table_formats.mer_final_catalog import tf as detf
 import numpy as np
 
 
