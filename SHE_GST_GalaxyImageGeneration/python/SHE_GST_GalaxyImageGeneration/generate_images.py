@@ -37,9 +37,9 @@ from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label
                                   dither_dy_label, scale_label,
                                   sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
                                   detections_tag, bulge_psf_tag, disk_psf_tag, background_tag, psf_im_tag)
-from SHE_PPT.table_formats.details import initialise_details_table, details_table_format as datf
-from SHE_PPT.table_formats.detections import initialise_detections_table, detections_table_format as detf
-from SHE_PPT.table_formats.psf import initialise_psf_table, psf_table_format as pstf
+from SHE_PPT.table_formats.she_simulated_catalogue import initialise_simulated_catalogue, details_table_format as datf
+from SHE_PPT.table_formats.mer_final_catalogue import initialise_mer_final_catalog, mer_final_catalogue_format as detf
+from SHE_PPT.table_formats.she_psf_model_image import initialise_psf_table, psf_table_format as pstf
 from SHE_PPT.table_utility import add_row, table_to_hdu
 from SHE_PPT.utility import hash_any
 import galsim
@@ -230,7 +230,7 @@ def generate_image_group(image_group_phl, options):
 
         # Image product
 
-        image_product = products.calibrated_frame.create_dpd_vis_calibrated_frame()
+        image_product = products.vis_calibrated_frame.create_dpd_vis_calibrated_frame()
         image_product.set_data_filename(image_filenames.data_filenames[i])
         image_product.set_bkg_filename(image_filenames.bkg_filenames[i])
         image_product.set_wgt_filename(image_filenames.wgt_filenames[i])
@@ -239,20 +239,20 @@ def generate_image_group(image_group_phl, options):
 
         # Segmentation map
 
-        mock_mosaic_product = products.exposure_mosaic.create_exposure_mosaic_product(
+        mock_mosaic_product = products.she_exposure_segmentation_map.create_she_exposure_segmentation_map_product(
             data_filename=mosaic_filenames.data_filenames[i])
 
         write_xml_product(mock_mosaic_product, mosaic_filenames.prod_filenames[i], workdir=workdir)
 
         # PSF catalogue and images
 
-        psf_product = products.psf_image.create_dpd_she_psf_image(filename=psf_filenames.data_filenames[i])
+        psf_product = products.she_psf_model_image.create_dpd_she_psf_model_image(filename=psf_filenames.data_filenames[i])
 
         write_xml_product(psf_product, psf_filenames.prod_filenames[i], workdir=workdir)
 
         # Detections table
         if i == 0:
-            my_detections_product = products.detections.create_detections_product(
+            my_detections_product = products.mer_final_catalog.create_detections_product(
                 data_filename=detections_filenames.data_filenames[i])
             write_xml_product(my_detections_product, detections_filenames.prod_filenames[i], workdir=workdir)
 
@@ -324,7 +324,7 @@ def generate_image_group(image_group_phl, options):
 
                 num_rows = len(details_table[datf.ID])
                 psf_table = initialise_psf_table(image_phl.get_parent(), options,
-                                                 init_columns={pstf.ID: details_table[datf.ID],
+                                                 init_cols={pstf.ID: details_table[datf.ID],
                                                                pstf.template: -1 * np.ones(num_rows, dtype=np.int64),
                                                                pstf.bulge_index: -1 * np.ones(num_rows, dtype=np.int32),
                                                                pstf.disk_index: -1 * np.ones(num_rows, dtype=np.int32)})
@@ -350,10 +350,10 @@ def generate_image_group(image_group_phl, options):
 
     # Output data products for tables
 
-    details_prod = products.details.create_details_product(details_filenames.data_filenames[0])
+    details_prod = products.she_simulated_catalog.create_simulated_catalog_product(details_filenames.data_filenames[0])
     write_xml_product(details_prod, options['details_table'], workdir=workdir)
 
-    detections_prod = products.detections.create_detections_product(detections_filenames.data_filenames[0])
+    detections_prod = products.mer_final_catalog.create_detections_product(detections_filenames.data_filenames[0])
     write_xml_product(detections_prod, detections_filenames.prod_filenames[0], workdir=workdir)
     write_listfile(os.path.join(workdir, options['detections_tables']), [detections_filenames.prod_filenames[0]])
 
@@ -1202,13 +1202,13 @@ def generate_image(image_phl,
         details_table = None
     else:
         full_options = get_full_options(options, image_phl)
-        detections_table = initialise_detections_table(image_phl.get_parent(), full_options,
+        detections_table = initialise_mer_final_catalog(image_phl.get_parent(), full_options,
                                                        optional_columns=[detf.seg_ID,
                                                                          detf.STAR_FLAG,
                                                                          detf.STAR_PROB,
                                                                          detf.hlr,
                                                                          detf.FLUX_VIS_APER])
-        details_table = initialise_details_table(image_phl.get_parent(), full_options)
+        details_table = initialise_simulated_catalogue(image_phl.get_parent(), full_options)
 
     # Print the galaxies
     galaxies = print_galaxies(image_phl, options, wcs_list, centre_offset, num_dithers, dithers,
