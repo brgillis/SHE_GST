@@ -37,8 +37,8 @@ from astropy.io import fits
 import numpy as np
 
 
-products.mosaic.init()
-products.stack_mosaic.init()
+products.mer_segmentation_map.init()
+products.she_stack_segmentation_map.init()
 
 
 def combine_dithers(dithers,
@@ -275,7 +275,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
     save_hdu(full_image, segmentation_dithers, stack_wcs, pixel_factor,
              data_filename, segmentation_tag, workdir)
 
-    p = products.stack_mosaic.create_dpd_she_stack_mosaic(data_filename)
+    p = products.she_stack_segmentation_map.create_dpd_she_stack_segmentation_map(data_filename)
     write_xml_product(p, stacked_segmentation_filename, workdir=workdir)
 
     return
@@ -466,7 +466,7 @@ def combine_image_dithers(image_listfile_name,
     save_hdu(full_bkg_image, wgt_image_dithers, stack_wcs, pixel_factor,
              wgt_filename, weight_tag, workdir)
 
-    p = products.stacked_frame.create_dpd_vis_stacked_frame(data_filename=data_filename,
+    p = products.vis_stacked_frame.create_dpd_vis_stacked_frame(data_filename=data_filename,
                                                             bkg_filename=bkg_filename,
                                                             wgt_filename=wgt_filename)
     write_xml_product(p, stacked_image_filename, workdir=workdir)
