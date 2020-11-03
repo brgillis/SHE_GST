@@ -12,7 +12,8 @@
 
 
 # Eclipse-specific
-*.pydevproject
+.cproject
+.pydevproject
 .project
 .metadata
 bin/**
