@@ -183,10 +183,15 @@ def generate_image_group(image_group_phl, options):
     psf_archive_filename = get_allowed_filename("PSF-ARCHIVE", model_hash_fn, extension=".hdf5",
                                                 version=SHE_GST.__version__)
 
+    qualified_psf_archive_filename = os.path.join(workdir, psf_archive_filename)
+
+    # Ensure the path exists for this file
+    os.makedirs(os.path.split(qualified_psf_archive_filename)[0], exist_ok=True)
+
     if ((options['output_psf_file_name'] is None or options['output_psf_file_name'] == 'None') and
             (options['model_psf_file_name'] is None or options['model_psf_file_name'] == 'None') and
             not options['single_psf']):
-        psf_archive_filehandle = h5py.File(os.path.join(workdir, psf_archive_filename), 'a')
+        psf_archive_filehandle = h5py.File(qualified_psf_archive_filename, 'a')
     else:
         psf_archive_filehandle = None
 
