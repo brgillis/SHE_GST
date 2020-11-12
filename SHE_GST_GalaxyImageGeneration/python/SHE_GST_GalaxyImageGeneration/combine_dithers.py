@@ -6,7 +6,7 @@
     Function to combine various dithers into a stacked image.
 """
 
-__updated__ = "2019-06-28"
+__updated__ = "2020-11-12"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,7 +21,6 @@ __updated__ = "2019-06-28"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from numpy.lib.stride_tricks import as_strided
 import os
 
 from SHE_PPT import magic_values as ppt_mv
@@ -29,11 +28,12 @@ from SHE_PPT import products
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
 from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag, background_tag, weight_tag
 from SHE_PPT.mask import masked_off_image
+from astropy.io import fits
 import galsim
+from numpy.lib.stride_tricks import as_strided
 
 import SHE_GST
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from astropy.io import fits
 import numpy as np
 
 
@@ -203,7 +203,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
 
     for segmentation_product_filename in segmentation_product_filenames:
 
-        p = read_xml_product(os.path.join(workdir, segmentation_product_filename), allow_pickled=True)
+        p = read_xml_product(os.path.join(workdir, segmentation_product_filename))
         f = fits.open(os.path.join(workdir, p.get_data_filename()), memmap=True, mode="denywrite")
 
         if len(f) > max_len:
@@ -312,7 +312,7 @@ def combine_image_dithers(image_listfile_name,
 
     for image_product_filename in image_product_filenames:
 
-        p = read_xml_product(os.path.join(workdir, image_product_filename), allow_pickled=True)
+        p = read_xml_product(os.path.join(workdir, image_product_filename))
         f = fits.open(os.path.join(workdir, p.get_data_filename()), memmap=True, mode="denywrite")
         fb = fits.open(os.path.join(workdir, p.get_bkg_filename()), memmap=True, mode="denywrite")
         fw = fits.open(os.path.join(workdir, p.get_wgt_filename()), memmap=True, mode="denywrite")
@@ -467,8 +467,8 @@ def combine_image_dithers(image_listfile_name,
              wgt_filename, weight_tag, workdir)
 
     p = products.vis_stacked_frame.create_dpd_vis_stacked_frame(data_filename=data_filename,
-                                                            bkg_filename=bkg_filename,
-                                                            wgt_filename=wgt_filename)
+                                                                bkg_filename=bkg_filename,
+                                                                wgt_filename=wgt_filename)
     write_xml_product(p, stacked_image_filename, workdir=workdir)
 
     return
