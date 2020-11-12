@@ -328,8 +328,8 @@ def generate_image_group(image_group_phl, options):
 
                 num_rows = len(details_table[datf.ID])
                 psf_table = initialise_psf_table()
-                for i in range(num_rows):
-                    psf_table.add_row({pstf.ID: details_table[datf.ID][i],
+                for j in range(num_rows):
+                    psf_table.add_row({pstf.ID: details_table[datf.ID][j],
                                        pstf.template: -1,
                                        pstf.bulge_index: -1,
                                        pstf.disk_index: -1})
