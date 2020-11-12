@@ -5,7 +5,7 @@
     Functions to generate mock segmentation maps.
 """
 
-__updated__ = "2019-02-18"
+__updated__ = "2020-11-12"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,9 +22,9 @@ __updated__ = "2019-02-18"
 
 from copy import deepcopy
 
+from SHE_PPT.table_formats.mer_final_catalog import tf as detf
 import galsim
 
-from SHE_PPT.table_formats.mer_final_catalog import tf as detf
 import numpy as np
 
 
@@ -55,7 +55,7 @@ def make_segmentation_map(noisefree_image,
 
     if detf.FLUX_VIS_APER in detections_table.columns:
         sorted_dtc_table = deepcopy(detections_table)
-        sorted_dtc_table[detf.FLUX_VIS_APER] *= -1 # Sort in descending flux
+        sorted_dtc_table[detf.FLUX_VIS_APER] *= -1  # Sort in descending flux
         sorted_dtc_table.sort(detf.FLUX_VIS_APER)
         sorted_dtc_table[detf.FLUX_VIS_APER] *= -1
     else:
@@ -76,9 +76,9 @@ def make_segmentation_map(noisefree_image,
         y_image, x_image = np.indices(np.shape(noisefree_image.array))
         threshold_mask = np.ravel(noisefree_image.array) <= threshold
         claimed_mask = np.zeros_like(threshold_mask, dtype=bool)
-        
+
     scale, _, _, _ = noisefree_image.wcs.jacobian().getDecomposition()
-    
+
     # Convert the scale to arcsec
     scale *= 3600
 
@@ -102,12 +102,33 @@ def make_segmentation_map(noisefree_image,
             # In stamps mode, just work with a cutout image
             stamp_size_pix = options['stamp_size']
 
-            xp_l = int(1 + gal_xy.x - stamp_size_pix / 2)
-            xp_h = int(gal_xy.x + stamp_size_pix / 2)
-            yp_l = int(1 + gal_xy.y - stamp_size_pix / 2)
-            yp_h = int(gal_xy.y + stamp_size_pix / 2)
+            xl = int(1 + gal_xy.x - stamp_size_pix / 2)
+            xh = int(gal_xy.x + stamp_size_pix / 2)
+            yl = int(1 + gal_xy.y - stamp_size_pix / 2)
+            yh = int(gal_xy.y + stamp_size_pix / 2)
 
-            stamp_bounds = galsim.BoundsI(xmin=xp_l, xmax=xp_h, ymin=yp_l, ymax=yp_h)
+            # Check if the stamp crosses an edge and adjust as necessary
+            full_x_size = full_noisefree_image.array.shape[1]
+            full_y_size = full_noisefree_image.array.shape[0]
+            if xl < 1:
+                x_shift = 1 - xl
+            elif xh > full_x_size:
+                x_shift = full_x_size - xh
+            else:
+                x_shift = 0
+            xh += x_shift
+            xl += x_shift
+
+            if yl < 1:
+                y_shift = 1 - yl
+            elif yh > full_y_size:
+                y_shift = full_y_size - yh
+            else:
+                y_shift = 0
+            yh += y_shift
+            yl += y_shift
+
+            stamp_bounds = galsim.BoundsI(xmin=xl, xmax=xh, ymin=yl, ymax=yh)
 
             noisefree_image = full_noisefree_image.subImage(stamp_bounds)
             segmentation_map = full_segmentation_map.subImage(stamp_bounds)
@@ -116,11 +137,11 @@ def make_segmentation_map(noisefree_image,
             threshold_mask = np.ravel(noisefree_image.array) <= threshold
             claimed_mask = np.zeros_like(threshold_mask, dtype=bool)
         else:
-            xp_l = 1
-            yp_l = 1
+            xl = 1
+            yl = 1
 
-        dx_image = x_image - (gal_xy.x - xp_l + 1)  # Need to correct for potential stamp shift of xp_l-1
-        dy_image = y_image - (gal_xy.y - yp_l + 1)
+        dx_image = x_image - (gal_xy.x - xl + 1)  # Need to correct for potential stamp shift of xp_l-1
+        dy_image = y_image - (gal_xy.y - yl + 1)
 
         r2_image = dx_image ** 2 + dy_image ** 2
 
