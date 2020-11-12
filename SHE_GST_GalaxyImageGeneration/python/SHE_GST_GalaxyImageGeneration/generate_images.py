@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2020-11-04"
+__updated__ = "2020-11-12"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -327,11 +327,12 @@ def generate_image_group(image_group_phl, options):
                 # PSF catalogue and images
 
                 num_rows = len(details_table[datf.ID])
-                psf_table = initialise_psf_table(image_phl.get_parent(), options,
-                                                 init_cols={pstf.ID: details_table[datf.ID],
-                                                            pstf.template: -1 * np.ones(num_rows, dtype=np.int64),
-                                                            pstf.bulge_index: -1 * np.ones(num_rows, dtype=np.int32),
-                                                            pstf.disk_index: -1 * np.ones(num_rows, dtype=np.int32)})
+                psf_table = initialise_psf_table()
+                for i in range(num_rows):
+                    psf_table.add_row({pstf.ID: details_table[datf.ID][i],
+                                       pstf.template: -1,
+                                       pstf.bulge_index: -1,
+                                       pstf.disk_index: -1})
 
                 psf_tables[i].append(psf_table)
 
