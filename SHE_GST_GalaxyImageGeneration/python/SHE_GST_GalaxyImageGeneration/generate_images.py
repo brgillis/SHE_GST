@@ -38,10 +38,10 @@ from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label
 from SHE_PPT.table_formats.mer_final_catalog import initialise_mer_final_catalog, tf as detf
 from SHE_PPT.table_formats.she_psf_model_image import initialise_psf_table, tf as pstf
 from SHE_PPT.table_formats.she_simulated_catalog import initialise_simulated_catalog, tf as datf
-from SHE_PPT.table_utility import table_to_hdu
 from SHE_PPT.utility import hash_any
 from astropy import table
 from astropy.io import fits
+from astropy.io.fits import table_to_hdu
 import galsim
 import h5py
 
