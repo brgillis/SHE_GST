@@ -6,7 +6,7 @@
     Elements program for generating galaxy images.
 """
 
-__updated__ = "2018-09-05"
+__updated__ = "2020-11-12"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,6 +23,10 @@ __updated__ = "2018-09-05"
 
 import argparse
 
+from SHE_PPT.logging import getLogger
+from SHE_PPT.utility import get_arguments_string
+
+import SHE_GST
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options,
                                                                  allowed_fixed_params,
@@ -30,8 +34,6 @@ from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options
 from SHE_GST_GalaxyImageGeneration.generate_images import generate_images
 from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_args
 import SHE_GST_cIceBRGpy
-from SHE_PPT.logging import getLogger
-from SHE_PPT.utility import get_arguments_string
 
 
 def defineSpecificProgramOptions():
@@ -94,7 +96,7 @@ def mainMethod(args):
     logger.debug('# Entering SHE_GST_GenGalaxyImages mainMethod()')
     logger.debug('#')
 
-    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST 1.7 SHE_GST_GenGalaxyImages",
+    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST " + SHE_GST.__version__ + " SHE_GST_GenGalaxyImages",
                                     store_true=["profile", "debug"])
     logger.info('Execution command for this step:')
     logger.info(exec_cmd)
