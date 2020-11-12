@@ -56,6 +56,13 @@ def make_segmentation_map(noisefree_image,
     if detf.FLUX_VIS_APER in detections_table.columns:
         sorted_dtc_table = deepcopy(detections_table)
         sorted_dtc_table[detf.FLUX_VIS_APER] *= -1  # Sort in descending flux
+        loop_counter = 0
+        while len(sorted_dtc_table.indices) > 0:
+            for index in sorted_dtc_table.indices:
+                sorted_dtc_table.remove_indices(index.columns[0].name)  # Remove the index to allow for safe sorting
+            loop_counter += 1
+            if loop_counter > 1000:
+                raise Exception("Cannot remove all indices from sorted_dtc_table object to allow sorting.")
         sorted_dtc_table.sort(detf.FLUX_VIS_APER)
         sorted_dtc_table[detf.FLUX_VIS_APER] *= -1
     else:
