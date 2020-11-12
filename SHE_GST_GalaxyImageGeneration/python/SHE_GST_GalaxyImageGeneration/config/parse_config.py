@@ -50,19 +50,12 @@ def get_cfg_args(config_filename, workdir="."):
     # The config file can be either an xml product which points to a file, or the file itself.
     # We'll first check if it's a valid xml product
 
-    possible_exception_str = "Simulation configuration product in " + config_filename + " is of invalid type."
-
     try:
         config_prod = read_xml_product(qualified_config_filename)
-        if not isinstance(config_prod, products.she_simulation_config.DpdSheSimulationConfigProduct):
-            raise IOError(possible_exception_str)
         # It's a product, so get the file it points to in the workdir
         qualified_config_filename = find_file(config_prod.get_filename(), path=workdir)
     except Exception as e:
-        # Catch exceptions other than IOError for wrong product type
-        if possible_exception_str in str(e):
-            raise
-        # See if we can read it directly
+        # Catch exceptions and try anyway
         pass
 
     with open(qualified_config_filename, 'r') as config_file:
