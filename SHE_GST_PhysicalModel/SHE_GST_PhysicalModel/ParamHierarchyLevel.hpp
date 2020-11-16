@@ -84,7 +84,7 @@ private:
 	int_t _local_ID;
 
 	int_t _seed;
-	std::seed_seq _seed_seq;
+	std::vector<int_t> _seed_vec;
 	gen_t _rng;
 
 	// Private methods

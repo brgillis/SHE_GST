@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2020-11-12"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,45 +22,40 @@ __updated__ = "2018-07-03"
 
 import os
 
-from SHE_PPT.logging import getLogger
 from SHE_PPT import products
-from SHE_PPT.file_io import read_pickled_product, find_file
+from SHE_PPT.file_io import read_xml_product, find_file
+from SHE_PPT.logging import getLogger
 
-import SHE_GST_PhysicalModel
 from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options,
-                                                            allowed_fixed_params,
-                                                            allowed_survey_settings,
-                                                            generation_levels,
-                                                            load_default_configurations)
+                                                                 allowed_fixed_params,
+                                                                 allowed_survey_settings,
+                                                                 generation_levels,
+                                                                 load_default_configurations)
+import SHE_GST_PhysicalModel
 
-products.simulation_config.init()
+
+products.she_simulation_config.init()
 
 __all__ = ['get_cfg_args', 'set_up_from_config_file', 'apply_args', 'clean_quotes']
 
-def get_cfg_args(config_filename, workdir = "."):
+
+def get_cfg_args(config_filename, workdir="."):
 
     cfg_args = {}
 
     # Find the file first
-    qualified_config_filename = find_file(config_filename, path = workdir)
+    qualified_config_filename = find_file(config_filename, path=workdir)
 
     # The config file can be either an xml product which points to a file, or the file itself.
     # We'll first check if it's a valid xml product
 
-    possible_exception_str = "Simulation configuration product in " + config_filename + " is of invalid type."
-
     try:
-        config_prod = read_pickled_product(qualified_config_filename)
-        if not isinstance(config_prod, products.simulation_config.DpdSheSimulationConfigProduct):
-            raise IOError(possible_exception_str)
+        config_prod = read_xml_product(qualified_config_filename)
         # It's a product, so get the file it points to in the workdir
-        qualified_config_filename = find_file(config_prod.get_filename(), path = workdir)
+        qualified_config_filename = find_file(config_prod.get_filename(), path=workdir)
     except Exception as e:
-        # Catch exceptions other than IOError for wrong product type
-        if possible_exception_str in str(e):
-            raise
-        # See if we can read it directly
+        # Catch exceptions and try anyway
         pass
 
     with open(qualified_config_filename, 'r') as config_file:
@@ -72,6 +67,7 @@ def get_cfg_args(config_filename, workdir = "."):
 
     return cfg_args
 
+
 def set_up_from_config_file(config_file_name):
 
     survey, options = load_default_configurations()
@@ -82,13 +78,14 @@ def set_up_from_config_file(config_file_name):
 
     return survey, options
 
+
 def parse_line(line, args):
 
     # Split by comments
-    no_comments_line = line.split(sep = '#')[0]
+    no_comments_line = line.split(sep='#')[0]
 
     # Split by =
-    eq_split_line = no_comments_line.split(sep = '=')
+    eq_split_line = no_comments_line.split(sep='=')
 
     # Check if this looks good
     if len(eq_split_line) != 2:
@@ -124,6 +121,7 @@ def parse_line(line, args):
     else:
         raise Exception("Unrecognized configuration option: " + option)
 
+
 def apply_args(survey, options, args):
 
     logger = getLogger(__name__)
@@ -150,17 +148,16 @@ def apply_args(survey, options, args):
             if arg_lib[fixed_param] is not None:
                 survey.set_param_params(fixed_param, 'fixed', clean_quotes(arg_lib[fixed_param]))
 
-
     # Add allowed survey settings, with both level and setting possibilities
     for param_name in allowed_survey_settings:
 
         generation_level_name = param_name + "_level"
         if generation_level_name in arg_lib:
-            logger.debug("Applying generation level " + generation_level_name + ": " + str(arg_lib[generation_level_name]))
+            logger.debug("Applying generation level " + generation_level_name +
+                         ": " + str(arg_lib[generation_level_name]))
             if arg_lib[generation_level_name] is not None:
                 survey.set_generation_level(param_name,
                                             generation_levels[clean_quotes(arg_lib[generation_level_name])])
-
 
         settings_name = param_name + "_setting"
         if settings_name in arg_lib:
@@ -179,8 +176,10 @@ def apply_args(survey, options, args):
 
     return
 
+
 def clean_quotes(s):
-    if not isinstance(s, str): return s
+    if not isinstance(s, str):
+        return s
 
     if s[0] == "'" and s[-1] == "'":
         s = s[1:-1]

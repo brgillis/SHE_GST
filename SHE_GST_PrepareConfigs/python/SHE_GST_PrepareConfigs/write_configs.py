@@ -5,7 +5,7 @@
     Contains functions to write out configuration files.
 """
 
-__updated__ = "2019-04-22"
+__updated__ = "2020-11-12"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -25,20 +25,20 @@ from shutil import copyfile
 
 from SHE_PPT import products
 from SHE_PPT.file_io import (get_allowed_filename, replace_multiple_in_file,
-                             write_pickled_product, write_listfile, find_file,
-                             find_aux_file, read_pickled_product, get_data_filename)
+                             write_xml_product, write_listfile, find_file,
+                             find_aux_file, get_data_filename)
 from SHE_PPT.logging import getLogger
-from SHE_PPT.table_formats.simulation_plan import tf as sptf
+from SHE_PPT.table_formats.she_simulation_plan import tf as sptf
 from SHE_PPT.table_utility import is_in_format
+from astropy.table import Table
 
 import SHE_GST
 from SHE_GST_PrepareConfigs import magic_values as mv
-from astropy.table import Table
 import numpy as np
 
 
-products.simulation_config.init()
-products.simulation_plan.init()
+products.she_simulation_config.init()
+products.she_simulation_plan.init()
 
 cache_filenames = ["ang_di_d_cache.bin",
                    "crich_cache.bin",
@@ -259,8 +259,8 @@ def write_configs_from_plan(plan_filename,
                                             extension=".txt",
                                             version=SHE_GST.__version__)
 
-            cfg_prod = products.simulation_config.create_simulation_config_product(filename)
-            write_pickled_product(cfg_prod, os.path.join(workdir, prod_filename))
+            cfg_prod = products.she_simulation_config.create_simulation_config_product(filename)
+            write_xml_product(cfg_prod, os.path.join(workdir, prod_filename))
             all_config_products.append(prod_filename)
 
             write_config(filename=os.path.join(workdir, filename),

@@ -238,7 +238,7 @@ ParamHierarchyLevel::ParamHierarchyLevel(const ParamHierarchyLevel & other)
 : _p_parent(other._p_parent),
   _local_ID(other._local_ID),
   _seed(other._seed),
-  _seed_seq(other._seed_seq),
+  _seed_vec(other._seed_vec),
   _rng(other._rng)
 {
     DEBUG_LOG() << "Entering ParamHierarchyLevel::ParamHierarchyLevel method.";
@@ -284,7 +284,7 @@ ParamHierarchyLevel::ParamHierarchyLevel(ParamHierarchyLevel && other)
   _local_generation_levels(std::move(other._local_generation_levels)),
   _local_ID(std::move(other._local_ID)),
   _seed(std::move(other._seed)),
-  _seed_seq(std::move(other._seed_seq)),
+  _seed_vec(std::move(other._seed_vec)),
   _rng(std::move(other._rng)),
   _params(std::move(other._params))
 {
@@ -311,7 +311,7 @@ ParamHierarchyLevel & ParamHierarchyLevel::operator=(const ParamHierarchyLevel &
     _p_parent = other._p_parent;
     _local_ID = other._local_ID;
     _seed = other._seed;
-    _seed_seq = other._seed_seq;
+    _seed_vec = other._seed_vec;
     _rng = other._rng;
 
     // Deep-copy maps
@@ -362,7 +362,7 @@ ParamHierarchyLevel & ParamHierarchyLevel::operator=(ParamHierarchyLevel && othe
     _local_generation_levels = std::move(other._local_generation_levels);
     _local_ID = std::move(other._local_ID);
     _seed = std::move(other._seed);
-    _seed_seq = std::move(other._seed_seq);
+    _seed_vec = std::move(other._seed_vec);
     _rng = std::move(other._rng);
 
     // Update parent's pointer to this
@@ -1120,14 +1120,15 @@ void ParamHierarchyLevel::set_seed( int_t const & seed )
     _clear_own_param_cache();
 
     // Get a seed sequence
-    auto seed_vec = get_ID_seq();
-    seed_vec.push_back(seed);
+    _seed_vec = get_ID_seq();
+    _seed_vec.push_back(seed);
 
-    _seed_seq = std::seed_seq(seed_vec.begin(),seed_vec.end());
     _seed = seed;
 
+    std::seed_seq seed_seq(_seed_vec.begin(),_seed_vec.end());
+
     // Seed the generator
-    _rng.seed(_seed_seq);
+    _rng.seed(seed_seq);
 
     // Seed all children with this
     for( auto & child : _children )
