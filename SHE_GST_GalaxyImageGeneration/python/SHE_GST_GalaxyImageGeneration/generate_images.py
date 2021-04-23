@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2020-11-12"
+__updated__ = "2021-04-23"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -1053,9 +1053,7 @@ def print_galaxies(image_phl,
                 detf.vis_det: True,
                 detf.gal_x_world: xy_world.x,
                 detf.gal_y_world: xy_world.y,
-                detf.STAR_FLAG: False,
-                detf.STAR_PROB: 0.,
-                detf.hlr: hlr,
+                detf.SEGMENTATION_AREA: np.pi * (2 * hlr)**2,
                 detf.FLUX_VIS_APER: 10**(-0.4 * galaxy.get_param_value('apparent_mag_vis')),
             })
 
@@ -1209,9 +1207,6 @@ def generate_image(image_phl,
         full_options = get_full_options(options, image_phl)
         detections_table = initialise_mer_final_catalog(image_phl.get_parent(), full_options,
                                                         optional_columns=[detf.seg_ID,
-                                                                          detf.STAR_FLAG,
-                                                                          detf.STAR_PROB,
-                                                                          detf.hlr,
                                                                           detf.FLUX_VIS_APER])
         details_table = initialise_simulated_catalog(image_phl.get_parent(), full_options)
 
