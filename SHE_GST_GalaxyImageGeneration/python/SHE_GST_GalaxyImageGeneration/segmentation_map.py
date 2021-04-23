@@ -5,7 +5,7 @@
     Functions to generate mock segmentation maps.
 """
 
-__updated__ = "2020-11-12"
+__updated__ = "2021-04-23"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -50,8 +50,8 @@ def make_segmentation_map(noisefree_image,
         @TODO Docstring
     """
 
-    if detf.hlr not in detections_table.columns:
-        raise ValueError(detf.hlr + " must be in detections table for make_segmentation_map")
+    if detf.SEGMENTATION_AREA not in detections_table.columns:
+        raise ValueError(detf.SEGMENTATION_AREA + " must be in detections table for make_segmentation_map")
 
     if detf.FLUX_VIS_APER in detections_table.columns:
         sorted_dtc_table = deepcopy(detections_table)
@@ -152,7 +152,7 @@ def make_segmentation_map(noisefree_image,
 
         r2_image = dx_image ** 2 + dy_image ** 2
 
-        r2_max = r_max_factor_scaled**2 * sorted_dtc_table[detf.hlr][i]**2
+        r2_max = r_max_factor_scaled**2 * sorted_dtc_table[detf.SEGMENTATION_AREA][i]**2
 
         region_mask = np.ravel(r2_image) > r2_max
 
