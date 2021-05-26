@@ -6,4 +6,4 @@ find_package(ElementsProject)
 #---------------------------------------------------------------
 
 # Declare project name and version
-elements_project(SHE_GST 8.0.6 USE SHE_PPT 8.8.3)
+elements_project(SHE_GST 8.0.7 USE SHE_PPT 8.8.4)
