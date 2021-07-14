@@ -5,7 +5,7 @@
     General modules for the SHE_GST project
 """
 
-__updated__ = "2020-11-04"
+__updated__ = "2021-07-14"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
