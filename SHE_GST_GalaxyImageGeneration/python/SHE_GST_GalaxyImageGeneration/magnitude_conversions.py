@@ -34,7 +34,7 @@ def get_count_from_mag_vis(m, exp_time):
         @return The expected count
     """
 
-    return exp_time * 10.0 ** (0.4 * (mv.mag_vis_zeropoint - m))
+    return exp_time * 10.0 ** (0.4 * (mv.MAG_VIS_ZEROPOINT - m))
 
 def get_mag_vis_from_count(c, exp_time):
     """ Gets the magnitude from the expected count using Euclid's magnitude zeropoint.
@@ -45,7 +45,7 @@ def get_mag_vis_from_count(c, exp_time):
         @return The magnitude
     """
 
-    return mv.mag_vis_zeropoint - 2.5 * np.log10(c / exp_time)
+    return mv.MAG_VIS_ZEROPOINT - 2.5 * np.log10(c / exp_time)
 
 def get_count_from_mag_i(m, exp_time):
     """ Gets the expected count from a magnitude using Euclid's magnitude zeropoint.
@@ -56,7 +56,7 @@ def get_count_from_mag_i(m, exp_time):
         @return The expected count
     """
 
-    return exp_time * 10.0 ** (0.4 * (mv.mag_i_zeropoint - m))
+    return exp_time * 10.0 ** (0.4 * (mv.MAG_I_ZEROPOINT - m))
 
 def get_mag_i_from_count(c, exp_time):
     """ Gets the magnitude from the expected count using Euclid's magnitude zeropoint.
@@ -67,7 +67,7 @@ def get_mag_i_from_count(c, exp_time):
         @return The magnitude
     """
 
-    return mv.mag_i_zeropoint - 2.5 * np.log10(c / exp_time)
+    return mv.MAG_I_ZEROPOINT - 2.5 * np.log10(c / exp_time)
 
 def get_I(I_parameter, parameter_type, gain, exp_time):
     """ Gets the measured intensity from the provided parameters

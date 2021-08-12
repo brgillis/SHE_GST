@@ -31,10 +31,10 @@ from SHE_PPT import products
 from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu,
                              write_xml_product)
 from SHE_PPT.logging import getLogger
-from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
-                                  model_seed_label, noise_seed_label, extname_label, ccdid_label, scale_label,
-                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
-                                  detections_tag, psf_im_tag)
+from SHE_PPT.magic_values import (GAIN_LABEL, STAMP_SIZE_LABEL, MODEL_HASH_LABEL,
+                                  MODEL_SEED_LABEL, NOISE_SEED_LABEL, EXTNAME_LABEL, CCDID_LABEL, SCALE_LABEL,
+                                  SCI_TAG, NOISEMAP_TAG, MASK_TAG, SEGMENTATION_TAG, DETAILS_TAG,
+                                  DETECTIONS_TAG, PSF_IM_TAG)
 from SHE_PPT.table_formats.mer_final_catalog import initialise_mer_final_catalog, tf as detf
 from SHE_PPT.table_formats.she_psf_model_image import initialise_psf_table, tf as pstf
 from SHE_PPT.table_formats.she_simulated_catalog import initialise_simulated_catalog, tf as datf
@@ -197,14 +197,14 @@ def generate_image_group(image_group_phl, options):
 
     # Get the filenames we'll need
     for i in range(num_dithers):
-        for filename_list, tag in ((image_filenames, sci_tag),
-                                   (detections_filenames, detections_tag),
-                                   (details_filenames, details_tag),
-                                   (mosaic_filenames, segmentation_tag),
-                                   (psf_filenames, psf_im_tag),):
+        for filename_list, tag in ((image_filenames, SCI_TAG),
+                                   (detections_filenames, DETECTIONS_TAG),
+                                   (details_filenames, DETAILS_TAG),
+                                   (mosaic_filenames, SEGMENTATION_TAG),
+                                   (psf_filenames, PSF_IM_TAG),):
 
             # For products that aren't lists, don't include the dither label
-            if tag in (detections_tag, details_tag):
+            if tag in (DETECTIONS_TAG, DETAILS_TAG):
                 dither_tag = ""
             else:
                 dither_tag = "-D" + str(i + 1)
@@ -213,7 +213,7 @@ def generate_image_group(image_group_phl, options):
                                               (filename_list.data_filenames, "GST", ".fits"), ]
 
             # For the VIS image, also add other subfilenames
-            if tag == sci_tag:
+            if tag == SCI_TAG:
                 subfilenames_lists_labels_exts.append((filename_list.bkg_filenames, "GST-BKG", ".fits"))
                 subfilenames_lists_labels_exts.append((filename_list.wgt_filenames, "GST-WGT", ".fits"))
 
@@ -1111,28 +1111,28 @@ def add_image_header_info(gs_image,
         gs_image.header[mv.galsim_version_label] = '<1.2'
 
     # Gain
-    gs_image.header[gain_label] = (gain, 'e-/ADU')
+    gs_image.header[GAIN_LABEL] = (gain, 'e-/ADU')
 
     # Stamp size
     if stamp_size is not None:
-        gs_image.header[stamp_size_label] = stamp_size
-    elif stamp_size_label in gs_image.header:
-        del gs_image.header[stamp_size_label]
+        gs_image.header[STAMP_SIZE_LABEL] = stamp_size
+    elif STAMP_SIZE_LABEL in gs_image.header:
+        del gs_image.header[STAMP_SIZE_LABEL]
 
     # Model hash
-    gs_image.header[model_hash_label] = hash_any(full_options, format="base64")
+    gs_image.header[MODEL_HASH_LABEL] = hash_any(full_options, format="base64")
 
     # Seeds
-    gs_image.header[model_seed_label] = model_seed
-    gs_image.header[noise_seed_label] = full_options["noise_seed"]
+    gs_image.header[MODEL_SEED_LABEL] = model_seed
+    gs_image.header[NOISE_SEED_LABEL] = full_options["noise_seed"]
 
     # Extension name
-    gs_image.header[extname_label] = extname
-    gs_image.header[ccdid_label] = ccdid
+    gs_image.header[EXTNAME_LABEL] = extname
+    gs_image.header[CCDID_LABEL] = ccdid
 
     # Pixel scale
     scale, _, _, _ = gs_image.wcs.jacobian().getDecomposition()
-    gs_image.header[scale_label] = scale
+    gs_image.header[SCALE_LABEL] = scale
 
     # WCS info
     wcs.writeToFitsHeader(gs_image.header, gs_image.bounds)
@@ -1315,13 +1315,13 @@ def generate_image(image_phl,
 
             # Add a header containing version info
             add_image_header_info(dither, options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + sci_tag, ccdid=detector_id_str,
+                                  extname=detector_id_str + "." + SCI_TAG, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(noise_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + noisemap_tag, ccdid=detector_id_str,
+                                  extname=detector_id_str + "." + NOISEMAP_TAG, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(mask_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + mask_tag, ccdid=detector_id_str,
+                                  extname=detector_id_str + "." + MASK_TAG, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(bkg_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
                                   extname=detector_id_str, ccdid=detector_id_str,
@@ -1330,7 +1330,7 @@ def generate_image(image_phl,
                                   extname=detector_id_str, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(segmentation_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + segmentation_tag, ccdid=detector_id_str,
+                                  extname=detector_id_str + "." + SEGMENTATION_TAG, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
 
             # Note - noise map here deliberately doesn't include galaxy contributions
