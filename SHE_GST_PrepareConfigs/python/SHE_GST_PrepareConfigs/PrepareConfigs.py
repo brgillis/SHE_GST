@@ -5,7 +5,7 @@
     Main program for preparing configuration files for parallel runs.
 """
 
-__updated__ = "2020-11-12"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,11 +22,10 @@ __updated__ = "2020-11-12"
 
 import argparse
 
+from EL_PythonUtils.utilities import get_arguments_string
 from SHE_PPT.logging import getLogger
-from SHE_PPT.utility import get_arguments_string
 
 import SHE_GST
-from SHE_GST_PrepareConfigs import magic_values as mv
 from SHE_GST_PrepareConfigs.write_configs import write_configs_from_plan
 
 
