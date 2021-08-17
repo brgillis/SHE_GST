@@ -8,7 +8,7 @@
     Executable module to run image generation routine.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -25,8 +25,7 @@ __updated__ = "2018-07-03"
 
 import sys
 
-from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_config_file
-from SHE_GST_GalaxyImageGeneration.utility import timing
+from .run_from_config import run_from_config_file
 
 
 def main(argv):

@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse-pydev version="1.0"?><pydev_project>
-    
     <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">Default</pydev_property>
-    
     <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python interpreter</pydev_property>
-    
     <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-        <path>/${PROJECT_DIR_NAME}/SHE_GST_GalaxyImageGeneration/python</path>
+        <path>/${PROJECT_DIR_NAME}/SHE_GST/python</path>
         <path>/${PROJECT_DIR_NAME}/SHE_GST_cIceBRGpy/python</path>
+        <path>/${PROJECT_DIR_NAME}/SHE_GST_GalaxyImageGeneration/python</path>
+        <path>/${PROJECT_DIR_NAME}/SHE_GST_GalaxyImageGeneration/tests/python</path>
         <path>/${PROJECT_DIR_NAME}/SHE_GST_IceBRGpy/python</path>
+        <path>/${PROJECT_DIR_NAME}/SHE_GST_IceBRGpy/tests/python</path>
         <path>/${PROJECT_DIR_NAME}/SHE_GST_PrepareConfigs/python</path>
+        <path>/${PROJECT_DIR_NAME}/SHE_GST_PrepareConfigs/tests/python</path>
     </pydev_pathproperty>
-    
     <pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH">
-<path>/home/user/Work/Projects/SHE_PPT/SHE_PPT/python</path>
-</pydev_pathproperty>
-    
+        <path>/home/user/Work/Projects/SHE_PPT/SHE_PPT/python</path>
+        <path>/home/user/Work/Projects/EL_Utils/EL_PythonUtils/python</path>
+        <path>/home/user/Work/Projects/EL_Utils/EL_CoordsUtils/python</path>
+    </pydev_pathproperty>
 </pydev_project>

@@ -6,7 +6,7 @@
     generating P(e)
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -24,17 +24,17 @@ __updated__ = "2018-07-03"
 from builtins import isinstance
 from os.path import join
 
+from SHE_PPT.logging import getLogger
 import galsim
 
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
-                                             get_disk_galaxy_profile,
-                                             is_target_galaxy)
-from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
-from SHE_GST_GalaxyImageGeneration.p_of_e_io import output_p_of_e
-from SHE_GST_GalaxyImageGeneration.unweighted_moments import calculate_unweighted_ellipticity
-from SHE_PPT.logging import getLogger
 import numpy as np
+
+from .galaxy import (get_bulge_galaxy_profile,
+                     get_disk_galaxy_profile,
+                     is_target_galaxy)
+from .magnitude_conversions import get_I
+from .p_of_e_io import output_p_of_e
+from .unweighted_moments import calculate_unweighted_ellipticity
 
 
 def generate_p_of_e(survey, options, output_file_name, header_items, e_bins):
@@ -61,7 +61,7 @@ def generate_p_of_e(survey, options, output_file_name, header_items, e_bins):
         survey.set_seed(options['seed'])
 
     # Set up the bins for e
-    pe_bins = np.zeros(e_bins, dtype = int)
+    pe_bins = np.zeros(e_bins, dtype=int)
     e_samples = []
 
     # Create empty image objects for the survey
@@ -80,9 +80,10 @@ def generate_p_of_e(survey, options, output_file_name, header_items, e_bins):
 
     joined_file_name = join(options["output_folder"], output_file_name)
 
-    output_p_of_e(pe_bins, e_samples, joined_file_name, header = header)
+    output_p_of_e(pe_bins, e_samples, joined_file_name, header=header)
 
     logger.debug("Exiting generate_p_of_e method.")
+
 
 def get_pe_bins_for_image(image, options, e_bins):
 
@@ -92,7 +93,7 @@ def get_pe_bins_for_image(image, options, e_bins):
     # Set up empty bins
     e_bin_size = 1. / e_bins
 
-    image_pe_bins = np.zeros(e_bins, dtype = int)
+    image_pe_bins = np.zeros(e_bins, dtype=int)
     image_e_samples = []
 
     # Fill up galaxies in this image
@@ -115,8 +116,8 @@ def get_pe_bins_for_image(image, options, e_bins):
 
         gal_I = get_I(galaxy.get_param_value('apparent_mag_vis'),
                       'mag_vis',
-                      gain = options['gain'],
-                      exp_time = options['exp_time'])
+                      gain=options['gain'],
+                      exp_time=options['exp_time'])
 
         rotation = galaxy.get_param_value('rotation')
         tilt = galaxy.get_param_value('tilt')
@@ -133,25 +134,25 @@ def get_pe_bins_for_image(image, options, e_bins):
         disk_size = galaxy.get_param_value('apparent_size_disk')
         disk_height_ratio = galaxy.get_param_value('disk_height_ratio')
 
-        gsparams = galsim.GSParams(maxk_threshold = 5e-2)
+        gsparams = galsim.GSParams(maxk_threshold=5e-2)
 
-        bulge_gal_profile = get_bulge_galaxy_profile(sersic_index = n,
-                                        half_light_radius = bulge_size,
-                                        flux = gal_I * bulge_fraction,
-                                        g_ell = g_ell,
-                                        beta_deg_ell = rotation,
-                                        g_shear = g_shear,
-                                        beta_deg_shear = beta_shear,
-                                        data_dir = options['data_dir'],
-                                        gsparams = gsparams)
-        disk_gal_profile = get_disk_galaxy_profile(half_light_radius = disk_size,
-                                           rotation = rotation,
-                                           tilt = tilt,
-                                           flux = gal_I * (1 - bulge_fraction),
-                                           g_shear = g_shear,
-                                           beta_deg_shear = beta_shear,
-                                           height_ratio = disk_height_ratio,
-                                           gsparams = gsparams)
+        bulge_gal_profile = get_bulge_galaxy_profile(sersic_index=n,
+                                                     half_light_radius=bulge_size,
+                                                     flux=gal_I * bulge_fraction,
+                                                     g_ell=g_ell,
+                                                     beta_deg_ell=rotation,
+                                                     g_shear=g_shear,
+                                                     beta_deg_shear=beta_shear,
+                                                     data_dir=options['data_dir'],
+                                                     gsparams=gsparams)
+        disk_gal_profile = get_disk_galaxy_profile(half_light_radius=disk_size,
+                                                   rotation=rotation,
+                                                   tilt=tilt,
+                                                   flux=gal_I * (1 - bulge_fraction),
+                                                   g_shear=g_shear,
+                                                   beta_deg_shear=beta_shear,
+                                                   height_ratio=disk_height_ratio,
+                                                   gsparams=gsparams)
 
         gal_profile = bulge_gal_profile + disk_gal_profile
 
@@ -185,11 +186,9 @@ def get_pe_bins_for_image(image, options, e_bins):
                         "\nheight_ratio = " + str(disk_height_ratio))
             logger.warn(warn_str)
 
-
     # We no longer need this image's children, so clear it to save memory
     image.clear()
 
     logger.debug("Exiting get_pe_bins_for_image method.")
 
     return image_pe_bins, image_e_samples
-

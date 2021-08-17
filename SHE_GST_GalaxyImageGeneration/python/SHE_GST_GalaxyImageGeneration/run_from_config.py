@@ -5,7 +5,7 @@
     Functions to apply configurations and run one of the programs
 """
 
-__updated__ = "2018-08-17"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -24,7 +24,6 @@ import subprocess
 
 from SHE_PPT.logging import getLogger
 
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_survey_settings,
                                                                  generation_levels_inverse,)
 from SHE_GST_GalaxyImageGeneration.config.parse_config import (set_up_from_config_file,

@@ -6,7 +6,7 @@
     Function to combine various dithers into a stacked image.
 """
 
-__updated__ = "2020-11-12"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,18 +23,21 @@ __updated__ = "2020-11-12"
 
 import os
 
-from SHE_PPT import magic_values as ppt_mv
 from SHE_PPT import products
+from SHE_PPT.constants.fits import (SCI_TAG, MASK_TAG, NOISEMAP_TAG, SEGMENTATION_TAG, BACKGROUND_TAG, WEIGHT_TAG,
+                                    MODEL_HASH_LABEL, MODEL_SEED_LABEL, NOISE_SEED_LABEL, SCALE_LABEL,
+                                    EXTNAME_LABEL)
+from SHE_PPT.constants.misc import SHORT_INSTANCE_ID_MAXLEN
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
-from SHE_PPT.magic_values import SCI_TAG, MASK_TAG, NOISEMAP_TAG, SEGMENTATION_TAG, BACKGROUND_TAG, WEIGHT_TAG
 from SHE_PPT.mask import masked_off_image
 from astropy.io import fits
 import galsim
 from numpy.lib.stride_tricks import as_strided
 
 import SHE_GST
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
 import numpy as np
+
+from . import magic_values as mv
 
 
 products.mer_segmentation_map.init()
@@ -163,11 +166,11 @@ def save_hdu(full_image,
              workdir, ):
 
     hdu = fits.ImageHDU(data=full_image)
-    hdu.header[ppt_mv.MODEL_HASH_LABEL] = image_dithers[0][0].header[ppt_mv.MODEL_HASH_LABEL]
-    hdu.header[ppt_mv.MODEL_SEED_LABEL] = image_dithers[0][0].header[ppt_mv.MODEL_SEED_LABEL]
-    hdu.header[ppt_mv.NOISE_SEED_LABEL] = image_dithers[0][0].header[ppt_mv.NOISE_SEED_LABEL]
-    hdu.header["EXTNAME"] = extname
-    hdu.header[ppt_mv.SCALE_LABEL] = image_dithers[0][0].header[ppt_mv.SCALE_LABEL] / pixel_factor
+    hdu.header[MODEL_HASH_LABEL] = image_dithers[0][0].header[MODEL_HASH_LABEL]
+    hdu.header[MODEL_SEED_LABEL] = image_dithers[0][0].header[MODEL_SEED_LABEL]
+    hdu.header[NOISE_SEED_LABEL] = image_dithers[0][0].header[NOISE_SEED_LABEL]
+    hdu.header[EXTNAME_LABEL] = extname
+    hdu.header[SCALE_LABEL] = image_dithers[0][0].header[SCALE_LABEL] / pixel_factor
 
     wcs.writeToFitsHeader(hdu.header, galsim.Image(full_image).bounds)
 
@@ -265,7 +268,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
             y_offset += detector_stack.shape[1] + pixel_factor * mv.image_gap_y_pix - extra_pixels
 
     # Print out the stacked segmentation map
-    model_hash_fn = segmentation_dithers[0][0].header[ppt_mv.MODEL_HASH_LABEL][0:ppt_mv.SHORT_INSTANCE_ID_MAXLEN]
+    model_hash_fn = segmentation_dithers[0][0].header[MODEL_HASH_LABEL][0:SHORT_INSTANCE_ID_MAXLEN]
     model_hash_fn = model_hash_fn.replace('.', '-').replace('+', '-')
     data_filename = get_allowed_filename("GST-SEG-STACK",
                                          model_hash_fn,
@@ -327,9 +330,9 @@ def combine_image_dithers(image_listfile_name,
 
         for i in range(len(f) // 3):
 
-            assert f[3 * i].header[ppt_mv.EXTNAME_LABEL][-4:] == "." + SCI_TAG
-            assert fb[i].header[ppt_mv.EXTNAME_LABEL] == f[3 * i].header[ppt_mv.EXTNAME_LABEL][:-4]
-            assert fw[i].header[ppt_mv.EXTNAME_LABEL] == f[3 * i].header[ppt_mv.EXTNAME_LABEL][:-4]
+            assert f[3 * i].header[EXTNAME_LABEL][-4:] == "." + SCI_TAG
+            assert fb[i].header[EXTNAME_LABEL] == f[3 * i].header[EXTNAME_LABEL][:-4]
+            assert fw[i].header[EXTNAME_LABEL] == f[3 * i].header[EXTNAME_LABEL][:-4]
 
             shape = f[3 * i].data.shape
 
@@ -386,13 +389,13 @@ def combine_image_dithers(image_listfile_name,
         for i in range(num_dithers):
             if 3 * x + 2 < len(image_dithers[i]):
 
-                assert image_dithers[i][3 * x].header[ppt_mv.EXTNAME_LABEL][-4:] == "." + SCI_TAG
+                assert image_dithers[i][3 * x].header[EXTNAME_LABEL][-4:] == "." + SCI_TAG
                 sci_dithers.append(image_dithers[i][3 * x].data)
 
-                assert image_dithers[i][3 * x + 1].header[ppt_mv.EXTNAME_LABEL][-4:] == "." + NOISEMAP_TAG
+                assert image_dithers[i][3 * x + 1].header[EXTNAME_LABEL][-4:] == "." + NOISEMAP_TAG
                 rms_dithers.append(image_dithers[i][3 * x + 1].data)
 
-                assert image_dithers[i][3 * x + 2].header[ppt_mv.EXTNAME_LABEL][-4:] == "." + MASK_TAG
+                assert image_dithers[i][3 * x + 2].header[EXTNAME_LABEL][-4:] == "." + MASK_TAG
                 flg_dithers.append(image_dithers[i][3 * x + 2].data)
 
                 bkg_dithers.append(bkg_image_dithers[i][x].data)
@@ -439,7 +442,7 @@ def combine_image_dithers(image_listfile_name,
     full_sci_image -= full_bkg_image
 
     # Print out the stacked segmentation map
-    model_hash_fn = image_dithers[0][0].header[ppt_mv.MODEL_HASH_LABEL][0:ppt_mv.SHORT_INSTANCE_ID_MAXLEN]
+    model_hash_fn = image_dithers[0][0].header[MODEL_HASH_LABEL][0:SHORT_INSTANCE_ID_MAXLEN]
     model_hash_fn = model_hash_fn.replace('.', '-').replace('+', '-')
     data_filename = get_allowed_filename("GST-IMAGE-STACK",
                                          model_hash_fn,

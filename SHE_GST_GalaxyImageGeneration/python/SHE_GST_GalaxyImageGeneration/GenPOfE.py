@@ -5,7 +5,7 @@
     Elements program for generating galaxy images.
 """
 
-__updated__ = "2020-11-12"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,10 +22,10 @@ __updated__ = "2020-11-12"
 
 import argparse
 
+from EL_PythonUtils.utilities import get_arguments_string
 from SHE_PPT.logging import getLogger
 
 import SHE_GST
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options,
                                                                  allowed_fixed_params,
                                                                  allowed_survey_settings)
@@ -99,8 +99,13 @@ def mainMethod(args):
     logger.debug('# Entering GenPOfE mainMethod()')
     logger.debug('#')
 
+    exec_cmd = get_arguments_string(args, cmd="E-Run SHE_GST " + SHE_GST.__version__ + " SHE_GST_GenGalaxyImages",
+                                    store_true=["profile", "debug"])
+    logger.info('Execution command for this step:')
+    logger.info(exec_cmd)
+
     if len(args.header_items) % 2 != 0:
-        raise Exception("An even number of items must be passed to the header_items argument.")
+        raise ValueError("An even number of items must be passed to the header_items argument.")
     header_items = args.header_items
 
     if(args.config_file is None and len(args.config_files) == 0):
@@ -131,5 +136,3 @@ def mainMethod(args):
                       e_bins=args.e_bins)
 
     logger.debug('Exiting GenGalsimImages mainMethod()')
-
-    return

@@ -5,7 +5,7 @@
     Functions to convert between Euclid magnitude and electron count
 """
 
-__updated__ = "2018-07-11"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -20,9 +20,10 @@ __updated__ = "2018-07-11"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from SHE_GST_GalaxyImageGeneration.gain import get_ADU_from_count
-import SHE_GST_GalaxyImageGeneration.magic_values as mv
 import numpy as np
+
+from .gain import get_ADU_from_count
+import .magic_values as mv
 
 
 def get_count_from_mag_vis(m, exp_time):

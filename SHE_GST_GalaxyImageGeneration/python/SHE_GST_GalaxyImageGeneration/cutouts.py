@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2019-07-04"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,21 +21,21 @@ __updated__ = "2019-07-04"
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-
+from SHE_PPT.table_formats.mer_final_catalog import tf as detf
+from SHE_PPT.table_formats.she_simulated_catalog import tf as datf
 import galsim
 
-from SHE_GST_GalaxyImageGeneration.galaxy import is_target_galaxy
-from SHE_PPT.table_formats.she_simulated_catalog import tf as datf
-from SHE_PPT.table_formats.mer_final_catalog import tf as detf
 import numpy as np
+
+from .galaxy import is_target_galaxy
 
 
 def make_cutout_image(image,
                       options,
                       galaxies,
-                      detections_table = None,
-                      details_table = None,
-                      centre_offset = 0):
+                      detections_table=None,
+                      details_table=None,
+                      centre_offset=0):
 
     # Get a list of only the target galaxies
     target_galaxies = []
@@ -53,13 +53,13 @@ def make_cutout_image(image,
 
     cutout_image_npix_x = ncols * stamp_size_pix
     cutout_image_npix_y = nrows * stamp_size_pix
-    
+
     pixel_scale, _, _, _ = image.wcs.jacobian().getDecomposition()
 
     cutout_image = galsim.Image(cutout_image_npix_x,
                                 cutout_image_npix_y,
-                                dtype = image.dtype,
-                                scale = pixel_scale)
+                                dtype=image.dtype,
+                                scale=pixel_scale)
 
     # Add each target galaxy to the cutout image
 
@@ -117,7 +117,7 @@ def make_cutout_image(image,
         yl += y_shift
 
         gal_bounds = galsim.BoundsI(xl, xh, yl, yh)
-        
+
 #         from matplotlib import pyplot as plt
 #         plt.pcolor(image[gal_bounds].array)
 #         import pdb; pdb.set_trace()
@@ -131,8 +131,8 @@ def make_cutout_image(image,
             if otable is not None:
                 index = (otable[tf.ID] == galaxy.get_full_ID())
                 otable[xcol][index] = dtype(icol * stamp_size_pix + 1 + stamp_size_pix // 2 - x_shift +
-                    x_sp_shift + centre_offset) * pixel_scale
-                otable[ycol][index] = dtype(irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift + 
-                    y_sp_shift + centre_offset) * pixel_scale
+                                            x_sp_shift + centre_offset) * pixel_scale
+                otable[ycol][index] = dtype(irow * stamp_size_pix + 1 + stamp_size_pix // 2 - y_shift +
+                                            y_sp_shift + centre_offset) * pixel_scale
 
     return cutout_image

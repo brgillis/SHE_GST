@@ -6,7 +6,7 @@
     Elements program for generating galaxy images.
 """
 
-__updated__ = "2020-11-12"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,17 +23,17 @@ __updated__ = "2020-11-12"
 
 import argparse
 
+from EL_PythonUtils.utilities import get_arguments_string
 from SHE_PPT.logging import getLogger
-from SHE_PPT.utility import get_arguments_string
 
 import SHE_GST
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from SHE_GST_GalaxyImageGeneration.config.config_default import (allowed_options,
-                                                                 allowed_fixed_params,
-                                                                 allowed_survey_settings)
-from SHE_GST_GalaxyImageGeneration.generate_images import generate_images
-from SHE_GST_GalaxyImageGeneration.run_from_config import run_from_args
 import SHE_GST_cIceBRGpy
+
+from .config.config_default import (allowed_options,
+                                    allowed_fixed_params,
+                                    allowed_survey_settings)
+from .generate_images import generate_images
+from .run_from_config import run_from_args
 
 
 def defineSpecificProgramOptions():

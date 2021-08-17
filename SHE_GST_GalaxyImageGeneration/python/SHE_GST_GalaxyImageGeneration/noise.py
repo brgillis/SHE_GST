@@ -6,7 +6,7 @@
     in simulated images.
 """
 
-__updated__ = "2018-07-20"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,9 +23,11 @@ __updated__ = "2018-07-20"
 
 from copy import deepcopy
 
-from SHE_GST_GalaxyImageGeneration.gain import get_ADU_from_count, get_count_from_ADU
 import galsim
+
 import numpy as np
+
+from .gain import get_ADU_from_count, get_count_from_ADU
 
 
 def get_sky_level_ADU_per_pixel(sky_level_ADU_per_sq_arcsec,

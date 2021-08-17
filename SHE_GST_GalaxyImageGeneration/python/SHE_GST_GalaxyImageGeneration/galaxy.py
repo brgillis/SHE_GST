@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2019-07-04"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -20,14 +20,9 @@ __updated__ = "2019-07-04"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from functools import lru_cache
-from os.path import join
-
+from SHE_PPT.logging import getLogger
 import galsim
 
-import SHE_GST_GalaxyImageGeneration.magic_values as mv
-from SHE_PPT.file_io import find_file
-from SHE_PPT.logging import getLogger
 import numpy as np
 
 
@@ -109,7 +104,7 @@ def get_bulge_galaxy_profile(sersic_index,
                              trunc_factor=4.5,
                              gsparams=galsim.GSParams()):
     n = discretize(sersic_index)
-    
+
     scale_radius_deg = half_light_radius / (3600 * galsim.Exponential._hlr_factor)
 
     gal_profile = galsim.Sersic(n=n,

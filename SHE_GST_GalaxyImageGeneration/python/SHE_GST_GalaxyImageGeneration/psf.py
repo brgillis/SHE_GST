@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2020-11-12"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -24,9 +24,9 @@ from copy import deepcopy
 from functools import lru_cache
 from os.path import join
 
+from SHE_PPT.constants.fits import BULGE_PSF_TAG, DISK_PSF_TAG
 from SHE_PPT.file_io import find_file
 from SHE_PPT.logging import getLogger
-from SHE_PPT.magic_values import BULGE_PSF_TAG, DISK_PSF_TAG
 from SHE_PPT.table_formats.she_psf_model_image import tf as pstf
 from astropy.io import fits
 from astropy.io.fits import table_to_hdu
