@@ -5,7 +5,7 @@
     @TODO: File docstring
 """
 
-__updated__ = "2020-11-12"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -24,9 +24,9 @@ from copy import deepcopy
 from functools import lru_cache
 from os.path import join
 
+from SHE_PPT.constants.fits import BULGE_PSF_TAG, DISK_PSF_TAG
 from SHE_PPT.file_io import find_file
 from SHE_PPT.logging import getLogger
-from SHE_PPT.magic_values import bulge_psf_tag, disk_psf_tag
 from SHE_PPT.table_formats.she_psf_model_image import tf as pstf
 from astropy.io import fits
 from astropy.io.fits import table_to_hdu
@@ -63,7 +63,7 @@ allowed_zs = np.array((0., 0.5, 1.0, 1.5, 2.0))
 
 gal_id_label = "GAL_ID"
 exposure_index_label = "EX_INDEX"
-scale_label = "GS_SCALE"
+SCALE_LABEL = "GS_SCALE"
 type_label = "PSF_TYPE"
 
 
@@ -193,7 +193,7 @@ def add_psf_to_archive(psf_profile,
     # Add needed keywords to the attributes of this dataset
     psf_dataset.attrs[gal_id_label] = galaxy_id
     psf_dataset.attrs[exposure_index_label] = exposure_index
-    psf_dataset.attrs[scale_label] = scale
+    psf_dataset.attrs[SCALE_LABEL] = scale
     psf_dataset.attrs[type_label] = psf_type
 
     return
@@ -206,7 +206,7 @@ def get_psf_from_archive(archive_filehandle,
 
     dataset = archive_filehandle[str(galaxy_id) + "_" + str(exposure_index) + "_" + psf_type]
 
-    psf_image = galsim.ImageF(dataset[:, :], scale=dataset.attrs[scale_label])
+    psf_image = galsim.ImageF(dataset[:, :], scale=dataset.attrs[SCALE_LABEL])
 
     return psf_image
 
@@ -245,15 +245,15 @@ def sort_psfs_from_archive(psf_table,
 
         # Make the headers for each HDU correct
         bulge_psf_hdu.header[exposure_index_label] = exposure_index
-        bulge_psf_hdu.header[scale_label] = scale
+        bulge_psf_hdu.header[SCALE_LABEL] = scale
 
         disk_psf_hdu = deepcopy(bulge_psf_hdu)
 
         bulge_psf_hdu.header[type_label] = "bulge"
         disk_psf_hdu.header[type_label] = "disk"
 
-        bulge_psf_hdu.header['EXTNAME'] = "ALL." + bulge_psf_tag
-        disk_psf_hdu.header['EXTNAME'] = "ALL." + disk_psf_tag
+        bulge_psf_hdu.header['EXTNAME'] = "ALL." + BULGE_PSF_TAG
+        disk_psf_hdu.header['EXTNAME'] = "ALL." + DISK_PSF_TAG
 
         data_hdulist.append(bulge_psf_hdu)
         data_hdulist.append(disk_psf_hdu)
@@ -283,12 +283,12 @@ def sort_psfs_from_archive(psf_table,
             psf_hdu = fits.ImageHDU(data=dataset[:, :])
             psf_hdu.header[gal_id_label] = dataset.attrs[gal_id_label]
             psf_hdu.header[exposure_index_label] = dataset.attrs[exposure_index_label]
-            psf_hdu.header[scale_label] = dataset.attrs[scale_label]
+            psf_hdu.header[SCALE_LABEL] = dataset.attrs[SCALE_LABEL]
             psf_hdu.header[type_label] = dataset.attrs[type_label]
             if dataset.attrs[type_label] == "bulge":
-                psf_hdu.header['EXTNAME'] = str(gal_id) + "." + bulge_psf_tag
+                psf_hdu.header['EXTNAME'] = str(gal_id) + "." + BULGE_PSF_TAG
             else:
-                psf_hdu.header['EXTNAME'] = str(gal_id) + "." + disk_psf_tag
+                psf_hdu.header['EXTNAME'] = str(gal_id) + "." + DISK_PSF_TAG
 
             # Add to the data file
             data_hdulist.append(psf_hdu)

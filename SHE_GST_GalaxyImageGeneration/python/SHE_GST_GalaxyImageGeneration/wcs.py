@@ -6,7 +6,7 @@
     Functions related to determining a WCS for an image.
 """
 
-__updated__ = "2018-12-13"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,8 +23,9 @@ __updated__ = "2018-12-13"
 
 import galsim
 
-from SHE_GST_GalaxyImageGeneration.magic_values import image_gap_x_pix, image_gap_y_pix
 import numpy as np
+
+from .magic_values import image_gap_x_pix, image_gap_y_pix
 
 
 def get_wcs_from_image_phl(image_phl,

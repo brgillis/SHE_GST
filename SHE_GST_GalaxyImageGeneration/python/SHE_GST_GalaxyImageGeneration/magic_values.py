@@ -61,10 +61,10 @@ default_truncation_radius_factor = 4.5
 
 default_data_dir = "AUX/SHE_GST_GalaxyImageGeneration"
 
-# mag_vis_zeropoint = 25.50087633632 # From ETC
-# mag_vis_zeropoint = 25.4534 # From Sami's sims' config file
-mag_vis_zeropoint = 25.6527  # From Lance's code
-mag_i_zeropoint = 25.3884  # From Lance's code
+# MAG_VIS_ZEROPOINT = 25.50087633632 # From ETC
+# MAG_VIS_ZEROPOINT = 25.4534 # From Sami's sims' config file
+MAG_VIS_ZEROPOINT = 25.6527  # From Lance's code
+MAG_I_ZEROPOINT = 25.3884  # From Lance's code
 
 galsim_sersic_index_min = 0.3
 galsim_sersic_index_max = 6.2
@@ -98,7 +98,7 @@ detections_table_psf_yc_label = 'psf_y_center_pix'
 fits_header_subtracted_sky_level_label = "S_SKYLV"
 fits_header_unsubtracted_sky_level_label = "US_SKYLV"
 fits_header_read_noise_label = "RD_NOISE"
-fits_header_gain_label = "CCDGAIN"
+fits_header_GAIN_LABEL = "CCDGAIN"
 
 # TODO check actual gaps
 image_gap_x_pix = 50

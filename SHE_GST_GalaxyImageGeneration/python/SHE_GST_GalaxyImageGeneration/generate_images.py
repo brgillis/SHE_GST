@@ -7,7 +7,7 @@
     generating images.
 """
 
-__updated__ = "2021-04-23"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -26,19 +26,19 @@ __updated__ = "2021-04-23"
 from multiprocessing import cpu_count, Pool
 import os
 
+from EL_PythonUtils.utilities import hash_any
 from SHE_PPT import detector
 from SHE_PPT import products
+from SHE_PPT.constants.fits import (GAIN_LABEL, STAMP_SIZE_LABEL, MODEL_HASH_LABEL,
+                                    MODEL_SEED_LABEL, NOISE_SEED_LABEL, EXTNAME_LABEL, CCDID_LABEL, SCALE_LABEL,
+                                    SCI_TAG, NOISEMAP_TAG, MASK_TAG, SEGMENTATION_TAG, DETAILS_TAG,
+                                    DETECTIONS_TAG, PSF_IM_TAG)
 from SHE_PPT.file_io import (get_allowed_filename, write_listfile, append_hdu,
                              write_xml_product)
 from SHE_PPT.logging import getLogger
-from SHE_PPT.magic_values import (gain_label, stamp_size_label, model_hash_label,
-                                  model_seed_label, noise_seed_label, extname_label, ccdid_label, scale_label,
-                                  sci_tag, noisemap_tag, mask_tag, segmentation_tag, details_tag,
-                                  detections_tag, psf_im_tag)
-from SHE_PPT.table_formats.mer_final_catalog import initialise_mer_final_catalog, tf as detf
-from SHE_PPT.table_formats.she_psf_model_image import initialise_psf_table, tf as pstf
-from SHE_PPT.table_formats.she_simulated_catalog import initialise_simulated_catalog, tf as datf
-from SHE_PPT.utility import hash_any
+from SHE_PPT.table_formats.mer_final_catalog import tf as detf
+from SHE_PPT.table_formats.she_psf_model_image import tf as pstf
+from SHE_PPT.table_formats.she_simulated_catalog import tf as datf
 from astropy import table
 from astropy.io import fits
 from astropy.io.fits import table_to_hdu
@@ -46,24 +46,25 @@ import galsim
 import h5py
 
 import SHE_GST
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
-from SHE_GST_GalaxyImageGeneration.combine_dithers import (combine_image_dithers,
-                                                           combine_segmentation_dithers)
-from SHE_GST_GalaxyImageGeneration.config.check_config import get_full_options
-from SHE_GST_GalaxyImageGeneration.cutouts import make_cutout_image
-from SHE_GST_GalaxyImageGeneration.dither_schemes import get_dither_scheme
-from SHE_GST_GalaxyImageGeneration.galaxy import (get_bulge_galaxy_profile,
-                                                  get_disk_galaxy_profile,
-                                                  is_target_galaxy)
-from SHE_GST_GalaxyImageGeneration.magnitude_conversions import get_I
-from SHE_GST_GalaxyImageGeneration.noise import get_var_ADU_per_pixel, add_stable_noise
-from SHE_GST_GalaxyImageGeneration.psf import (get_psf_profile, sort_psfs_from_archive, add_psf_to_archive,
-                                               single_psf_filename)
-from SHE_GST_GalaxyImageGeneration.segmentation_map import make_segmentation_map
-from SHE_GST_GalaxyImageGeneration.signal_to_noise import get_signal_to_noise_estimate
-from SHE_GST_GalaxyImageGeneration.wcs import get_wcs_from_image_phl
 import SHE_GST_PhysicalModel
 import numpy as np
+
+from . import magic_values as mv
+from .combine_dithers import (combine_image_dithers,
+                              combine_segmentation_dithers)
+from .config.check_config import get_full_options
+from .cutouts import make_cutout_image
+from .dither_schemes import get_dither_scheme
+from .galaxy import (get_bulge_galaxy_profile,
+                     get_disk_galaxy_profile,
+                     is_target_galaxy)
+from .magnitude_conversions import get_I
+from .noise import get_var_ADU_per_pixel, add_stable_noise
+from .psf import (get_psf_profile, sort_psfs_from_archive, add_psf_to_archive,
+                  single_psf_filename)
+from .segmentation_map import make_segmentation_map
+from .signal_to_noise import get_signal_to_noise_estimate
+from .wcs import get_wcs_from_image_phl
 
 
 model_hash_maxlen = 17  # Maximum possible length within filenames
@@ -197,14 +198,14 @@ def generate_image_group(image_group_phl, options):
 
     # Get the filenames we'll need
     for i in range(num_dithers):
-        for filename_list, tag in ((image_filenames, sci_tag),
-                                   (detections_filenames, detections_tag),
-                                   (details_filenames, details_tag),
-                                   (mosaic_filenames, segmentation_tag),
-                                   (psf_filenames, psf_im_tag),):
+        for filename_list, tag in ((image_filenames, SCI_TAG),
+                                   (detections_filenames, DETECTIONS_TAG),
+                                   (details_filenames, DETAILS_TAG),
+                                   (mosaic_filenames, SEGMENTATION_TAG),
+                                   (psf_filenames, PSF_IM_TAG),):
 
             # For products that aren't lists, don't include the dither label
-            if tag in (detections_tag, details_tag):
+            if tag in (DETECTIONS_TAG, DETAILS_TAG):
                 dither_tag = ""
             else:
                 dither_tag = "-D" + str(i + 1)
@@ -213,7 +214,7 @@ def generate_image_group(image_group_phl, options):
                                               (filename_list.data_filenames, "GST", ".fits"), ]
 
             # For the VIS image, also add other subfilenames
-            if tag == sci_tag:
+            if tag == SCI_TAG:
                 subfilenames_lists_labels_exts.append((filename_list.bkg_filenames, "GST-BKG", ".fits"))
                 subfilenames_lists_labels_exts.append((filename_list.wgt_filenames, "GST-WGT", ".fits"))
 
@@ -327,7 +328,7 @@ def generate_image_group(image_group_phl, options):
                 # PSF catalogue and images
 
                 num_rows = len(details_table[datf.ID])
-                psf_table = initialise_psf_table()
+                psf_table = pstf.init_table()
                 for j in range(num_rows):
                     psf_table.add_row({pstf.ID: details_table[datf.ID][j],
                                        pstf.template: -1,
@@ -1111,28 +1112,28 @@ def add_image_header_info(gs_image,
         gs_image.header[mv.galsim_version_label] = '<1.2'
 
     # Gain
-    gs_image.header[gain_label] = (gain, 'e-/ADU')
+    gs_image.header[GAIN_LABEL] = (gain, 'e-/ADU')
 
     # Stamp size
     if stamp_size is not None:
-        gs_image.header[stamp_size_label] = stamp_size
-    elif stamp_size_label in gs_image.header:
-        del gs_image.header[stamp_size_label]
+        gs_image.header[STAMP_SIZE_LABEL] = stamp_size
+    elif STAMP_SIZE_LABEL in gs_image.header:
+        del gs_image.header[STAMP_SIZE_LABEL]
 
     # Model hash
-    gs_image.header[model_hash_label] = hash_any(full_options, format="base64")
+    gs_image.header[MODEL_HASH_LABEL] = hash_any(full_options, format="base64")
 
     # Seeds
-    gs_image.header[model_seed_label] = model_seed
-    gs_image.header[noise_seed_label] = full_options["noise_seed"]
+    gs_image.header[MODEL_SEED_LABEL] = model_seed
+    gs_image.header[NOISE_SEED_LABEL] = full_options["noise_seed"]
 
     # Extension name
-    gs_image.header[extname_label] = extname
-    gs_image.header[ccdid_label] = ccdid
+    gs_image.header[EXTNAME_LABEL] = extname
+    gs_image.header[CCDID_LABEL] = ccdid
 
     # Pixel scale
     scale, _, _, _ = gs_image.wcs.jacobian().getDecomposition()
-    gs_image.header[scale_label] = scale
+    gs_image.header[SCALE_LABEL] = scale
 
     # WCS info
     wcs.writeToFitsHeader(gs_image.header, gs_image.bounds)
@@ -1205,10 +1206,10 @@ def generate_image(image_phl,
         details_table = None
     else:
         full_options = get_full_options(options, image_phl)
-        detections_table = initialise_mer_final_catalog(image_phl.get_parent(), full_options,
-                                                        optional_columns=[detf.seg_ID,
-                                                                          detf.FLUX_VIS_APER])
-        details_table = initialise_simulated_catalog(image_phl.get_parent(), full_options)
+        detections_table = detf.init_table(image_phl.get_parent(), full_options,
+                                           optional_columns=[detf.seg_ID,
+                                                             detf.FLUX_VIS_APER])
+        details_table = datf.init_table(image_phl.get_parent(), full_options)
 
     # Print the galaxies
     galaxies = print_galaxies(image_phl, options, wcs_list, centre_offset, num_dithers, dithers,
@@ -1315,13 +1316,13 @@ def generate_image(image_phl,
 
             # Add a header containing version info
             add_image_header_info(dither, options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + sci_tag, ccdid=detector_id_str,
+                                  extname=detector_id_str + "." + SCI_TAG, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(noise_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + noisemap_tag, ccdid=detector_id_str,
+                                  extname=detector_id_str + "." + NOISEMAP_TAG, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(mask_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + mask_tag, ccdid=detector_id_str,
+                                  extname=detector_id_str + "." + MASK_TAG, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(bkg_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
                                   extname=detector_id_str, ccdid=detector_id_str,
@@ -1330,7 +1331,7 @@ def generate_image(image_phl,
                                   extname=detector_id_str, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
             add_image_header_info(segmentation_maps[di], options['gain'], full_options, image_phl.get_full_seed(),
-                                  extname=detector_id_str + "." + segmentation_tag, ccdid=detector_id_str,
+                                  extname=detector_id_str + "." + SEGMENTATION_TAG, ccdid=detector_id_str,
                                   wcs=wcs_list[di], stamp_size=stamp_size_pix)
 
             # Note - noise map here deliberately doesn't include galaxy contributions

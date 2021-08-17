@@ -6,7 +6,7 @@
     Various boilerplate messages to be reported to the user.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -21,7 +21,6 @@ __updated__ = "2018-07-03"
 # You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to
 # the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
 from SHE_PPT.logging import getLogger
 
 

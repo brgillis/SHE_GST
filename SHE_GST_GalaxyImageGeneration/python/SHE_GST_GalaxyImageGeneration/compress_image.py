@@ -5,7 +5,7 @@
     Contains a function to compress a fits image with fpack.
 """
 
-__updated__ = "2018-07-03"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,7 +22,7 @@ __updated__ = "2018-07-03"
 
 import subprocess
 
-import SHE_GST_GalaxyImageGeneration.magic_values as mv
+import .magic_values as mv
 
 
 def compress_image(image_name, nx = None, lossy = False):

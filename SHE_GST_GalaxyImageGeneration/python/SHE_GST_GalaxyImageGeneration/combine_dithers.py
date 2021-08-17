@@ -6,7 +6,7 @@
     Function to combine various dithers into a stacked image.
 """
 
-__updated__ = "2020-11-12"
+__updated__ = "2021-08-17"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -23,18 +23,21 @@ __updated__ = "2020-11-12"
 
 import os
 
-from SHE_PPT import magic_values as ppt_mv
 from SHE_PPT import products
+from SHE_PPT.constants.fits import (SCI_TAG, MASK_TAG, NOISEMAP_TAG, SEGMENTATION_TAG, BACKGROUND_TAG, WEIGHT_TAG,
+                                    MODEL_HASH_LABEL, MODEL_SEED_LABEL, NOISE_SEED_LABEL, SCALE_LABEL,
+                                    EXTNAME_LABEL)
+from SHE_PPT.constants.misc import SHORT_INSTANCE_ID_MAXLEN
 from SHE_PPT.file_io import read_listfile, read_xml_product, get_allowed_filename, write_xml_product, append_hdu
-from SHE_PPT.magic_values import sci_tag, mask_tag, noisemap_tag, segmentation_tag, background_tag, weight_tag
 from SHE_PPT.mask import masked_off_image
 from astropy.io import fits
 import galsim
 from numpy.lib.stride_tricks import as_strided
 
 import SHE_GST
-from SHE_GST_GalaxyImageGeneration import magic_values as mv
 import numpy as np
+
+from . import magic_values as mv
 
 
 products.mer_segmentation_map.init()
@@ -163,11 +166,11 @@ def save_hdu(full_image,
              workdir, ):
 
     hdu = fits.ImageHDU(data=full_image)
-    hdu.header[ppt_mv.model_hash_label] = image_dithers[0][0].header[ppt_mv.model_hash_label]
-    hdu.header[ppt_mv.model_seed_label] = image_dithers[0][0].header[ppt_mv.model_seed_label]
-    hdu.header[ppt_mv.noise_seed_label] = image_dithers[0][0].header[ppt_mv.noise_seed_label]
-    hdu.header["EXTNAME"] = extname
-    hdu.header[ppt_mv.scale_label] = image_dithers[0][0].header[ppt_mv.scale_label] / pixel_factor
+    hdu.header[MODEL_HASH_LABEL] = image_dithers[0][0].header[MODEL_HASH_LABEL]
+    hdu.header[MODEL_SEED_LABEL] = image_dithers[0][0].header[MODEL_SEED_LABEL]
+    hdu.header[NOISE_SEED_LABEL] = image_dithers[0][0].header[NOISE_SEED_LABEL]
+    hdu.header[EXTNAME_LABEL] = extname
+    hdu.header[SCALE_LABEL] = image_dithers[0][0].header[SCALE_LABEL] / pixel_factor
 
     wcs.writeToFitsHeader(hdu.header, galsim.Image(full_image).bounds)
 
@@ -265,7 +268,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
             y_offset += detector_stack.shape[1] + pixel_factor * mv.image_gap_y_pix - extra_pixels
 
     # Print out the stacked segmentation map
-    model_hash_fn = segmentation_dithers[0][0].header[ppt_mv.model_hash_label][0:ppt_mv.short_instance_id_maxlen]
+    model_hash_fn = segmentation_dithers[0][0].header[MODEL_HASH_LABEL][0:SHORT_INSTANCE_ID_MAXLEN]
     model_hash_fn = model_hash_fn.replace('.', '-').replace('+', '-')
     data_filename = get_allowed_filename("GST-SEG-STACK",
                                          model_hash_fn,
@@ -273,7 +276,7 @@ def combine_segmentation_dithers(segmentation_listfile_name,
                                          version=SHE_GST.__version__)
 
     save_hdu(full_image, segmentation_dithers, stack_wcs, pixel_factor,
-             data_filename, segmentation_tag, workdir)
+             data_filename, SEGMENTATION_TAG, workdir)
 
     p = products.she_stack_segmentation_map.create_dpd_she_stack_segmentation_map(data_filename)
     write_xml_product(p, stacked_segmentation_filename, workdir=workdir)
@@ -327,9 +330,9 @@ def combine_image_dithers(image_listfile_name,
 
         for i in range(len(f) // 3):
 
-            assert f[3 * i].header[ppt_mv.extname_label][-4:] == "." + sci_tag
-            assert fb[i].header[ppt_mv.extname_label] == f[3 * i].header[ppt_mv.extname_label][:-4]
-            assert fw[i].header[ppt_mv.extname_label] == f[3 * i].header[ppt_mv.extname_label][:-4]
+            assert f[3 * i].header[EXTNAME_LABEL][-4:] == "." + SCI_TAG
+            assert fb[i].header[EXTNAME_LABEL] == f[3 * i].header[EXTNAME_LABEL][:-4]
+            assert fw[i].header[EXTNAME_LABEL] == f[3 * i].header[EXTNAME_LABEL][:-4]
 
             shape = f[3 * i].data.shape
 
@@ -386,13 +389,13 @@ def combine_image_dithers(image_listfile_name,
         for i in range(num_dithers):
             if 3 * x + 2 < len(image_dithers[i]):
 
-                assert image_dithers[i][3 * x].header[ppt_mv.extname_label][-4:] == "." + sci_tag
+                assert image_dithers[i][3 * x].header[EXTNAME_LABEL][-4:] == "." + SCI_TAG
                 sci_dithers.append(image_dithers[i][3 * x].data)
 
-                assert image_dithers[i][3 * x + 1].header[ppt_mv.extname_label][-4:] == "." + noisemap_tag
+                assert image_dithers[i][3 * x + 1].header[EXTNAME_LABEL][-4:] == "." + NOISEMAP_TAG
                 rms_dithers.append(image_dithers[i][3 * x + 1].data)
 
-                assert image_dithers[i][3 * x + 2].header[ppt_mv.extname_label][-4:] == "." + mask_tag
+                assert image_dithers[i][3 * x + 2].header[EXTNAME_LABEL][-4:] == "." + MASK_TAG
                 flg_dithers.append(image_dithers[i][3 * x + 2].data)
 
                 bkg_dithers.append(bkg_image_dithers[i][x].data)
@@ -439,32 +442,32 @@ def combine_image_dithers(image_listfile_name,
     full_sci_image -= full_bkg_image
 
     # Print out the stacked segmentation map
-    model_hash_fn = image_dithers[0][0].header[ppt_mv.model_hash_label][0:ppt_mv.short_instance_id_maxlen]
+    model_hash_fn = image_dithers[0][0].header[MODEL_HASH_LABEL][0:SHORT_INSTANCE_ID_MAXLEN]
     model_hash_fn = model_hash_fn.replace('.', '-').replace('+', '-')
     data_filename = get_allowed_filename("GST-IMAGE-STACK",
                                          model_hash_fn,
                                          extension=".fits",
                                          version=SHE_GST.__version__)
     save_hdu(full_sci_image, image_dithers, stack_wcs, pixel_factor,
-             data_filename, sci_tag, workdir)
+             data_filename, SCI_TAG, workdir)
     save_hdu(full_flg_image, image_dithers, stack_wcs, pixel_factor,
-             data_filename, mask_tag, workdir)
+             data_filename, MASK_TAG, workdir)
     save_hdu(full_rms_image, image_dithers, stack_wcs, pixel_factor,
-             data_filename, noisemap_tag, workdir)
+             data_filename, NOISEMAP_TAG, workdir)
 
     bkg_filename = get_allowed_filename("GST-BKG-STACK",
                                         model_hash_fn,
                                         extension=".fits",
                                         version=SHE_GST.__version__)
     save_hdu(full_bkg_image, bkg_image_dithers, stack_wcs, pixel_factor,
-             bkg_filename, background_tag, workdir)
+             bkg_filename, BACKGROUND_TAG, workdir)
 
     wgt_filename = get_allowed_filename("GST-WGT-STACK",
                                         model_hash_fn,
                                         extension=".fits",
                                         version=SHE_GST.__version__)
     save_hdu(full_bkg_image, wgt_image_dithers, stack_wcs, pixel_factor,
-             wgt_filename, weight_tag, workdir)
+             wgt_filename, WEIGHT_TAG, workdir)
 
     p = products.vis_stacked_frame.create_dpd_vis_stacked_frame(data_filename=data_filename,
                                                                 bkg_filename=bkg_filename,
