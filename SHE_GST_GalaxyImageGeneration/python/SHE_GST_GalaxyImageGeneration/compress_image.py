@@ -5,7 +5,7 @@
     Contains a function to compress a fits image with fpack.
 """
 
-__updated__ = "2021-08-17"
+__updated__ = "2021-08-30"
 
 # Copyright (C) 2012-2020 Euclid Science Ground Segment
 #
@@ -22,10 +22,10 @@ __updated__ = "2021-08-17"
 
 import subprocess
 
-import .magic_values as mv
+from . import magic_values as mv
 
 
-def compress_image(image_name, nx = None, lossy = False):
+def compress_image(image_name, nx=None, lossy=False):
     """ Compresses an image using fpack.
 
         Requires: image_name <string>
@@ -36,7 +36,7 @@ def compress_image(image_name, nx = None, lossy = False):
     """
 
     cmd = mv.rm_command + image_name + ".fz"
-    subprocess.call(cmd, shell = True)
+    subprocess.call(cmd, shell=True)
 
     if lossy:
         cmd = mv.fpack_lossy_command + image_name
@@ -46,6 +46,6 @@ def compress_image(image_name, nx = None, lossy = False):
         else:
             cmd = mv.fpack_lossless_command + "-t " + str(nx[0]) + "," + str(nx[1]) + " " + image_name
 
-    subprocess.call(cmd, shell = True)
+    subprocess.call(cmd, shell=True)
     cmd = mv.rm_command + image_name
-    subprocess.call(cmd, shell = True)
+    subprocess.call(cmd, shell=True)
