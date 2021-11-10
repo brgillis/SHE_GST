@@ -30,15 +30,15 @@ This project contains functionality to generate galaxy image simulations. This i
 
 ### Internal Euclid Dependencies
 
-* [SHE_PPT 8.11](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_PPT)
+* [SHE_PPT 8.11](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_PPT)  
 --- This is the only dependency listed in the CMakeLists.txt file. Do any others need to be added?
 
 ### External Euclid Dependencies
 > `Describe here any dependencies on Euclid projects managed outside PF-SHE. Most direct dependencies should be at the top, with progressively more indirect dependencies toward the bottom, or alphabetically when otherwise equal.`
 > ` Where possible, please add links to repositories or relevant gitlab codes`
-
---- AIUI SHE_PPT depends on external libraries, so they should be documented there.
---- If anything needs to be added here, I'm not aware of it.
+  
+--- AIUI SHE_PPT depends on external libraries, so they should be documented there.  
+--- If anything needs to be added here, I'm not aware of it.  
 --- The original GST README lists Elements (doesn't say which version) & "GalSim toolkit version >= 1.5"
 
 ### Configuration
@@ -50,33 +50,33 @@ This project contains functionality to generate galaxy image simulations. This i
 - astropy 3.2.1
 - numpy 1.17.2
 - etc
-```
+```  
 --- No idea about this section at all. Bryan, you'll need to fill this in.
 
 
 ### Dependant Projects
 
-* [SHE_IAL_Pipelines](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_IAL_Pipelines)
+* [SHE_IAL_Pipelines](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_IAL_Pipelines)  
 --- This is the only PF_SHE project that lists SHE_GST in its CMakeLists.txt file.
 
 ### Dependant Pipelines
 
-* [Shear Calibration](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_IAL_Pipelines/-/blob/develop/SHE_Pipeline/auxdir/SHE_Shear_Calibration/PipScript_SHE_Shear_Calibration.py)
+* [Shear Calibration](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_IAL_Pipelines/-/blob/develop/SHE_Pipeline/auxdir/SHE_Shear_Calibration/PipScript_SHE_Shear_Calibration.py)  
 --- This is the only pipeline I could find with a mention of GST, but this should be checked.
 
 
 ## Main Programs Available
 
 * `SHE_GST_GenGalaxyImages`: --- Description?
-* `SHE_GST_GenPOfE`: --- Description?
---- Taken from https://gitlab.euclid-sgs.uk/PF-SHE/SHE_GST/-/blob/develop/SHE_GST_GalaxyImageGeneration/CMakeLists.txt
+* `SHE_GST_GenPOfE`: --- Description?  
+--- Taken from https://gitlab.euclid-sgs.uk/PF-SHE/SHE_GST/-/blob/develop/SHE_GST_GalaxyImageGeneration/CMakeLists.txt  
 --- Don't know if there are any more
 
 
 ### Details of `SHE_GST_GenGalaxyImages`
 >`(Optional) a more careful description of what the program does`
 
-Generation of Galaxy images
+Generation of Galaxy images  
 --- This needs a full description.
 
 ## Installation
@@ -94,11 +94,11 @@ make install
 ```
 
 ## Running the software
-> `for each of the codes described previously, the aim here is to describe each option, input, and output of the program as well as how to run it using Elements.`
+> `for each of the codes described previously, the aim here is to describe each option, input, and output of the program as well as how to run it using Elements.`  
 --- No idea what to put here.
 
 ### `SHE_GST_GenGalaxyImages`
->`Describe how one can call the program with Elements, include any necessary options with optional ones in [square brackets]. These arguments are to later be described in detail in the applicable arguments section below`
+>`Describe how one can call the program with Elements, include any necessary options with optional ones in [square brackets]. These arguments are to later be described in detail in the applicable arguments section below`  
 --- This whole section below is way beyond my ken. Bryan, over to you.
 
 _**Running the Program on EDEN/LODEEN**_
@@ -208,7 +208,7 @@ This program is designed to be run on intermediate data generated within an exec
 ### `SHE_GST_GenPOfE`
 >`(Optional) a more careful description of what the program does`
 
-Generation of Galaxy images
+Generation of Galaxy images  
 --- This needs a full description.
 
 ## Installation
@@ -226,11 +226,11 @@ make install
 ```
 
 ## Running the software
-> `for each of the codes described previously, the aim here is to describe each option, input, and output of the program as well as how to run it using Elements.`
+> `for each of the codes described previously, the aim here is to describe each option, input, and output of the program as well as how to run it using Elements.`  
 --- No idea what to put here.
 
 ### `SHE_GST_GenGalaxyImages`
->`Describe how one can call the program with Elements, include any necessary options with optional ones in [square brackets]. These arguments are to later be described in detail in the applicable arguments section below`
+>`Describe how one can call the program with Elements, include any necessary options with optional ones in [square brackets]. These arguments are to later be described in detail in the applicable arguments section below`  
 --- This whole section below is way beyond my ken. Bryan, over to you.
 
 _**Running the Program on EDEN/LODEEN**_
@@ -344,7 +344,7 @@ This program is designed to be run on intermediate data generated within an exec
 
 
 ## Troubleshooting
-> `If any problems are anticipated, add a section here for them to help users resolve them on their own before they need to appeal to a developer for help.`
+> `If any problems are anticipated, add a section here for them to help users resolve them on their own before they need to appeal to a developer for help.`  
 --- This is another section I am unable to fill in.
 
 ### The cat in the generated picture appears to be wearing both a standard tie and a bowtie
