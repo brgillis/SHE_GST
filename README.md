@@ -42,37 +42,29 @@ provide a suitably-accurate alternative.
 
 ### External Euclid Dependencies
 
-> `Describe here any dependencies on Euclid projects managed outside PF-SHE. Most direct dependencies should be at the top, with progressively more indirect dependencies toward the bottom, or alphabetically when otherwise equal.`
-> ` Where possible, please add links to repositories or relevant gitlab codes`
-
---- AIUI SHE_PPT depends on external libraries, so they should be documented there.  
---- If anything needs to be added here, I'm not aware of it.  
---- The original GST README lists Elements (doesn't say which version) & "GalSim toolkit version >= 1.5"
+* [EL_Utils 1.1.0](https://gitlab.euclid-sgs.uk/EuclidLibs/EL_Utils)
+* [ST_DataModelTools 8.0.5](https://gitlab.euclid-sgs.uk/ST-DM/ST_DataModelTools)
+* [ST_DataModelBindings 8.0.5](https://gitlab.euclid-sgs.uk/ST-DM/ST_DataModelBindings)
+* [ST_DataModel 8.0.5](https://gitlab.euclid-sgs.uk/ST-DM/ST_DataModel)
+* [Elements 5.15](https://gitlab.euclid-sgs.uk/ST-TOOLS/Elements)
 
 ### Configuration
-
-> `Describes the version of EDEN which this code runs on, and lists the versions of relevant packages in EDEN which are used by this project. In the case where one package depends on another (e.g. astropy depends on numpy), the dependant package should be listed first (astropy before numpy), or alphabetically when otherwise equal.`
-
 
 **EDEN 2.1**
 
 ```
+- galsim 2.2.1
 - astropy 3.2.1
 - numpy 1.17.2
-- etc
-```  
-
---- No idea about this section at all. Bryan, you'll need to fill this in.
+```
 
 ### Dependant Projects
 
-* [SHE_IAL_Pipelines](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_IAL_Pipelines)  
-  --- This is the only PF_SHE project that lists SHE_GST in its CMakeLists.txt file.
+* [SHE_IAL_Pipelines](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_IAL_Pipelines)
 
 ### Dependant Pipelines
 
-* [Shear Calibration](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_IAL_Pipelines/-/blob/develop/SHE_Pipeline/auxdir/SHE_Shear_Calibration/PipScript_SHE_Shear_Calibration.py)  
-  --- This is the only pipeline I could find with a mention of GST, but this should be checked.
+* [Shear Calibration](https://gitlab.euclid-sgs.uk/PF-SHE/SHE_IAL_Pipelines/-/blob/develop/SHE_Pipeline/auxdir/SHE_Shear_Calibration/PipScript_SHE_Shear_Calibration.py)
 
 ## Main Programs Available
 
@@ -129,38 +121,46 @@ with the following options:
 > `This boilerplate section describes the standard arguments which are common to all Elements executables.`
 
 |  **Argument**               | **Description**                                                       | **
-Required** | **Default** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------: | :----------:|
-| --workdir `<path>`          | Name of the working directory, where input data is stored and output data will be created. | yes          | N/A         |
-| --log-file `<filename>`     | Name of a filename to store logging data in, relative to the workdir. If not provided, logging data will only be output to the terminal. When run via the pipeline runner, this will be set to a file in the directory `<workdir>/logs/<task_name>/` with a name based off of the command used to call this executable, such as "E_Run_SHE_MyProject_0.1_SHE_MyProject_GenCatPic_retry_0.out" | no           | None        |
-| --log-level `<filename>`    | Minimum severity level at which to print logging information. Valid values are DEBUG, INFO, WARNING, and ERROR. When run via the pipeline runner, this will be set based on the configuration of the pipeline server (normally INFO).  | no           | INFO        |
+Required** | **Default** | | :------------------------ | :
+-------------------------------------------------------------------- | :----------: | :----------:| | --workdir `<path>`
+| Name of the working directory, where input data is stored and output data will be created. | yes | N/A | |
+--log-file `<filename>`     | Name of a filename to store logging data in, relative to the workdir. If not provided,
+logging data will only be output to the terminal. When run via the pipeline runner, this will be set to a file in the
+directory `<workdir>/logs/<task_name>/` with a name based off of the command used to call this executable, such as "
+E_Run_SHE_MyProject_0.1_SHE_MyProject_GenCatPic_retry_0.out" | no | None | | --log-level `<filename>`    | Minimum
+severity level at which to print logging information. Valid values are DEBUG, INFO, WARNING, and ERROR. When run via the
+pipeline runner, this will be set based on the configuration of the pipeline server (normally INFO). | no | INFO |
 
 **Input Arguments**
 > `Describe each of the input arguments which can be used when running the code, specifying the filenames of input data relative to the workdir.`
 
 |  **Argument**               | **Description**                                                       | **
-Required** | **Default** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------: | :----------:|
-| --psf_list `<filename>`     | `.json` listfile (Cardinality 1-4) listing data products for PSF `.fits` files. | yes    | N/A         |
-| --pipeline_config `<filename>` | `.xml` data product or pointing to configuration file (described below), or .json listfile (Cardinality 0-1) either pointing to such a data product, or empty. | no          | None (equivalent to providing an empty listfile)         |
-| --aux_data `<filename>`     | `.xml` data product describing the auxiliary information necessary for execution. | yes| N/A         |
+Required** | **Default** | | :------------------------ | :
+-------------------------------------------------------------------- | :----------: | :----------:| |
+--psf_list `<filename>`     | `.json` listfile (Cardinality 1-4) listing data products for PSF `.fits` files. | yes |
+N/A | | --pipeline_config `<filename>` | `.xml` data product or pointing to configuration file (described below), or
+.json listfile (Cardinality 0-1) either pointing to such a data product, or empty. | no | None (equivalent to providing
+an empty listfile)         | | --aux_data `<filename>`     | `.xml` data product describing the auxiliary information
+necessary for execution. | yes| N/A |
 
 **Output Arguments**
 > `Describe each of the output arguments which can be used when running the code, specifying the desired filenames of output data relative to the workdir, which will be created by the program upon successful execution.`
 
 |  **Argument**               | **Description**                                                       | **
-Required** | **Default** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------: | :----------:|
-| --cat_pic `<filename>`      | Desired filename for `.xml` data product pointing to a `.png` image of the generated cat picture. | no          | cat_pic.xml |
+Required** | **Default** | | :------------------------ | :
+-------------------------------------------------------------------- | :----------: | :----------:| |
+--cat_pic `<filename>`      | Desired filename for `.xml` data product pointing to a `.png` image of the generated cat
+picture. | no | cat_pic.xml |
 
 **Options**
 > `Describe any arguments which can be provided to the executable when run directly (not through the pipeline runner, which disallows such arguments).`
 
 |  **Options**                | **Description**                                                       | **
-Required** | **Default** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------: | :----------:|
-| --use_dog (`store true`)    | If set, will generate an image of a dog instead of a cat.             | no           | false       |
-| --set_tie `<regular/bow>`   | If given, user should specify which tie to use: `regular` or `bow`. If not provided, neither a tie nor a bowtie will be added to the picture.    | no           | None    |
+Required** | **Default** | | :------------------------ | :
+-------------------------------------------------------------------- | :----------: | :----------:| |
+--use_dog (`store true`)    | If set, will generate an image of a dog instead of a cat. | no | false | |
+--set_tie `<regular/bow>`   | If given, user should specify which tie to use: `regular` or `bow`. If not provided,
+neither a tie nor a bowtie will be added to the picture. | no | None |
 
 > `Any required files should be explicity explained in the Inputs section below`
 
@@ -200,10 +200,11 @@ The `.txt` pipeline configuration file may have any number of configuration argu
 in addition to optionally any of the following which apply to this executable:
 
 |  **Options**                | **Description**                                                       | **Default
-behaviour** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------:|
-| SHE_MyProject_GenCatPic_use_dog `<True/False>` | If set to "True", will generate an image of a dog instead of a cat.   | Will generate a cat picture (equivalent to supplying "False" to this argument). |
-| SHE_MyProject_GenCatPic_set_tie `<regular/bow>`  | Will add the selected tie (`regular` or `bow`) to the picture. | No tie will be added to the picture (equivalent to supplying "None" to this argument). |
+behaviour** | | :------------------------ | :-------------------------------------------------------------------- | :
+----------:| | SHE_MyProject_GenCatPic_use_dog `<True/False>` | If set to "True", will generate an image of a dog
+instead of a cat. | Will generate a cat picture (equivalent to supplying "False" to this argument). | |
+SHE_MyProject_GenCatPic_set_tie `<regular/bow>`  | Will add the selected tie (`regular` or `bow`) to the picture. | No
+tie will be added to the picture (equivalent to supplying "None" to this argument). |
 
 If both these arguments are supplied in the pipeline configuration file and the equivalent command-line arguments are
 set, the command-line arguments will take precedence.
@@ -295,38 +296,46 @@ with the following options:
 > `This boilerplate section describes the standard arguments which are common to all Elements executables.`
 
 |  **Argument**               | **Description**                                                       | **
-Required** | **Default** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------: | :----------:|
-| --workdir `<path>`          | Name of the working directory, where input data is stored and output data will be created. | yes          | N/A         |
-| --log-file `<filename>`     | Name of a filename to store logging data in, relative to the workdir. If not provided, logging data will only be output to the terminal. When run via the pipeline runner, this will be set to a file in the directory `<workdir>/logs/<task_name>/` with a name based off of the command used to call this executable, such as "E_Run_SHE_MyProject_0.1_SHE_MyProject_GenCatPic_retry_0.out" | no           | None        |
-| --log-level `<filename>`    | Minimum severity level at which to print logging information. Valid values are DEBUG, INFO, WARNING, and ERROR. When run via the pipeline runner, this will be set based on the configuration of the pipeline server (normally INFO).  | no           | INFO        |
+Required** | **Default** | | :------------------------ | :
+-------------------------------------------------------------------- | :----------: | :----------:| | --workdir `<path>`
+| Name of the working directory, where input data is stored and output data will be created. | yes | N/A | |
+--log-file `<filename>`     | Name of a filename to store logging data in, relative to the workdir. If not provided,
+logging data will only be output to the terminal. When run via the pipeline runner, this will be set to a file in the
+directory `<workdir>/logs/<task_name>/` with a name based off of the command used to call this executable, such as "
+E_Run_SHE_MyProject_0.1_SHE_MyProject_GenCatPic_retry_0.out" | no | None | | --log-level `<filename>`    | Minimum
+severity level at which to print logging information. Valid values are DEBUG, INFO, WARNING, and ERROR. When run via the
+pipeline runner, this will be set based on the configuration of the pipeline server (normally INFO). | no | INFO |
 
 **Input Arguments**
 > `Describe each of the input arguments which can be used when running the code, specifying the filenames of input data relative to the workdir.`
 
 |  **Argument**               | **Description**                                                       | **
-Required** | **Default** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------: | :----------:|
-| --psf_list `<filename>`     | `.json` listfile (Cardinality 1-4) listing data products for PSF `.fits` files. | yes    | N/A         |
-| --pipeline_config `<filename>` | `.xml` data product or pointing to configuration file (described below), or .json listfile (Cardinality 0-1) either pointing to such a data product, or empty. | no          | None (equivalent to providing an empty listfile)         |
-| --aux_data `<filename>`     | `.xml` data product describing the auxiliary information necessary for execution. | yes| N/A         |
+Required** | **Default** | | :------------------------ | :
+-------------------------------------------------------------------- | :----------: | :----------:| |
+--psf_list `<filename>`     | `.json` listfile (Cardinality 1-4) listing data products for PSF `.fits` files. | yes |
+N/A | | --pipeline_config `<filename>` | `.xml` data product or pointing to configuration file (described below), or
+.json listfile (Cardinality 0-1) either pointing to such a data product, or empty. | no | None (equivalent to providing
+an empty listfile)         | | --aux_data `<filename>`     | `.xml` data product describing the auxiliary information
+necessary for execution. | yes| N/A |
 
 **Output Arguments**
 > `Describe each of the output arguments which can be used when running the code, specifying the desired filenames of output data relative to the workdir, which will be created by the program upon successful execution.`
 
 |  **Argument**               | **Description**                                                       | **
-Required** | **Default** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------: | :----------:|
-| --cat_pic `<filename>`      | Desired filename for `.xml` data product pointing to a `.png` image of the generated cat picture. | no          | cat_pic.xml |
+Required** | **Default** | | :------------------------ | :
+-------------------------------------------------------------------- | :----------: | :----------:| |
+--cat_pic `<filename>`      | Desired filename for `.xml` data product pointing to a `.png` image of the generated cat
+picture. | no | cat_pic.xml |
 
 **Options**
 > `Describe any arguments which can be provided to the executable when run directly (not through the pipeline runner, which disallows such arguments).`
 
 |  **Options**                | **Description**                                                       | **
-Required** | **Default** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------: | :----------:|
-| --use_dog (`store true`)    | If set, will generate an image of a dog instead of a cat.             | no           | false       |
-| --set_tie `<regular/bow>`   | If given, user should specify which tie to use: `regular` or `bow`. If not provided, neither a tie nor a bowtie will be added to the picture.    | no           | None    |
+Required** | **Default** | | :------------------------ | :
+-------------------------------------------------------------------- | :----------: | :----------:| |
+--use_dog (`store true`)    | If set, will generate an image of a dog instead of a cat. | no | false | |
+--set_tie `<regular/bow>`   | If given, user should specify which tie to use: `regular` or `bow`. If not provided,
+neither a tie nor a bowtie will be added to the picture. | no | None |
 
 > `Any required files should be explicity explained in the Inputs section below`
 
@@ -366,10 +375,11 @@ The `.txt` pipeline configuration file may have any number of configuration argu
 in addition to optionally any of the following which apply to this executable:
 
 |  **Options**                | **Description**                                                       | **Default
-behaviour** |
-| :------------------------   | :-------------------------------------------------------------------- | :----------:|
-| SHE_MyProject_GenCatPic_use_dog `<True/False>` | If set to "True", will generate an image of a dog instead of a cat.   | Will generate a cat picture (equivalent to supplying "False" to this argument). |
-| SHE_MyProject_GenCatPic_set_tie `<regular/bow>`  | Will add the selected tie (`regular` or `bow`) to the picture. | No tie will be added to the picture (equivalent to supplying "None" to this argument). |
+behaviour** | | :------------------------ | :-------------------------------------------------------------------- | :
+----------:| | SHE_MyProject_GenCatPic_use_dog `<True/False>` | If set to "True", will generate an image of a dog
+instead of a cat. | Will generate a cat picture (equivalent to supplying "False" to this argument). | |
+SHE_MyProject_GenCatPic_set_tie `<regular/bow>`  | Will add the selected tie (`regular` or `bow`) to the picture. | No
+tie will be added to the picture (equivalent to supplying "None" to this argument). |
 
 If both these arguments are supplied in the pipeline configuration file and the equivalent command-line arguments are
 set, the command-line arguments will take precedence.
