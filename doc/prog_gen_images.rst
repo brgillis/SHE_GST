@@ -1,7 +1,11 @@
 SHE_GST_GenGalaxyImages
 =======================
 
-(description)
+Executable to generate mock galaxy images and associated data, which can be used as test data, for bias/sensitivity measurement, etc.
+
+In order to ensure that shear estimation methods meet the requirements on bias, it is necessary to test and calibrate them against a large number of simulated galaxy images. OU-SIM is tasked with providing these images, but it is not certain that the volume they will be able to provide will be sufficient to guarantee that requirements on shear estimation methods will be met. It is thus necessary for OU-SHE to generate its own simulations, using a simplified methodology specialised for galaxies and omitting the simulation of and correction for certain time-consuming effects such as CTI. The shear estimation methods will be tested on the available images from OU-SIM to ensure consistency, and then tested and calibrated on a larger set of images from this PE if it is determined to be necessary.
+
+This executable is intended to be a replacement for PF-SIM within the pipeline when needed and when it can be demonstrated to provide a suitably-accurate alternative.
 
 
 Running the Program on EDEN/LODEEN
@@ -11,10 +15,11 @@ To run the ``SHE_GST_GenGalaxyImages`` program with Elements, use the following 
 
 .. code:: bash
 
-    E-Run SHE_GST 8.2 SHE_GST_GenGalaxyImages --workdir <dir> [--log-file <filename>] [--log-level <value>] [--pipeline_config <filename>]
+    E-Run SHE_GST 8.2 SHE_GST_GenGalaxyImages --workdir <dir> --pipeline_config <filename> --config_files <filename1> [<filename2> ...] --data_images <filename> --details_table <filename> --psf_images_and_tables <filename> --segmentation_images <filename> --stacked_data_image <filename> --stacked_segmentation_image <filename> [--log-file <filename>] [--log-level <value>] --data_images <filename> --details_table <filename> --psf_images_and_tables <filename> --segmentation_images <filename> --stacked_data_image <filename> --stacked_segmentation_image <filename>
 
-with the following arguments:
+**Note:** Due to the unusually large number of arguments available for this executable, the command syntax provided here is limited to the most relevant options.
 
+This allows the following arguments:
 
 Common Elements Arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,12 +61,12 @@ Input Arguments
      - Description
      - Required
      - Default
-   * -
-     -
-     -
-     -
+   * - ``--config_files <filename1> [<filename2> ...]``
+     - One or more ``.xml`` data product of type ``DpdSheSimulationConfig``, specifying configuration options for this executable. If multiple configuration files are provided, they are processed in order, with options specified in multiple files using the value from the last file to specify it. If any options are also specified at the command-line, the command-line value takes precedence.
+     - no
+     - Individual defaults used for all parameters, unless specified at the command-line
    * - ``--pipeline_config <filename>``
-     - ``.xml`` data product or pointing to configuration file (described below), or ``.json`` listfile (Cardinality 0-1) either pointing to such a data product, or empty.
+     - ``.xml`` data product or pointing to configuration file (described below), or .json listfile (Cardinality 0-1) either pointing to such a data product, or empty.
      - no
      - None (equivalent to providing an empty listfile)
 
