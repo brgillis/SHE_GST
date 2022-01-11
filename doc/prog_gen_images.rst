@@ -197,11 +197,121 @@ arguments will take precedence.
 Outputs
 -------
 
-``output_port_name``:
+``data_images``:
 
-**Description:**
+**Description:** Desired filename of ``.json`` listfile pointing to ``.xml`` data products of type `DpdVisCalibratedFrame <https://euclid.esac.esa.int/dm/dpdd/latest/visdpd/dpcards/vis_calibratedframe.html>`__, which will contain simulated VIS science images for each exposure in an observation.
 
-**Details:**
+**Details:** The generated products are a simulated versions of the ``DpdVisCalibratedFrame`` product, with the following notable differences:
+
+#. Only one CCD image is generated (1-1). This image is not necessarily the same size as the normal VIS CCD images
+#. Galaxies are normally rendered onto individual postage stamps within the image, unless requested otherwise through setting the ``mode`` option to "field"
+#. The dithering scheme is greatly simplified. By default, exposures are dithered by a half pixel in the x and y directions (for 4 total positions)
+
+``detections_tables``:
+
+**Description:** Desired filename of ``.json`` listfile pointing to ``.xml`` data product of type `DpdMerFinalCatalog <https://euclid.esac.esa.int/dm/dpdd/latest/merdpd/dpcards/mer_finalcatalog.html>`__, containing a catalog of all simulated objects in the images, in the format of the detections catalog that will normally be provided by PF-MER.
+
+**Details:** The generated product is a simulated version of the ``DpdMerFinalCatalog`` product. In the present implementation of this executable, it includes no actual mock detections step, and so all target galaxies are included in this product. This is expected to change in the future to include a proper detections step.
+
+``details_table``:
+
+**Description:** Desired filename of ``.xml`` data product of type ``DpdSheSimulatedCatalog``, containing a catalog of all objects in the observation with true input data.
+
+**Details:** This catalog contains the following columns, with entries for each target galaxy:
+
+.. list-table::
+   :widths: 20 20 60
+   :header-rows: 1
+
+   * - Column Name
+     - Data Type
+     - Description
+   * - OBJECT_ID
+     - 64-bit int
+     - Unique ID for each object, linking to the table in the simulated ``DpdMerFinalCatalog`` product
+   * - GROUP_ID
+     - 64-bit int
+     - ID of the galaxy group (used for shape-noise cancellation) for this object
+   * - RIGHT_ASCENSION
+     - 32-bit float
+     - J2000 right ascension position of the object in degrees
+   * - DECLINATION
+     - 32-bit float
+     - J2000 declination position of the object in degrees
+   * - HLR_BULGE
+     - 32-bit float
+     - Half-light radius of the object's bulge, in arcseconds
+   * - HLR_DISK
+     - 32-bit float
+     - Half-light radius of the object's disk, in arcseconds
+   * - BULGE_ELLIPTICITY
+     - 32-bit float
+     - Magnitude of the object's bulge component's ellipticity, defined as (a-b)/(a+b), where a is the major axis length and b the minor axis length
+   * - BULGE_AXIS_RATIO
+     - 32-bit float
+     - Ratio b/a for the bulge, where a is the major axis length and b the minor axis length
+   * - BULGE_FRACTION
+     - 32-bit float
+     - The fraction of the total flux of the object contributed by the bulge component
+   * - DISK_HEIGHT_RATIO
+     - 32-bit float
+     - The ratio of the scale height of the object's disk component to its scale radius
+   * - REDSHIFT
+     - 32-bit float
+     - The simulated redshift of the object
+   * - MAGNITUDE
+     - 32-bit float
+     - The apparent magnitude of the object in the Euclid VIS filter
+   * - SNR
+     - 32-bit float
+     - The signal-to-noise ratio of the object
+   * - SERSIC_INDEX
+     - 32-bit float
+     - The sersic index of the object's bulge component
+   * - ROTATION
+     - 32-bit float
+     - The position angle of the object's major axis in degrees north of west on the sky
+   * - SPIN
+     - 32-bit float
+     - For non-axisymmetric objects (not yet implemented), the rotation in degrees of the object's 3D model around its minor axis
+   * - TILT
+     - 32-bit float
+     - The inclination of the object relative to the line-of-sight in degrees, where ``0 deg.`` is face-on and ``90 deg.`` is fully-inclined
+   * - G1_WORLD
+     - 32-bit float
+     - The true value of the lensing shear applied to the object's image, component 1 (in the (-R.A., Dec) frame of reference).
+   * - G2_WORLD
+     - 32-bit float
+     - The true value of the lensing shear applied to the object's image, component 2 (in the (-R.A., Dec) frame of reference).
+   * - is_target_galaxy
+     - bool
+     - Whether or not the object is fully rendered as a target galaxy, or rendered more simply as a background galaxy. Depending on configuration, all background galaxies may be excluded from this table
+
+``psf_images_and_tables``:
+
+**Description:** Desired filename of ``.xml`` data product of type `DpdShePsfModelImage <https://euclid.esac.esa.int/dm/dpdd/latest/shedpd/dpcards/she_psfmodelimage.html>`__, containing PSF images for each simulated galaxy, in the format normally provided by the ``SHE_PSFToolkit_ModelPSFs`` task.
+
+**Details:** The generated product is a simulated version of the ``DpdShePsfModelImage`` data product. By default, this contains the true PSFs used for rendering simulated galaxy images. If the same PSF is used for all galaxies, this product will save space by only storing it once and pointing to it for all galaxies.
+
+For purposes of Sensitivity Testing, it is possible to instruct the executable to output PSFs to this product other than those used to render galaxies, through use of the ``output_psf_file_name`` option. If the filename of a ``.fits``-format PSF image is provided to this option, this PSF will be supplied as output to this product, while not affecting the PSF used for rendering simulated galaxy images.
+
+``segmentation_images``:
+
+**Description:** Desired filename of ``.json`` listfile pointing to ``.xml`` data product of type `DpdSheExposureReprojectedSegmentationMap <https://euclid.esac.esa.int/dm/dpdd/latest/shedpd/dpcards/she_exposurereprojectedsegmentationmap.html>`__, containing segmentation maps for the simulated area, in the format of the segmentation maps that will normally be generated within PF-SHE by reprojecting PF-MER's segmentation maps to match the VIS image frames.
+
+**Details:** The generated products are a simulated versions of the ``DpdSheExposureReprojectedSegmentationMap`` products. These segmentation maps are generated through a rudimentary approach, where a threshold pixel flux value is used to determine if a pixel is assigned to a given object. In the case of pixels which meet this threshold for multiple objects, they're assigned to the brightest object. This is known to produce unrealistic maps for blends, and so will need to be improved if these maps are relied on for blends in any way.
+
+``stacked_data_image``:
+
+**Description:** Desired filename of ``.xml`` data product of type `DpdVisStackedFrame <https://euclid.esac.esa.int/dm/dpdd/latest/visdpd/dpcards/vis_visstackedframe.html>`__, containing simulated VIS stacked science image.
+
+**Details:** See details for the ``data_images`` output product above; the same notes apply.
+
+``stacked_segmentation_image``:
+
+**Description:** Desired filename of ``.xml`` data product of type `DpdSheStackReprojectedSegmentationMap <https://euclid.esac.esa.int/dm/dpdd/latest/shedpd/dpcards/she_stackreprojectedsegmentationmap.html>`__, containing segmentation map for the simulated area, in the format of the segmentation map that will normally be generated within PF-SHE by reprojecting PF-MER's segmentation maps to match the VIS stacked image frame.
+
+**Details:** See details for the ``segmentation_images`` output product above; the same notes apply.
 
 
 Example
