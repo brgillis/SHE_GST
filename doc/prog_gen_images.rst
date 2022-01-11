@@ -133,11 +133,102 @@ Options
 Inputs
 ------
 
-``input_port_name``:
+``config_files``:
 
-**Description:**
+**Description:** One or more ``.xml`` data products of type ``DpdSheSimulationConfig``, specifying configuration options for this executable. If multiple configuration files are provided, they are processed in order, with options specified in multiple files using the value from the last file to specify it. If any options are also specified at the command-line, the command-line value takes precedence. These ``.xml`` data products each point to a ``.txt`` textfile which contains the configuration options. For use outside of a pipeline, the name(s) of these text files may be supplied instead, without need for an ``.xml`` data product.
 
-**Source:**
+The ``.txt`` configuration file contains one option per line (blank lines are allowed, as are comment lines which start with "#"), each with the format ``option = value`` or ``long_option = 'string value'`` in the case of values provided as strings. Below is an example of the contents of such a file, containing most common options:
+
+::
+
+    # Adjustment for the random seeding. Set this to a different value each time you run
+    # the script to get entirely different images each time.
+    seed =   1
+
+    # Set to False and error will be applied as normal
+    # Set to True and no noise (not even Poisson) will be present on the images
+    suppress_noise = False
+
+    # Maximum magnitude allowed for target galaxies
+    magnitude_limit = 24.5
+
+    # Number of target galaxies to render in the generated image
+    num_target_galaxies = 16
+
+    # Whether or not to render background galaxies
+    render_background_galaxies = False
+
+    # "mode" is one of "stamps" (to make postage stamps), "field" (to render a simulated field of galaxies), or "cutouts" (to render a field, then output cutout stamps from it)
+    mode = stamps
+
+    # The output size of postage stamps (for "stamps" and "field" modes)
+    stamp_size = 128
+
+    # The size of the generated image in pixels (for "field" and "cutouts" modes)
+    image_size_xp = 4096
+    image_size_yp = 4132
+
+    # Parameters which affect background noise
+
+    read_noise = 5.4 # e-/pixel
+
+    # If you wish for the sky background to be included in the image, set it with unsubtracted_background_setting
+    # Otherwise, use subtracted_background_setting and it will be be subtracted off, but the Poisson noise from it will remain
+    subtracted_background_setting = 'Fixed 4571.' # ADU/arcsec
+    unsubtracted_background_setting = 'Fixed 0.' # ADU/arcsec
+
+    # Galaxy model settings
+
+    bulge_axis_ratio_setting = 'Fixed 0.6'
+    disk_height_ratio_setting = 'Fixed 0.1'
+    sersic_index_setting = 'Fixed 4.0'
+
+    disk_truncation_factor_setting = 'Fixed 4.5'
+
+    # Galaxy model generation levels - these configure whether values are set once per galaxy, once per pair of galaxies (for shape-noise cancellation), once per group
+    # of galaxies (also for shape-noise cancellation), or once per image
+
+    apparent_mag_vis_level = pair
+    apparent_size_bulge_level = pair
+    apparent_size_disk_level = pair
+    bulge_fraction_level = pair
+    bulge_ellipticity_level = pair
+    rotation_level = galaxy
+    sersic_index_level = pair
+    shear_angle_level = galaxy_group
+    shear_magnitude_level = galaxy_group
+    spin_level = pair
+    tilt_level = pair
+
+    # Settings for the psf used
+
+    # The base of the filename for the output PSF, its scale factor, and its stamp size in subsampled pixels
+    psf_file_name_base = sensitivity_testing_sample_psf
+    psf_scale_factor = 5
+    psf_stamp_size = 256
+
+    # Use a specific PSF file as the PSF in the images
+    chromatic_psf = False
+    model_psf_file_name = /home/user/git/she_sim_galaxy_generation/SHE_SIM_galaxy_image_generation/auxdir/SHE_SIM_galaxy_image_generation/psf_models/el_cb2004a_001.fits_0.000_0.804_0.00.fits
+    model_psf_scale = 0.02
+
+    # The offset of the PSF's centre from the centre of the FITS image
+    model_psf_x_offset = -0.5
+    model_psf_y_offset = -2.5
+
+    suppress_noise = False # Set to true and no noise (neither read noise nor Poisson noise) will be rendered on the image
+
+    # Shape noise cancellation - if enabled, will pair up galaxies and use identical paramters for each galaxy in the pair, except for rotation which will be offset by
+    # 90 degrees.
+    shape_noise_cancellation = True
+
+    # Stable RNG - Will use a Gaussian approximation for Poisson noise, which is beneficial for sensitivity testing as its stable to small changes in the image
+    # That is, it always varies smoothly in response to smooth changes in the image.
+    stable_rng = True
+
+**Source:** May be generated manually for a desired simulation, or generated as output of the ``SHE_GST_PrepareConfigs`` executable either manually or as part of a pipeline run. See `that task's documentation <prog_prepare_configs.html>`__ for details on how it can be used to generate config files, or else one may be written manually.
+
+If generating a configuration file manually, generally only the actuall ``.txt`` configuration file is needed, and not the ``.xml`` data product. This can be written with your text editor of choice (e.g. ``gedit``). It is generally easiest to start with an existing file and modifying it as desired. Many such files are provided in this project in the directory ``SHE_GST/SHE_GST_GalaxyImageGeneration/conf/SHE_GST_GalaxyImageGeneration`` which can be used as a basis for a new configuration file.
 
 ``pipeline_config``:
 
