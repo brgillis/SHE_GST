@@ -15,7 +15,7 @@ To run the ``SHE_GST_GenGalaxyImages`` program with Elements, use the following 
 
 .. code:: bash
 
-    E-Run SHE_GST 8.2 SHE_GST_GenGalaxyImages --workdir <dir> --pipeline_config <filename> --config_files <filename1> [<filename2> ...] --data_images <filename> --details_table <filename> --psf_images_and_tables <filename> --segmentation_images <filename> --stacked_data_image <filename> --stacked_segmentation_image <filename> [--log-file <filename>] [--log-level <value>] --data_images <filename> --details_table <filename> --psf_images_and_tables <filename> --segmentation_images <filename> --stacked_data_image <filename> --stacked_segmentation_image <filename>
+    E-Run SHE_GST 8.2 SHE_GST_GenGalaxyImages --workdir <dir> --pipeline_config <filename> --config_files <filename1> [<filename2> ...] --data_images <filename> --detections_tables <filename> --details_table <filename> --psf_images_and_tables <filename> --segmentation_images <filename> --stacked_data_image <filename> --stacked_segmentation_image <filename> [--log-file <filename>] [--log-level <value>]
 
 **Note:** Due to the unusually large number of arguments available for this executable, the command syntax provided here is limited to the most relevant options.
 
@@ -82,13 +82,39 @@ Output Arguments
      - Description
      - Required
      - Default
-   * -
-     -
-     -
-     -
+   * - data_images
+     - Desired filename of ``.json`` listfile pointing to ``.xml`` data products of type `DpdVisCalibratedFrame <https://euclid.esac.esa.int/dm/dpdd/latest/visdpd/dpcards/vis_calibratedframe.html>`__, which will contain simulated VIS science images for each exposure in an observation.
+     - yes
+     - N/A
+   * - detections_tables
+     - Desired filename of ``.json`` listfile pointing to ``.xml`` data product of type `DpdMerFinalCatalog <https://euclid.esac.esa.int/dm/dpdd/latest/merdpd/dpcards/mer_finalcatalog.html>`__, containing a catalog of all simulated objects in the images, in the format of the detections catalog that will normally be provided by PF-MER.
+     - yes
+     - N/A
+   * - details_table
+     - Desired filename of ``.xml`` data product of type ``DpdSheSimulatedCatalog``, containing a catalog of all objects in the observation with true input data.
+     - yes
+     - N/A
+   * - psf_images_and_tables
+     - Desired filename of ``.xml`` data product of type `DpdShePsfModelImage <https://euclid.esac.esa.int/dm/dpdd/latest/shedpd/dpcards/she_psfmodelimage.html>`__, containing PSF images for each simulated galaxy, in the format normally provided by the ``SHE_PSFToolkit_ModelPSFs`` task.
+     - yes
+     - N/A
+   * - segmentation_images
+     - Desired filename of ``.json`` listfile pointing to ``.xml`` data product of type `DpdSheExposureReprojectedSegmentationMap <https://euclid.esac.esa.int/dm/dpdd/latest/shedpd/dpcards/she_exposurereprojectedsegmentationmap.html>`__, containing segmentation maps for the simulated area, in the format of the segmentation maps that will normally be generated within PF-SHE by reprojecting PF-MER's segmentation maps to match the VIS image frames.
+     - yes
+     - N/A
+   * - stacked_data_image
+     - Desired filename of ``.xml`` data product of type `DpdVisStackedFrame <https://euclid.esac.esa.int/dm/dpdd/latest/visdpd/dpcards/vis_visstackedframe.html>`__, containing simulated VIS stacked science image.
+     - yes
+     - N/A
+   * - stacked_segmentation_image
+     - Desired filename of ``.xml`` data product of type `DpdSheStackReprojectedSegmentationMap <https://euclid.esac.esa.int/dm/dpdd/latest/shedpd/dpcards/she_stackreprojectedsegmentationmap.html>`__, containing segmentation map for the simulated area, in the format of the segmentation map that will normally be generated within PF-SHE by reprojecting PF-MER's segmentation maps to match the VIS stacked image frame.
+     - yes
+     - N/A
 
 Options
 ~~~~~~~
+
+**Note:** This executable allows a very large number of optional arguments which can be set at the command line. As these are normally expected to be set in the provided configuration file, they are documented in that section of this page. Any of these options can also be provided at the command-line with the same name (and value in quotes if it contains spaces), and if so, the value provided at the command-line will take precedence.
 
 .. list-table::
    :widths: 15 50 10 25
@@ -102,10 +128,6 @@ Options
      - If set, Python code will be profiled, and the resulting profiling data will be output to a file in the directory specified with ``--logdir``.
      - no
      - False
-   * -
-     -
-     -
-     -
 
 
 Inputs
