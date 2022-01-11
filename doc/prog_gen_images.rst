@@ -133,6 +133,8 @@ Options
 Inputs
 ------
 
+.. _config_files:
+
 ``config_files``:
 
 **Description:** One or more ``.xml`` data products of type ``DpdSheSimulationConfig``, specifying configuration options for this executable. If multiple configuration files are provided, they are processed in order, with options specified in multiple files using the value from the last file to specify it. If any options are also specified at the command-line, the command-line value takes precedence. These ``.xml`` data products each point to a ``.txt`` textfile which contains the configuration options. For use outside of a pipeline, the name(s) of these text files may be supplied instead, without need for an ``.xml`` data product.
@@ -408,14 +410,12 @@ For purposes of Sensitivity Testing, it is possible to instruct the executable t
 Example
 -------
 
-Prepare the required input data in the desired workdir. This will require ...
-
-The program can then be run with the following command in an EDEN 2.1 environment:
+Prepare a configuration file for this run, for instance by copying `the example contents above <config_files_>`_ into a textfile.
 
 .. code:: bash
 
-    E-Run SHE_GST 8.2 SHE_GST_GenGalaxyImages --workdir $WORKDIR [--log-file <filename>] [--log-level <value>] [--pipeline_config <filename>]
+    E-Run SHE_GST 8.2 SHE_GST_GenGalaxyImages --workdir $WORKDIR --config_files simulation_config.txt --data_images vis_calibrated_frames_listfile.json --detections_tables mer_final_catalog_listfile.json --details_table she_simulated_catalog_listfile.json --psf_images_and_tables she_model_psf_listfile.json --segmentation_images she_reprojected_exposure_segmentation_map_listfile.json --stacked_data_image vis_stacked_frame_product.xml --stacked_segmentation_image she_reprojected_stack_segmentation_map_product.xml
 
-where the variable ``$WORKDIR`` corresponds to the path to your workdir and the variables  ... correspond to the filenames of the prepared listfiles and downloaded products for each input port.
+where the variable ``$WORKDIR`` corresponds to the path to your workdir and the variable $CONFIG_FILE corresponds to the filename of the prepared configuration file.
 
 This command will generate a new data product with the filename ...

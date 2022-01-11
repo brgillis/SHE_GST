@@ -27,8 +27,6 @@ Configuration
     - numpy 1.17.2
     - python 3.6.7
 
-— No idea about this section at all. Bryan, you’ll need to fill this in.
-
 Dependant Projects
 ------------------
 
