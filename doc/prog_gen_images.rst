@@ -199,7 +199,7 @@ The ``.txt`` configuration file contains one option per line (blank lines are al
     sersic_index_level = pair
     shear_angle_level = galaxy_group
     shear_magnitude_level = galaxy_group
-    spin_level = pair
+    spin_level = image
     tilt_level = pair
 
     # Settings for the psf used
