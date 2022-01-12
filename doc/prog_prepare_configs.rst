@@ -1,7 +1,7 @@
 SHE_GST_PrepareConfigs
 ======================
 
-(description)
+Generates a set of simulation config files from a template and plan, which can be passed to the galaxy image generation function. This executable is used as the within the SHE Shear Calibration pipeline to create a listfile of multiple simulation config files which the IAL pipeline runner can perform a parallel split over, running separate analysis with a simulated image generated from each. The separate simulation config files are generally differentiated only through different RNG seed values in each.
 
 
 Running the Program on EDEN/LODEEN
@@ -56,10 +56,14 @@ Input Arguments
      - Description
      - Required
      - Default
-   * -
-     -
-     -
-     -
+   * - simulation_plan
+     - .xml data product of type ``DpdSheSimulationPlan``, containing a table detailing how the simulation is to be carried out, listing parameters to be varied for each simulation and how to vary them
+     - yes
+     - N/A
+   * - config_template
+     - .xml data product of type ``DpdSheSimulationConfig``, containing template simulation config textfile for image simulations, which specifies all configuration parameters which are constant through all simulations and those which are varied
+     - yes
+     - N/A
    * - ``--pipeline_config <filename>``
      - ``.xml`` data product or pointing to configuration file (described below), or ``.json`` listfile (Cardinality 0-1) either pointing to such a data product, or empty.
      - no
@@ -77,10 +81,10 @@ Output Arguments
      - Description
      - Required
      - Default
-   * -
-     -
-     -
-     -
+   * - simulation_configs
+     - Desired filename of output ``.json`` listfile, which will contain filenames of generated simulation config data products
+     - yes
+     - N/A
 
 Options
 ~~~~~~~
@@ -93,10 +97,6 @@ Options
      - Description
      - Required
      - Default
-   * - ``--profile`` (``store_true``)
-     - If set, Python code will be profiled, and the resulting profiling data will be output to a file in the directory specified with ``--logdir``.
-     - no
-     - False
    * -
      -
      -
@@ -106,11 +106,88 @@ Options
 Inputs
 ------
 
-``input_port_name``:
+.. _simulation_plan:
 
-**Description:**
+``simulation_plan``:
 
-**Source:**
+**Description:** ``.xml`` data product of type ``DpdSheIntermediateGeneral`` (temporarily, until ``DpdSheSimulationPlan`` is defined for it) pointing to a data table (either ``.txt`` or ``.fits``). This table specifies how simulation parameters are to be varied over different simulation runs within the pipeline run. This is done by generating an array of parameters for each row of the table, and substituting these into the ``config_template`` to generate a full simulation configuration product for each set of parameters, which fully specifies how to generate a single simulation. Normally only one row is needed in the table, but it is possible to include multiple rows, which will result in multiple arrays of parameters being generated and simulation configuration products generated for each element of each row's array.
+
+The columns in the table are:
+
+.. list-table::
+   :widths: 20 20 60
+   :header-rows: 1
+
+   * - Column Name
+     - Data Type
+     - Description
+   * - ``MSEED_MIN``
+     - 64-bit int
+     - Minimum value of RNG seed used for the generation of galaxy models
+   * - ``MSEED_MAX``
+     - 64-bit int
+     - Maximum value of RNG seed used for the generation of galaxy models
+   * - ``MSEED_STEP``
+     - 64-bit int
+     - Step size for RNG seed used for the generation of galaxy models
+   * - ``NSEED_MIN``
+     - 64-bit int
+     - Minimum value of RNG seed used for the realization of pixel noise on the image
+   * - ``NSEED_MAX``
+     - 64-bit int
+     - Maximum value of RNG seed used for the realization of pixel noise on the image
+   * - ``NSEED_STEP``
+     - 64-bit int
+     - Step size for RNG seed used for the realization of pixel noise on the image
+   * - ``SUP_NOISE``
+     - bool
+     - If True, will suppress pixel noise in the simulations. If False, pixel noise will be rendered as normal
+   * - ``NUM_DETECTORS``
+     - 16-bit int
+     - Number of separate detector images to render in each simulation
+   * - ``NUM_GALAXIES``
+     - 16-bit int
+     - Number of target galaxies to render per detector image in each simulation
+   * - ``RENDER_BKG``
+     - bool
+     - If True, will suppress pixel noise in the simulations. If False, pixel noise will be rendered as normal
+
+The number of separate simulations to be run is determined through ``MSEED_MIN``. ``MSEED_MAX``, ``MSEED_STEP``, ``NSEED_MIN``. ``NSEED_MAX``, and ``NSEED_STEP``. An array of seed values is created for each of these, starting with the minimum and incrementing it by the step until it equals the maximum (inclusive). For instance, if ``MSEED_MIN = 0``, ``MSEED_MAX = 10``, and ``MSEED_STEP = 2``, and array of 6 values will be generated: ``[0, 2, 4, 6, 8, 10]``.
+
+The lengths of the arrays generated for ``MSEED`` and ``NSEED`` must either be equal, or else one should have length 1. In the former case, the seeds will vary alongside each other. In the latter case, the array of length 1 is interpreted as a constant value for all simulations. So, following the above example, if we also had ``NSEED_MIN = 1``, ``NSEED_MAX = 1``, and ``NSEED_STEP = 0``, an ``NSEED`` value of ``1`` would be used for all 6 simulations of varying ``MSEED``.
+
+The length of the seed arrays are the determinant for how many simulations are performed by this pipeline.
+
+**Source:** Generated manually, or generated through the ``SHE_Pipeline_Run`` script through the use of the ``--plan_args`` argument when running the SHE Shear Calibration pipeline.
+
+``config_template``:
+
+**Description:** A ``.txt`` template configuration file, used to specify configuration parameters which are constant throughout the pipeline run. See the documentation for `SHE_GST_GenGalaxyImages <prog_gen_images.html#inputs>`__ for details on the normal format of a simulation configuration file. This template file differs in that in place of some values, it contains special tags such as ``$REPLACEME_NUM_GALAXIES``. When ``SHE_GST_PrepareConfigs`` is run, it creates modified versions of this template with each of these tags replaced with values determined from the simulation plan.
+
+The tags and the column names in the simulation plan they correspond to are:
+
+.. list-table::
+   :widths: 40 60
+   :header-rows: 1
+
+   * - Tag Name
+     - Column Name(s)
+   * - ``$REPLACEME_SEED``
+     - ``MSEED_MIN``, ``MSEED_MAX``, ``MSEED_STEP``
+   * - ``$REPLACEME_NOISESEED``
+     - ``NSEED_MIN``, ``NSEED_MAX``, ``NSEED_STEP``
+   * - ``$REPLACEME_SUPPRESSNOISE``
+     - ``SUP_NOISE``
+   * - ``$REPLACEME_NUMDETECTORS``
+     - ``NUM_DETECTORS``
+   * - ``$REPLACEME_NUMGALAXIES``
+     - ``NUM_GALAXIES``
+   * - ``$REPLACEME_RENDERBKG``
+     - ``RENDER_BKG``
+
+See the documentation for the `simulation_plan <simulation_plan_>`_ input port above for details on the meanings and use of these values.
+
+**Source:** Generated manually within OU-SHE. Sample templates are stored in the folder ``SHE_GST_PrepareConfigs/auxdir/SHE_GST_PrepareConfigs`` of this project, which can either be used unmodified or copied and modified.
 
 ``pipeline_config``:
 
