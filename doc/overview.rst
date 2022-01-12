@@ -7,7 +7,7 @@ Software identification
 -  Processing Element Name: PF-SHE
 -  Project Name: SHE_GST
 -  Profile: develop
--  Version: 8.2 (17/08/2021)
+-  Version: 8.2 (12/01/2022)
 
 Contributors
 ------------
