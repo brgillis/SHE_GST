@@ -418,4 +418,11 @@ Prepare a configuration file for this run, for instance by copying `the example 
 
 where the variable ``$WORKDIR`` corresponds to the path to your workdir and the variable $CONFIG_FILE corresponds to the filename of the prepared configuration file.
 
-This command will generate a new data product with the filename ...
+This command will generate various new data products: 4 exposure images, a stacked image, their corresponding segmentation maps, a PSF catalog for the simulated galaxies, a mock catalog of detected objects, and a catalog of true input values for the simulated objects. The validity of the output data can be checked in various ways:
+
+#. Check that the object positions in the detections and true input catalogs match.
+#. Check that the segmentation maps are consistent with the simulated science images, showing the presence of objects where bright pixels are.
+#. Check that the objects are consistent between different exposure images and the stacked image, apart from noise and the half-pixel dither between exposures. This can be done by viewing the generated image ``.fits`` files with a utility such as ``ds9``.
+#. Check that object positions in the catalogs correspond to where they appear in the images (most easily done with a utility such as ``ds9`` which provides the sky coordinates for any pixel position which is moused over).
+#. Check that object properties appear to be consistent with what's shown in the image - e.g. the objects with the lowest ``MAGNITUDE`` values in the catalog are the brightest, the ``ROTATION`` value corresponds to the apparent position angles of the objects, etc.
+#. If shape-noise cancellation is enabled, check that it is implemented in the image, with pairs of galaxies appearing to have identical natures except rotated ``90 deg.`` relative to each other.
