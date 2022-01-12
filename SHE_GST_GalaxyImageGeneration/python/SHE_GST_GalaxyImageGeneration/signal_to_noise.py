@@ -97,9 +97,9 @@ def get_signal_to_noise_estimate(ra, dec, image, background, rms, gain, stamp_si
     try:
         signal_to_noise = get_SN_of_image(gal_stamp, gain, sigma_sky=rms)
     except RuntimeError as e:
-        if not "HSM Error" in str(e):
+        if "HSM Error" not in str(e) and "non positive-definite weight" not in str(e):
             raise
-        logger.debug("Cannot calculated S/N for galaxy: " + str(e))
+        logger.warning("Cannot calculate S/N for galaxy: " + str(e))
         return 0
 
     return signal_to_noise
