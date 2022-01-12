@@ -211,7 +211,7 @@ The ``.txt`` configuration file contains one option per line (blank lines are al
 
     # Use a specific PSF file as the PSF in the images
     chromatic_psf = False
-    model_psf_file_name = /home/user/git/she_sim_galaxy_generation/SHE_SIM_galaxy_image_generation/auxdir/SHE_SIM_galaxy_image_generation/psf_models/el_cb2004a_001.fits_0.000_0.804_0.00.fits
+    model_psf_file_name = AUX/SHE_GST_GalaxyImageGeneration/psf_models/el_cb2004a_001.fits_0.000_0.804_0.00.fits
     model_psf_scale = 0.02
 
     # The offset of the PSF's centre from the centre of the FITS image
@@ -230,7 +230,7 @@ The ``.txt`` configuration file contains one option per line (blank lines are al
 
 **Source:** May be generated manually for a desired simulation, or generated as output of the ``SHE_GST_PrepareConfigs`` executable either manually or as part of a pipeline run. See `that task's documentation <prog_prepare_configs.html>`__ for details on how it can be used to generate config files, or else one may be written manually.
 
-If generating a configuration file manually, generally only the actuall ``.txt`` configuration file is needed, and not the ``.xml`` data product. This can be written with your text editor of choice (e.g. ``gedit``). It is generally easiest to start with an existing file and modifying it as desired. Many such files are provided in this project in the directory ``SHE_GST/SHE_GST_GalaxyImageGeneration/conf/SHE_GST_GalaxyImageGeneration`` which can be used as a basis for a new configuration file.
+If generating a configuration file manually, generally only the actuall ``.txt`` configuration file is needed, and not the ``.xml`` data product. This can be written with your text editor of choice (e.g. ``gedit``). It is generally easiest to start with an existing file and modifying it as desired. Many such files are provided in this project in the directory ``SHE_GST_GalaxyImageGeneration/conf/SHE_GST_GalaxyImageGeneration`` which can be used as a basis for a new configuration file.
 
 ``pipeline_config``:
 
@@ -410,7 +410,9 @@ For purposes of Sensitivity Testing, it is possible to instruct the executable t
 Example
 -------
 
-Prepare a configuration file for this run, for instance by copying `the example contents above <config_files_>`_ into a textfile.
+Prepare a configuration file for this run, for instance by copying `the example contents above <config_files_>`_ into a textfile in the workdir or selecting a config file from the directory ``SHE_GST_GalaxyImageGeneration/conf/SHE_GST_GalaxyImageGeneration`` of this project.
+
+The program can then be run with the following command in an EDEN 2.1 environment:
 
 .. code:: bash
 
