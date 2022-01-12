@@ -11,7 +11,7 @@ To run the ``SHE_GST_PrepareConfigs`` program with Elements, use the following c
 
 .. code:: bash
 
-    E-Run SHE_GST 8.2 SHE_GST_PrepareConfigs --workdir <dir> [--log-file <filename>] [--log-level <value>] [--pipeline_config <filename>]
+    E-Run SHE_GST 8.2 SHE_GST_PrepareConfigs --workdir <dir> --simulation_plan <filename> --config_template <filename> --simulation_configs <filename> [--log-file <filename>] [--log-level <value>] [--pipeline_config <filename>]
 
 with the following arguments:
 
@@ -247,24 +247,24 @@ arguments will take precedence.
 Outputs
 -------
 
-``output_port_name``:
+``simulation_configs``:
 
-**Description:**
+**Description:** A ``.json`` listfile containing the filenames of one or more ``.xml`` data products of type ``DpdSheSimulationConfig``, pointing to textfiles specifying configuration options for the `SHE_GST_GenGalaxyImages <prog_gen_images.html#inputs>`__ executable. See the linked documentation for that executable for details on the file format.
 
-**Details:**
+**Details:** The generated simulation config files will have the ``$REPLACEME_*`` tags in the template configuration file replaced according to the provided `simulation plan <simulation_plan_>`_. See the linked documentation for it for details on how it generates arrays of values. Each generated simulation config file uses one index of the generated array. So for instance, if the array of ``MSEED`` values is ``[1, 2]`` and the array of ``NSEED`` values is ``[100, 100]``, one simulation config will be generated with a model seed of 1 and a noise seed of 100, and a second will be generated with a model seed of 2 and a noise seed of 100.
 
 
 Example
 -------
 
-Prepare the required input data in the desired workdir. This will require ...
+Prepare the an input simulation plan and config template to use. These can either be generated manually or example files can be selected from the ``SHE_GST_PrepareConfigs/auxdir/SHE_GST_PrepareConfigs`` directory of this project.
 
 The program can then be run with the following command in an EDEN 2.1 environment:
 
 .. code:: bash
 
-    E-Run SHE_GST 8.2 SHE_GST_PrepareConfigs --workdir $WORKDIR [--log-file <filename>] [--log-level <value>] [--pipeline_config <filename>]
+    E-Run SHE_GST 8.2 SHE_GST_PrepareConfigs --workdir $WORKDIR --simulation_plan $SIMULATION_PLAN --config_template $CONFIG_TEMPLATE --simulation_configs simulation_configs_listfile.json
 
-where the variable ``$WORKDIR`` corresponds to the path to your workdir and the variables  ... correspond to the filenames of the prepared listfiles and downloaded products for each input port.
+where the variable ``$WORKDIR`` corresponds to the path to your workdir and the variables $SIMULATION_PLAN and $CONFIG_TEMPLATE correspond to the filenames of the prepared simulation plan and config template.
 
-This command will generate a new data product with the filename ...
+This command will generate a new listfile with the filename ``simulation_configs_listfile.json``, which will contain the filenames of generated simulation config data products. These can be inspected to check that all ``$REPLACEME_*`` tags have been replaced, and that the model and noise seed values differ in differ files according to the simulation plan.
