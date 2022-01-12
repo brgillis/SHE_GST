@@ -22,7 +22,7 @@ Configuration
 
 ::
 
-    - galsim
+    - galsim 2.2.1
     - astropy 3.2.1
     - numpy 1.17.2
     - python 3.6.7
