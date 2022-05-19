@@ -26,7 +26,7 @@
 
 #include <utility>
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 

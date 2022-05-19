@@ -26,7 +26,7 @@
 #define _BRG_EIGEN_HPP_
 
 #include <boost/serialization/split_free.hpp>
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include "SHE_GST_IceBRG_main/common.hpp"
 
