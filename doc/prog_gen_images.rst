@@ -11,11 +11,11 @@ This executable is intended to be a replacement for PF-SIM within the pipeline w
 Running the Program on EDEN/LODEEN
 ----------------------------------
 
-To run the ``SHE_GST_GenGalaxyImages`` program with Elements, use the following command in an EDEN 2.1 environment:
+To run the ``SHE_GST_GenGalaxyImages`` program with Elements, use the following command in an EDEN 3.0 environment:
 
 .. code:: bash
 
-    E-Run SHE_GST 8.2 SHE_GST_GenGalaxyImages --workdir <dir> --pipeline_config <filename> --config_files <filename1> [<filename2> ...] --data_images <filename> --detections_tables <filename> --details_table <filename> --psf_images_and_tables <filename> --segmentation_images <filename> --stacked_data_image <filename> --stacked_segmentation_image <filename> [--log-file <filename>] [--log-level <value>]
+    E-Run SHE_GST 9.0 SHE_GST_GenGalaxyImages --workdir <dir> --pipeline_config <filename> --config_files <filename1> [<filename2> ...] --data_images <filename> --detections_tables <filename> --details_table <filename> --psf_images_and_tables <filename> --segmentation_images <filename> --stacked_data_image <filename> --stacked_segmentation_image <filename> [--log-file <filename>] [--log-level <value>]
 
 **Note:** Due to the unusually large number of arguments available for this executable, the command syntax provided here is limited to the most relevant options.
 
@@ -412,11 +412,11 @@ Example
 
 Prepare a configuration file for this run, for instance by copying `the example contents above <config_files_>`_ into a textfile in the workdir or selecting a config file from the directory ``SHE_GST_GalaxyImageGeneration/conf/SHE_GST_GalaxyImageGeneration`` of this project.
 
-The program can then be run with the following command in an EDEN 2.1 environment:
+The program can then be run with the following command in an EDEN 3.0 environment:
 
 .. code:: bash
 
-    E-Run SHE_GST 8.2 SHE_GST_GenGalaxyImages --workdir $WORKDIR --config_files simulation_config.txt --data_images vis_calibrated_frames_listfile.json --detections_tables mer_final_catalog_listfile.json --details_table she_simulated_catalog_listfile.json --psf_images_and_tables she_model_psf_listfile.json --segmentation_images she_reprojected_exposure_segmentation_map_listfile.json --stacked_data_image vis_stacked_frame_product.xml --stacked_segmentation_image she_reprojected_stack_segmentation_map_product.xml
+    E-Run SHE_GST 9.0 SHE_GST_GenGalaxyImages --workdir $WORKDIR --config_files simulation_config.txt --data_images vis_calibrated_frames_listfile.json --detections_tables mer_final_catalog_listfile.json --details_table she_simulated_catalog_listfile.json --psf_images_and_tables she_model_psf_listfile.json --segmentation_images she_reprojected_exposure_segmentation_map_listfile.json --stacked_data_image vis_stacked_frame_product.xml --stacked_segmentation_image she_reprojected_stack_segmentation_map_product.xml
 
 where the variable ``$WORKDIR`` corresponds to the path to your workdir and the variable $CONFIG_FILE corresponds to the filename of the prepared configuration file.
 

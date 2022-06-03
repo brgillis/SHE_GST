@@ -7,11 +7,11 @@ Generates a set of simulation config files from a template and plan, which can b
 Running the Program on EDEN/LODEEN
 ----------------------------------
 
-To run the ``SHE_GST_PrepareConfigs`` program with Elements, use the following command in an EDEN 2.1 environment:
+To run the ``SHE_GST_PrepareConfigs`` program with Elements, use the following command in an EDEN 3.0 environment:
 
 .. code:: bash
 
-    E-Run SHE_GST 8.2 SHE_GST_PrepareConfigs --workdir <dir> --simulation_plan <filename> --config_template <filename> --simulation_configs <filename> [--log-file <filename>] [--log-level <value>] [--pipeline_config <filename>]
+    E-Run SHE_GST 9.0 SHE_GST_PrepareConfigs --workdir <dir> --simulation_plan <filename> --config_template <filename> --simulation_configs <filename> [--log-file <filename>] [--log-level <value>] [--pipeline_config <filename>]
 
 with the following arguments:
 
@@ -259,11 +259,11 @@ Example
 
 Prepare the an input simulation plan and config template to use. These can either be generated manually or example files can be selected from the ``SHE_GST_PrepareConfigs/auxdir/SHE_GST_PrepareConfigs`` directory of this project.
 
-The program can then be run with the following command in an EDEN 2.1 environment:
+The program can then be run with the following command in an EDEN 3.0 environment:
 
 .. code:: bash
 
-    E-Run SHE_GST 8.2 SHE_GST_PrepareConfigs --workdir $WORKDIR --simulation_plan $SIMULATION_PLAN --config_template $CONFIG_TEMPLATE --simulation_configs simulation_configs_listfile.json
+    E-Run SHE_GST 9.0 SHE_GST_PrepareConfigs --workdir $WORKDIR --simulation_plan $SIMULATION_PLAN --config_template $CONFIG_TEMPLATE --simulation_configs simulation_configs_listfile.json
 
 where the variable ``$WORKDIR`` corresponds to the path to your workdir and the variables $SIMULATION_PLAN and $CONFIG_TEMPLATE correspond to the filenames of the prepared simulation plan and config template.
 
