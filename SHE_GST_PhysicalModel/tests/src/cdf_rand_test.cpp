@@ -28,7 +28,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 #include "SHE_GST_IceBRG_main/math/random/random_functions.hpp"

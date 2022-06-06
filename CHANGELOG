@@ -1,7 +1,7 @@
 Changelog for SHE_GST Galaxy Simulations toolkit
 
-Changes in v8.3
-=========================
+Changes in v9.0
+===============
 
 API Changes
 -----------
@@ -10,6 +10,11 @@ API Changes
 Dependency Changes
 ------------------
 
+- EDEN 3.0
+- Elements 6.0.1
+- EL_Utils 1.2.2
+- ST_DataModel 9.0.2
+- SHE_PPT 9.1
 
 Deprecated Features
 -------------------

@@ -30,7 +30,7 @@
 
 #include <ElementsKernel/Auxiliary.h>
 
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 
 #include "SHE_GST_PhysicalModel/common.hpp"
 #include "SHE_GST_PhysicalModel/dependency_functions/cosmology.hpp"
