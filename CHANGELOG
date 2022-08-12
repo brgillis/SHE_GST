@@ -16,7 +16,7 @@ Deprecated Features
 
 Bug Fixes
 ---------
-
+- Fix GalSimHSMError handling in signal_to_noise calculation
 
 New Features
 ------------
